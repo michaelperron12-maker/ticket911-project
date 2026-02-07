@@ -815,12 +815,12 @@ button, input, select, textarea { font-family: inherit; }
     /* Container */
     .container { padding: 0 16px; }
 
-    /* Topbar — single clean line */
-    .topbar { font-size: 11px; padding: 5px 0; }
+    /* Topbar — phone number only on mobile */
+    .topbar { font-size: 12px; padding: 4px 0; }
+    .topbar .container { justify-content: center; }
     .topbar-left a:nth-child(2),
     .topbar-left a:nth-child(3) { display: none; }
-    .topbar-right span { font-size: 10px; }
-    .topbar-right .lang-btn { padding: 2px 6px; font-size: 9px; }
+    .topbar-right { display: none; }
 
     /* Header */
     .header .container { padding: 8px 16px; }
