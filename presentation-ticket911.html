@@ -16,6 +16,45 @@
             height: 100vh;
         }
 
+        /* ===== LANGUAGE TOGGLE SYSTEM ===== */
+        /* Default: French visible, English hidden */
+        .lang-en { display: none !important; }
+        .lang-fr { display: inline; }
+
+        /* When body has class 'en': English visible, French hidden */
+        body.en .lang-en { display: inline !important; }
+        body.en .lang-fr { display: none !important; }
+
+        /* Block-level language elements */
+        .lang-en-block { display: none !important; }
+        .lang-fr-block { display: block; }
+        body.en .lang-en-block { display: block !important; }
+        body.en .lang-fr-block { display: none !important; }
+
+        /* Flex-level language elements */
+        .lang-en-flex { display: none !important; }
+        .lang-fr-flex { display: flex; }
+        body.en .lang-en-flex { display: flex !important; }
+        body.en .lang-fr-flex { display: none !important; }
+
+        /* Inline-block language elements */
+        .lang-en-ib { display: none !important; }
+        .lang-fr-ib { display: inline-block; }
+        body.en .lang-en-ib { display: inline-block !important; }
+        body.en .lang-fr-ib { display: none !important; }
+
+        /* Grid language elements */
+        .lang-en-grid { display: none !important; }
+        .lang-fr-grid { display: grid; }
+        body.en .lang-en-grid { display: grid !important; }
+        body.en .lang-fr-grid { display: none !important; }
+
+        /* Table language elements */
+        .lang-en-table { display: none !important; }
+        .lang-fr-table { display: table; }
+        body.en .lang-en-table { display: table !important; }
+        body.en .lang-fr-table { display: none !important; }
+
         /* ===== SLIDE SYSTEM ===== */
         .slide {
             position: absolute;
@@ -358,6 +397,40 @@
         }
         .slide-logo span { color: #e63946; }
 
+        /* ===== LANGUAGE TOGGLE BUTTON ===== */
+        .lang-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        .lang-toggle button {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.5);
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+        .lang-toggle button:first-child {
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .lang-toggle button.active {
+            background: #e63946;
+            color: #fff;
+        }
+        .lang-toggle button:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+        }
+
         /* Print / Fullscreen */
         @media print {
             .nav-bar { display: none; }
@@ -377,20 +450,19 @@
     <div class="glow-circle" style="width:400px;height:400px;background:#e63946;top:-100px;right:-50px;"></div>
     <div class="glow-circle" style="width:300px;height:300px;background:#3b82f6;bottom:-50px;left:100px;"></div>
 
-    <div class="slide-tag">Proposition confidentielle</div>
+    <div class="slide-tag"><span class="lang-fr">Proposition confidentielle</span><span class="lang-en">Confidential Proposal</span></div>
     <div class="slide-title" style="font-size:58px;">
-        Plateforme <span class="accent">IA</span> pour<br>
-        <span class="gold">Ticket911.ca</span>
+        <span class="lang-fr">Plateforme <span class="accent">IA</span> pour<br><span class="gold">Ticket911.ca</span></span><span class="lang-en"><span class="accent">AI</span> Platform for<br><span class="gold">Ticket911.ca</span></span>
     </div>
     <div class="slide-subtitle" style="margin-top:12px;">
-        Automatiser l'analyse de contraventions, tripler votre capacité de traitement, et générer +$50K/mois de revenus supplémentaires.
+        <span class="lang-fr">Automatiser l'analyse de contraventions, tripler votre capacit&eacute; de traitement, et g&eacute;n&eacute;rer +$50K/mois de revenus suppl&eacute;mentaires.</span><span class="lang-en">Automate ticket analysis, triple your processing capacity, and generate +$50K/month in additional revenue.</span>
     </div>
     <div style="margin-top:40px; display:flex; gap:20px; align-items:center;">
         <div style="padding:12px 28px; background:#e63946; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;" onclick="goToSlide(2)">
-            Voir la proposition &#8594;
+            <span class="lang-fr">Voir la proposition &#8594;</span><span class="lang-en">View Proposal &#8594;</span>
         </div>
         <div style="font-size:13px; color:rgba(255,255,255,0.4);">
-            Préparé par Michael Perron — Février 2026
+            <span class="lang-fr">Pr&eacute;par&eacute; par Michael Perron — F&eacute;vrier 2026</span><span class="lang-en">Prepared by Michael Perron — February 2026</span>
         </div>
     </div>
 </div>
@@ -400,38 +472,65 @@
      ============================================================ -->
 <div class="slide bg-gradient-2" data-slide="2">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Le problème</div>
+    <div class="slide-tag"><span class="lang-fr">Le probl&egrave;me</span><span class="lang-en">The Problem</span></div>
     <div class="slide-title" style="font-size:44px;">
-        Votre processus actuel<br>
-        <span class="accent">ne scale pas</span>
+        <span class="lang-fr">Votre processus actuel<br><span class="accent">ne scale pas</span></span><span class="lang-en">Your current process<br><span class="accent">doesn't scale</span></span>
     </div>
     <div class="slide-subtitle">
-        Chaque nouveau dossier demande du temps humain. Plus de dossiers = plus d'employés = plus de coûts.
+        <span class="lang-fr">Chaque nouveau dossier demande du temps humain. Plus de dossiers = plus d'employ&eacute;s = plus de co&ucirc;ts.</span><span class="lang-en">Every new case requires human time. More cases = more employees = more costs.</span>
     </div>
 
-    <div class="grid-3">
+    <!-- FR cards -->
+    <div class="grid-3 lang-fr-grid">
         <div class="card">
             <div class="card-icon">&#9201;</div>
             <h3>15-20 min / dossier</h3>
-            <p>Analyse manuelle de chaque contravention, recherche de jurisprudence, rédaction d'arguments — tout fait à la main.</p>
+            <p>Analyse manuelle de chaque contravention, recherche de jurisprudence, r&eacute;daction d'arguments — tout fait &agrave; la main.</p>
         </div>
         <div class="card">
             <div class="card-icon">&#128176;</div>
-            <h3>Capacité limitée</h3>
-            <p>Avec 200 dossiers/mois, votre équipe est au maximum. Pour en prendre plus, il faut embaucher — et ça coûte cher.</p>
+            <h3>Capacit&eacute; limit&eacute;e</h3>
+            <p>Avec 200 dossiers/mois, votre &eacute;quipe est au maximum. Pour en prendre plus, il faut embaucher — et &ccedil;a co&ucirc;te cher.</p>
         </div>
         <div class="card">
             <div class="card-icon">&#128197;</div>
             <h3>Risque d'erreurs</h3>
-            <p>Dates de cour manquées, dossiers en retard, clients sans nouvelles — le volume génère des erreurs humaines.</p>
+            <p>Dates de cour manqu&eacute;es, dossiers en retard, clients sans nouvelles — le volume g&eacute;n&egrave;re des erreurs humaines.</p>
+        </div>
+    </div>
+    <!-- EN cards -->
+    <div class="grid-3 lang-en-grid">
+        <div class="card">
+            <div class="card-icon">&#9201;</div>
+            <h3>15-20 min / case</h3>
+            <p>Manual analysis of each ticket, case law research, writing arguments — all done by hand.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#128176;</div>
+            <h3>Limited Capacity</h3>
+            <p>With 200 cases/month, your team is maxed out. To take more, you need to hire — and that's expensive.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#128197;</div>
+            <h3>Risk of Errors</h3>
+            <p>Missed court dates, delayed files, clients without updates — volume generates human errors.</p>
         </div>
     </div>
 
-    <div style="margin-top:32px; background:rgba(230,57,70,0.08); border:1px solid rgba(230,57,70,0.2); border-radius:12px; padding:20px 28px; display:flex; align-items:center; gap:16px;">
+    <!-- FR warning -->
+    <div class="lang-fr-flex" style="margin-top:32px; background:rgba(230,57,70,0.08); border:1px solid rgba(230,57,70,0.2); border-radius:12px; padding:20px 28px; align-items:center; gap:16px;">
         <span style="font-size:28px;">&#9888;</span>
         <div>
-            <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Chaque dossier refusé = argent perdu</div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.5);">Si vous refusez 50 dossiers/mois à cause du volume, c'est ~$15,000/mois de revenus perdus.</div>
+            <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Chaque dossier refus&eacute; = argent perdu</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.5);">Si vous refusez 50 dossiers/mois &agrave; cause du volume, c'est ~$15,000/mois de revenus perdus.</div>
+        </div>
+    </div>
+    <!-- EN warning -->
+    <div class="lang-en-flex" style="margin-top:32px; background:rgba(230,57,70,0.08); border:1px solid rgba(230,57,70,0.2); border-radius:12px; padding:20px 28px; align-items:center; gap:16px;">
+        <span style="font-size:28px;">&#9888;</span>
+        <div>
+            <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Every refused case = lost money</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.5);">If you refuse 50 cases/month due to volume, that's ~$15,000/month in lost revenue.</div>
         </div>
     </div>
 </div>
@@ -441,23 +540,23 @@
      ============================================================ -->
 <div class="slide bg-dark" data-slide="3">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">La solution</div>
+    <div class="slide-tag"><span class="lang-fr">La solution</span><span class="lang-en">The Solution</span></div>
     <div class="slide-title" style="font-size:44px;">
-        Une plateforme qui fait en<br>
-        <span class="green">30 secondes</span> ce qui prend <span class="accent">20 minutes</span>
+        <span class="lang-fr">Une plateforme qui fait en<br><span class="green">30 secondes</span> ce qui prend <span class="accent">20 minutes</span></span><span class="lang-en">A platform that does in<br><span class="green">30 seconds</span> what takes <span class="accent">20 minutes</span></span>
     </div>
 
-    <div class="grid-2" style="margin-top:36px;">
+    <!-- FR solution cards -->
+    <div class="grid-2 lang-fr-grid" style="margin-top:36px;">
         <div>
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-icon">&#129302;</div>
-                <h3>Analyse IA instantanée</h3>
-                <p>L'IA analyse chaque contravention, trouve les jurisprudences pertinentes, identifie les faiblesses de l'accusation, et génère un brouillon de défense — en 30 secondes.</p>
+                <h3>Analyse IA instantan&eacute;e</h3>
+                <p>L'IA analyse chaque contravention, trouve les jurisprudences pertinentes, identifie les faiblesses de l'accusation, et g&eacute;n&egrave;re un brouillon de d&eacute;fense — en 30 secondes.</p>
             </div>
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-icon">&#128187;</div>
                 <h3>Portail client 24/7</h3>
-                <p>Vos clients soumettent leur contravention en ligne, suivent leur dossier en temps réel, et paient directement. Plus d'appels pour "mon dossier est où?".</p>
+                <p>Vos clients soumettent leur contravention en ligne, suivent leur dossier en temps r&eacute;el, et paient directement. Plus d'appels pour "mon dossier est o&ugrave;?".</p>
             </div>
             <div class="card">
                 <div class="card-icon">&#128188;</div>
@@ -469,17 +568,54 @@
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-icon">&#128200;</div>
                 <h3>Automatisation bout en bout</h3>
-                <p>De la soumission à la résolution : notification SMS/email auto, génération de mandats, rappels de cour, factures automatiques.</p>
+                <p>De la soumission &agrave; la r&eacute;solution : notification SMS/email auto, g&eacute;n&eacute;ration de mandats, rappels de cour, factures automatiques.</p>
             </div>
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-icon">&#128274;</div>
-                <h3>3 juridictions intégrées</h3>
-                <p>Québec (Code de la sécurité routière), Ontario (HTA), et New York (VTL) — chaque juridiction avec ses lois, procédures et tribunaux spécifiques.</p>
+                <h3>3 juridictions int&eacute;gr&eacute;es</h3>
+                <p>Qu&eacute;bec (Code de la s&eacute;curit&eacute; routi&egrave;re), Ontario (HTA), et New York (VTL) — chaque juridiction avec ses lois, proc&eacute;dures et tribunaux sp&eacute;cifiques.</p>
             </div>
             <div class="card">
                 <div class="card-icon">&#128640;</div>
-                <h3>Base de données officielle</h3>
-                <p>Connecté aux bases CanLII, SOQUIJ, et case law databases — jurisprudence toujours à jour, résultats plus précis que la recherche manuelle.</p>
+                <h3>Base de donn&eacute;es officielle</h3>
+                <p>Connect&eacute; aux bases CanLII, SOQUIJ, et case law databases — jurisprudence toujours &agrave; jour, r&eacute;sultats plus pr&eacute;cis que la recherche manuelle.</p>
+            </div>
+        </div>
+    </div>
+    <!-- EN solution cards -->
+    <div class="grid-2 lang-en-grid" style="margin-top:36px;">
+        <div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#129302;</div>
+                <h3>Instant AI Analysis</h3>
+                <p>The AI analyzes each ticket, finds relevant case law, identifies prosecution weaknesses, and generates a defense draft — in 30 seconds.</p>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128187;</div>
+                <h3>24/7 Client Portal</h3>
+                <p>Your clients submit their ticket online, track their case in real time, and pay directly. No more calls asking "where's my case?".</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128188;</div>
+                <h3>Full Lawyer CRM</h3>
+                <p>Case pipeline, court calendar, automatic invoicing, payment tracking, performance reports — all in one tool.</p>
+            </div>
+        </div>
+        <div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128200;</div>
+                <h3>End-to-End Automation</h3>
+                <p>From submission to resolution: auto SMS/email notifications, mandate generation, court reminders, automatic invoices.</p>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128274;</div>
+                <h3>3 Jurisdictions Integrated</h3>
+                <p>Quebec (Highway Safety Code), Ontario (HTA), and New York (VTL) — each jurisdiction with its specific laws, procedures, and courts.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128640;</div>
+                <h3>Official Database</h3>
+                <p>Connected to CanLII, SOQUIJ, and case law databases — always up-to-date case law, more accurate results than manual research.</p>
             </div>
         </div>
     </div>
@@ -490,15 +626,16 @@
      ============================================================ -->
 <div class="slide bg-gradient-1" data-slide="4">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Avant vs Apres</div>
+    <div class="slide-tag"><span class="lang-fr">Avant vs Apres</span><span class="lang-en">Before vs After</span></div>
     <div class="slide-title" style="font-size:40px;">
-        <span class="accent">Aujourd'hui</span> vs <span class="green">Avec la plateforme</span>
+        <span class="lang-fr"><span class="accent">Aujourd'hui</span> vs <span class="green">Avec la plateforme</span></span><span class="lang-en"><span class="accent">Today</span> vs <span class="green">With the Platform</span></span>
     </div>
 
-    <table class="compare-table">
+    <!-- FR table -->
+    <table class="compare-table lang-fr-table">
         <thead>
             <tr>
-                <th>Métrique</th>
+                <th>M&eacute;trique</th>
                 <th>&#10060; Processus actuel</th>
                 <th>&#9989; Avec plateforme IA</th>
             </tr>
@@ -510,14 +647,14 @@
                 <td>30 secondes</td>
             </tr>
             <tr>
-                <td>Capacité mensuelle</td>
+                <td>Capacit&eacute; mensuelle</td>
                 <td>~200 dossiers</td>
                 <td>500-800 dossiers</td>
             </tr>
             <tr>
                 <td>Recherche jurisprudence</td>
                 <td>Manuelle, 10-30 min</td>
-                <td>Automatique, instantanée</td>
+                <td>Automatique, instantan&eacute;e</td>
             </tr>
             <tr>
                 <td>Suivi client</td>
@@ -527,7 +664,7 @@
             <tr>
                 <td>Facturation</td>
                 <td>Manuelle, QuickBooks</td>
-                <td>Automatique + intégration QB</td>
+                <td>Automatique + int&eacute;gration QB</td>
             </tr>
             <tr>
                 <td>Rappels de cour</td>
@@ -541,6 +678,53 @@
             </tr>
         </tbody>
     </table>
+    <!-- EN table -->
+    <table class="compare-table lang-en-table">
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>&#10060; Current Process</th>
+                <th>&#9989; With AI Platform</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Analysis time per case</td>
+                <td>15-20 minutes</td>
+                <td>30 seconds</td>
+            </tr>
+            <tr>
+                <td>Monthly capacity</td>
+                <td>~200 cases</td>
+                <td>500-800 cases</td>
+            </tr>
+            <tr>
+                <td>Case law research</td>
+                <td>Manual, 10-30 min</td>
+                <td>Automatic, instant</td>
+            </tr>
+            <tr>
+                <td>Client follow-up</td>
+                <td>Manual calls / emails</td>
+                <td>Self-service portal 24/7</td>
+            </tr>
+            <tr>
+                <td>Invoicing</td>
+                <td>Manual, QuickBooks</td>
+                <td>Automatic + QB integration</td>
+            </tr>
+            <tr>
+                <td>Court reminders</td>
+                <td>Manual calendar</td>
+                <td>Automatic SMS + email</td>
+            </tr>
+            <tr>
+                <td>Potential revenue / month</td>
+                <td style="color: rgba(255,255,255,0.4);">~$60,000</td>
+                <td style="color: #22c55e; font-weight: 800; font-size: 17px;">$150,000+</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <!-- ============================================================
@@ -548,12 +732,13 @@
      ============================================================ -->
 <div class="slide bg-gradient-2" data-slide="5">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Retour sur investissement</div>
+    <div class="slide-tag"><span class="lang-fr">Retour sur investissement</span><span class="lang-en">Return on Investment</span></div>
     <div class="slide-title" style="font-size:40px;">
-        L'outil se <span class="green">rentabilise en 1 mois</span>
+        <span class="lang-fr">L'outil se <span class="green">rentabilise en 1 mois</span></span><span class="lang-en">The tool <span class="green">pays for itself in month 1</span></span>
     </div>
 
-    <div class="grid-2" style="margin-top:30px;">
+    <!-- FR ROI content -->
+    <div class="grid-2 lang-fr-grid" style="margin-top:30px;">
         <div>
             <div class="roi-bar-container">
                 <div class="roi-row">
@@ -565,15 +750,15 @@
                     <div class="roi-bar" style="width:85%; background:linear-gradient(90deg, #22c55e, #16a34a);">$150K+/mois</div>
                 </div>
                 <div class="roi-row">
-                    <div class="roi-label">Coût plateforme</div>
+                    <div class="roi-label">Co&ucirc;t plateforme</div>
                     <div class="roi-bar" style="width:8%; background:rgba(230,57,70,0.3); color: #e63946;">$3,950/mois</div>
                 </div>
             </div>
 
             <div style="margin-top:32px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:20px 24px;">
-                <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:8px;">ROI NET PREMIÈRE ANNÉE</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:8px;">ROI NET PREMI&Egrave;RE ANN&Eacute;E</div>
                 <div style="font-size:42px; font-weight:900; color:#22c55e;">+$1,040,600</div>
-                <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px;">Revenus additionnels - coûts de la plateforme</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px;">Revenus additionnels - co&ucirc;ts de la plateforme</div>
             </div>
         </div>
 
@@ -581,7 +766,7 @@
             <div class="card" style="margin-bottom:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Développement (une fois)</div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">D&eacute;veloppement (une fois)</div>
                         <div style="font-size:28px; font-weight:800;">$40,000</div>
                     </div>
                     <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Livraison 8 semaines<br>Paiement en 3 versements</div>
@@ -590,10 +775,10 @@
             <div class="card" style="margin-bottom:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Hébergement + IA / mois</div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">H&eacute;bergement + IA / mois</div>
                         <div style="font-size:28px; font-weight:800;">$3,950</div>
                     </div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Serveurs, IA, base de données<br>Support inclus</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Serveurs, IA, base de donn&eacute;es<br>Support inclus</div>
                 </div>
             </div>
             <div class="card">
@@ -602,7 +787,62 @@
                         <div style="font-size:13px; color:rgba(255,255,255,0.5);">Breakeven</div>
                         <div style="font-size:28px; font-weight:800; color:#22c55e;">Mois 1</div>
                     </div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Le coût est couvert dès<br>~13 dossiers additionnels</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Le co&ucirc;t est couvert d&egrave;s<br>~13 dossiers additionnels</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- EN ROI content -->
+    <div class="grid-2 lang-en-grid" style="margin-top:30px;">
+        <div>
+            <div class="roi-bar-container">
+                <div class="roi-row">
+                    <div class="roi-label">Current Revenue</div>
+                    <div class="roi-bar" style="width:40%; background:rgba(255,255,255,0.1);">~$60K/mo</div>
+                </div>
+                <div class="roi-row">
+                    <div class="roi-label">With Platform</div>
+                    <div class="roi-bar" style="width:85%; background:linear-gradient(90deg, #22c55e, #16a34a);">$150K+/mo</div>
+                </div>
+                <div class="roi-row">
+                    <div class="roi-label">Platform Cost</div>
+                    <div class="roi-bar" style="width:8%; background:rgba(230,57,70,0.3); color: #e63946;">$3,950/mo</div>
+                </div>
+            </div>
+
+            <div style="margin-top:32px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:20px 24px;">
+                <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:8px;">NET ROI FIRST YEAR</div>
+                <div style="font-size:42px; font-weight:900; color:#22c55e;">+$1,040,600</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px;">Additional revenue - platform costs</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Development (one-time)</div>
+                        <div style="font-size:28px; font-weight:800;">$40,000</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Delivery 8 weeks<br>Payment in 3 installments</div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Hosting + AI / month</div>
+                        <div style="font-size:28px; font-weight:800;">$3,950</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Servers, AI, database<br>Support included</div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Breakeven</div>
+                        <div style="font-size:28px; font-weight:800; color:#22c55e;">Month 1</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Cost covered with<br>~13 additional cases</div>
                 </div>
             </div>
         </div>
@@ -614,19 +854,20 @@
      ============================================================ -->
 <div class="slide bg-dark" data-slide="6">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Plan de livraison</div>
+    <div class="slide-tag"><span class="lang-fr">Plan de livraison</span><span class="lang-en">Delivery Plan</span></div>
     <div class="slide-title" style="font-size:42px;">
-        Live en <span class="gold">8 semaines</span>
+        <span class="lang-fr">Live en <span class="gold">8 semaines</span></span><span class="lang-en">Live in <span class="gold">8 weeks</span></span>
     </div>
     <div class="slide-subtitle">
-        Développement agile avec démos hebdomadaires. Vous voyez le progrès chaque semaine.
+        <span class="lang-fr">D&eacute;veloppement agile avec d&eacute;mos hebdomadaires. Vous voyez le progr&egrave;s chaque semaine.</span><span class="lang-en">Agile development with weekly demos. You see progress every week.</span>
     </div>
 
-    <div class="timeline-row">
+    <!-- FR timeline -->
+    <div class="timeline-row lang-fr-flex">
         <div class="timeline-item">
             <div class="timeline-num">1</div>
             <h4>Semaine 1-2</h4>
-            <p>Setup infrastructure<br>Base de données<br>Authentification</p>
+            <p>Setup infrastructure<br>Base de donn&eacute;es<br>Authentification</p>
         </div>
         <div class="timeline-item">
             <div class="timeline-num">2</div>
@@ -641,30 +882,77 @@
         <div class="timeline-item">
             <div class="timeline-num">4</div>
             <h4>Semaine 7</h4>
-            <p>Tests QA<br>Intégrations<br>SMS/Email</p>
+            <p>Tests QA<br>Int&eacute;grations<br>SMS/Email</p>
         </div>
         <div class="timeline-item">
             <div class="timeline-num" style="background:rgba(34,197,94,0.15); border-color:#22c55e; color:#22c55e;">&#10003;</div>
             <h4>Semaine 8</h4>
-            <p>Déploiement<br>Formation équipe<br><strong style="color:#22c55e;">GO LIVE</strong></p>
+            <p>D&eacute;ploiement<br>Formation &eacute;quipe<br><strong style="color:#22c55e;">GO LIVE</strong></p>
+        </div>
+    </div>
+    <!-- EN timeline -->
+    <div class="timeline-row lang-en-flex">
+        <div class="timeline-item">
+            <div class="timeline-num">1</div>
+            <h4>Week 1-2</h4>
+            <p>Infrastructure setup<br>Database<br>Authentication</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">2</div>
+            <h4>Week 3-4</h4>
+            <p>AI Engine<br>Ticket analysis<br>Case law</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">3</div>
+            <h4>Week 5-6</h4>
+            <p>Client portal<br>Lawyer CRM<br>Invoicing</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">4</div>
+            <h4>Week 7</h4>
+            <p>QA Testing<br>Integrations<br>SMS/Email</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num" style="background:rgba(34,197,94,0.15); border-color:#22c55e; color:#22c55e;">&#10003;</div>
+            <h4>Week 8</h4>
+            <p>Deployment<br>Team training<br><strong style="color:#22c55e;">GO LIVE</strong></p>
         </div>
     </div>
 
-    <div style="margin-top:40px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+    <!-- FR bottom cards -->
+    <div class="lang-fr-grid" style="margin-top:40px; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
         <div class="card" style="text-align:center;">
             <div style="font-size:24px; margin-bottom:8px;">&#128172;</div>
-            <h3 style="font-size:15px;">Démo chaque vendredi</h3>
-            <p>Vous voyez l'avancement en temps réel</p>
+            <h3 style="font-size:15px;">D&eacute;mo chaque vendredi</h3>
+            <p>Vous voyez l'avancement en temps r&eacute;el</p>
         </div>
         <div class="card" style="text-align:center;">
             <div style="font-size:24px; margin-bottom:8px;">&#128274;</div>
-            <h3 style="font-size:15px;">Votre propriété</h3>
+            <h3 style="font-size:15px;">Votre propri&eacute;t&eacute;</h3>
             <p>Tout le code vous appartient — pas de lock-in</p>
         </div>
         <div class="card" style="text-align:center;">
             <div style="font-size:24px; margin-bottom:8px;">&#128640;</div>
             <h3 style="font-size:15px;">Support 6 mois inclus</h3>
             <p>Corrections de bugs et ajustements inclus post-lancement</p>
+        </div>
+    </div>
+    <!-- EN bottom cards -->
+    <div class="lang-en-grid" style="margin-top:40px; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128172;</div>
+            <h3 style="font-size:15px;">Demo every Friday</h3>
+            <p>You see progress in real-time</p>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128274;</div>
+            <h3 style="font-size:15px;">Your Property</h3>
+            <p>All code belongs to you — no lock-in</p>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128640;</div>
+            <h3 style="font-size:15px;">6 months support included</h3>
+            <p>Bug fixes and adjustments included post-launch</p>
         </div>
     </div>
 </div>
@@ -674,37 +962,59 @@
      ============================================================ -->
 <div class="slide bg-gradient-1" data-slide="7">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Demo en direct</div>
+    <div class="slide-tag"><span class="lang-fr">Demo en direct</span><span class="lang-en">Live Demo</span></div>
     <div class="slide-title" style="font-size:42px;">
-        Voyez la plateforme <span class="accent">en action</span>
+        <span class="lang-fr">Voyez la plateforme <span class="accent">en action</span></span><span class="lang-en">See the platform <span class="accent">in action</span></span>
     </div>
     <div class="slide-subtitle">
-        Une démonstration fonctionnelle est déjà prête. Explorez le portail client, le CRM avocat, et l'analyse IA.
+        <span class="lang-fr">Une d&eacute;monstration fonctionnelle est d&eacute;j&agrave; pr&ecirc;te. Explorez le portail client, le CRM avocat, et l'analyse IA.</span><span class="lang-en">A working demonstration is already ready. Explore the client portal, lawyer CRM, and AI analysis.</span>
     </div>
 
-    <div class="grid-3" style="margin-top:32px;">
-        <a href="https://demo-site-one-iota.vercel.app" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(230,57,70,0.3);">
+    <!-- FR demo cards -->
+    <div class="grid-3 lang-fr-grid" style="margin-top:32px;">
+        <a href="https://911-virid.vercel.app/demo-site/" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(230,57,70,0.3);">
             <div class="card-icon">&#127968;</div>
             <h3>Site principal</h3>
             <p>Page d'accueil, services, prix, AI demo, juridictions QC/ON/NY</p>
             <div style="margin-top:12px; font-size:12px; color:#e63946; font-weight:700;">Ouvrir &#8594;</div>
         </a>
-        <a href="https://demo-site-one-iota.vercel.app/pages/dashboard-client.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(59,130,246,0.3);">
+        <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-client.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(59,130,246,0.3);">
             <div class="card-icon">&#128100;</div>
             <h3>Portail Client</h3>
             <p>Dashboard client, suivi de dossiers, paiements, documents, chatbot IA</p>
             <div style="margin-top:12px; font-size:12px; color:#3b82f6; font-weight:700;">Ouvrir &#8594;</div>
         </a>
-        <a href="https://demo-site-one-iota.vercel.app/pages/dashboard-lawyer.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(34,197,94,0.3);">
+        <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-lawyer.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(34,197,94,0.3);">
             <div class="card-icon">&#9878;</div>
             <h3>CRM Avocat</h3>
             <p>Pipeline Kanban, AI queue, facturation, calendrier de cour, analytics</p>
             <div style="margin-top:12px; font-size:12px; color:#22c55e; font-weight:700;">Ouvrir &#8594;</div>
         </a>
     </div>
+    <!-- EN demo cards -->
+    <div class="grid-3 lang-en-grid" style="margin-top:32px;">
+        <a href="https://911-virid.vercel.app/demo-site/" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(230,57,70,0.3);">
+            <div class="card-icon">&#127968;</div>
+            <h3>Main Site</h3>
+            <p>Homepage, services, pricing, AI demo, jurisdictions QC/ON/NY</p>
+            <div style="margin-top:12px; font-size:12px; color:#e63946; font-weight:700;">Open &#8594;</div>
+        </a>
+        <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-client.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(59,130,246,0.3);">
+            <div class="card-icon">&#128100;</div>
+            <h3>Client Portal</h3>
+            <p>Client dashboard, case tracking, payments, documents, AI chatbot</p>
+            <div style="margin-top:12px; font-size:12px; color:#3b82f6; font-weight:700;">Open &#8594;</div>
+        </a>
+        <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-lawyer.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(34,197,94,0.3);">
+            <div class="card-icon">&#9878;</div>
+            <h3>Lawyer CRM</h3>
+            <p>Kanban pipeline, AI queue, invoicing, court calendar, analytics</p>
+            <div style="margin-top:12px; font-size:12px; color:#22c55e; font-weight:700;">Open &#8594;</div>
+        </a>
+    </div>
 
     <div style="margin-top:32px; text-align:center; font-size:13px; color:rgba(255,255,255,0.4);">
-        demo-site-one-iota.vercel.app — Accès direct, aucune installation requise
+        <span class="lang-fr">911-virid.vercel.app/demo-site — Acc&egrave;s direct, aucune installation requise</span><span class="lang-en">911-virid.vercel.app/demo-site — Direct access, no installation required</span>
     </div>
 </div>
 
@@ -713,32 +1023,33 @@
      ============================================================ -->
 <div class="slide bg-gradient-2" data-slide="8">
     <div class="slide-logo">TICKET<span>911</span>.CA</div>
-    <div class="slide-tag">Prochaines étapes</div>
+    <div class="slide-tag"><span class="lang-fr">Prochaines &eacute;tapes</span><span class="lang-en">Next Steps</span></div>
     <div class="slide-title" style="font-size:44px;">
-        Prêt à <span class="green">commencer</span>?
+        <span class="lang-fr">Pr&ecirc;t &agrave; <span class="green">commencer</span>?</span><span class="lang-en">Ready to <span class="green">start</span>?</span>
     </div>
 
-    <div class="grid-2" style="margin-top:30px;">
+    <!-- FR next steps -->
+    <div class="grid-2 lang-fr-grid" style="margin-top:30px;">
         <div>
             <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
                 <div style="width:40px;height:40px;border-radius:50%;background:rgba(230,57,70,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#e63946;flex-shrink:0;">1</div>
                 <div>
-                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Appel découverte (20 min)</h3>
-                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">On discute de vos besoins spécifiques et je réponds à vos questions.</p>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Appel d&eacute;couverte (20 min)</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">On discute de vos besoins sp&eacute;cifiques et je r&eacute;ponds &agrave; vos questions.</p>
                 </div>
             </div>
             <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
                 <div style="width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#3b82f6;flex-shrink:0;">2</div>
                 <div>
                     <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Proposition sur mesure</h3>
-                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">J'ajuste la proposition selon vos priorités et votre budget.</p>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">J'ajuste la proposition selon vos priorit&eacute;s et votre budget.</p>
                 </div>
             </div>
             <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
                 <div style="width:40px;height:40px;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#22c55e;flex-shrink:0;">3</div>
                 <div>
-                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Signature + Début</h3>
-                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">Premier versement et début du développement. Première démo en 2 semaines.</p>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Signature + D&eacute;but</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">Premier versement et d&eacute;but du d&eacute;veloppement. Premi&egrave;re d&eacute;mo en 2 semaines.</p>
                 </div>
             </div>
         </div>
@@ -758,9 +1069,50 @@
             </div>
         </div>
     </div>
+    <!-- EN next steps -->
+    <div class="grid-2 lang-en-grid" style="margin-top:30px;">
+        <div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(230,57,70,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#e63946;flex-shrink:0;">1</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Discovery Call (20 min)</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">We discuss your specific needs and I answer your questions.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#3b82f6;flex-shrink:0;">2</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Custom Proposal</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">I adjust the proposal based on your priorities and budget.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#22c55e;flex-shrink:0;">3</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Signature + Start</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">First payment and development begins. First demo in 2 weeks.</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="text-align:center; border-color:rgba(230,57,70,0.3);">
+                <div style="font-size:15px; font-weight:700; margin-bottom:20px;">Contact Me</div>
+                <div style="font-size:36px; margin-bottom:16px;">&#128222;</div>
+                <div style="font-size:20px; font-weight:800; margin-bottom:4px;">514-609-2882</div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px;">michaelperron12@gmail.com</div>
+                <div style="padding:14px 28px; background:#e63946; border-radius:10px; font-weight:700; font-size:15px; display:inline-block;">
+                    Schedule a call &#8594;
+                </div>
+                <div style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.3);">
+                    Available Mon-Fri, 9am-6pm
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div style="margin-top:32px; text-align:center; font-size:14px; color:rgba(255,255,255,0.3);">
-        Merci pour votre temps. — Michael Perron, Février 2026
+        <span class="lang-fr">Merci pour votre temps. — Michael Perron, F&eacute;vrier 2026</span><span class="lang-en">Thank you for your time. — Michael Perron, February 2026</span>
     </div>
 </div>
 
@@ -770,9 +1122,15 @@
         <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
     </div>
     <div class="slide-dots" id="slideDots"></div>
-    <div class="nav-buttons">
-        <button class="nav-btn" onclick="prevSlide()">&#8592; Précédent</button>
-        <button class="nav-btn primary" onclick="nextSlide()">Suivant &#8594;</button>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div class="lang-toggle">
+            <button id="btnFR" class="active" onclick="toggleLang('fr')">FR</button>
+            <button id="btnEN" onclick="toggleLang('en')">EN</button>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="prevSlide()">&#8592; <span class="lang-fr">Pr&eacute;c&eacute;dent</span><span class="lang-en">Previous</span></button>
+            <button class="nav-btn primary" onclick="nextSlide()"><span class="lang-fr">Suivant</span><span class="lang-en">Next</span> &#8594;</button>
+        </div>
     </div>
 </div>
 
@@ -808,6 +1166,21 @@
 
     function nextSlide() { goToSlide(currentSlide + 1); }
     function prevSlide() { goToSlide(currentSlide - 1); }
+
+    // Language toggle
+    function toggleLang(lang) {
+        if (lang === 'en') {
+            document.body.classList.add('en');
+            document.documentElement.lang = 'en';
+            document.getElementById('btnEN').classList.add('active');
+            document.getElementById('btnFR').classList.remove('active');
+        } else {
+            document.body.classList.remove('en');
+            document.documentElement.lang = 'fr';
+            document.getElementById('btnFR').classList.add('active');
+            document.getElementById('btnEN').classList.remove('active');
+        }
+    }
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
