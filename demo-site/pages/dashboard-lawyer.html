@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Dashboard — Ticket911.ca Legal CRM</title>
+    <meta name="description" content="Ticket911 Lawyer Portal — Manage cases, review AI analyses, track revenue, and schedule court dates.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* ===== DASHBOARD LAYOUT ===== */
+        body { background: #f1f5f9; overflow-x: hidden; }
+
+        .dash-wrapper { display: flex; min-height: 100vh; }
+
+        /* ===== SIDEBAR NAVIGATION ===== */
+        .dash-sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #0a0e27 0%, #111936 50%, #0f172a 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-brand .brand-logo {
+            font-size: 22px;
+            font-weight: 900;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .sidebar-brand .brand-logo .t9 { color: var(--accent); }
+        .sidebar-brand .brand-sub {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.35);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav { padding: 16px 12px; flex: 1; }
+        .sidebar-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.25);
+            padding: 16px 12px 8px;
+            font-weight: 700;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,0.06); color: white; }
+        .sidebar-link.active { background: rgba(230,57,70,0.15); color: white; font-weight: 600; }
+        .sidebar-link .icon { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar-link .badge-count {
+            margin-left: auto;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+        }
+        .sidebar-link .badge-count.gold { background: var(--gold); color: var(--dark); }
+
+        .sidebar-user {
+            padding: 18px 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-user .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: white;
+        }
+        .sidebar-user .user-info .user-name { font-size: 13px; font-weight: 700; color: white; }
+        .sidebar-user .user-info .user-role { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ===== MAIN CONTENT ===== */
+        .dash-main {
+            margin-left: 260px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Top Header Bar */
+        .dash-header {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray-lighter);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .dash-header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        .dash-header h1 span { color: var(--gray); font-weight: 400; font-size: 14px; margin-left: 8px; }
+        .dash-header-right { display: flex; align-items: center; gap: 16px; }
+        .header-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--gray-lighter);
+            border-radius: var(--radius-sm);
+            background: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-btn:hover { background: var(--gray-bg); border-color: var(--primary); }
+        .notif-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gray-lighter);
+            border-radius: var(--radius-sm);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .notif-btn .notif-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Content Area */
+        .dash-content-area { padding: 28px 32px; }
+
+        /* ===== STAT CARDS (TOP) ===== */
+        .top-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 28px; }
+        .top-stat {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--gray-lighter);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: var(--transition);
+        }
+        .top-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .top-stat .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .top-stat .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--dark);
+        }
+        .top-stat .stat-change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .stat-change.up { color: var(--success); }
+        .stat-change.down { color: var(--accent); }
+
+        /* ===== PIPELINE / KANBAN ===== */
+        .pipeline-section {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-lighter);
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title .view-toggle {
+            display: flex;
+            gap: 4px;
+        }
+        .section-title .view-toggle button {
+            padding: 6px 12px;
+            border: 1px solid var(--gray-lighter);
+            background: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            color: var(--gray);
+        }
+        .section-title .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pipeline-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+        .pipeline-col {
+            background: var(--gray-bg);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            min-height: 120px;
+        }
+        .pipeline-col-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+        .pipeline-col-header h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pipeline-col-header .count {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 2px 10px;
+            border-radius: 50px;
+        }
+        .col-new .pipeline-col-header { border-color: var(--warning); }
+        .col-new .count { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .col-analyzed .pipeline-col-header { border-color: #7c3aed; }
+        .col-analyzed .count { background: rgba(124,58,237,0.12); color: #7c3aed; }
+        .col-progress .pipeline-col-header { border-color: var(--info); }
+        .col-progress .count { background: rgba(59,130,246,0.12); color: var(--info); }
+        .col-court .pipeline-col-header { border-color: var(--gold); }
+        .col-court .count { background: rgba(212,168,67,0.15); color: var(--gold); }
+        .col-resolved .pipeline-col-header { border-color: var(--success); }
+        .col-resolved .count { background: rgba(34,197,94,0.12); color: var(--success); }
+
+        .pipeline-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--gray-lighter);
+            font-size: 12px;
+            cursor: grab;
+            transition: var(--transition);
+        }
+        .pipeline-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+        .pipeline-card .pc-id { font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+        .pipeline-card .pc-name { font-weight: 600; color: var(--dark); }
+        .pipeline-card .pc-type { color: var(--gray); font-size: 11px; }
+        .pipeline-card .pc-jur { font-size: 10px; margin-top: 4px; }
+
+        /* ===== CASES TABLE ===== */
+        .table-section {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-lighter);
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .cases-table thead th {
+            background: var(--gray-bg);
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            border-bottom: 2px solid var(--gray-lighter);
+            white-space: nowrap;
+        }
+        .cases-table tbody td {
+            padding: 14px;
+            border-bottom: 1px solid var(--gray-lighter);
+            vertical-align: middle;
+        }
+        .cases-table tbody tr:hover { background: rgba(59,130,246,0.02); }
+        .cases-table .case-id { font-weight: 700; color: var(--primary); font-size: 12px; }
+        .cases-table .client-cell { display: flex; align-items: center; gap: 10px; }
+        .cases-table .client-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .cases-table .client-name { font-weight: 600; }
+        .cases-table .client-email { font-size: 11px; color: var(--gray); }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-new { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .status-analyzed { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .status-progress { background: rgba(59,130,246,0.1); color: var(--info); }
+        .status-court { background: rgba(212,168,67,0.12); color: #b8941e; }
+        .status-resolved { background: rgba(34,197,94,0.1); color: var(--success); }
+        .ai-score-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .score-high { background: rgba(34,197,94,0.1); color: var(--success); }
+        .score-med { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .score-low { background: rgba(230,57,70,0.1); color: var(--accent); }
+        .jur-badge { font-size: 12px; font-weight: 600; }
+
+        /* ===== AI ANALYSIS QUEUE ===== */
+        .ai-queue-section {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-lighter);
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .ai-queue-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .ai-queue-card {
+            background: var(--gray-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--gray-lighter);
+            transition: var(--transition);
+        }
+        .ai-queue-card:hover { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+        .ai-queue-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .ai-queue-top .case-ref { font-size: 12px; font-weight: 700; color: var(--primary); }
+        .ai-queue-top .ai-badge { display: flex; align-items: center; gap: 6px; }
+        .ai-queue-body { margin-bottom: 14px; }
+        .ai-queue-body .client-line { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .ai-queue-body .violation-line { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
+        .ai-rec {
+            background: rgba(124,58,237,0.06);
+            border-left: 3px solid #7c3aed;
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 12px;
+            color: var(--dark-3);
+            line-height: 1.5;
+        }
+        .ai-rec strong { color: #7c3aed; }
+        .ai-queue-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .btn-review {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-approve:hover { background: #16a34a; }
+        .btn-edit { background: var(--gray-lighter); color: var(--dark-3); }
+        .btn-edit:hover { background: #cbd5e1; }
+
+        /* ===== TWO-COL LAYOUT ===== */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 28px; }
+
+        /* ===== REVENUE SECTION ===== */
+        .revenue-section {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-lighter);
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .chart-placeholder {
+            background: var(--gray-bg);
+            border-radius: var(--radius-sm);
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+        .chart-bar {
+            flex: 1;
+            border-radius: 6px 6px 0 0;
+            position: relative;
+            min-width: 0;
+        }
+        .chart-bar::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: var(--gray);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .chart-bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: var(--dark);
+            font-weight: 700;
+        }
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .payments-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            border-bottom: 1px solid var(--gray-lighter);
+        }
+        .payments-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--gray-lighter);
+        }
+        .revenue-actions { display: flex; gap: 10px; margin-top: 16px; }
+        .revenue-actions button {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            border: 1px solid var(--gray-lighter);
+            background: white;
+            color: var(--dark-3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .revenue-actions button:hover { background: var(--gray-bg); border-color: var(--primary); }
+        .revenue-actions button.primary-btn { background: var(--primary); color: white; border-color: var(--primary); }
+        .revenue-actions button.primary-btn:hover { background: var(--primary-dark); }
+
+        /* ===== CALENDAR SECTION ===== */
+        .calendar-section {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-lighter);
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .court-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--gray-lighter);
+            align-items: flex-start;
+        }
+        .court-item:last-child { border: none; }
+        .court-date-block {
+            width: 52px;
+            background: var(--gray-bg);
+            border-radius: 8px;
+            text-align: center;
+            padding: 8px 6px;
+            flex-shrink: 0;
+            border: 1px solid var(--gray-lighter);
+        }
+        .court-date-block .day { font-size: 20px; font-weight: 900; color: var(--dark); display: block; }
+        .court-date-block .month { font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .court-info h4 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+        .court-info .court-detail { font-size: 12px; color: var(--gray); }
+        .court-info .court-time {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(30,58,95,0.06);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .top-stats { grid-template-columns: repeat(3, 1fr); }
+            .pipeline-board { grid-template-columns: repeat(3, 1fr); }
+            .ai-queue-cards { grid-template-columns: 1fr; }
+            .two-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 968px) {
+            .dash-sidebar { display: none; }
+            .dash-main { margin-left: 0; }
+            .top-stats { grid-template-columns: repeat(2, 1fr); }
+            .pipeline-board { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dash-wrapper">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="dash-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo">
+                <span>TICKET</span><span class="t9">911</span><span>.ca</span>
+            </div>
+            <div class="brand-sub">Lawyer Portal</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-label">Main</div>
+            <a class="sidebar-link active">
+                <span class="icon">&#128202;</span>
+                Dashboard
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#128188;</span>
+                Cases
+                <span class="badge-count">47</span>
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#129302;</span>
+                AI Queue
+                <span class="badge-count" style="background: #7c3aed;">12</span>
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#128101;</span>
+                Clients
+            </a>
+
+            <div class="sidebar-label">Finance</div>
+            <a class="sidebar-link">
+                <span class="icon">&#128176;</span>
+                Invoices
+                <span class="badge-count gold">3</span>
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#128179;</span>
+                Payments
+            </a>
+
+            <div class="sidebar-label">Schedule</div>
+            <a class="sidebar-link">
+                <span class="icon">&#128197;</span>
+                Calendar
+                <span class="badge-count" style="background: var(--warning);">5</span>
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#128337;</span>
+                Reminders
+            </a>
+
+            <div class="sidebar-label">System</div>
+            <a class="sidebar-link">
+                <span class="icon">&#128202;</span>
+                Reports
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#9881;</span>
+                Settings
+            </a>
+            <a class="sidebar-link">
+                <span class="icon">&#128259;</span>
+                Audit Log
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">BL</div>
+            <div class="user-info">
+                <div class="user-name">Me B. Levy-Soussan</div>
+                <div class="user-role">Partner &bull; Admin</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="dash-main">
+        <!-- Top Header -->
+        <div class="dash-header">
+            <h1>Dashboard <span>&#128197; Friday, February 7, 2026</span></h1>
+            <div class="dash-header-right">
+                <button class="header-btn">&#128228; Export</button>
+                <button class="header-btn" style="background: var(--accent); color: white; border-color: var(--accent);">+ New Case</button>
+                <button class="notif-btn">
+                    &#128276;
+                    <span class="notif-dot"></span>
+                </button>
+                <div style="display: flex; align-items: center; gap: 8px; padding-left: 8px; border-left: 1px solid var(--gray-lighter);">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">BL</div>
+                    <div>
+                        <div style="font-size: 12px; font-weight: 700;">Me Bernard Levy-Soussan</div>
+                        <div style="font-size: 10px; color: var(--gray);">Partner</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="dash-content-area">
+
+            <!-- ===== TOP STATS ===== -->
+            <div class="top-stats">
+                <div class="top-stat">
+                    <div class="stat-label">&#128188; Active Cases</div>
+                    <div class="stat-value">47</div>
+                    <div class="stat-change up">&#9650; 12% vs last month</div>
+                </div>
+                <div class="top-stat">
+                    <div class="stat-label">&#128229; New This Month</div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-change up">&#9650; 8% vs last month</div>
+                </div>
+                <div class="top-stat">
+                    <div class="stat-label">&#9878; Court This Week</div>
+                    <div class="stat-value" style="color: var(--warning);">5</div>
+                    <div class="stat-change" style="color: var(--gray);">Next: Mon Feb 10</div>
+                </div>
+                <div class="top-stat">
+                    <div class="stat-label">&#129302; AI Analyses Today</div>
+                    <div class="stat-value" style="color: #7c3aed;">31</div>
+                    <div class="stat-change up">&#9650; 24% vs yesterday</div>
+                </div>
+                <div class="top-stat">
+                    <div class="stat-label">&#128176; Revenue (Feb)</div>
+                    <div class="stat-value" style="color: var(--success);">$14,250</div>
+                    <div class="stat-change up">&#9650; 18% vs Jan</div>
+                </div>
+                <div class="top-stat">
+                    <div class="stat-label">&#127942; Success Rate</div>
+                    <div class="stat-value" style="color: var(--success);">91%</div>
+                    <div class="stat-change up">&#9650; 2% vs last quarter</div>
+                </div>
+            </div>
+
+            <!-- ===== CASES PIPELINE ===== -->
+            <div class="pipeline-section">
+                <div class="section-title">
+                    <span>&#128203; Cases Pipeline</span>
+                    <div class="view-toggle">
+                        <button class="active">Kanban</button>
+                        <button>Table</button>
+                        <button>List</button>
+                    </div>
+                </div>
+                <div class="pipeline-board">
+                    <!-- New -->
+                    <div class="pipeline-col col-new">
+                        <div class="pipeline-col-header">
+                            <h4>&#128312; New</h4>
+                            <span class="count">8</span>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0901</div>
+                            <div class="pc-name">Sarah Bouchard</div>
+                            <div class="pc-type">Speeding 120/80</div>
+                            <div class="pc-jur">&#127464;&#127462; QC</div>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0899</div>
+                            <div class="pc-name">David Chen</div>
+                            <div class="pc-type">Red Light</div>
+                            <div class="pc-jur">&#127464;&#127462; ON</div>
+                        </div>
+                        <div class="pipeline-card" style="opacity: 0.5; text-align: center; font-style: italic; color: var(--gray);">
+                            +6 more
+                        </div>
+                    </div>
+
+                    <!-- AI Analyzed -->
+                    <div class="pipeline-col col-analyzed">
+                        <div class="pipeline-col-header">
+                            <h4>&#129302; AI Analyzed</h4>
+                            <span class="count">12</span>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0895</div>
+                            <div class="pc-name">Marc Tremblay</div>
+                            <div class="pc-type">Cellphone &#8212; 82%</div>
+                            <div class="pc-jur">&#127464;&#127462; QC</div>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0892</div>
+                            <div class="pc-name">Emily Watson</div>
+                            <div class="pc-type">Stunt Driving &#8212; 68%</div>
+                            <div class="pc-jur">&#127464;&#127462; ON</div>
+                        </div>
+                        <div class="pipeline-card" style="opacity: 0.5; text-align: center; font-style: italic; color: var(--gray);">
+                            +10 more
+                        </div>
+                    </div>
+
+                    <!-- In Progress -->
+                    <div class="pipeline-col col-progress">
+                        <div class="pipeline-col-header">
+                            <h4>&#128296; In Progress</h4>
+                            <span class="count">15</span>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0878</div>
+                            <div class="pc-name">James O'Brien</div>
+                            <div class="pc-type">DUI &#8212; Defense prep</div>
+                            <div class="pc-jur">&#127464;&#127462; QC</div>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0865</div>
+                            <div class="pc-name">Fatima Hassan</div>
+                            <div class="pc-type">Speeding 140/100</div>
+                            <div class="pc-jur">&#127464;&#127462; ON</div>
+                        </div>
+                        <div class="pipeline-card" style="opacity: 0.5; text-align: center; font-style: italic; color: var(--gray);">
+                            +13 more
+                        </div>
+                    </div>
+
+                    <!-- Court Scheduled -->
+                    <div class="pipeline-col col-court">
+                        <div class="pipeline-col-header">
+                            <h4>&#9878; Court</h4>
+                            <span class="count">7</span>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0847</div>
+                            <div class="pc-name">Mike Rodriguez</div>
+                            <div class="pc-type">Careless &#8212; Feb 10</div>
+                            <div class="pc-jur">&#127482;&#127480; NY</div>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0840</div>
+                            <div class="pc-name">Lisa Gagnon</div>
+                            <div class="pc-type">Speeding &#8212; Feb 12</div>
+                            <div class="pc-jur">&#127464;&#127462; QC</div>
+                        </div>
+                        <div class="pipeline-card" style="opacity: 0.5; text-align: center; font-style: italic; color: var(--gray);">
+                            +5 more
+                        </div>
+                    </div>
+
+                    <!-- Resolved -->
+                    <div class="pipeline-col col-resolved">
+                        <div class="pipeline-col-header">
+                            <h4>&#10003; Resolved</h4>
+                            <span class="count">5</span>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0831</div>
+                            <div class="pc-name">Peter Kim</div>
+                            <div class="pc-type">Red Light &#8212; Dismissed</div>
+                            <div class="pc-jur">&#127464;&#127462; ON</div>
+                        </div>
+                        <div class="pipeline-card">
+                            <div class="pc-id">#T911-2026-0828</div>
+                            <div class="pc-name">Anna Leblanc</div>
+                            <div class="pc-type">Speeding &#8212; Reduced</div>
+                            <div class="pc-jur">&#127464;&#127462; QC</div>
+                        </div>
+                        <div class="pipeline-card" style="opacity: 0.5; text-align: center; font-style: italic; color: var(--gray);">
+                            +3 more
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CASES TABLE ===== -->
+            <div class="table-section">
+                <div class="section-title">
+                    <span>&#128188; All Active Cases</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" placeholder="Search cases..." style="padding: 8px 14px; border: 1px solid var(--gray-lighter); border-radius: 8px; font-size: 12px; font-family: inherit; outline: none; width: 200px;">
+                        <select style="padding: 8px 14px; border: 1px solid var(--gray-lighter); border-radius: 8px; font-size: 12px; font-family: inherit; outline: none; background: white;">
+                            <option>All Jurisdictions</option>
+                            <option>Quebec</option>
+                            <option>Ontario</option>
+                            <option>New York</option>
+                        </select>
+                        <select style="padding: 8px 14px; border: 1px solid var(--gray-lighter); border-radius: 8px; font-size: 12px; font-family: inherit; outline: none; background: white;">
+                            <option>All Statuses</option>
+                            <option>New</option>
+                            <option>AI Analyzed</option>
+                            <option>In Progress</option>
+                            <option>Court Scheduled</option>
+                            <option>Resolved</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="cases-table">
+                    <thead>
+                        <tr>
+                            <th>Case #</th>
+                            <th>Client</th>
+                            <th>Violation</th>
+                            <th>Jurisdiction</th>
+                            <th>AI Score</th>
+                            <th>Lawyer</th>
+                            <th>Status</th>
+                            <th>Court Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="case-id">#T911-2026-0901</td>
+                            <td><div class="client-cell"><div class="client-avatar">SB</div><div><div class="client-name">Sarah Bouchard</div><div class="client-email">s.bouchard@gmail.com</div></div></div></td>
+                            <td>Speeding 120/80</td>
+                            <td><span class="jur-badge">&#127464;&#127462; QC</span></td>
+                            <td><span class="ai-score-badge score-high">84%</span></td>
+                            <td>Me C. Daicu</td>
+                            <td><span class="status-badge status-new">New</span></td>
+                            <td>TBD</td>
+                            <td><strong>$199</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0895</td>
+                            <td><div class="client-cell"><div class="client-avatar">MT</div><div><div class="client-name">Marc Tremblay</div><div class="client-email">m.tremblay@outlook.com</div></div></div></td>
+                            <td>Cellphone</td>
+                            <td><span class="jur-badge">&#127464;&#127462; QC</span></td>
+                            <td><span class="ai-score-badge score-high">82%</span></td>
+                            <td>Me B. Levy-Soussan</td>
+                            <td><span class="status-badge status-analyzed">AI Analyzed</span></td>
+                            <td>Mar 5, 2026</td>
+                            <td><strong>$449</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0892</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: var(--accent);">EW</div><div><div class="client-name">Emily Watson</div><div class="client-email">emily.w@yahoo.ca</div></div></div></td>
+                            <td>Stunt Driving (50+)</td>
+                            <td><span class="jur-badge">&#127464;&#127462; ON</span></td>
+                            <td><span class="ai-score-badge score-med">68%</span></td>
+                            <td>J. Arasimowicz</td>
+                            <td><span class="status-badge status-analyzed">AI Analyzed</span></td>
+                            <td>Mar 18, 2026</td>
+                            <td><strong>$899</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0878</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: var(--dark);">JO</div><div><div class="client-name">James O'Brien</div><div class="client-email">j.obrien@corp.com</div></div></div></td>
+                            <td>DUI / Impaired</td>
+                            <td><span class="jur-badge">&#127464;&#127462; QC</span></td>
+                            <td><span class="ai-score-badge score-low">45%</span></td>
+                            <td>Me B. Levy-Soussan</td>
+                            <td><span class="status-badge status-progress">In Progress</span></td>
+                            <td>Apr 2, 2026</td>
+                            <td><strong>$1,999</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0865</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: var(--gold);">FH</div><div><div class="client-name">Fatima Hassan</div><div class="client-email">fatima.h@icloud.com</div></div></div></td>
+                            <td>Speeding 140/100</td>
+                            <td><span class="jur-badge">&#127464;&#127462; ON</span></td>
+                            <td><span class="ai-score-badge score-high">76%</span></td>
+                            <td>J. Arasimowicz</td>
+                            <td><span class="status-badge status-progress">In Progress</span></td>
+                            <td>Feb 27, 2026</td>
+                            <td><strong>$349</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0847</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: var(--info);">MR</div><div><div class="client-name">Mike Rodriguez</div><div class="client-email">mikerod@gmail.com</div></div></div></td>
+                            <td>Careless Driving</td>
+                            <td><span class="jur-badge">&#127482;&#127480; NY</span></td>
+                            <td><span class="ai-score-badge score-med">62%</span></td>
+                            <td>Me M. Singleton</td>
+                            <td><span class="status-badge status-court">Court Scheduled</span></td>
+                            <td>Feb 10, 2026</td>
+                            <td><strong>$579</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0840</td>
+                            <td><div class="client-cell"><div class="client-avatar">LG</div><div><div class="client-name">Lisa Gagnon</div><div class="client-email">lisa.g@videotron.ca</div></div></div></td>
+                            <td>Speeding 95/70</td>
+                            <td><span class="jur-badge">&#127464;&#127462; QC</span></td>
+                            <td><span class="ai-score-badge score-high">78%</span></td>
+                            <td>Me C. Dore</td>
+                            <td><span class="status-badge status-court">Court Scheduled</span></td>
+                            <td>Feb 12, 2026</td>
+                            <td><strong>$199</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0835</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: #7c3aed;">RJ</div><div><div class="client-name">Robert Johnson</div><div class="client-email">r.johnson@aol.com</div></div></div></td>
+                            <td>Red Light Camera</td>
+                            <td><span class="jur-badge">&#127482;&#127480; NY</span></td>
+                            <td><span class="ai-score-badge score-med">58%</span></td>
+                            <td>Me M. Singleton</td>
+                            <td><span class="status-badge status-progress">In Progress</span></td>
+                            <td>Mar 3, 2026</td>
+                            <td><strong>$579</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0831</td>
+                            <td><div class="client-cell"><div class="client-avatar" style="background: var(--success);">PK</div><div><div class="client-name">Peter Kim</div><div class="client-email">p.kim@gmail.com</div></div></div></td>
+                            <td>Red Light</td>
+                            <td><span class="jur-badge">&#127464;&#127462; ON</span></td>
+                            <td><span class="ai-score-badge score-high">73%</span></td>
+                            <td>J. Arasimowicz</td>
+                            <td><span class="status-badge status-resolved">Resolved &#10003;</span></td>
+                            <td>Feb 3, 2026</td>
+                            <td><strong>$349</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="case-id">#T911-2026-0828</td>
+                            <td><div class="client-cell"><div class="client-avatar">AL</div><div><div class="client-name">Anna Leblanc</div><div class="client-email">anna.lb@bell.net</div></div></div></td>
+                            <td>Speeding 110/90</td>
+                            <td><span class="jur-badge">&#127464;&#127462; QC</span></td>
+                            <td><span class="ai-score-badge score-high">81%</span></td>
+                            <td>Me C. Daicu</td>
+                            <td><span class="status-badge status-resolved">Resolved &#10003;</span></td>
+                            <td>Jan 30, 2026</td>
+                            <td><strong>$199</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 12px; color: var(--gray);">
+                    <span>Showing 10 of 47 cases</span>
+                    <div style="display: flex; gap: 6px;">
+                        <button style="padding: 6px 12px; border: 1px solid var(--gray-lighter); border-radius: 6px; background: var(--primary); color: white; font-size: 11px; font-weight: 600; cursor: pointer;">1</button>
+                        <button style="padding: 6px 12px; border: 1px solid var(--gray-lighter); border-radius: 6px; background: white; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--gray);">2</button>
+                        <button style="padding: 6px 12px; border: 1px solid var(--gray-lighter); border-radius: 6px; background: white; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--gray);">3</button>
+                        <button style="padding: 6px 12px; border: 1px solid var(--gray-lighter); border-radius: 6px; background: white; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--gray);">&#8594;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== AI ANALYSIS QUEUE ===== -->
+            <div class="ai-queue-section">
+                <div class="section-title">
+                    <span>&#129302; AI Analysis Queue — Awaiting Lawyer Review</span>
+                    <span class="badge-ai">12 pending</span>
+                </div>
+                <div class="ai-queue-cards">
+                    <!-- Queue Card 1 -->
+                    <div class="ai-queue-card">
+                        <div class="ai-queue-top">
+                            <span class="case-ref">#T911-2026-0895 &bull; Marc Tremblay</span>
+                            <div class="ai-badge">
+                                <span class="ai-score-badge score-high">82%</span>
+                                <span class="badge-ai">AI</span>
+                            </div>
+                        </div>
+                        <div class="ai-queue-body">
+                            <div class="client-line">Cellphone Ticket — &#127464;&#127462; Quebec</div>
+                            <div class="violation-line">Holding cellphone while driving, Autoroute 15 South, Laval. Fine: $543. Demerit: 5 pts.</div>
+                            <div class="ai-rec">
+                                <strong>AI Recommendation:</strong> Strong contestation potential. Found 8 relevant precedents where calibration of officer observation was challenged. Recommend defense based on ambiguity of "holding" vs. "using" under s.439.1 CSR. Suggested brouillon attached.
+                            </div>
+                        </div>
+                        <div class="ai-queue-actions">
+                            <button class="btn-review btn-approve">&#10003; Review & Approve</button>
+                            <button class="btn-review btn-edit">&#9998; Edit Brouillon</button>
+                        </div>
+                    </div>
+
+                    <!-- Queue Card 2 -->
+                    <div class="ai-queue-card">
+                        <div class="ai-queue-top">
+                            <span class="case-ref">#T911-2026-0892 &bull; Emily Watson</span>
+                            <div class="ai-badge">
+                                <span class="ai-score-badge score-med">68%</span>
+                                <span class="badge-ai">AI</span>
+                            </div>
+                        </div>
+                        <div class="ai-queue-body">
+                            <div class="client-line">Stunt Driving (50+ over) — &#127464;&#127462; Ontario</div>
+                            <div class="violation-line">149 km/h in 100 km/h zone, Highway 401 East, Whitby. Vehicle impounded 14 days. License suspended 30 days.</div>
+                            <div class="ai-rec">
+                                <strong>AI Recommendation:</strong> Moderate contestation potential. Found 5 precedents for radar calibration challenges. Recommend requesting disclosure + officer notes. Note: new 2024 Ontario stunt driving threshold change from 50+ to 40+ may apply. Brouillon attached.
+                            </div>
+                        </div>
+                        <div class="ai-queue-actions">
+                            <button class="btn-review btn-approve">&#10003; Review & Approve</button>
+                            <button class="btn-review btn-edit">&#9998; Edit Brouillon</button>
+                        </div>
+                    </div>
+
+                    <!-- Queue Card 3 -->
+                    <div class="ai-queue-card">
+                        <div class="ai-queue-top">
+                            <span class="case-ref">#T911-2026-0889 &bull; Carlos Mendez</span>
+                            <div class="ai-badge">
+                                <span class="ai-score-badge score-high">88%</span>
+                                <span class="badge-ai">AI</span>
+                            </div>
+                        </div>
+                        <div class="ai-queue-body">
+                            <div class="client-line">Red Light Ticket — &#127482;&#127480; New York</div>
+                            <div class="violation-line">Red light camera, intersection of Broadway & W 42nd St, Manhattan. Fine: $50 + $25 surcharge. No points (camera ticket).</div>
+                            <div class="ai-rec">
+                                <strong>AI Recommendation:</strong> Excellent contestation potential. Camera ticket = no points, no insurance impact. Found 12 precedents for technical defects in camera operation. Recommend contesting timing of yellow signal. Brouillon attached.
+                            </div>
+                        </div>
+                        <div class="ai-queue-actions">
+                            <button class="btn-review btn-approve">&#10003; Review & Approve</button>
+                            <button class="btn-review btn-edit">&#9998; Edit Brouillon</button>
+                        </div>
+                    </div>
+
+                    <!-- Queue Card 4 -->
+                    <div class="ai-queue-card">
+                        <div class="ai-queue-top">
+                            <span class="case-ref">#T911-2026-0886 &bull; Nicole Bergeron</span>
+                            <div class="ai-badge">
+                                <span class="ai-score-badge score-med">55%</span>
+                                <span class="badge-ai">AI</span>
+                            </div>
+                        </div>
+                        <div class="ai-queue-body">
+                            <div class="client-line">Speeding 145/100 — &#127464;&#127462; Quebec</div>
+                            <div class="violation-line">Autoroute 20 West, near exit 98, Drummondville. Fine: $490 + fees. Demerit: 6 pts. Construction zone: No.</div>
+                            <div class="ai-rec">
+                                <strong>AI Recommendation:</strong> Moderate potential. 45+ over limit is significant. Found 3 precedents for radar accuracy challenges at this location. Recommend requesting radar calibration certificate + officer training records. High demerit impact warrants contestation regardless.
+                            </div>
+                        </div>
+                        <div class="ai-queue-actions">
+                            <button class="btn-review btn-approve">&#10003; Review & Approve</button>
+                            <button class="btn-review btn-edit">&#9998; Edit Brouillon</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== REVENUE + CALENDAR (Two-Col) ===== -->
+            <div class="two-col">
+                <!-- Revenue / Invoicing -->
+                <div class="revenue-section">
+                    <div class="section-title">
+                        <span>&#128176; Revenue & Invoicing</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--success);">&#9650; 18% vs last month</span>
+                    </div>
+
+                    <!-- Revenue Chart -->
+                    <div class="chart-placeholder">
+                        <div class="chart-bar" style="height: 45%; background: linear-gradient(180deg, var(--primary-light), var(--primary));" data-label="Sep" data-value="$8.2K"></div>
+                        <div class="chart-bar" style="height: 55%; background: linear-gradient(180deg, var(--primary-light), var(--primary));" data-label="Oct" data-value="$9.8K"></div>
+                        <div class="chart-bar" style="height: 50%; background: linear-gradient(180deg, var(--primary-light), var(--primary));" data-label="Nov" data-value="$9.1K"></div>
+                        <div class="chart-bar" style="height: 65%; background: linear-gradient(180deg, var(--primary-light), var(--primary));" data-label="Dec" data-value="$11.5K"></div>
+                        <div class="chart-bar" style="height: 70%; background: linear-gradient(180deg, var(--primary-light), var(--primary));" data-label="Jan" data-value="$12.1K"></div>
+                        <div class="chart-bar" style="height: 82%; background: linear-gradient(180deg, var(--accent-light), var(--accent));" data-label="Feb" data-value="$14.3K"></div>
+                    </div>
+
+                    <!-- Recent Payments -->
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px;">Recent Payments</h4>
+                    <table class="payments-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Client</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">INV-2026-0312</td>
+                                <td>Sarah Bouchard</td>
+                                <td><strong>$199.00</strong></td>
+                                <td>Visa ***4821</td>
+                                <td><span class="status-badge status-resolved" style="font-size: 10px;">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">INV-2026-0311</td>
+                                <td>Emily Watson</td>
+                                <td><strong>$899.00</strong></td>
+                                <td>Interac e-Transfer</td>
+                                <td><span class="status-badge status-resolved" style="font-size: 10px;">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">INV-2026-0310</td>
+                                <td>Mike Rodriguez</td>
+                                <td><strong>$579.00</strong></td>
+                                <td>Mastercard ***7392</td>
+                                <td><span class="status-badge status-resolved" style="font-size: 10px;">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">INV-2026-0309</td>
+                                <td>Marc Tremblay</td>
+                                <td><strong>$449.00</strong></td>
+                                <td>Visa ***1156</td>
+                                <td><span class="status-badge status-court" style="font-size: 10px;">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">INV-2026-0308</td>
+                                <td>James O'Brien</td>
+                                <td><strong>$999.50</strong></td>
+                                <td>Bank Transfer (ACH)</td>
+                                <td><span class="status-badge status-resolved" style="font-size: 10px;">Paid</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="revenue-actions">
+                        <button class="primary-btn">&#128196; Generate Invoice</button>
+                        <button>&#128194; Export to QuickBooks</button>
+                        <button>&#128202; Full Report</button>
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="calendar-section">
+                    <div class="section-title">
+                        <span>&#128197; Court Dates This Week</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--warning);">5 upcoming</span>
+                    </div>
+
+                    <div class="court-item">
+                        <div class="court-date-block">
+                            <span class="day">10</span>
+                            <span class="month">Feb</span>
+                        </div>
+                        <div class="court-info">
+                            <h4>Mike Rodriguez — Careless Driving</h4>
+                            <div class="court-detail">&#127482;&#127480; NYC Traffic Violations Bureau, 66 John St, Manhattan</div>
+                            <span class="court-time">9:30 AM EST</span>
+                        </div>
+                    </div>
+
+                    <div class="court-item">
+                        <div class="court-date-block">
+                            <span class="day">10</span>
+                            <span class="month">Feb</span>
+                        </div>
+                        <div class="court-info">
+                            <h4>Thomas Nguyen — Red Light</h4>
+                            <div class="court-detail">&#127464;&#127462; Ontario Court of Justice, 1000 Finch Ave W, Toronto</div>
+                            <span class="court-time">2:00 PM EST</span>
+                        </div>
+                    </div>
+
+                    <div class="court-item">
+                        <div class="court-date-block">
+                            <span class="day">11</span>
+                            <span class="month">Feb</span>
+                        </div>
+                        <div class="court-info">
+                            <h4>Sophie Lariviere — Cellphone</h4>
+                            <div class="court-detail">&#127464;&#127462; Palais de justice de Montreal, 1, rue Notre-Dame Est</div>
+                            <span class="court-time">10:00 AM EST</span>
+                        </div>
+                    </div>
+
+                    <div class="court-item">
+                        <div class="court-date-block">
+                            <span class="day">12</span>
+                            <span class="month">Feb</span>
+                        </div>
+                        <div class="court-info">
+                            <h4>Lisa Gagnon — Speeding 95/70</h4>
+                            <div class="court-detail">&#127464;&#127462; Palais de justice de Laval, 2800, boul. Saint-Martin Ouest</div>
+                            <span class="court-time">9:00 AM EST</span>
+                        </div>
+                    </div>
+
+                    <div class="court-item">
+                        <div class="court-date-block">
+                            <span class="day">13</span>
+                            <span class="month">Feb</span>
+                        </div>
+                        <div class="court-info">
+                            <h4>Derek Patel — Stunt Driving</h4>
+                            <div class="court-detail">&#127464;&#127462; Ontario Court of Justice, 605 Rossland Rd E, Whitby</div>
+                            <span class="court-time">1:30 PM EST</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; text-align: center;">
+                        <a href="#" style="font-size: 13px; font-weight: 700; color: var(--primary);">View Full Calendar &#8594;</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== QUICK ACTIONS FOOTER ===== -->
+            <div style="background: white; border-radius: var(--radius); border: 1px solid var(--gray-lighter); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <span style="font-size: 14px; font-weight: 700; color: var(--dark);">&#9889; Quick Actions</span>
+                    <button style="padding: 8px 16px; border: 1px solid var(--gray-lighter); border-radius: 8px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;">&#128221; New Quote</button>
+                    <button style="padding: 8px 16px; border: 1px solid var(--gray-lighter); border-radius: 8px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;">&#128101; Add Client</button>
+                    <button style="padding: 8px 16px; border: 1px solid var(--gray-lighter); border-radius: 8px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;">&#129302; Run AI Analysis</button>
+                    <button style="padding: 8px 16px; border: 1px solid var(--gray-lighter); border-radius: 8px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;">&#128196; Generate Invoice</button>
+                </div>
+                <div style="font-size: 11px; color: var(--gray);">
+                    &#128274; Ticket911 Legal CRM v2.4.1 &bull; Last synced: 2 min ago
+                </div>
+            </div>
+
+        </div><!-- /dash-content-area -->
+    </main>
+</div>
+
+<script>
+// Sidebar link active state toggle
+document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+// View toggle buttons
+document.querySelectorAll('.view-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
+// AI Queue approve/edit buttons
+document.querySelectorAll('.btn-approve').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.textContent = 'Approved!';
+        btn.style.background = '#16a34a';
+        btn.disabled = true;
+        const card = btn.closest('.ai-queue-card');
+        card.style.borderColor = 'var(--success)';
+        card.style.opacity = '0.7';
+    });
+});
+
+document.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.textContent = 'Opening editor...';
+        setTimeout(() => { btn.textContent = 'Edit Brouillon'; }, 1500);
+    });
+});
+
+// Notification bell
+document.querySelector('.notif-btn')?.addEventListener('click', function() {
+    const dot = this.querySelector('.notif-dot');
+    if (dot) dot.style.display = dot.style.display === 'none' ? 'block' : 'none';
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — Ticket911.ca | Register</title>
+    <meta name="description" content="Create your Ticket911 account. Register to fight your traffic ticket with AI-powered legal defense. Quebec, Ontario & New York.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* ===== REGISTER PAGE SPECIFIC STYLES ===== */
+        .register-hero {
+            background: linear-gradient(160deg, var(--dark) 0%, var(--primary-dark) 50%, var(--primary) 100%);
+            color: white;
+            padding: 50px 0 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -15%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(230,57,70,0.12), transparent 70%);
+            border-radius: 50%;
+        }
+
+        .register-hero h1 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-hero p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.65);
+            max-width: 550px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== STEP INDICATOR ===== */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-lighter);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            transition: var(--transition);
+        }
+
+        .step-circle.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .step-circle.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .step-label.active {
+            color: var(--dark);
+        }
+
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: var(--gray-lighter);
+            margin: 0 12px;
+            transition: var(--transition);
+        }
+
+        .step-line.active {
+            background: var(--success);
+        }
+
+        /* ===== FORM LAYOUT ===== */
+        .register-section {
+            padding: 50px 0 80px;
+            background: var(--gray-bg);
+        }
+
+        .register-form-wrapper {
+            max-width: 820px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 48px;
+            border: 1px solid var(--gray-lighter);
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-step-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .form-step-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 32px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark-3);
+            margin-bottom: 7px;
+        }
+
+        .form-group label .required {
+            color: var(--accent);
+            margin-left: 2px;
+        }
+
+        .form-group .form-control,
+        .form-group .form-select {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--gray-lighter);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            background: var(--white);
+            font-family: inherit;
+        }
+
+        .form-group .form-control:focus,
+        .form-group .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(30,58,95,0.08);
+        }
+
+        .form-group .form-control::placeholder {
+            color: var(--gray-light);
+        }
+
+        .form-group .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .phone-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-group .country-code {
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .phone-group .phone-input {
+            flex: 1;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        .password-requirements li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+        }
+
+        .password-requirements li .req-icon {
+            font-size: 11px;
+            color: var(--gray-light);
+        }
+
+        .password-requirements li.met .req-icon {
+            color: var(--success);
+        }
+
+        /* ===== TERMS CHECKBOX ===== */
+        .terms-group {
+            margin: 28px 0;
+        }
+
+        .terms-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--dark-3);
+            cursor: pointer;
+            line-height: 1.6;
+        }
+
+        .terms-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terms-label a {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .terms-label a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== BUTTONS ===== */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--gray-lighter);
+        }
+
+        .btn-back {
+            padding: 14px 28px;
+            background: var(--white);
+            border: 2px solid var(--gray-lighter);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-back:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-next {
+            padding: 14px 36px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-next:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30,58,95,0.25);
+        }
+
+        .btn-register {
+            padding: 16px 40px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-register:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230,57,70,0.3);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .login-link a {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== HELPER TEXT ===== */
+        .form-help {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .section-divider {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 28px 0 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-lighter);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .register-form-wrapper {
+                margin: 0 16px;
+                padding: 28px 20px;
+            }
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            .step-indicator {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .step-line {
+                width: 30px;
+            }
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .btn-back,
+            .btn-next,
+            .btn-register {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+    <div class="container">
+        <div class="topbar-left">
+            <a href="tel:18444409111">&#128222; 1 (844) 440-9111 &mdash; 24/7</a>
+            <a href="mailto:info@ticket911.ca">&#9993; info@ticket911.ca</a>
+        </div>
+        <div class="topbar-right">
+            <span style="color: var(--gold);">&#9733;&#9733;&#9733;&#9733;&#9733; 4.6/5 Google</span>
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn">FR</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="container">
+        <a href="../index.html" class="logo">
+            <span>TICKET</span><span class="t9">911</span><span>.ca</span>
+        </a>
+        <nav class="nav">
+            <a href="pricing.html">Pricing</a>
+            <a href="ai-analysis.html"><span class="badge-ai">AI</span> Analyze My Ticket</a>
+            <a href="faq.html">FAQ</a>
+            <a href="login.html" class="nav-login">Log In</a>
+            <a href="quote.html" class="nav-cta">Free Quote</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<div class="register-hero">
+    <div class="container">
+        <h1>Create Your Account</h1>
+        <p>Join 105,000+ clients who trust Ticket911 to fight their traffic tickets. It takes less than 3 minutes.</p>
+    </div>
+</div>
+
+<!-- ===== REGISTRATION FORM ===== -->
+<section class="register-section">
+    <div class="container">
+
+        <!-- Step Indicator -->
+        <div class="step-indicator" id="stepIndicator">
+            <div class="step-item">
+                <div class="step-circle active" id="stepCircle1">1</div>
+                <span class="step-label active" id="stepLabel1">Personal Info</span>
+            </div>
+            <div class="step-line" id="stepLine1"></div>
+            <div class="step-item">
+                <div class="step-circle" id="stepCircle2">2</div>
+                <span class="step-label" id="stepLabel2">Contact Details</span>
+            </div>
+            <div class="step-line" id="stepLine2"></div>
+            <div class="step-item">
+                <div class="step-circle" id="stepCircle3">3</div>
+                <span class="step-label" id="stepLabel3">License &amp; Security</span>
+            </div>
+        </div>
+
+        <div class="register-form-wrapper">
+            <form id="registerForm" onsubmit="return false;">
+
+                <!-- ===== STEP 1: Personal Information ===== -->
+                <div class="form-step active" id="step1">
+                    <h2 class="form-step-title">Personal Information</h2>
+                    <p class="form-step-subtitle">Tell us about yourself. This information will be used for your legal case file.</p>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" class="form-control" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" class="form-control" placeholder="Smith" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
+                            <p class="form-help">We'll send case updates and invoices to this email.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="profession">Profession</label>
+                            <input type="text" id="profession" class="form-control" placeholder="e.g. Engineer, Teacher, Driver">
+                            <p class="form-help">Helps us understand potential insurance impacts.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">Primary Phone</div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <div class="phone-group">
+                            <select class="form-select country-code" id="phoneCountry">
+                                <option value="+1-CA">&#127464;&#127462; +1 (CA)</option>
+                                <option value="+1-US">&#127482;&#127480; +1 (US)</option>
+                            </select>
+                            <input type="tel" id="phone" class="form-control phone-input" placeholder="(514) 700-0303" required>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">How Did You Hear About Us?</div>
+
+                    <div class="form-group">
+                        <label for="referral">Referral Source</label>
+                        <select class="form-select" id="referral">
+                            <option value="" disabled selected>Select an option...</option>
+                            <option value="google">Google Search</option>
+                            <option value="facebook">Facebook / Instagram</option>
+                            <option value="friend">Friend or Family</option>
+                            <option value="radio">Radio</option>
+                            <option value="tv">Television</option>
+                            <option value="billboard">Billboard / Sign</option>
+                            <option value="lawyer">Referred by a Lawyer</option>
+                            <option value="returning">Returning Client</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <div></div>
+                        <button type="button" class="btn-next" onclick="goToStep(2)">
+                            Continue to Contact Details &#8594;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 2: Contact Details ===== -->
+                <div class="form-step" id="step2">
+                    <h2 class="form-step-title">Contact Details</h2>
+                    <p class="form-step-subtitle">Provide your address and additional phone numbers. This is required for court documents and legal correspondence.</p>
+
+                    <div class="section-divider">Address</div>
+
+                    <div class="form-group">
+                        <label for="address">Street Address <span class="required">*</span></label>
+                        <input type="text" id="address" class="form-control" placeholder="123 Main Street, Apt 4B" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City <span class="required">*</span></label>
+                            <input type="text" id="city" class="form-control" placeholder="Montreal" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="province">Province / State <span class="required">*</span></label>
+                            <select class="form-select" id="province" required>
+                                <option value="" disabled selected>Select...</option>
+                                <optgroup label="Canada">
+                                    <option value="QC">Quebec</option>
+                                    <option value="ON">Ontario</option>
+                                    <option value="BC">British Columbia</option>
+                                    <option value="AB">Alberta</option>
+                                    <option value="MB">Manitoba</option>
+                                    <option value="SK">Saskatchewan</option>
+                                    <option value="NB">New Brunswick</option>
+                                    <option value="NS">Nova Scotia</option>
+                                    <option value="PE">Prince Edward Island</option>
+                                    <option value="NL">Newfoundland</option>
+                                    <option value="NT">Northwest Territories</option>
+                                    <option value="YT">Yukon</option>
+                                    <option value="NU">Nunavut</option>
+                                </optgroup>
+                                <optgroup label="United States">
+                                    <option value="NY">New York</option>
+                                    <option value="NJ">New Jersey</option>
+                                    <option value="CT">Connecticut</option>
+                                    <option value="PA">Pennsylvania</option>
+                                    <option value="VT">Vermont</option>
+                                    <option value="MA">Massachusetts</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postal">Postal / Zip Code <span class="required">*</span></label>
+                            <input type="text" id="postal" class="form-control" placeholder="H3B 1A5 or 10001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country <span class="required">*</span></label>
+                            <select class="form-select" id="country" required>
+                                <option value="CA">&#127464;&#127462; Canada</option>
+                                <option value="US">&#127482;&#127480; United States</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">Additional Phone Numbers</div>
+                    <p style="font-size: 12px; color: var(--gray); margin-bottom: 18px;">Optional &mdash; provide additional numbers so we can reach you if needed.</p>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label for="homePhone">Home Phone</label>
+                            <input type="tel" id="homePhone" class="form-control" placeholder="(514) 555-0101">
+                        </div>
+                        <div class="form-group">
+                            <label for="workPhone">Work Phone</label>
+                            <input type="tel" id="workPhone" class="form-control" placeholder="(514) 555-0202">
+                        </div>
+                        <div class="form-group">
+                            <label for="cellPhone">Cell Phone</label>
+                            <input type="tel" id="cellPhone" class="form-control" placeholder="(514) 555-0303">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-back" onclick="goToStep(1)">
+                            &#8592; Back
+                        </button>
+                        <button type="button" class="btn-next" onclick="goToStep(3)">
+                            Continue to License Info &#8594;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 3: License & Security ===== -->
+                <div class="form-step" id="step3">
+                    <h2 class="form-step-title">License &amp; Security</h2>
+                    <p class="form-step-subtitle">Your driver's license information is needed for your legal defense. Set a secure password to protect your account.</p>
+
+                    <div class="section-divider">Driver's License</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="licenseNumber">Driver's License Number <span class="required">*</span></label>
+                            <input type="text" id="licenseNumber" class="form-control" placeholder="e.g. L1234-56789-01234" required>
+                            <p class="form-help">Found on the front of your driver's license.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="licenseClass">License Class</label>
+                            <select class="form-select" id="licenseClass">
+                                <option value="" disabled selected>Select class...</option>
+                                <optgroup label="Quebec (SAAQ)">
+                                    <option value="QC-5">Class 5 &mdash; Passenger Vehicle</option>
+                                    <option value="QC-4A">Class 4A &mdash; Emergency Vehicle</option>
+                                    <option value="QC-4B">Class 4B &mdash; Minibus / Taxi</option>
+                                    <option value="QC-4C">Class 4C &mdash; Taxi</option>
+                                    <option value="QC-3">Class 3 &mdash; Straight Truck</option>
+                                    <option value="QC-2">Class 2 &mdash; Bus</option>
+                                    <option value="QC-1">Class 1 &mdash; Tractor-Trailer</option>
+                                    <option value="QC-6A">Class 6A &mdash; Motorcycle (all)</option>
+                                    <option value="QC-6D">Class 6D &mdash; Moped</option>
+                                </optgroup>
+                                <optgroup label="Ontario">
+                                    <option value="ON-G">Class G &mdash; Full License</option>
+                                    <option value="ON-G2">Class G2 &mdash; Graduated</option>
+                                    <option value="ON-G1">Class G1 &mdash; Learner</option>
+                                    <option value="ON-A">Class A &mdash; Tractor-Trailer</option>
+                                    <option value="ON-B">Class B &mdash; Bus</option>
+                                    <option value="ON-C">Class C &mdash; Bus (24 pass.)</option>
+                                    <option value="ON-D">Class D &mdash; Heavy Truck</option>
+                                    <option value="ON-M">Class M &mdash; Motorcycle</option>
+                                </optgroup>
+                                <optgroup label="New York">
+                                    <option value="NY-D">Class D &mdash; Operator</option>
+                                    <option value="NY-DJ">Class DJ &mdash; Junior Operator</option>
+                                    <option value="NY-E">Class E &mdash; Taxi / Livery</option>
+                                    <option value="NY-A">Class A &mdash; CDL Combination</option>
+                                    <option value="NY-B">Class B &mdash; CDL Heavy</option>
+                                    <option value="NY-C">Class C &mdash; CDL Bus</option>
+                                    <option value="NY-M">Class M &mdash; Motorcycle</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">Create Password</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password <span class="required">*</span></label>
+                            <input type="password" id="password" class="form-control" placeholder="Create a strong password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter your password" required>
+                        </div>
+                    </div>
+
+                    <ul class="password-requirements" id="pwReqs">
+                        <li id="req-length"><span class="req-icon">&#9675;</span> Minimum 8 characters</li>
+                        <li id="req-upper"><span class="req-icon">&#9675;</span> At least one uppercase letter</li>
+                        <li id="req-lower"><span class="req-icon">&#9675;</span> At least one lowercase letter</li>
+                        <li id="req-number"><span class="req-icon">&#9675;</span> At least one number</li>
+                        <li id="req-special"><span class="req-icon">&#9675;</span> At least one special character (!@#$...)</li>
+                    </ul>
+
+                    <div class="terms-group">
+                        <label class="terms-label">
+                            <input type="checkbox" id="termsCheck" required>
+                            I agree to the <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> of Ticket911.ca. I understand that my information will be used to process my legal case and I consent to receive communications related to my account.
+                        </label>
+                    </div>
+
+                    <div class="terms-group" style="margin-top: -10px;">
+                        <label class="terms-label">
+                            <input type="checkbox" id="marketingCheck">
+                            I'd like to receive helpful tips, legal updates, and promotional offers from Ticket911 by email. (Optional)
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-back" onclick="goToStep(2)">
+                            &#8592; Back
+                        </button>
+                        <button type="submit" class="btn-register" onclick="submitRegistration()">
+                            Create My Account &#8594;
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Log in here</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">TICKET<span>911</span>.ca</div>
+                <p>Fight your traffic ticket with former prosecutors and AI technology. Serving Quebec, Ontario &amp; New York since 2011.</p>
+                <p style="margin-top:12px;"><strong style="color:white;">1 (844) 440-9111</strong> &mdash; 24/7</p>
+                <p>info@ticket911.ca</p>
+            </div>
+            <div>
+                <h4>Services</h4>
+                <a href="services.html#speeding">Speeding Tickets</a><br>
+                <a href="services.html#redlight">Red Light / Stop Sign</a><br>
+                <a href="services.html#cellphone">Cellphone Tickets</a><br>
+                <a href="services.html#dui">DUI / Impaired</a><br>
+                <a href="services.html#pardons">Pardons</a>
+            </div>
+            <div>
+                <h4>Jurisdictions</h4>
+                <a href="quebec.html">Quebec</a><br>
+                <a href="ontario.html">Ontario</a><br>
+                <a href="new-york.html">New York</a><br><br>
+                <h4>Company</h4>
+                <a href="about.html">About Us</a><br>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a><br>
+                <a href="terms.html">Terms &amp; Conditions</a><br><br>
+                <h4>My Account</h4>
+                <a href="login.html">Log In</a><br>
+                <a href="register.html">Register</a><br>
+                <a href="dashboard-client.html">My Cases</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ticket911.ca &mdash; 9493-0971 Quebec Inc. All rights reserved.</p>
+            <p>&#128274; SSL Encrypted &bull; Confidential</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// ===== Multi-Step Form Navigation =====
+let currentStep = 1;
+
+function goToStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    // Show target step
+    document.getElementById('step' + step).classList.add('active');
+
+    // Update step indicator
+    for (let i = 1; i <= 3; i++) {
+        const circle = document.getElementById('stepCircle' + i);
+        const label = document.getElementById('stepLabel' + i);
+        circle.classList.remove('active', 'completed');
+        label.classList.remove('active');
+
+        if (i < step) {
+            circle.classList.add('completed');
+            circle.innerHTML = '&#10003;';
+        } else if (i === step) {
+            circle.classList.add('active');
+            label.classList.add('active');
+            circle.textContent = i;
+        } else {
+            circle.textContent = i;
+        }
+    }
+
+    // Update step lines
+    for (let i = 1; i <= 2; i++) {
+        const line = document.getElementById('stepLine' + i);
+        if (i < step) {
+            line.classList.add('active');
+        } else {
+            line.classList.remove('active');
+        }
+    }
+
+    currentStep = step;
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+}
+
+// ===== Password Requirements Checker =====
+const passwordInput = document.getElementById('password');
+if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+        const val = this.value;
+        checkReq('req-length', val.length >= 8);
+        checkReq('req-upper', /[A-Z]/.test(val));
+        checkReq('req-lower', /[a-z]/.test(val));
+        checkReq('req-number', /[0-9]/.test(val));
+        checkReq('req-special', /[!@#$%^&*(),.?":{}|<>]/.test(val));
+    });
+}
+
+function checkReq(id, met) {
+    const el = document.getElementById(id);
+    if (met) {
+        el.classList.add('met');
+        el.querySelector('.req-icon').innerHTML = '&#9679;';
+        el.querySelector('.req-icon').style.color = 'var(--success)';
+    } else {
+        el.classList.remove('met');
+        el.querySelector('.req-icon').innerHTML = '&#9675;';
+        el.querySelector('.req-icon').style.color = 'var(--gray-light)';
+    }
+}
+
+// ===== Submit Registration (Demo) =====
+function submitRegistration() {
+    const terms = document.getElementById('termsCheck');
+    if (!terms.checked) {
+        alert('Please accept the Terms & Conditions to continue.');
+        return;
+    }
+    const pw = document.getElementById('password').value;
+    const cpw = document.getElementById('confirmPassword').value;
+    if (pw !== cpw) {
+        alert('Passwords do not match. Please re-enter.');
+        return;
+    }
+    alert('Demo Mode: Registration successful! You would now receive a confirmation email. Redirecting to login...');
+    // window.location.href = 'login.html';
+}
+</script>
+
+</body>
+</html>

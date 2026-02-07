@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services — All Traffic Violations | Ticket911.ca</title>
+    <meta name="description" content="Full list of traffic ticket defense services. Speeding, red light, cellphone, careless driving, DUI, pardons, waivers. AI-powered legal defense across Quebec, Ontario & New York.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <style>
+        /* ===== PAGE-SPECIFIC STYLES ===== */
+
+        .services-hero {
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1040 40%, #2d1050 70%, #0a0e1a 100%);
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .services-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(230,57,70,0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 30%, rgba(99,102,241,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .services-hero .container { position: relative; z-index: 2; }
+        .services-hero h1 {
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 18px;
+            color: #fff;
+        }
+        .services-hero h1 span { color: var(--accent); }
+        .services-hero p.subtitle {
+            font-size: 20px;
+            color: var(--gray-light);
+            max-width: 700px;
+            margin-bottom: 30px;
+        }
+        .hero-stats-bar {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .hero-stats-bar .stat { text-align: center; }
+        .hero-stats-bar .stat .num {
+            display: block;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--gold-light);
+        }
+        .hero-stats-bar .stat .lbl {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Quick nav pills */
+        .services-nav {
+            background: var(--dark);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .services-nav .container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .services-nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-light);
+            text-decoration: none;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .services-nav a:hover {
+            background: rgba(230,57,70,0.15);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .services-nav a .pill-icon { margin-right: 4px; }
+
+        /* Service sections */
+        .service-section {
+            padding: 80px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .service-section:nth-child(even) {
+            background: rgba(255,255,255,0.015);
+        }
+        .service-section .service-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+        .service-icon-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .service-icon-block .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .icon-red { background: rgba(230,57,70,0.15); }
+        .icon-blue { background: rgba(59,130,246,0.15); }
+        .icon-gold { background: rgba(212,168,67,0.15); }
+        .icon-green { background: rgba(34,197,94,0.15); }
+        .icon-purple { background: rgba(139,92,246,0.15); }
+
+        .service-icon-block .service-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+        .service-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .service-section .service-subtitle {
+            font-size: 17px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .service-section p {
+            color: var(--gray-light);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 15px;
+        }
+
+        /* Key facts grid */
+        .key-facts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .key-fact {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .key-fact .kf-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        .key-fact .kf-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .key-fact .kf-value.warn { color: var(--accent); }
+        .key-fact .kf-value.good { color: var(--success); }
+
+        /* How we fight it */
+        .fight-block {
+            background: rgba(230,57,70,0.05);
+            border: 1px solid rgba(230,57,70,0.15);
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        .fight-block h4 {
+            color: var(--accent);
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .fight-block ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .fight-block ul li {
+            padding: 6px 0;
+            color: var(--gray-light);
+            font-size: 14px;
+        }
+        .fight-block ul li::before {
+            content: '\2713';
+            color: var(--success);
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* AI advantage block */
+        .ai-advantage {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        .ai-advantage h4 {
+            color: #818cf8;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .ai-advantage p {
+            font-size: 14px;
+            color: var(--gray-light);
+            margin-bottom: 0;
+        }
+
+        /* Jurisdiction comparison */
+        .jurisdiction-compare {
+            margin-top: 20px;
+        }
+        .jurisdiction-compare h4 {
+            color: var(--gold-light);
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .jur-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .jur-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 34px;
+            text-align: center;
+        }
+        .jur-qc { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .jur-on { background: rgba(234,179,8,0.15); color: #fbbf24; }
+        .jur-ny { background: rgba(230,57,70,0.15); color: #f87171; }
+        .jur-text {
+            font-size: 13px;
+            color: var(--gray-light);
+            line-height: 1.5;
+        }
+
+        /* CTA row */
+        .service-cta {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .service-cta .btn { font-size: 14px; }
+
+        /* AI Overview Section */
+        .ai-overview {
+            background: linear-gradient(135deg, #0f0520 0%, #1a0a3e 50%, #0a0e1a 100%);
+            padding: 80px 0;
+            position: relative;
+        }
+        .ai-overview::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .ai-overview .container { position: relative; z-index: 2; }
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .ai-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 16px;
+            padding: 28px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .ai-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139,92,246,0.4);
+        }
+        .ai-card .ai-card-icon {
+            font-size: 32px;
+            margin-bottom: 14px;
+        }
+        .ai-card h4 {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .ai-card p {
+            color: var(--gray-light);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            background: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
+            padding: 70px 0;
+            text-align: center;
+        }
+        .final-cta h2 {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .final-cta p {
+            font-size: 18px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 30px;
+        }
+        .final-cta .btn-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .service-section .service-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .services-hero h1 { font-size: 32px; }
+            .hero-stats-bar { gap: 20px; }
+            .ai-grid { grid-template-columns: 1fr; }
+            .key-facts { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .services-nav a { font-size: 11px; padding: 6px 10px; }
+            .service-section { padding: 50px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+    <div class="container">
+        <div class="topbar-left">
+            <a href="tel:18444409111">&#128222; 1 (844) 440-9111 — 24/7</a>
+            <a href="tel:5147000303">&#128205; (514) 700-0303</a>
+            <a href="mailto:info@ticket911.ca">&#9993; info@ticket911.ca</a>
+        </div>
+        <div class="topbar-right">
+            <span style="color: var(--gold);">&#9733;&#9733;&#9733;&#9733;&#9733; 4.6/5 Google (1,000+ reviews)</span>
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn">FR</button>
+            <button class="lang-btn">ES</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="container">
+        <a href="../index.html" class="logo">
+            <span>TICKET</span><span class="t9">911</span><span>.ca</span>
+        </a>
+        <nav class="nav">
+            <div class="dropdown">
+                Services &#9662;
+                <div class="dropdown-menu">
+                    <a href="services.html">All Services</a>
+                    <a href="services.html#speeding">Speeding Tickets</a>
+                    <a href="services.html#redlight">Red Light / Stop Sign</a>
+                    <a href="services.html#cellphone">Cellphone Tickets</a>
+                    <a href="services.html#careless">Careless Driving</a>
+                    <a href="services.html#stunt">Racing / Stunt Driving</a>
+                    <a href="services.html#dui">DUI / Impaired</a>
+                    <a href="services.html#pardons">Pardons & Waivers</a>
+                </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+            <div class="dropdown">
+                Jurisdictions &#9662;
+                <div class="dropdown-menu">
+                    <a href="quebec.html">&#127464;&#127462; Quebec</a>
+                    <a href="ontario.html">&#127464;&#127462; Ontario</a>
+                    <a href="new-york.html">&#127482;&#127480; New York</a>
+                </div>
+            </div>
+            <a href="ai-analysis.html"><span class="badge-ai">AI</span> Analyze My Ticket</a>
+            <a href="about.html">About</a>
+            <a href="faq.html">FAQ</a>
+            <a href="blog.html">Blog</a>
+            <a href="login.html" class="nav-login">Log In</a>
+            <a href="quote.html" class="nav-cta">Free Quote</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="services-hero">
+    <div class="container">
+        <div class="hero-badge" style="margin-bottom:18px;">&#9889; Complete Service Catalog</div>
+        <h1>Our Services — Every Traffic Violation,<br>Every <span>Jurisdiction</span></h1>
+        <p class="subtitle">From minor speeding infractions to serious criminal DUI charges, our team of former prosecutors and AI technology handles every type of traffic and driving offense across Quebec, Ontario, and New York.</p>
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+            <a href="quote.html" class="btn btn-primary btn-lg">Get Your Free Quote &#8594;</a>
+            <a href="ai-analysis.html" class="btn btn-outline btn-lg">&#129302; AI Ticket Scan</a>
+            <a href="tel:18444409111" class="btn btn-outline btn-lg">&#128222; Call Now</a>
+        </div>
+        <div class="hero-stats-bar">
+            <div class="stat"><span class="num">105,000+</span><span class="lbl">Cases Resolved</span></div>
+            <div class="stat"><span class="num">90%</span><span class="lbl">Success Rate</span></div>
+            <div class="stat"><span class="num">10+</span><span class="lbl">Service Categories</span></div>
+            <div class="stat"><span class="num">3</span><span class="lbl">Jurisdictions</span></div>
+            <div class="stat"><span class="num">60+</span><span class="lbl">Years Combined Experience</span></div>
+            <div class="stat"><span class="num">24/7</span><span class="lbl">AI Available</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== STICKY NAVIGATION ===== -->
+<nav class="services-nav">
+    <div class="container">
+        <a href="#speeding"><span class="pill-icon">&#128668;</span> Speeding</a>
+        <a href="#redlight"><span class="pill-icon">&#128308;</span> Red Light</a>
+        <a href="#cellphone"><span class="pill-icon">&#128241;</span> Cellphone</a>
+        <a href="#careless"><span class="pill-icon">&#9888;&#65039;</span> Careless</a>
+        <a href="#stunt"><span class="pill-icon">&#127946;</span> Stunt Driving</a>
+        <a href="#dui"><span class="pill-icon">&#127863;</span> DUI</a>
+        <a href="#suspension"><span class="pill-icon">&#128683;</span> Suspension</a>
+        <a href="#heavy"><span class="pill-icon">&#128666;</span> Heavy Vehicles</a>
+        <a href="#pardons"><span class="pill-icon">&#128274;</span> Pardons</a>
+        <a href="#waivers"><span class="pill-icon">&#9992;&#65039;</span> Waivers</a>
+    </div>
+</nav>
+
+<!-- =========================================================================
+     SERVICE 1: SPEEDING TICKETS
+     ========================================================================= -->
+<section class="service-section" id="speeding">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-red">&#128668;</div>
+                    <div>
+                        <div class="service-label">Service 01</div>
+                    </div>
+                </div>
+                <h2>Speeding Tickets</h2>
+                <div class="service-subtitle">All Speed Zones. Minor to Excessive. Every Jurisdiction.</div>
+
+                <p>Speeding tickets are the single most common traffic violation we handle at Ticket911. Whether you were caught doing 15 km/h over the limit in a school zone or flagged for excessive speed at 50+ km/h over on the highway, the consequences can be severe and long-lasting. Many drivers simply pay the fine, not realizing that the demerit points, insurance premium increases, and potential license suspension could cost them thousands of dollars over the following years.</p>
+
+                <p>Our team of former prosecutors knows the system inside and out. We understand how radar and LIDAR devices work, their calibration requirements, the procedural rules officers must follow, and the case law that governs speeding offenses in each jurisdiction. From the moment you upload your ticket, our AI engine scans the details and cross-references them against thousands of past decisions to identify the strongest defense strategy for your specific situation.</p>
+
+                <p>Do not underestimate a speeding ticket. In Quebec alone, accumulating 15 demerit points within a two-year period will result in an automatic license revocation. In Ontario, exceeding the speed limit by 50 km/h is classified as stunt driving under Bill 282 and carries a mandatory 30-day roadside license suspension and 14-day vehicle impoundment. In New York, 11 points within 18 months triggers a license suspension and a mandatory Driver Responsibility Assessment fee of $300 or more.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Fine Range</div>
+                        <div class="kf-value warn">$100 — $10,000+</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Demerit Points</div>
+                        <div class="kf-value warn">1 — 6 points</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Insurance Impact</div>
+                        <div class="kf-value warn">+15% to +100%</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Success Rate</div>
+                        <div class="kf-value good">92% win/reduce</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Code de la securite routiere s.299-303. Fines $100-$4,890. 1-12 demerit pts. Excessive speed (40+ over) = doubled fines, possible license suspension. Photo radar expanding province-wide.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">Highway Traffic Act s.128. Set fines by speed bracket. 50+ over = stunt driving charge (mandatory roadside suspension, vehicle seizure). Community safety zones = doubled fines.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.1180. Points: 3 pts (1-10 mph over) to 11 pts (40+ mph over). NY Driver Responsibility Assessment $300-$975 at 6+ pts. Speeding in work zones = doubled fines.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Speeding Tickets</h4>
+                    <ul>
+                        <li>Challenge radar/LIDAR calibration records and maintenance logs</li>
+                        <li>Request officer training certifications and device operation protocols</li>
+                        <li>Verify speed measurement angle and cosine effect calculations</li>
+                        <li>Examine posted speed limit signage compliance and visibility</li>
+                        <li>Identify procedural errors in ticket issuance (wrong date, location, vehicle info)</li>
+                        <li>Cross-reference weather and road conditions at time of alleged offense</li>
+                        <li>Negotiate reduced charges (e.g., lesser speed bracket) to minimize points</li>
+                        <li>Leverage constitutional rights arguments for roadside stops</li>
+                        <li>Request disclosure of officer notes, dashboard camera footage, and dispatch records</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Speeding Cases</h4>
+                    <p>Our AI engine instantly analyzes your ticket details, identifies the exact statute, cross-references it against 12,000+ speeding case outcomes in our database, and calculates the probability of winning based on the specific radar device used, the officer involved, the courthouse track record, and the speed bracket. It finds precedents where identical circumstances led to acquittals — something that would take a human lawyer hours of manual research. Average analysis time: 28 seconds.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Fight My Speeding Ticket &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 2: RED LIGHT & STOP SIGN
+     ========================================================================= -->
+<section class="service-section" id="redlight">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-red">&#128308;</div>
+                    <div>
+                        <div class="service-label">Service 02</div>
+                    </div>
+                </div>
+                <h2>Red Light & Stop Sign Violations</h2>
+                <div class="service-subtitle">Camera Tickets. Rolling Stops. Disputed Signals.</div>
+
+                <p>Red light and stop sign violations are among the most contested traffic offenses, and for good reason. Red light camera systems, while designed to improve intersection safety, are notorious for generating tickets based on questionable evidence. Camera angles, timing calibrations, yellow light durations, and sensor trigger points all create opportunities for a skilled defense. Many drivers receive these tickets weeks after the alleged offense and have no clear memory of the intersection or the circumstances.</p>
+
+                <p>Rolling stop violations present a different challenge. Officers often issue these tickets based on subjective observation from a distance. The definition of a "complete stop" varies by case law, and what one officer considers a rolling stop may not meet the legal threshold in court. Our lawyers have successfully argued hundreds of cases where the officer's vantage point, environmental factors, or vehicle dynamics created reasonable doubt about whether a true violation occurred.</p>
+
+                <p>Disputed signal cases — where the light was amber and the driver was already committed to the intersection — require precise timing analysis. Our team examines traffic signal timing plans, intersection engineering reports, and the physics of stopping distance to build a compelling defense. In many cases, the signal timing does not comply with provincial or state engineering standards, which can invalidate the entire charge.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Fine Range</div>
+                        <div class="kf-value warn">$150 — $500</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Demerit Points</div>
+                        <div class="kf-value warn">3 points (driver-issued)</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Camera Tickets</div>
+                        <div class="kf-value good">No demerit pts (owner liability)</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Success Rate</div>
+                        <div class="kf-value good">88% win/reduce</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Red light cameras issue tickets to vehicle owner (no demerit points). Driver-issued tickets carry 3 demerit points. Fines $100-$200. Stop sign violations: $100-$200 + 3 points.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">Red light camera tickets: $325 fine, no demerit points (owner liability). Officer-issued: $325 + 3 demerit points. Stop sign: set fine of $110 + 3 points. Community safety zones double fines.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">Red light camera: $50-$100 (no points, owner liability). Officer-issued: $150-$450 + 3 points. NYC has 2,000+ red light cameras. Stop sign: $150-$300 + 3 points.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Red Light / Stop Sign Tickets</h4>
+                    <ul>
+                        <li>Analyze red light camera photos and video for clarity and proper identification</li>
+                        <li>Challenge camera calibration and maintenance certification records</li>
+                        <li>Verify yellow light timing compliance with engineering standards</li>
+                        <li>Examine intersection geometry and sight-line obstructions</li>
+                        <li>Calculate stopping distance vs. available amber time for your vehicle type</li>
+                        <li>Challenge officer vantage point and observation conditions for rolling stop tickets</li>
+                        <li>Request traffic signal timing plans and maintenance logs</li>
+                        <li>Argue the "point of no return" defense for amber light entries</li>
+                        <li>Identify whether the registered owner was actually driving (camera tickets)</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Red Light Cases</h4>
+                    <p>Our AI system searches 7 legal databases to find precedent cases where red light camera evidence was challenged and excluded. It analyzes the specific intersection, camera model, and timing configuration against known compliance issues. In Ontario alone, our AI has identified 340+ intersections where amber timing is below Ministry of Transportation guidelines — a powerful defense that has led to hundreds of dismissals. The system also flags procedural deficiencies in how camera tickets are served and whether notice requirements are properly met.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Fight My Red Light Ticket &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 3: CELLPHONE / HANDHELD DEVICE
+     ========================================================================= -->
+<section class="service-section" id="cellphone">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-blue">&#128241;</div>
+                    <div>
+                        <div class="service-label">Service 03</div>
+                    </div>
+                </div>
+                <h2>Cellphone / Handheld Device Tickets</h2>
+                <div class="service-subtitle">Texting. Calling. Holding. Massive Demerit Points.</div>
+
+                <p>Cellphone and handheld device violations have become one of the most aggressively enforced traffic offenses across all three jurisdictions. Governments have dramatically increased penalties in recent years, making distracted driving tickets some of the most punishing infractions a driver can receive. In Quebec, a single cellphone ticket now carries 5 demerit points — more than many speeding offenses. In Ontario, penalties range from 3 to 6 demerit points with fines up to $3,000 for repeat offenders, plus a potential license suspension.</p>
+
+                <p>The insurance impact of a cellphone conviction is devastating. Insurance companies view distracted driving as a high-risk behavior, often resulting in premium increases of 25% to 50% or more for three years following a conviction. For a typical Ontario driver paying $2,000 per year in insurance, that could mean an additional $3,000 to $6,000 in insurance costs on top of the fine itself. When you factor in the demerit points and the risk of losing your license, paying the ticket without fighting it is rarely the smart financial decision.</p>
+
+                <p>However, cellphone tickets are also highly defensible. Officers often observe drivers from a distance, in traffic, through tinted windows, or in low-light conditions. The legal definition of "use" and "holding" varies by jurisdiction and case law. Many drivers were holding objects that are not phones, adjusting dashboard controls, or had the phone mounted in a legal hands-free cradle. Our defense strategies target the officer's ability to positively identify the device and prove its active use beyond reasonable doubt.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">QC: Demerit Points</div>
+                        <div class="kf-value warn">5 points</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">ON: Demerit Points</div>
+                        <div class="kf-value warn">3-6 points</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Fine Range</div>
+                        <div class="kf-value warn">$300 — $3,000</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Insurance Impact</div>
+                        <div class="kf-value warn">+25% to +50% (3 years)</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Highway Safety Code s.443.1. Fine $300-$600. 5 demerit points. Applies to any handheld electronic device. Hands-free use is permitted. Second offense within 2 years: doubled fines.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">HTA s.78.1. Novice drivers: 3 demerits + 30-day suspension. Fully licensed (1st): $615-$1,000 + 3 demerits. 2nd offense: $1,000-$2,000 + 6 demerits + 7-day suspension. 3rd: $2,000-$3,000 + 6 demerits + 30-day suspension.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.1225-c/d. 5 points on license. Fine $50-$450 (escalating). $93 surcharge. NY Driver Responsibility Assessment if 6+ points. Commercial drivers face federal disqualification rules.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Cellphone Tickets</h4>
+                    <ul>
+                        <li>Challenge the officer's ability to identify the device from their observation point</li>
+                        <li>Argue the object was not a cellphone (GPS device, wallet, coffee cup)</li>
+                        <li>Verify the phone was mounted in a legal hands-free cradle</li>
+                        <li>Request phone records to prove the device was not in active use at the time</li>
+                        <li>Challenge observation conditions (tinted windows, distance, angle, lighting)</li>
+                        <li>Examine whether the vehicle was fully stopped and not "in operation"</li>
+                        <li>Argue emergency use exception (calling 911, safety concerns)</li>
+                        <li>Cross-examine officer testimony for inconsistencies</li>
+                        <li>Present dashboard camera footage showing hands on the wheel</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Cellphone Cases</h4>
+                    <p>Our AI identifies successful defense patterns by analyzing outcomes across thousands of cellphone-related cases. It flags the specific legal tests required in each jurisdiction — for example, in Quebec, the prosecution must prove the device was "held" and in "active use," while Ontario case law has specific definitions of what constitutes "use" vs. mere "possession." The AI cross-references the issuing officer's conviction rate on cellphone tickets and identifies any history of overturned verdicts, giving your defense lawyer a significant tactical advantage.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Fight My Cellphone Ticket &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 4: CARELESS DRIVING
+     ========================================================================= -->
+<section class="service-section" id="careless">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-gold">&#9888;&#65039;</div>
+                    <div>
+                        <div class="service-label">Service 04</div>
+                    </div>
+                </div>
+                <h2>Careless Driving</h2>
+                <div class="service-subtitle">Serious Charges. License at Risk. Expert Defense Essential.</div>
+
+                <p>A careless driving charge is one of the most serious non-criminal driving offenses you can face. Unlike a simple speeding ticket or traffic infraction, careless driving is considered a major offense that carries heavy penalties, including up to 6 demerit points, fines of up to $2,000, potential jail time of up to 6 months, and a possible license suspension of up to 2 years. Insurance companies treat a careless driving conviction as a major conviction, which can double or triple your premiums — or result in outright cancellation of your policy.</p>
+
+                <p>Careless driving charges are often laid in connection with motor vehicle accidents, but they can also arise from any driving behavior that an officer deems to show "a lack of due care and attention" or "reasonable consideration for other persons." This broad definition gives officers wide discretion, which means many careless driving charges are based on subjective interpretation rather than clear-cut violations. A lane change that results in a minor collision, a momentary distraction, or even an honest mistake in judgment can lead to this devastating charge.</p>
+
+                <p>Expert legal defense is not optional for careless driving — it is essential. The stakes are simply too high to handle on your own. Our former prosecutors have defended thousands of careless driving charges and understand how to challenge the subjective nature of these allegations. We analyze the accident reconstruction reports, witness statements, road conditions, and mechanical factors to build a defense that either seeks a full dismissal or negotiates a reduction to a lesser charge with significantly lower consequences.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Demerit Points</div>
+                        <div class="kf-value warn">6 points</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Maximum Fine</div>
+                        <div class="kf-value warn">$2,000 — $50,000</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Possible Jail</div>
+                        <div class="kf-value warn">Up to 6 months</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">License Suspension</div>
+                        <div class="kf-value warn">Up to 2 years</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Charged as "dangerous driving" under Criminal Code or as lesser penal offenses under Highway Safety Code. Dangerous operation of a motor vehicle carries criminal penalties. Lesser charges under CSR carry 4-9 demerit points.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">HTA s.130. Careless driving: 6 demerits, $400-$2,000 fine, up to 6 months jail, up to 2-year license suspension. Since 2018, s.130(3) "causing bodily harm or death": up to $50,000, 2 years jail, 5-year suspension.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.1212 "Reckless driving": misdemeanor, up to 30 days jail (1st offense), $100-$300 fine, 5 points. If bodily injury: felony charges possible. Careless driving (VTL s.1146): 2 points, lower penalties.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Careless Driving Charges</h4>
+                    <ul>
+                        <li>Obtain and analyze the complete police investigation file and accident reconstruction</li>
+                        <li>Challenge the subjective "lack of due care" standard with objective evidence</li>
+                        <li>Engage independent accident reconstruction experts when necessary</li>
+                        <li>Interview witnesses and identify inconsistencies in prosecution evidence</li>
+                        <li>Examine road conditions, signage, weather, and mechanical factors</li>
+                        <li>Negotiate reduction to lesser charges (improper lane change, follow too closely)</li>
+                        <li>Challenge constitutionality of the charge where applicable</li>
+                        <li>Present mitigating factors (clean driving record, emergency circumstances)</li>
+                        <li>Prepare full trial defense with cross-examination strategy if needed</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Careless Driving Cases</h4>
+                    <p>Careless driving cases depend heavily on case law and judicial interpretation. Our AI searches thousands of careless driving decisions across all three jurisdictions to identify fact patterns similar to your case where charges were dismissed or reduced. It analyzes the presiding judge's sentencing history, the prosecutor's plea bargaining tendencies, and the specific courthouse procedures to give your lawyer an unparalleled strategic advantage before they ever set foot in the courtroom.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Get Expert Careless Driving Defense &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 5: RACING / STUNT DRIVING
+     ========================================================================= -->
+<section class="service-section" id="stunt">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-red">&#127946;</div>
+                    <div>
+                        <div class="service-label">Service 05</div>
+                    </div>
+                </div>
+                <h2>Racing / Stunt Driving</h2>
+                <div class="service-subtitle">50+ Over the Limit. Street Racing. Immediate Consequences.</div>
+
+                <p>Racing and stunt driving charges represent some of the most severe penalties in Canadian traffic law. Under Ontario's Highway Traffic Act, these charges carry immediate roadside consequences that take effect before you ever see a courtroom: a 30-day driver's license suspension and a 14-day vehicle impoundment, both executed on the spot by the police officer. Your vehicle is towed away, and you have no legal ability to drive for a full month — regardless of whether you are ultimately found guilty or acquitted at trial.</p>
+
+                <p>The definition of "stunt driving" extends far beyond street racing. Under Ontario's regulations, driving 40 km/h or more over the posted speed limit on roads with a limit under 80 km/h, or 50 km/h or more over on roads with limits of 80 km/h or above, automatically constitutes stunt driving. This means a driver doing 130 km/h on a 80 km/h highway faces the same charge as someone engaged in deliberate street racing. Other stunt driving behaviors include intentionally drifting, driving with a person in the trunk, or deliberately preventing another vehicle from passing.</p>
+
+                <p>Conviction penalties are severe: a fine of $2,000 to $10,000, a license suspension of up to 2 years (first offense) or up to 10 years (subsequent), 6 demerit points, and up to 6 months in jail. Insurance consequences are catastrophic — most standard insurers will refuse coverage entirely, forcing you into the high-risk insurance pool where premiums can exceed $10,000 per year. If you are facing a stunt driving charge, aggressive legal defense is not optional; it is the only rational response.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Immediate Suspension</div>
+                        <div class="kf-value warn">30 days roadside</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Vehicle Seizure</div>
+                        <div class="kf-value warn">14 days impound</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Fine Range</div>
+                        <div class="kf-value warn">$2,000 — $10,000</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">License Suspension</div>
+                        <div class="kf-value warn">Up to 2 years (1st)</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">HTA s.172. Stunt driving / racing: 30-day immediate roadside suspension, 14-day vehicle impound. Conviction: $2,000-$10,000 fine, 6 demerits, up to 2-year suspension (1st), up to 10 years (subsequent), up to 6 months jail. Threshold: 40+ over (under 80 zones) or 50+ over (80+ zones).</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">CSR s.328 (racing) and s.303.2 (excessive speed). Racing: $1,000-$3,000 fine, license suspension, vehicle seizure. Excessive speed (40+ over): $625-$4,890 fine, 12 demerit points, 7-day vehicle seizure (new). Repeat offenders face 30-60 day seizure.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.1182 (racing) and Penal Law s.240.60 (reckless endangerment). Racing: misdemeanor, up to 30 days jail, $300-$525 fine, 5 points, 6-month license revocation. Speed contest: vehicle can be impounded. Repeat: felony charges possible.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Stunt Driving Charges</h4>
+                    <ul>
+                        <li>Challenge the speed measurement method (radar, LIDAR, pacing, aircraft)</li>
+                        <li>Verify device calibration, operator certification, and testing logs</li>
+                        <li>Challenge the constitutionality of roadside penalties (Charter s.7, s.8, s.11(d))</li>
+                        <li>Seek return of impounded vehicle through legal motions</li>
+                        <li>Negotiate reduction to standard speeding (eliminating stunt charge consequences)</li>
+                        <li>Argue the behavior does not meet the legal definition of "stunt" or "race"</li>
+                        <li>Present GPS data, vehicle telemetry, or dashcam evidence</li>
+                        <li>Challenge the posted speed limit signage and visibility</li>
+                        <li>Explore defenses based on emergency or necessity</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Stunt Driving Cases</h4>
+                    <p>Stunt driving cases have evolved rapidly with changing legislation (Ontario's Bill 282, Quebec's new seizure rules). Our AI is trained on the latest amendments and cross-references them against the most current case law. It identifies which judges have granted Charter challenges against roadside suspensions, which prosecutors are open to negotiating stunt charges down to standard speeding, and which courthouses have the highest acquittal rates. For speed-based stunt charges, the AI also analyzes the specific radar unit's known error margins and maintenance history.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Fight My Stunt Driving Charge &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 6: DUI / IMPAIRED DRIVING
+     ========================================================================= -->
+<section class="service-section" id="dui">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-red">&#127863;</div>
+                    <div>
+                        <div class="service-label">Service 06</div>
+                    </div>
+                </div>
+                <h2>DUI / Impaired Driving</h2>
+                <div class="service-subtitle">Alcohol. Cannabis. Criminal Code. Former Prosecutors Defend You.</div>
+
+                <p>Impaired driving is a criminal offense under the Criminal Code of Canada and carries severe consequences that extend far beyond traffic law. A DUI conviction results in a permanent criminal record, which can affect your employment, professional licenses, international travel, immigration status, and personal reputation for the rest of your life. Unlike a traffic ticket, an impaired driving charge is prosecuted as a criminal matter with the full weight of the Crown prosecutor's office behind it. This is not something you can handle with a quick phone call — it demands immediate, experienced criminal defense.</p>
+
+                <p>Since the legalization of cannabis in Canada and the adoption of new impaired driving laws under Bill C-46, the scope of impaired driving enforcement has expanded dramatically. Police now have expanded powers to demand roadside breath samples without reasonable suspicion (mandatory alcohol screening), and new drug-impaired driving offenses carry penalties on par with alcohol impairment. Blood drug concentration limits for THC have been established, and refusal or failure to comply with a demand for testing is itself a criminal offense carrying the same penalties as impaired driving.</p>
+
+                <p>Our firm includes former prosecutors who spent years on the other side of the courtroom, prosecuting impaired driving cases. They know every step of the investigation process, every weakness in the breathalyzer procedure, every technical requirement the police must satisfy, and every legal argument that can challenge the admissibility of evidence. From the initial roadside stop to the breath or blood test at the station, there are dozens of procedural and constitutional requirements that must be met — and our team knows exactly where to look for errors.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Criminal Record</div>
+                        <div class="kf-value warn">Yes — permanent</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Minimum Fine (1st)</div>
+                        <div class="kf-value warn">$1,000</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">License Suspension</div>
+                        <div class="kf-value warn">1 year minimum (1st)</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Possible Jail</div>
+                        <div class="kf-value warn">Up to 10 years</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Penalties by Jurisdiction</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Criminal Code + Quebec Highway Safety Code. Immediate 90-day administrative license suspension. Interlock device mandatory. First offense: $1,000 min fine, 1-year prohibition. BAC 80mg+: Criminal Code s.320.14. Quebec also imposes vehicle seizure for BAC 160mg+.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">Criminal Code + Ontario HTA. Immediate 90-day Administrative Driver's License Suspension (ADLS). 7-day vehicle impound. First offense: $1,000 min fine, 1-year driving prohibition, mandatory education/treatment. Back on Track program required. Ignition interlock for 1 year after prohibition.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.1192. DWI (BAC 0.08+): misdemeanor, $500-$1,000 fine, up to 1 year jail, 6-month license revocation, 25 points. Aggravated DWI (BAC 0.18+): enhanced penalties. DWAI-Drugs: same penalties as DWI. Leandra's Law: felony for DWI with child passenger under 15.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight DUI / Impaired Charges</h4>
+                    <ul>
+                        <li>Challenge the legality of the initial traffic stop (reasonable grounds)</li>
+                        <li>Analyze breathalyzer maintenance records, calibration logs, and operator qualifications</li>
+                        <li>Challenge the administration of the breath test (proper observation period, procedure)</li>
+                        <li>Identify Charter of Rights violations (s.8 search, s.9 detention, s.10(b) counsel)</li>
+                        <li>Challenge drug recognition expert (DRE) evaluation methodology</li>
+                        <li>Examine blood sample handling and chain of custody</li>
+                        <li>Argue rising blood alcohol defense (BAC at time of driving vs. time of test)</li>
+                        <li>Present evidence of medical conditions affecting test results</li>
+                        <li>Negotiate alternative dispositions (conditional discharge, reduced charges)</li>
+                        <li>Prepare full trial defense with expert toxicology witnesses if needed</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for DUI Cases</h4>
+                    <p>DUI defense requires access to specialized databases of breathalyzer maintenance records, approved instrument lists, and toxicology research. Our AI cross-references the specific Intoxilyzer or DataMaster unit used in your test against its maintenance history and known error reports. It identifies every successful Charter challenge at the specific courthouse, analyzes the arresting officer's history of procedural errors, and searches federal and provincial databases for relevant R. v. precedents (e.g., R. v. Bernshaw, R. v. St-Onge Lamoureux). This gives your defense lawyer an encyclopedia of ammunition in seconds.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Get DUI Defense Now &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 7: DRIVING UNDER SUSPENSION
+     ========================================================================= -->
+<section class="service-section" id="suspension">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-red">&#128683;</div>
+                    <div>
+                        <div class="service-label">Service 07</div>
+                    </div>
+                </div>
+                <h2>Driving Under Suspension</h2>
+                <div class="service-subtitle">Serious Offense. Additional Charges. License Reinstatement.</div>
+
+                <p>Driving while your license is suspended is treated as a serious quasi-criminal offense in all Canadian provinces and New York State. Many drivers find themselves in this situation unknowingly — perhaps a fine went unpaid, an insurance lapse triggered an automatic suspension, or administrative paperwork was not properly processed. Regardless of the reason, being caught driving under suspension carries heavy penalties including substantial fines, additional license suspension periods, vehicle impoundment, and in some cases, jail time.</p>
+
+                <p>The consequences compound quickly. In Ontario, a first offense carries a minimum fine of $1,000 and up to $5,000, plus a mandatory additional 6-month license suspension on top of your existing suspension period. Your vehicle is impounded for a minimum of 7 days at your expense. A second offense within 5 years carries a minimum 14-day jail sentence. In Quebec, fines range from $300 to $3,000 plus additional demerit points and extended suspension periods. In New York, driving with a suspended license is a misdemeanor that can result in jail time and permanent notation on your driving record.</p>
+
+                <p>Beyond the immediate legal penalties, driving under suspension has severe practical consequences. Insurance companies view it as one of the most serious violations, often refusing coverage entirely. Professional drivers can lose their commercial driving privileges permanently. Immigration applicants can see their applications jeopardized. Our team works not only to defend the immediate charge but also to navigate the complex process of license reinstatement, helping you understand and satisfy all the requirements to legally get back on the road.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Fine Range</div>
+                        <div class="kf-value warn">$300 — $5,000+</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Vehicle Impound</div>
+                        <div class="kf-value warn">7 — 45 days</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Additional Suspension</div>
+                        <div class="kf-value warn">6 months — 2 years</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Possible Jail</div>
+                        <div class="kf-value warn">Up to 6 months</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">CSR s.105 & s.106.1. Fine $300-$3,000. Vehicle seized 30 days (1st), 90 days (2nd+). Additional suspension on conviction. If suspended for Criminal Code offense and caught driving: Criminal Code s.320.18 applies — indictable offense, up to 10 years.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">HTA s.53. 1st offense: $1,000-$5,000 fine, 6-month additional suspension, 7-day vehicle impound. 2nd offense (within 5 yrs): $2,000-$5,000, 14-day minimum jail, 45-day impound. Subsequent: up to 6 months jail. Unpaid fine suspensions: additional $198 reinstatement fee.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">VTL s.511. Aggravated Unlicensed Operation (AUO): 3rd degree (misdemeanor) — up to 30 days jail, $200-$500 fine. 2nd degree: up to 180 days, $500-$1,000. 1st degree (felony, if DUI-related): up to 4 years prison. All carry mandatory surcharges.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Driving Under Suspension</h4>
+                    <ul>
+                        <li>Verify proper notice of suspension was delivered to the correct address</li>
+                        <li>Challenge whether the driver had actual knowledge of the suspension</li>
+                        <li>Examine the administrative basis for the original suspension</li>
+                        <li>Request complete suspension history and verify accuracy of records</li>
+                        <li>Argue suspension was invalid due to procedural errors in the original process</li>
+                        <li>Present evidence of reinstatement efforts and compliance with conditions</li>
+                        <li>Negotiate reduction of charges based on mitigating circumstances</li>
+                        <li>Navigate the license reinstatement process across all relevant jurisdictions</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Suspension Cases</h4>
+                    <p>License suspension records are maintained across multiple databases (SAAQ, MTO, DMV, CPIC) and errors are more common than most people realize. Our AI system cross-checks your suspension history against the official records to identify discrepancies, verify that proper notice requirements were met, and confirm the legal basis for the suspension is sound. It also maps your complete reinstatement pathway — identifying every fee, course, condition, and administrative step required to restore your driving privileges in the shortest possible timeline.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Get Help With Suspension Charges &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 8: HEAVY VEHICLES / TRUCKING
+     ========================================================================= -->
+<section class="service-section" id="heavy">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-blue">&#128666;</div>
+                    <div>
+                        <div class="service-label">Service 08</div>
+                    </div>
+                </div>
+                <h2>Heavy Vehicles / Trucking Violations</h2>
+                <div class="service-subtitle">Commercial License Protection. CDL Defense. Fleet Management.</div>
+
+                <p>For commercial drivers and trucking companies, a traffic conviction can mean far more than a fine — it can end a career. Commercial Driver's License (CDL) holders face heightened penalties for virtually every traffic violation. A single serious violation can trigger a mandatory disqualification from operating commercial vehicles, and two serious violations within a three-year period can result in a 60-day CDL disqualification. The accumulation of minor violations also triggers "unsafe driver" designations under the Carrier Safety Rating system that can affect an entire fleet's operating authority.</p>
+
+                <p>Trucking-specific violations add another layer of complexity. Hours of service violations, overweight penalties, load securement infractions, mechanical fitness violations, and CVOR (Commercial Vehicle Operator's Registration) points all carry consequences unique to the commercial transportation industry. A single CVOR conviction can push a carrier's violation rate above the audit threshold, triggering a facility audit or even a conditional operating status that jeopardizes the entire business. For owner-operators, losing their commercial driving privileges means losing their livelihood.</p>
+
+                <p>Our team understands the commercial driving regulatory framework across all three jurisdictions. We defend individual CDL holders against charges that threaten their ability to earn a living, and we represent fleet operators facing regulatory compliance challenges. Whether it is a speeding ticket that would push a driver's demerit points past the commercial threshold, an HOS violation from an ELD malfunction, or a roadside inspection failure, we fight to protect your license, your safety rating, and your business.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">CDL Suspension Risk</div>
+                        <div class="kf-value warn">2 serious = 60-day disqualification</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Overweight Fines</div>
+                        <div class="kf-value warn">$100 — $20,000+</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">CVOR Impact</div>
+                        <div class="kf-value warn">Audit / Conditional status</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">HOS Violation Fine</div>
+                        <div class="kf-value warn">$200 — $2,000+</div>
+                    </div>
+                </div>
+
+                <div class="jurisdiction-compare">
+                    <h4>Jurisdiction Differences</h4>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-qc">QC</span>
+                        <span class="jur-text">Loi concernant les proprietaires, les exploitants et les conducteurs de vehicules lourds (Bill 430). SAAQ carrier profile system. Overweight: fines calculated per kilogram over limit. Mandatory pre-trip inspections. Log book violations: $350-$1,000+.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-on">ON</span>
+                        <span class="jur-text">CVOR system tracks all commercial vehicle violations. Points affect carrier safety rating. Overweight: $100 per 100kg over (single axle). HTA s.82-127 commercial provisions. Annual CVOR cap at 100% threshold triggers audit. Daily rental violations: $325+.</span>
+                    </div>
+                    <div class="jur-row">
+                        <span class="jur-badge jur-ny">NY</span>
+                        <span class="jur-text">Federal Motor Carrier Safety Regulations (FMCSA) apply. CSA (Compliance, Safety, Accountability) scores tracked nationally. CDL holders: no plea bargaining to non-moving violations (49 CFR 384.226). Serious violations include speeding 15+ mph over, improper lane change, following too closely.</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block">
+                    <h4>&#9878;&#65039; How We Fight Trucking Violations</h4>
+                    <ul>
+                        <li>Defend CDL holders to prevent commercial license disqualification</li>
+                        <li>Challenge weigh scale accuracy and calibration records for overweight tickets</li>
+                        <li>Dispute roadside inspection findings and out-of-service orders</li>
+                        <li>Fight HOS violations caused by ELD malfunctions or improper calculations</li>
+                        <li>Negotiate to keep violations off CVOR and CSA safety profiles</li>
+                        <li>Challenge load securement violation findings with engineering evidence</li>
+                        <li>Represent carriers at CVOR audits and facility reviews</li>
+                        <li>Defend against mechanical fitness inspection failures</li>
+                        <li>Protect fleet operator's license and operating authority</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Commercial Violations</h4>
+                    <p>Commercial vehicle regulations are extraordinarily complex, spanning federal, provincial/state, and municipal layers. Our AI is trained on the complete FMCSA regulatory framework, provincial CVOR rules, and the specific inspection standards for each jurisdiction. It instantly calculates the impact of each violation on a carrier's safety rating, identifies which violations can be successfully contested based on historical outcomes, and projects the cumulative effect on CDL status and CVOR scores. For fleet operators, it can analyze an entire violation portfolio and prioritize which cases to fight for maximum safety rating impact.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Protect My Commercial License &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 9: CANADIAN PARDONS
+     ========================================================================= -->
+<section class="service-section" id="pardons">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-green">&#128274;</div>
+                    <div>
+                        <div class="service-label">Service 09</div>
+                    </div>
+                </div>
+                <h2>Canadian Pardons (Record Suspensions)</h2>
+                <div class="service-subtitle">Clear Your Criminal Record. Start Fresh. Move Forward.</div>
+
+                <p>A criminal record follows you everywhere. It appears on background checks for employment, housing, volunteering, and professional licensing. It prevents you from traveling freely to the United States and many other countries. It creates barriers to education, adoption, and financial services. Even years after you have served your sentence, paid your fines, and moved on with your life, that record continues to limit your opportunities. A Canadian Pardon — officially called a Record Suspension — is the legal mechanism to seal your criminal record from public databases and give you a genuine fresh start.</p>
+
+                <p>The Record Suspension process is administered by the Parole Board of Canada and involves a detailed application that must demonstrate you have been rehabilitated and are of good conduct. The waiting period before you can apply depends on the nature of your conviction: 5 years after completing your sentence for summary offenses, and 10 years for indictable offenses. The application requires certified copies of your criminal record (CPIC), court documents, local police record checks from every jurisdiction where you have lived, and a detailed personal statement explaining your rehabilitation.</p>
+
+                <p>Our team handles the entire Record Suspension process from start to finish. We gather all required documentation, prepare your application package to the Parole Board's exacting standards, craft a compelling personal narrative, and manage all correspondence with the Board throughout the review period. The current average processing time is 12 to 24 months after submission, and our thorough preparation significantly reduces the risk of delays or rejections. We have successfully obtained Record Suspensions for thousands of Canadians, including those with DUI convictions, drug offenses, theft, assault, and other criminal records.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">Summary Offenses</div>
+                        <div class="kf-value">5-year wait after sentence</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Indictable Offenses</div>
+                        <div class="kf-value">10-year wait after sentence</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Processing Time</div>
+                        <div class="kf-value">12 — 24 months</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">PBC Application Fee</div>
+                        <div class="kf-value">$50.00</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block" style="border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.05);">
+                    <h4 style="color: var(--success);">&#128203; Our Pardon Process</h4>
+                    <ul>
+                        <li>Free eligibility assessment — confirm you qualify before you pay</li>
+                        <li>Obtain your CPIC criminal record from the RCMP</li>
+                        <li>Gather certified court documents from all relevant jurisdictions</li>
+                        <li>Obtain local police record checks from every city/town you have lived in</li>
+                        <li>Prepare your personal statement and rehabilitation narrative</li>
+                        <li>Compile and review the complete application package</li>
+                        <li>Submit to the Parole Board of Canada on your behalf</li>
+                        <li>Manage all Board correspondence and respond to information requests</li>
+                        <li>Keep you updated on processing milestones until approval</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Pardon Applications</h4>
+                    <p>Our AI streamlines the pardon application process by automatically identifying every document you need based on your specific criminal record, residential history, and the current Parole Board requirements. It flags potential issues before submission — missing documents, insufficient waiting period, outstanding fines, or conditions that have not been met. The AI also analyzes successful past applications to optimize your personal statement, ensuring it addresses the specific rehabilitation criteria the Board evaluates. This reduces rejection rates and processing delays significantly.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Start My Pardon Application &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     SERVICE 10: ENTRY WAIVERS
+     ========================================================================= -->
+<section class="service-section" id="waivers">
+    <div class="container">
+        <div class="service-grid">
+            <div>
+                <div class="service-icon-block">
+                    <div class="icon-circle icon-purple">&#9992;&#65039;</div>
+                    <div>
+                        <div class="service-label">Service 10</div>
+                    </div>
+                </div>
+                <h2>Entry Waivers (Canada & USA)</h2>
+                <div class="service-subtitle">Cross the Border Again. TRP. US Waiver. Travel Freely.</div>
+
+                <p>A criminal record can make you inadmissible to both Canada and the United States, effectively barring you from crossing one of the world's busiest international borders. If you have a criminal conviction — including a DUI, drug offense, theft, assault, or any other criminal charge — you may be turned away at the border, detained for questioning, or permanently flagged in immigration databases. For Canadians trying to enter the US, and for Americans or foreign nationals trying to enter Canada, the consequences of a criminal record on travel are immediate and often devastating.</p>
+
+                <p>For entry into the United States, Canadian citizens with criminal records must obtain a US Entry Waiver (Form I-192 or I-212) from the Department of Homeland Security. This application requires extensive documentation including your criminal record, court documents, rehabilitation evidence, character references, and a compelling personal statement. The waiver is typically granted for 1 to 5 years and must be renewed before expiration. Processing times range from 6 to 18 months, and the application fee is $930 USD (non-refundable). Without a valid waiver, you risk being arrested, detained, and permanently barred from future entry.</p>
+
+                <p>For entry into Canada, foreign nationals with criminal records can apply for a Temporary Resident Permit (TRP) or Criminal Rehabilitation. A TRP provides temporary entry for a specific purpose and duration, while Criminal Rehabilitation is a permanent solution available to those who have completed their sentence at least 5 years ago. Our team handles both streams, preparing applications that present the strongest possible case for admissibility. We also advise clients on the interaction between pardons, waivers, and rehabilitation applications — ensuring that all your cross-border travel solutions are coordinated and optimized.</p>
+
+                <div class="key-facts">
+                    <div class="key-fact">
+                        <div class="kf-label">US Waiver (I-192)</div>
+                        <div class="kf-value">$930 USD gov't fee</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">US Waiver Processing</div>
+                        <div class="kf-value">6 — 18 months</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Canada TRP</div>
+                        <div class="kf-value">$200 CAD gov't fee</div>
+                    </div>
+                    <div class="key-fact">
+                        <div class="kf-label">Criminal Rehab (CA)</div>
+                        <div class="kf-value">$200-$1,000 CAD fee</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fight-block" style="border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.05);">
+                    <h4 style="color: #a78bfa;">&#9992;&#65039; Our Waiver Services</h4>
+                    <ul>
+                        <li>US Entry Waiver (I-192) — complete application preparation and submission</li>
+                        <li>US Waiver renewal — ensure continuous border crossing ability</li>
+                        <li>Canada Temporary Resident Permit (TRP) — for urgent or short-term entry needs</li>
+                        <li>Canada Criminal Rehabilitation — permanent admissibility solution</li>
+                        <li>Deemed Rehabilitation assessment — determine if you automatically qualify</li>
+                        <li>FBI identity history check and Canadian CPIC record gathering</li>
+                        <li>Court document collection from all relevant jurisdictions</li>
+                        <li>Comprehensive rehabilitation narrative and supporting evidence compilation</li>
+                        <li>Coordination with Pardon applications for maximum benefit</li>
+                        <li>Emergency TRP applications for urgent business or compassionate travel</li>
+                    </ul>
+                </div>
+
+                <div class="ai-advantage">
+                    <h4>&#129302; AI Advantage for Waiver Applications</h4>
+                    <p>Cross-border admissibility involves navigating immigration law in two countries simultaneously. Our AI maps your specific criminal record against both US and Canadian inadmissibility grounds, identifies the exact waiver type required, calculates eligibility timelines, and generates a complete document checklist tailored to your situation. It also analyzes approval patterns by port of entry, offense type, and applicant profile to optimize your application strategy. For renewal applications, it tracks your waiver expiration dates and initiates the renewal process well in advance to prevent any gaps in your travel authorization.</p>
+                </div>
+
+                <div class="service-cta">
+                    <a href="quote.html" class="btn btn-primary">Start My Waiver Application &#8594;</a>
+                    <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     AI ADVANTAGE OVERVIEW
+     ========================================================================= -->
+<section class="ai-overview">
+    <div class="container">
+        <div class="section-header" style="text-align:center;">
+            <div class="badge-ai" style="display:inline-block; margin-bottom:14px; font-size:14px; padding:6px 16px;">AI-Powered Legal Defense</div>
+            <h2 style="color:#fff; font-size:36px; font-weight:900; margin-bottom:12px;">The AI Advantage Across Every Service</h2>
+            <p style="color:var(--gray-light); max-width:700px; margin:0 auto; font-size:17px;">Our artificial intelligence doesn't replace lawyers — it supercharges them. Here is how AI transforms the defense process for every type of violation we handle.</p>
+        </div>
+        <div class="ai-grid">
+            <div class="ai-card">
+                <div class="ai-card-icon">&#128269;</div>
+                <h4>Instant Jurisprudence Search</h4>
+                <p>Scans 7 legal databases (CanLII, SOQUIJ, LegisQuebec, Ontario e-Laws, CourtListener, NY Courts, NYSCEF) in under 30 seconds. Finds relevant precedents that would take human researchers hours to locate.</p>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-icon">&#128200;</div>
+                <h4>Win Probability Scoring</h4>
+                <p>Calculates your specific chance of success based on 105,000+ case outcomes, the violation type, jurisdiction, courthouse, presiding judge history, and prosecutor tendencies. Updated continuously with new results.</p>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-icon">&#128203;</div>
+                <h4>Automated Document Analysis</h4>
+                <p>Reads and extracts data from ticket photos, court documents, police reports, and inspection forms using advanced OCR. Identifies errors, omissions, and inconsistencies that create defense opportunities.</p>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-icon">&#9878;&#65039;</div>
+                <h4>Defense Strategy Engine</h4>
+                <p>Maps your case facts against winning defense strategies from similar cases. Recommends the approach with the highest historical success rate and generates a preliminary defense outline for your lawyer.</p>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-icon">&#128337;</div>
+                <h4>Deadline & Calendar Management</h4>
+                <p>Tracks every critical deadline — filing dates, disclosure requests, court appearances, waiver renewals, and pardon eligibility dates. Sends automatic reminders to ensure nothing falls through the cracks.</p>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-icon">&#128202;</div>
+                <h4>Insurance Impact Calculator</h4>
+                <p>Projects the long-term financial impact of a conviction vs. the cost of fighting it. Calculates insurance premium increases, demerit point accumulation risk, and total cost of conviction over 3-5 years to help you make an informed decision.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="final-cta">
+    <div class="container">
+        <h2>Got a Ticket? Don't Just Pay It.</h2>
+        <p>Our AI analyzes your ticket in 30 seconds. Our former prosecutors fight to win. 105,000+ cases resolved. 90% success rate.</p>
+        <div class="btn-row">
+            <a href="ai-analysis.html" class="btn btn-primary btn-lg" style="background:#fff; color:var(--accent);">&#129302; AI Ticket Scan — Free</a>
+            <a href="quote.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5); color:#fff;">Get a Free Quote</a>
+            <a href="tel:18444409111" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5); color:#fff;">&#128222; 1 (844) 440-9111</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">TICKET<span>911</span>.ca</div>
+                <p>Fight your traffic ticket with former prosecutors and AI technology. Serving Quebec, Ontario & New York since 2011.</p>
+                <p style="margin-top:12px;"><strong style="color:white;">1 (844) 440-9111</strong> — 24/7</p>
+                <p>info@ticket911.ca</p>
+                <div class="footer-social" style="margin-top:14px;">
+                    <a href="#">f</a>
+                    <a href="#">&#120143;</a>
+                    <a href="#">in</a>
+                    <a href="#">&#9654;</a>
+                    <a href="#">&#9883;</a>
+                </div>
+            </div>
+            <div>
+                <h4>Services</h4>
+                <a href="services.html#speeding">Speeding Tickets</a><br>
+                <a href="services.html#redlight">Red Light / Stop Sign</a><br>
+                <a href="services.html#cellphone">Cellphone Tickets</a><br>
+                <a href="services.html#careless">Careless Driving</a><br>
+                <a href="services.html#stunt">Racing / Stunt Driving</a><br>
+                <a href="services.html#dui">DUI / Impaired</a><br>
+                <a href="services.html#suspension">Driving Under Suspension</a><br>
+                <a href="services.html#heavy">Heavy Vehicles</a><br>
+                <a href="services.html#pardons">Pardons</a><br>
+                <a href="services.html#waivers">Entry Waivers</a>
+            </div>
+            <div>
+                <h4>Jurisdictions</h4>
+                <a href="quebec.html">Quebec</a><br>
+                <a href="ontario.html">Ontario</a><br>
+                <a href="new-york.html">New York</a><br><br>
+                <h4>Company</h4>
+                <a href="about.html">About Us</a><br>
+                <a href="blog.html">Blog</a><br>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a><br>
+                <a href="terms.html">Terms & Conditions</a><br><br>
+                <h4>My Account</h4>
+                <a href="login.html">Log In</a><br>
+                <a href="register.html">Register</a><br>
+                <a href="dashboard-client.html">My Cases</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ticket911.ca — 9493-0971 Quebec Inc. All rights reserved.</p>
+            <p>&#128274; Powered by AI &bull; SSL Encrypted &bull; Confidential</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ===== CHATBOT ===== -->
+<div class="chatbot">
+    <div class="chatbot-window" id="chatWindow">
+        <div class="chatbot-header">
+            <div class="ai-dot"></div>
+            <div>
+                <h4>Ticket911 AI Assistant</h4>
+                <p>Online — typically replies instantly</p>
+            </div>
+        </div>
+        <div class="chatbot-messages">
+            <div class="chat-msg bot">
+                Hi! &#128075; I'm the Ticket911 AI Assistant. I see you're browsing our services. Want me to help you figure out which service matches your ticket? Just describe your situation or tell me the violation type.
+            </div>
+            <div class="chat-msg bot" style="margin-top:4px;">
+                <strong>Quick options:</strong><br>
+                &#128668; Speeding ticket help<br>
+                &#128241; Cellphone ticket help<br>
+                &#127863; DUI / impaired defense<br>
+                &#128274; Pardon or waiver info<br>
+                &#128176; Check pricing
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Describe your ticket or ask a question...">
+            <button>&#10148;</button>
+        </div>
+    </div>
+    <button class="chatbot-btn" onclick="document.getElementById('chatWindow').classList.toggle('open')">
+        &#128172;
+        <span class="badge-dot"></span>
+    </button>
+</div>
+
+<script>
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const offset = 80;
+            const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }
+    });
+});
+
+// Highlight active nav pill on scroll
+const sections = document.querySelectorAll('.service-section');
+const navLinks = document.querySelectorAll('.services-nav a');
+
+function highlightNav() {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 120;
+        if (window.pageYOffset >= sectionTop) {
+            current = section.getAttribute('id');
+        }
+    });
+    navLinks.forEach(link => {
+        link.style.background = 'rgba(255,255,255,0.04)';
+        link.style.borderColor = 'rgba(255,255,255,0.08)';
+        link.style.color = '';
+        if (link.getAttribute('href') === '#' + current) {
+            link.style.background = 'rgba(230,57,70,0.2)';
+            link.style.borderColor = 'rgba(230,57,70,0.5)';
+            link.style.color = '#fff';
+        }
+    });
+}
+window.addEventListener('scroll', highlightNav);
+highlightNav();
+</script>
+
+</body>
+</html>

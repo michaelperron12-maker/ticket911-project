@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In — Ticket911.ca | Client Portal</title>
+    <meta name="description" content="Log in to your Ticket911 client portal. Track your traffic ticket case, view AI analysis results, and communicate with your lawyer.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* ===== LOGIN PAGE SPECIFIC STYLES ===== */
+        .login-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 120px);
+        }
+
+        .login-form-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            background: var(--white);
+        }
+
+        .login-form-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .login-form-container h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .login-form-container .subtitle {
+            font-size: 15px;
+            color: var(--gray);
+            margin-bottom: 36px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark-3);
+            margin-bottom: 8px;
+        }
+
+        .login-form .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-lighter);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition);
+            background: var(--gray-bg);
+        }
+
+        .login-form .form-control:focus {
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(30,58,95,0.08);
+        }
+
+        .login-form .form-control::placeholder {
+            color: var(--gray-light);
+        }
+
+        .form-row-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--dark-3);
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .forgot-link:hover {
+            color: var(--accent-dark);
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230,57,70,0.3);
+        }
+
+        .divider-or {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 28px 0;
+            color: var(--gray-light);
+            font-size: 13px;
+        }
+
+        .divider-or::before,
+        .divider-or::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-lighter);
+        }
+
+        .social-login-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .social-btn {
+            width: 100%;
+            padding: 13px;
+            border: 2px solid var(--gray-lighter);
+            border-radius: 50px;
+            background: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-3);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-btn:hover {
+            border-color: var(--primary);
+            background: var(--gray-bg);
+        }
+
+        .social-btn .social-icon {
+            font-size: 18px;
+        }
+
+        .recaptcha-notice {
+            font-size: 11px;
+            color: var(--gray);
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .recaptcha-notice a {
+            color: var(--info);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .register-link a {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== BRANDING SIDE ===== */
+        .login-brand-side {
+            background: linear-gradient(160deg, var(--dark) 0%, var(--primary-dark) 50%, var(--primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-brand-side::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(230,57,70,0.12), transparent 70%);
+            border-radius: 50%;
+        }
+
+        .login-brand-side::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(212,168,67,0.08), transparent 70%);
+            border-radius: 50%;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 420px;
+        }
+
+        .brand-content .brand-logo {
+            font-size: 42px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .brand-content .brand-logo .t9 {
+            color: var(--accent);
+        }
+
+        .brand-content .brand-tagline {
+            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 48px;
+        }
+
+        .brand-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+
+        .brand-stat {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        .brand-stat .stat-number {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--gold-light);
+            display: block;
+        }
+
+        .brand-stat .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .brand-trust {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .brand-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .brand-trust-item .check {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .brand-review {
+            margin-top: 40px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: left;
+        }
+
+        .brand-review .stars {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .brand-review blockquote {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .brand-review .reviewer {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 968px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .login-brand-side {
+                display: none;
+            }
+            .login-form-side {
+                min-height: calc(100vh - 120px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+    <div class="container">
+        <div class="topbar-left">
+            <a href="tel:18444409111">&#128222; 1 (844) 440-9111 &mdash; 24/7</a>
+            <a href="mailto:info@ticket911.ca">&#9993; info@ticket911.ca</a>
+        </div>
+        <div class="topbar-right">
+            <span style="color: var(--gold);">&#9733;&#9733;&#9733;&#9733;&#9733; 4.6/5 Google</span>
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn">FR</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="container">
+        <a href="../index.html" class="logo">
+            <span>TICKET</span><span class="t9">911</span><span>.ca</span>
+        </a>
+        <nav class="nav">
+            <a href="pricing.html">Pricing</a>
+            <a href="ai-analysis.html"><span class="badge-ai">AI</span> Analyze My Ticket</a>
+            <a href="faq.html">FAQ</a>
+            <a href="login.html" class="nav-login">Log In</a>
+            <a href="quote.html" class="nav-cta">Free Quote</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ===== LOGIN SPLIT LAYOUT ===== -->
+<div class="login-wrapper">
+
+    <!-- LEFT: Login Form -->
+    <div class="login-form-side">
+        <div class="login-form-container">
+            <h1>Welcome back</h1>
+            <p class="subtitle">Log in to your Ticket911 client portal to track your cases, view AI analysis results, and communicate with your legal team.</p>
+
+            <form class="login-form" id="loginForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-row-between">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    Log In &#8594;
+                </button>
+            </form>
+
+            <div class="divider-or">or continue with</div>
+
+            <div class="social-login-btns">
+                <button class="social-btn" type="button">
+                    <span class="social-icon">G</span> Continue with Google
+                </button>
+                <button class="social-btn" type="button">
+                    <span class="social-icon">f</span> Continue with Facebook
+                </button>
+            </div>
+
+            <p class="recaptcha-notice">
+                This site is protected by Google reCAPTCHA to ensure you are not a robot.<br>
+                <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> &middot;
+                <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a>
+            </p>
+
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Create one now</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Branding / Stats -->
+    <div class="login-brand-side">
+        <div class="brand-content">
+            <div class="brand-logo">
+                TICKET<span class="t9">911</span>.ca
+            </div>
+            <p class="brand-tagline">AI-Powered Traffic Ticket Defense</p>
+
+            <div class="brand-stats">
+                <div class="brand-stat">
+                    <span class="stat-number">105,000+</span>
+                    <span class="stat-label">Cases Resolved</span>
+                </div>
+                <div class="brand-stat">
+                    <span class="stat-number">90%</span>
+                    <span class="stat-label">Success Rate</span>
+                </div>
+                <div class="brand-stat">
+                    <span class="stat-number">60+</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="brand-stat">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Available</span>
+                </div>
+            </div>
+
+            <div class="brand-trust">
+                <div class="brand-trust-item">
+                    <span class="check">&#10003;</span> 256-bit SSL Encrypted
+                </div>
+                <div class="brand-trust-item">
+                    <span class="check">&#10003;</span> Your data stays confidential
+                </div>
+                <div class="brand-trust-item">
+                    <span class="check">&#10003;</span> Former prosecutors on your side
+                </div>
+                <div class="brand-trust-item">
+                    <span class="check">&#10003;</span> Quebec, Ontario &amp; New York
+                </div>
+            </div>
+
+            <div class="brand-review">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <blockquote>"The online portal made it so easy. I could track my case, see all the documents, and message my lawyer directly. Got my speeding ticket dismissed!"</blockquote>
+                <div class="reviewer">&mdash; Mike K., Ontario &middot; Google Review</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== FOOTER (Simplified) ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+            <p>&copy; 2026 Ticket911.ca &mdash; 9493-0971 Quebec Inc. All rights reserved.</p>
+            <p>&#128274; SSL Encrypted &bull; Confidential &bull; <a href="privacy.html" style="color:var(--gold);">Privacy Policy</a> &bull; <a href="terms.html" style="color:var(--gold);">Terms</a></p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Simple form interaction for demo
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    if (email && password) {
+        alert('Demo Mode: Login functionality will be connected to the backend. Redirecting to dashboard...');
+        // window.location.href = 'dashboard-client.html';
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | Ticket911.ca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* ================================================
+           TICKET911.CA — CLIENT DASHBOARD
+           Page-Specific Styles — 500+ lines
+           ================================================ */
+
+        /* ---- LAYOUT SHELL ---- */
+        body.dashboard-body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-wrapper {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* ---- SIDEBAR NAVIGATION ---- */
+        .dash-sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #0f2440 0%, #1e3a5f 100%);
+            color: #cbd5e1;
+            padding: 0;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-brand h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-brand h2 span {
+            color: #e63946;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 16px 0;
+        }
+
+        .sidebar-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #475569;
+            padding: 16px 24px 8px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(230, 57, 70, 0.1);
+            color: #fff;
+            border-left-color: #e63946;
+        }
+
+        .sidebar-nav a .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-nav a .nav-badge {
+            margin-left: auto;
+            background: #e63946;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ---- MAIN CONTENT ---- */
+        .dash-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 28px 32px 60px;
+            max-width: calc(100% - 260px);
+        }
+
+        /* ---- DASHBOARD HEADER ---- */
+        .dash-header-bar {
+            background: #fff;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px 0 292px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+        }
+
+        .dash-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dash-search {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 8px 14px;
+            gap: 8px;
+            width: 320px;
+        }
+
+        .dash-search input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: #1e293b;
+            width: 100%;
+        }
+
+        .dash-search input::placeholder {
+            color: #94a3b8;
+        }
+
+        .dash-header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-notif-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #64748b;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .header-notif-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .header-notif-btn .notif-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #e63946;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .header-user:hover {
+            background: #f1f5f9;
+        }
+
+        .header-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .header-user-info {
+            line-height: 1.3;
+        }
+
+        .header-user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-user-role {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            border-color: #e63946;
+            color: #e63946;
+            background: #fef2f2;
+        }
+
+        /* ---- PAGE TITLE ---- */
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-title-row h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title-row h1 span {
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        .page-title-row .breadcrumb {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .page-title-row .breadcrumb a {
+            color: #3b82f6;
+        }
+
+        /* ---- STAT CARDS ---- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+        .stat-icon.green { background: #f0fdf4; color: #22c55e; }
+        .stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+        .stat-icon.red { background: #fef2f2; color: #e63946; }
+
+        .stat-info h3 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .stat-info p {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .stat-info .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .stat-change.up { color: #22c55e; }
+        .stat-change.down { color: #e63946; }
+
+        /* ---- QUICK ACTIONS ---- */
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .qa-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s ease;
+        }
+
+        .qa-btn.primary {
+            background: linear-gradient(135deg, #e63946, #c1121f);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(230,57,70,0.35);
+        }
+
+        .qa-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(230,57,70,0.45);
+        }
+
+        .qa-btn.secondary {
+            background: #fff;
+            color: #1e3a5f;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .qa-btn.secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .qa-btn .btn-icon {
+            font-size: 18px;
+        }
+
+        /* ---- MAIN GRID (TABLE + SIDEBAR) ---- */
+        .dash-content-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* ---- CASES TABLE ---- */
+        .dash-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .dash-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .dash-card-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .dash-card-header .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+        }
+
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cases-table thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .cases-table tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .cases-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .cases-table tbody tr.selected {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .cases-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .case-id {
+            font-weight: 700;
+            color: #1e3a5f;
+            font-family: 'Inter', monospace;
+            font-size: 12.5px;
+        }
+
+        .jurisdiction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 5px;
+        }
+
+        .jurisdiction-badge.qc { background: #eff6ff; color: #1d4ed8; }
+        .jurisdiction-badge.on { background: #fef3c7; color: #92400e; }
+        .jurisdiction-badge.ny { background: #f0fdf4; color: #15803d; }
+
+        .ai-score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            min-width: 52px;
+        }
+
+        .ai-score-badge.high { background: #dcfce7; color: #15803d; }
+        .ai-score-badge.medium { background: #fef3c7; color: #92400e; }
+        .ai-score-badge.low { background: #fce4ec; color: #c62828; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pill .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-pill.in-progress { background: #eff6ff; color: #1d4ed8; }
+        .status-pill.in-progress .status-dot { background: #3b82f6; }
+
+        .status-pill.court-scheduled { background: #fef3c7; color: #92400e; }
+        .status-pill.court-scheduled .status-dot { background: #f59e0b; }
+
+        .status-pill.won { background: #dcfce7; color: #15803d; }
+        .status-pill.won .status-dot { background: #22c55e; }
+
+        .status-pill.lost { background: #fce4ec; color: #c62828; }
+        .status-pill.lost .status-dot { background: #ef4444; }
+
+        .status-pill.pending-payment { background: #f3e8ff; color: #7c3aed; }
+        .status-pill.pending-payment .status-dot { background: #8b5cf6; }
+
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .table-action-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .table-action-btn:hover {
+            background: #1e3a5f;
+            color: #fff;
+        }
+
+        .table-action-btn.pay:hover {
+            background: #22c55e;
+        }
+
+        /* ---- NOTIFICATIONS PANEL ---- */
+        .notifications-panel .notif-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+
+        .notif-item:hover {
+            background: #fafbff;
+        }
+
+        .notif-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .notif-icon.calendar { background: #fef3c7; color: #f59e0b; }
+        .notif-icon.payment { background: #dcfce7; color: #22c55e; }
+        .notif-icon.lawyer { background: #eff6ff; color: #3b82f6; }
+        .notif-icon.ai { background: #f3e8ff; color: #8b5cf6; }
+
+        .notif-content p {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.45;
+        }
+
+        .notif-content .notif-time {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .notif-unread {
+            border-left: 3px solid #3b82f6;
+        }
+
+        /* ---- CASE DETAIL PREVIEW ---- */
+        .case-detail-panel {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .case-detail-header {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            padding: 24px 28px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .case-detail-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .case-detail-header .case-detail-score {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 18px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .case-detail-score .score-num {
+            font-size: 28px;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+        }
+
+        .case-detail-score .score-label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .case-detail-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .detail-section {
+            padding: 22px 28px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-section:nth-child(odd) {
+            border-right: 1px solid #f1f5f9;
+        }
+
+        .detail-section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13.5px;
+        }
+
+        .detail-row .label {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .detail-row .value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .ai-summary-box {
+            background: linear-gradient(135deg, #f0f4ff, #e8f0fe);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .ai-summary-box p {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .ai-recommendation {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dcfce7;
+            color: #15803d;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* ---- TIMELINE ---- */
+        .timeline {
+            padding: 22px 28px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .timeline h3 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            margin-bottom: 18px;
+        }
+
+        .timeline-track {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            position: relative;
+        }
+
+        .timeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            right: -50%;
+            height: 3px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-step.completed::before {
+            background: #22c55e;
+        }
+
+        .timeline-step.active::before {
+            background: linear-gradient(90deg, #22c55e 50%, #e2e8f0 50%);
+        }
+
+        .timeline-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 13px;
+            position: relative;
+            z-index: 1;
+            color: #94a3b8;
+        }
+
+        .timeline-step.completed .timeline-dot {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .timeline-step.active .timeline-dot {
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
+        }
+
+        .timeline-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .timeline-date {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* ---- BOTTOM SECTIONS GRID ---- */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* ---- INVOICES TABLE ---- */
+        .invoices-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoices-table thead th {
+            background: #f8fafc;
+            padding: 11px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .invoices-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .invoice-id {
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .paid-badge {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .pending-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .download-link {
+            color: #3b82f6;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .download-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        /* ---- DOCUMENTS ---- */
+        .doc-list {
+            padding: 8px 0;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+
+        .doc-item:hover {
+            background: #fafbff;
+        }
+
+        .doc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .doc-icon.pdf { background: #fce4ec; color: #c62828; }
+        .doc-icon.doc { background: #eff6ff; color: #1d4ed8; }
+        .doc-icon.brief { background: #f3e8ff; color: #7c3aed; }
+
+        .doc-info h4 {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .doc-info p {
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: 1px;
+        }
+
+        .doc-item .doc-download {
+            margin-left: auto;
+            background: #f1f5f9;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .doc-item .doc-download:hover {
+            background: #1e3a5f;
+            color: #fff;
+        }
+
+        /* ---- COMMUNICATION ---- */
+        .comm-log {
+            padding: 0;
+        }
+
+        .comm-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .comm-type {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .comm-type.sms { background: #dcfce7; color: #15803d; }
+        .comm-type.email { background: #eff6ff; color: #3b82f6; }
+
+        .comm-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .comm-info p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .chat-lawyer-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: calc(100% - 40px);
+            margin: 16px 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .chat-lawyer-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(30,58,95,0.35);
+        }
+
+        /* ---- CHATBOT WIDGET ---- */
+        .chatbot-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e63946, #c1121f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(230,57,70,0.4);
+            z-index: 9000;
+            border: none;
+            color: #fff;
+            font-size: 26px;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-fab:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 32px rgba(230,57,70,0.5);
+        }
+
+        .chatbot-fab .fab-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 28px;
+            width: 380px;
+            height: 500px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            z-index: 9001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chatbot-window.open {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+        }
+
+        .chatbot-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .chatbot-header p {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .chatbot-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .chat-msg {
+            margin-bottom: 14px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-msg.bot .chat-bubble {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px 12px 12px 4px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #334155;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        .chat-msg.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-msg.user .chat-bubble {
+            background: #1e3a5f;
+            color: #fff;
+            border-radius: 12px 12px 4px 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        .chatbot-input {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chatbot-input input:focus {
+            border-color: #3b82f6;
+        }
+
+        .chatbot-input button {
+            background: #e63946;
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .chatbot-input button:hover {
+            background: #c1121f;
+        }
+
+        /* ---- FULL-WIDTH SECTION ---- */
+        .full-width-section {
+            margin-bottom: 32px;
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 1200px) {
+            .dash-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .dash-sidebar {
+                transform: translateX(-100%);
+            }
+            .dash-main {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            .dash-header-bar {
+                padding-left: 24px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+            .case-detail-body {
+                grid-template-columns: 1fr;
+            }
+            .detail-section:nth-child(odd) {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions {
+                flex-direction: column;
+            }
+            .qa-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .dash-search {
+                width: 200px;
+            }
+            .timeline-track {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .timeline-step::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <!-- ======== TOP HEADER BAR ======== -->
+    <header class="dash-header-bar">
+        <div class="dash-header-left">
+            <div class="dash-search">
+                <span>&#128269;</span>
+                <input type="text" placeholder="Search cases, invoices, documents...">
+            </div>
+        </div>
+        <div class="dash-header-right">
+            <button class="header-notif-btn" title="Notifications" onclick="toggleNotifPanel()">
+                &#128276;
+                <span class="notif-dot"></span>
+            </button>
+            <div class="header-user">
+                <div class="header-avatar">JD</div>
+                <div class="header-user-info">
+                    <div class="header-user-name">John D.</div>
+                    <div class="header-user-role">Client</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='../index.html'">Logout</button>
+        </div>
+    </header>
+
+    <!-- ======== LAYOUT WRAPPER ======== -->
+    <div class="dash-wrapper">
+
+        <!-- ======== SIDEBAR ======== -->
+        <aside class="dash-sidebar">
+            <div class="sidebar-brand">
+                <h2>Ticket<span>911</span>.ca</h2>
+                <p>Client Portal</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">Main</div>
+                <a href="#" class="active">
+                    <span class="nav-icon">&#9707;</span>
+                    Dashboard
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#128196;</span>
+                    My Cases
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#129302;</span>
+                    AI Analysis
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#128197;</span>
+                    Court Dates
+                    <span class="nav-badge">1</span>
+                </a>
+
+                <div class="sidebar-section-label">Billing</div>
+                <a href="#">
+                    <span class="nav-icon">&#128179;</span>
+                    Invoices
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#128176;</span>
+                    Payments
+                </a>
+
+                <div class="sidebar-section-label">Documents</div>
+                <a href="#">
+                    <span class="nav-icon">&#128194;</span>
+                    My Documents
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#128221;</span>
+                    Mandates
+                </a>
+
+                <div class="sidebar-section-label">Support</div>
+                <a href="#">
+                    <span class="nav-icon">&#128172;</span>
+                    Messages
+                    <span class="nav-badge">2</span>
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#128222;</span>
+                    Book Consultation
+                </a>
+                <a href="#">
+                    <span class="nav-icon">&#9881;</span>
+                    Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ======== MAIN CONTENT ======== -->
+        <main class="dash-main">
+
+            <!-- Page Title -->
+            <div class="page-title-row">
+                <div>
+                    <h1>Welcome back, <span>John</span></h1>
+                    <span class="breadcrumb">Dashboard &rsaquo; Overview &mdash; Last login: Feb 6, 2026 at 3:42 PM</span>
+                </div>
+            </div>
+
+            <!-- ======== 1. TOP STATS BAR ======== -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">&#128203;</div>
+                    <div class="stat-info">
+                        <h3>3</h3>
+                        <p>Active Cases</p>
+                        <span class="stat-change up">+1 this month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">&#9989;</div>
+                    <div class="stat-info">
+                        <h3>12</h3>
+                        <p>Won</p>
+                        <span class="stat-change up">92% win rate</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#9878;</div>
+                    <div class="stat-info">
+                        <h3>1</h3>
+                        <p>Pending Court</p>
+                        <span class="stat-change">Mar 15, 2026</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">&#128178;</div>
+                    <div class="stat-info">
+                        <h3>$2,847</h3>
+                        <p>Total Fines Saved</p>
+                        <span class="stat-change up">+$347 this quarter</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======== 2. QUICK ACTIONS ======== -->
+            <div class="quick-actions">
+                <button class="qa-btn primary">
+                    <span class="btn-icon">&#10133;</span>
+                    Submit New Ticket
+                </button>
+                <button class="qa-btn secondary">
+                    <span class="btn-icon">&#129302;</span>
+                    AI Analyze Ticket
+                </button>
+                <button class="qa-btn secondary">
+                    <span class="btn-icon">&#128197;</span>
+                    Book Consultation
+                </button>
+                <button class="qa-btn secondary">
+                    <span class="btn-icon">&#128179;</span>
+                    Pay Invoice
+                </button>
+            </div>
+
+            <!-- ======== 3. CASES TABLE + NOTIFICATIONS ======== -->
+            <div class="dash-content-grid">
+
+                <!-- Cases Table -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h2>My Cases</h2>
+                        <div class="card-actions">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Active</button>
+                            <button class="filter-btn">Won</button>
+                            <button class="filter-btn">Pending</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="cases-table">
+                            <thead>
+                                <tr>
+                                    <th>Case #</th>
+                                    <th>Violation</th>
+                                    <th>Jurisdiction</th>
+                                    <th>AI Score</th>
+                                    <th>Status</th>
+                                    <th>Court Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="selected" onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2026-0847</span></td>
+                                    <td>Speeding 40+ km/h zone</td>
+                                    <td><span class="jurisdiction-badge qc">&#127464;&#127462; QC</span></td>
+                                    <td><span class="ai-score-badge high">82%</span></td>
+                                    <td><span class="status-pill court-scheduled"><span class="status-dot"></span>Court Scheduled</span></td>
+                                    <td>Mar 15, 2026</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn pay" title="Pay">&#128179;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2026-0823</span></td>
+                                    <td>Red light violation</td>
+                                    <td><span class="jurisdiction-badge qc">&#127464;&#127462; QC</span></td>
+                                    <td><span class="ai-score-badge high">78%</span></td>
+                                    <td><span class="status-pill in-progress"><span class="status-dot"></span>In Progress</span></td>
+                                    <td>TBD</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2025-0791</span></td>
+                                    <td>Illegal parking &mdash; fire hydrant</td>
+                                    <td><span class="jurisdiction-badge on">&#127464;&#127462; ON</span></td>
+                                    <td><span class="ai-score-badge medium">63%</span></td>
+                                    <td><span class="status-pill won"><span class="status-dot"></span>Won</span></td>
+                                    <td>Jan 8, 2026</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2025-0684</span></td>
+                                    <td>Cell phone while driving</td>
+                                    <td><span class="jurisdiction-badge ny">&#127482;&#127480; NY</span></td>
+                                    <td><span class="ai-score-badge high">88%</span></td>
+                                    <td><span class="status-pill won"><span class="status-dot"></span>Won</span></td>
+                                    <td>Nov 22, 2025</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2025-0512</span></td>
+                                    <td>Stop sign violation</td>
+                                    <td><span class="jurisdiction-badge qc">&#127464;&#127462; QC</span></td>
+                                    <td><span class="ai-score-badge low">41%</span></td>
+                                    <td><span class="status-pill lost"><span class="status-dot"></span>Lost</span></td>
+                                    <td>Sep 3, 2025</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="showCaseDetail(this)">
+                                    <td><span class="case-id">T911-2026-0910</span></td>
+                                    <td>Expired registration</td>
+                                    <td><span class="jurisdiction-badge on">&#127464;&#127462; ON</span></td>
+                                    <td><span class="ai-score-badge high">74%</span></td>
+                                    <td><span class="status-pill pending-payment"><span class="status-dot"></span>Pending Payment</span></td>
+                                    <td>TBD</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="table-action-btn" title="View">&#128065;</button>
+                                            <button class="table-action-btn pay" title="Pay">&#128179;</button>
+                                            <button class="table-action-btn" title="Download">&#11015;</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ======== 5. NOTIFICATIONS PANEL ======== -->
+                <div class="dash-card notifications-panel">
+                    <div class="dash-card-header">
+                        <h2>Notifications</h2>
+                        <span style="font-size:12px;color:#3b82f6;font-weight:600;cursor:pointer;">Mark all read</span>
+                    </div>
+                    <div class="notif-item notif-unread">
+                        <div class="notif-icon calendar">&#128197;</div>
+                        <div class="notif-content">
+                            <p><strong>Court date reminder:</strong> March 15, 2026 &mdash; Case #T911-2026-0847</p>
+                            <div class="notif-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="notif-item notif-unread">
+                        <div class="notif-icon payment">&#9989;</div>
+                        <div class="notif-content">
+                            <p><strong>Payment received:</strong> $199 &mdash; Thank you!</p>
+                            <div class="notif-time">Yesterday at 4:12 PM</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon lawyer">&#9878;</div>
+                        <div class="notif-content">
+                            <p>Your case <strong>#T911-2026-0823</strong> has been assigned to <strong>Me Bernard Levy-Soussan</strong></p>
+                            <div class="notif-time">Feb 4, 2026</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon ai">&#129302;</div>
+                        <div class="notif-content">
+                            <p><strong>AI Analysis complete</strong> &mdash; Score: 78% &mdash; Recommended to contest</p>
+                            <div class="notif-time">Feb 3, 2026</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon payment">&#128176;</div>
+                        <div class="notif-content">
+                            <p>Invoice <strong>#INV-2026-047</strong> generated &mdash; $249.00</p>
+                            <div class="notif-time">Feb 2, 2026</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon calendar">&#128221;</div>
+                        <div class="notif-content">
+                            <p>Mandate signed for case <strong>#T911-2026-0847</strong></p>
+                            <div class="notif-time">Jan 28, 2026</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon ai">&#128200;</div>
+                        <div class="notif-content">
+                            <p>AI found <strong>3 similar precedents</strong> for your speeding case</p>
+                            <div class="notif-time">Jan 27, 2026</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ======== 4. CASE DETAIL PREVIEW ======== -->
+            <div class="case-detail-panel full-width-section" id="caseDetailPanel">
+                <div class="case-detail-header">
+                    <div>
+                        <h2>Case #T911-2026-0847 &mdash; Speeding 40+ km/h</h2>
+                        <p style="opacity:0.8;font-size:13px;margin-top:4px;">Assigned to Me Bernard Levy-Soussan &bull; Municipal Court of Montreal</p>
+                    </div>
+                    <div class="case-detail-score">
+                        <span class="score-num" style="color:#22c55e;">82%</span>
+                        <span class="score-label">AI Score</span>
+                    </div>
+                </div>
+
+                <div class="case-detail-body">
+                    <!-- Ticket Info -->
+                    <div class="detail-section">
+                        <h3>&#128196; Ticket Information</h3>
+                        <div class="detail-row">
+                            <span class="label">Violation</span>
+                            <span class="value">Speeding 40+ km/h over limit</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Date Issued</span>
+                            <span class="value">January 15, 2026</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Location</span>
+                            <span class="value">Autoroute 15 N, Montreal, QC</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Fine Amount</span>
+                            <span class="value" style="color:#e63946;font-weight:700;">$487.00</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Demerit Points</span>
+                            <span class="value">4 points</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Jurisdiction</span>
+                            <span class="value">Quebec &mdash; Municipal Court of Montreal</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis -->
+                    <div class="detail-section">
+                        <h3>&#129302; AI Analysis</h3>
+                        <div class="detail-row">
+                            <span class="label">Contestability Score</span>
+                            <span class="value" style="color:#22c55e;">82% &mdash; High</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Precedents Found</span>
+                            <span class="value">7 relevant cases</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Estimated Success</span>
+                            <span class="value">Favorable</span>
+                        </div>
+                        <div class="ai-summary-box">
+                            <p>Based on analysis of 7 similar precedents in Quebec municipal courts, this ticket shows strong contestability. The radar calibration date falls outside the recommended 6-month window, and the officer's notes contain an inconsistency in the reported speed vs. posted limit. Three similar cases resulted in acquittal in the last 12 months.</p>
+                            <div class="ai-recommendation">&#9989; Recommended: Contest this ticket</div>
+                        </div>
+                    </div>
+
+                    <!-- Defense Strategy -->
+                    <div class="detail-section">
+                        <h3>&#128737; Defense Strategy</h3>
+                        <div style="font-size:13.5px;color:#334155;line-height:1.7;">
+                            <p style="margin-bottom:10px;"><strong>Primary Defense:</strong> Challenge radar device calibration records. The LiDAR unit (serial #LD-4892) was last certified on April 12, 2025 &mdash; exceeding the 6-month recommended calibration cycle by 3 months at time of infraction.</p>
+                            <p style="margin-bottom:10px;"><strong>Secondary Defense:</strong> Officer noted speed as 141 km/h in a 100 km/h zone on the infraction report, but the radar reading printout shows 137 km/h. This discrepancy weakens the prosecution's evidence.</p>
+                            <p><strong>Supporting Precedent:</strong> <em>R. v. Tremblay (2025)</em> &mdash; Montreal Municipal Court dismissed a similar speeding charge due to expired radar calibration documentation.</p>
+                        </div>
+                    </div>
+
+                    <!-- Lawyer & Details -->
+                    <div class="detail-section">
+                        <h3>&#9878; Assigned Lawyer</h3>
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+                            <div style="width:48px;height:48px;background:linear-gradient(135deg,#1e3a5f,#2d5a8e);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">BL</div>
+                            <div>
+                                <div style="font-size:15px;font-weight:700;color:#1e293b;">Me Bernard Levy-Soussan</div>
+                                <div style="font-size:12px;color:#64748b;">Barreau du Quebec &bull; Member since 2012</div>
+                                <div style="font-size:12px;color:#22c55e;font-weight:600;">94% win rate &bull; 340+ cases</div>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Court Date</span>
+                            <span class="value" style="color:#f59e0b;font-weight:700;">March 15, 2026 at 9:30 AM</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Courtroom</span>
+                            <span class="value">Room 4.12 &mdash; Montreal Municipal Court</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Client Presence</span>
+                            <span class="value">Not required (lawyer represents)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline">
+                    <h3>&#128337; Case Timeline</h3>
+                    <div class="timeline-track">
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot">&#10003;</div>
+                            <div class="timeline-label">Submitted</div>
+                            <div class="timeline-date">Jan 16, 2026</div>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot">&#10003;</div>
+                            <div class="timeline-label">AI Analyzed</div>
+                            <div class="timeline-date">Jan 16, 2026</div>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot">&#10003;</div>
+                            <div class="timeline-label">Payment Received</div>
+                            <div class="timeline-date">Jan 18, 2026</div>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot">&#10003;</div>
+                            <div class="timeline-label">Mandate Signed</div>
+                            <div class="timeline-date">Jan 20, 2026</div>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot">&#10003;</div>
+                            <div class="timeline-label">Lawyer Assigned</div>
+                            <div class="timeline-date">Jan 22, 2026</div>
+                        </div>
+                        <div class="timeline-step active">
+                            <div class="timeline-dot">&#9679;</div>
+                            <div class="timeline-label">Court Date</div>
+                            <div class="timeline-date">Mar 15, 2026</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot">&#8226;</div>
+                            <div class="timeline-label">Result</div>
+                            <div class="timeline-date">Pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents for this case -->
+                <div class="detail-section" style="border-right:none;">
+                    <h3>&#128194; Case Documents</h3>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <button class="qa-btn secondary" style="padding:10px 18px;font-size:13px;">
+                            <span style="color:#c62828;">&#128196;</span> Signed Mandate
+                        </button>
+                        <button class="qa-btn secondary" style="padding:10px 18px;font-size:13px;">
+                            <span style="color:#1d4ed8;">&#128196;</span> Invoice #INV-2026-047
+                        </button>
+                        <button class="qa-btn secondary" style="padding:10px 18px;font-size:13px;">
+                            <span style="color:#7c3aed;">&#128196;</span> Defense Brief
+                        </button>
+                        <button class="qa-btn secondary" style="padding:10px 18px;font-size:13px;">
+                            <span style="color:#f59e0b;">&#128196;</span> Court Notice
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======== 6 & 7. INVOICES + DOCUMENTS ======== -->
+            <div class="bottom-grid">
+
+                <!-- Invoices -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h2>My Invoices</h2>
+                        <span style="font-size:12px;color:#3b82f6;font-weight:600;cursor:pointer;">View All</span>
+                    </div>
+                    <table class="invoices-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="invoice-id">INV-2026-052</span></td>
+                                <td>Feb 5, 2026</td>
+                                <td><strong>$199.00</strong></td>
+                                <td><span class="paid-badge">Paid</span></td>
+                                <td><span class="download-link">&#11015; PDF</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="invoice-id">INV-2026-047</span></td>
+                                <td>Jan 28, 2026</td>
+                                <td><strong>$249.00</strong></td>
+                                <td><span class="paid-badge">Paid</span></td>
+                                <td><span class="download-link">&#11015; PDF</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="invoice-id">INV-2026-039</span></td>
+                                <td>Jan 15, 2026</td>
+                                <td><strong>$149.00</strong></td>
+                                <td><span class="pending-badge">Pending</span></td>
+                                <td><span class="download-link">&#11015; PDF</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="invoice-id">INV-2025-218</span></td>
+                                <td>Nov 12, 2025</td>
+                                <td><strong>$199.00</strong></td>
+                                <td><span class="paid-badge">Paid</span></td>
+                                <td><span class="download-link">&#11015; PDF</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="invoice-id">INV-2025-194</span></td>
+                                <td>Sep 5, 2025</td>
+                                <td><strong>$99.00</strong></td>
+                                <td><span class="paid-badge">Paid</span></td>
+                                <td><span class="download-link">&#11015; PDF</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Documents -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h2>My Documents</h2>
+                        <span style="font-size:12px;color:#3b82f6;font-weight:600;cursor:pointer;">View All</span>
+                    </div>
+                    <div class="doc-list">
+                        <div class="doc-item">
+                            <div class="doc-icon pdf">&#128196;</div>
+                            <div class="doc-info">
+                                <h4>Signed Mandate &mdash; T911-2026-0847</h4>
+                                <p>Signed Jan 20, 2026 &bull; 2 pages</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                        <div class="doc-item">
+                            <div class="doc-icon brief">&#128221;</div>
+                            <div class="doc-info">
+                                <h4>Defense Brief &mdash; T911-2026-0847</h4>
+                                <p>Prepared Feb 1, 2026 &bull; 8 pages</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                        <div class="doc-item">
+                            <div class="doc-icon doc">&#128197;</div>
+                            <div class="doc-info">
+                                <h4>Court Notice &mdash; T911-2026-0847</h4>
+                                <p>Received Feb 3, 2026 &bull; 1 page</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                        <div class="doc-item">
+                            <div class="doc-icon pdf">&#128196;</div>
+                            <div class="doc-info">
+                                <h4>Signed Mandate &mdash; T911-2026-0823</h4>
+                                <p>Signed Feb 4, 2026 &bull; 2 pages</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                        <div class="doc-item">
+                            <div class="doc-icon pdf">&#128196;</div>
+                            <div class="doc-info">
+                                <h4>Judgment &mdash; T911-2025-0791 (Won)</h4>
+                                <p>Issued Jan 8, 2026 &bull; 3 pages</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                        <div class="doc-item">
+                            <div class="doc-icon brief">&#128221;</div>
+                            <div class="doc-info">
+                                <h4>Defense Brief &mdash; T911-2025-0684</h4>
+                                <p>Prepared Oct 15, 2025 &bull; 6 pages</p>
+                            </div>
+                            <button class="doc-download">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======== 8. COMMUNICATION ======== -->
+            <div class="dash-card full-width-section">
+                <div class="dash-card-header">
+                    <h2>Recent Communications</h2>
+                    <div class="card-actions">
+                        <button class="filter-btn active">All</button>
+                        <button class="filter-btn">SMS</button>
+                        <button class="filter-btn">Email</button>
+                    </div>
+                </div>
+                <div class="comm-log">
+                    <div class="comm-item">
+                        <div class="comm-type sms">&#128172;</div>
+                        <div class="comm-info">
+                            <h4>SMS Reminder &mdash; Court Date</h4>
+                            <p>"Reminder: Your court date for case #T911-2026-0847 is March 15, 2026 at 9:30 AM. Your lawyer Me Levy-Soussan will represent you. No presence required." &mdash; Feb 7, 2026 at 10:00 AM</p>
+                        </div>
+                    </div>
+                    <div class="comm-item">
+                        <div class="comm-type email">&#9993;</div>
+                        <div class="comm-info">
+                            <h4>Email &mdash; Payment Confirmation</h4>
+                            <p>"Thank you for your payment of $199.00 for case #T911-2026-0823. Invoice #INV-2026-052 attached." &mdash; Feb 5, 2026 at 4:12 PM</p>
+                        </div>
+                    </div>
+                    <div class="comm-item">
+                        <div class="comm-type email">&#9993;</div>
+                        <div class="comm-info">
+                            <h4>Email &mdash; Lawyer Assignment</h4>
+                            <p>"Me Bernard Levy-Soussan has been assigned to your case #T911-2026-0823 (Red light violation). He will review your file and prepare the defense strategy." &mdash; Feb 4, 2026 at 11:30 AM</p>
+                        </div>
+                    </div>
+                    <div class="comm-item">
+                        <div class="comm-type sms">&#128172;</div>
+                        <div class="comm-info">
+                            <h4>SMS &mdash; AI Analysis Complete</h4>
+                            <p>"AI analysis for case #T911-2026-0823 is complete. Score: 78%. Recommendation: Contest. View details in your dashboard." &mdash; Feb 3, 2026 at 2:15 PM</p>
+                        </div>
+                    </div>
+                    <div class="comm-item">
+                        <div class="comm-type email">&#9993;</div>
+                        <div class="comm-info">
+                            <h4>Email &mdash; Defense Brief Ready</h4>
+                            <p>"The defense brief for case #T911-2026-0847 has been prepared and is available in your documents section." &mdash; Feb 1, 2026 at 3:45 PM</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="chat-lawyer-btn">
+                    &#128172; Chat with Your Lawyer
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ======== CHATBOT WIDGET ======== -->
+    <button class="chatbot-fab" onclick="toggleChatbot()" id="chatbotFab">
+        &#128172;
+        <span class="fab-badge">1</span>
+    </button>
+
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <div>
+                <h3>Ticket911 Assistant</h3>
+                <p>AI-powered support &bull; Online</p>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">&#10005;</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="chat-msg bot">
+                <div class="chat-bubble">
+                    Hi John! I'm your Ticket911 AI assistant. I can help you with your cases, invoices, court dates, or any questions. How can I help today?
+                </div>
+            </div>
+            <div class="chat-msg user">
+                <div class="chat-bubble">
+                    What's the status of my speeding case?
+                </div>
+            </div>
+            <div class="chat-msg bot">
+                <div class="chat-bubble">
+                    Your speeding case <strong>#T911-2026-0847</strong> is scheduled for court on <strong>March 15, 2026 at 9:30 AM</strong>. Me Bernard Levy-Soussan will represent you. The AI score is 82% &mdash; looking good! Your presence is not required. Would you like more details?
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Type your message..." id="chatInput" onkeypress="handleChatKey(event)">
+            <button onclick="sendChat()">&#10148;</button>
+        </div>
+    </div>
+
+    <!-- ======== JAVASCRIPT ======== -->
+    <script>
+        // Chatbot toggle
+        function toggleChatbot() {
+            const win = document.getElementById('chatbotWindow');
+            win.classList.toggle('open');
+        }
+
+        // Chat send
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const messages = document.getElementById('chatMessages');
+
+            // User message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-msg user';
+            userDiv.innerHTML = '<div class="chat-bubble">' + msg + '</div>';
+            messages.appendChild(userDiv);
+
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Bot response (simulated)
+            setTimeout(() => {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'chat-msg bot';
+                const responses = [
+                    "I'll look into that for you right away. Give me a moment to check our records.",
+                    "Great question! Based on your case files, I can help with that. Let me pull up the details.",
+                    "I've noted your request. A member of our legal team will follow up within 24 hours. Is there anything else?",
+                    "Your case is progressing well. The defense brief has been prepared and your lawyer is ready for the court date.",
+                    "I can schedule a consultation with your lawyer. Would you prefer a phone call or video meeting?"
+                ];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                botDiv.innerHTML = '<div class="chat-bubble">' + response + '</div>';
+                messages.appendChild(botDiv);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChat();
+        }
+
+        // Case row selection
+        function showCaseDetail(row) {
+            document.querySelectorAll('.cases-table tbody tr').forEach(tr => tr.classList.remove('selected'));
+            row.classList.add('selected');
+            document.getElementById('caseDetailPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Stat card hover animation
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#3b82f6';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#e2e8f0';
+            });
+        });
+
+        // Notification panel toggle (header bell)
+        function toggleNotifPanel() {
+            const panel = document.querySelector('.notifications-panel');
+            if (panel) {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Simulate live notification
+        setTimeout(() => {
+            const fab = document.getElementById('chatbotFab');
+            if (fab) {
+                fab.style.animation = 'none';
+                fab.offsetHeight;
+                fab.style.animation = 'pulse 0.6s ease 3';
+            }
+        }, 5000);
+    </script>
+
+</body>
+</html>

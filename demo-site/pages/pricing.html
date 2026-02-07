@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing &amp; Packages — Ticket911.ca | Traffic Ticket Defense | Quebec, Ontario &amp; New York</title>
+    <meta name="description" content="Transparent, fixed-price packages for traffic ticket defense. Quebec from $199, Ontario from $199, New York $579. Money-back guarantee. No hidden fees.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <style>
+        /* ===== PRICING PAGE-SPECIFIC STYLES ===== */
+        .pricing-hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1a1a2e 100%);
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+        .pricing-hero h1 {
+            font-size: 42px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+        }
+        .pricing-hero h1 span {
+            color: var(--accent);
+        }
+        .pricing-hero p {
+            font-size: 18px;
+            color: var(--gray-light);
+            max-width: 650px;
+            margin: 0 auto 30px;
+        }
+        .pricing-hero .trust-bar {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: var(--gray-light);
+        }
+        .pricing-hero .trust-bar span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pricing-hero .trust-bar .ico {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Region Tabs */
+        .region-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .region-tab {
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: transparent;
+            color: var(--gray-light);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .region-tab:hover {
+            border-color: var(--accent);
+            color: white;
+        }
+        .region-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Pricing Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .pricing-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .pricing-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 1024px) {
+            .pricing-grid-3, .pricing-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 640px) {
+            .pricing-grid-3, .pricing-grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Pricing Cards Enhanced */
+        .pricing-card {
+            position: relative;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .pricing-card.popular {
+            border-color: var(--accent);
+            background: rgba(230,57,70,0.04);
+            transform: scale(1.03);
+        }
+        .pricing-card.popular:hover {
+            transform: scale(1.03) translateY(-6px);
+        }
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 5px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .pricing-card .region {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        .pricing-card h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        .pricing-card .points {
+            font-size: 13px;
+            color: var(--gold-light);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .pricing-card .price {
+            font-size: 52px;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .pricing-card .price sup {
+            font-size: 24px;
+            font-weight: 700;
+            vertical-align: super;
+        }
+        .pricing-card .price-note {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 24px;
+        }
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px;
+            text-align: left;
+        }
+        .pricing-card ul li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--gray-light);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pricing-card ul li:last-child {
+            border-bottom: none;
+        }
+        .pricing-card ul li .ck {
+            color: var(--success);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .pricing-card .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        /* Consultation Cards */
+        .consult-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 30px;
+        }
+        .consult-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .consult-card:hover {
+            border-color: var(--accent);
+            background: rgba(230,57,70,0.04);
+        }
+        .consult-card .card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        .consult-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+        }
+        .consult-card p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Guarantee Section */
+        .guarantee-section {
+            background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+        .guarantee-section .shield {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .guarantee-section h2 {
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+        }
+        .guarantee-section p {
+            font-size: 16px;
+            color: var(--gray-light);
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.7;
+        }
+        .guarantee-details {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .guarantee-details .detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--gray-light);
+        }
+        .guarantee-details .detail .ico {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Payment Methods Enhanced */
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .payment-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .payment-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .payment-card:hover {
+            border-color: var(--gold);
+            background: rgba(212,168,67,0.04);
+        }
+        .payment-card .pm-icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .payment-card strong {
+            display: block;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .payment-card span {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* FAQ Section */
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .faq-q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: color 0.3s ease;
+        }
+        .faq-q:hover {
+            color: var(--accent);
+        }
+        .faq-q::after {
+            content: '+';
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--gray);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+        .faq-q.active::after {
+            content: '-';
+            color: var(--accent);
+        }
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            font-size: 15px;
+            color: var(--gray-light);
+            line-height: 1.7;
+        }
+        .faq-a.open {
+            max-height: 400px;
+            padding-bottom: 20px;
+        }
+
+        /* CTA Banner */
+        .cta-banner {
+            background: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        .cta-banner h2 {
+            font-size: 30px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 14px;
+        }
+        .cta-banner p {
+            font-size: 17px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 28px;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-banner .btn-white {
+            background: white;
+            color: var(--accent);
+            font-weight: 700;
+            border: none;
+        }
+        .cta-banner .btn-white:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Comparison Table */
+        .comparison-note {
+            text-align: center;
+            font-size: 13px;
+            color: var(--gray);
+            margin-top: 16px;
+        }
+
+        /* Section Spacing */
+        .pricing-section {
+            margin-bottom: 30px;
+        }
+        .pricing-section-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .pricing-section-header h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .pricing-section-header .region-flag {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .pricing-section-header p {
+            color: var(--gray-light);
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+    <div class="container">
+        <div class="topbar-left">
+            <a href="tel:18444409111">&#128222; 1 (844) 440-9111 — 24/7</a>
+            <a href="tel:5147000303">&#128205; (514) 700-0303</a>
+            <a href="mailto:info@ticket911.ca">&#9993; info@ticket911.ca</a>
+        </div>
+        <div class="topbar-right">
+            <span style="color: var(--gold);">&#9733;&#9733;&#9733;&#9733;&#9733; 4.6/5 Google (1,000+ reviews)</span>
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn" onclick="window.location.href='pricing-fr.html'">FR</button>
+            <button class="lang-btn">ES</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="container">
+        <a href="../index.html" class="logo">
+            <span>TICKET</span><span class="t9">911</span><span>.ca</span>
+        </a>
+        <nav class="nav">
+            <div class="dropdown">
+                Services &#9662;
+                <div class="dropdown-menu">
+                    <a href="services.html">All Services</a>
+                    <a href="services.html#speeding">Speeding Tickets</a>
+                    <a href="services.html#redlight">Red Light / Stop Sign</a>
+                    <a href="services.html#cellphone">Cellphone Tickets</a>
+                    <a href="services.html#careless">Careless Driving</a>
+                    <a href="services.html#stunt">Racing / Stunt Driving</a>
+                    <a href="services.html#dui">DUI / Impaired</a>
+                    <a href="services.html#pardons">Pardons & Waivers</a>
+                </div>
+            </div>
+            <a href="pricing.html" style="color: var(--accent);">Pricing</a>
+            <div class="dropdown">
+                Jurisdictions &#9662;
+                <div class="dropdown-menu">
+                    <a href="quebec.html">&#127464;&#127462; Quebec</a>
+                    <a href="ontario.html">&#127464;&#127462; Ontario</a>
+                    <a href="new-york.html">&#127482;&#127480; New York</a>
+                </div>
+            </div>
+            <a href="ai-analysis.html"><span class="badge-ai">AI</span> Analyze My Ticket</a>
+            <a href="about.html">About</a>
+            <a href="faq.html">FAQ</a>
+            <a href="blog.html">Blog</a>
+            <a href="login.html" class="nav-login">Log In</a>
+            <a href="quote.html" class="nav-cta">Free Quote</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ===== PRICING HERO ===== -->
+<section class="pricing-hero">
+    <div class="container">
+        <div class="badge" style="margin-bottom:18px;">Pricing</div>
+        <h1>Transparent, <span>Fixed-Price</span> Packages</h1>
+        <p>No hidden fees. No hourly billing surprises. Choose your package, pay once, and we handle everything from start to finish.</p>
+        <div class="trust-bar">
+            <span><span class="ico">&#10003;</span> No Hidden Fees</span>
+            <span><span class="ico">&#10003;</span> Money-Back Guarantee</span>
+            <span><span class="ico">&#10003;</span> 105,000+ Cases Resolved</span>
+            <span><span class="ico">&#10003;</span> 90% Success Rate</span>
+        </div>
+    </div>
+</section>
+
+<!-- ===== QUEBEC PACKAGES ===== -->
+<section class="section">
+    <div class="container">
+        <div class="pricing-section">
+            <div class="pricing-section-header">
+                <span class="region-flag">&#127464;&#127462;</span>
+                <h2>Quebec Packages</h2>
+                <p>Code de la securite routiere — All courts across Quebec including Montreal, Laval, Longueuil, Quebec City</p>
+            </div>
+            <div class="pricing-grid pricing-grid-3">
+                <!-- Package 1 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Quebec</div>
+                    <h3>Package 1</h3>
+                    <div class="points">0-3 demerit points</div>
+                    <div class="price"><sup>$</sup>199</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=qc1" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+
+                <!-- Package 2 — POPULAR -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">&#9733; Most Popular</div>
+                    <div class="region">&#127464;&#127462; Quebec</div>
+                    <h3>Package 2</h3>
+                    <div class="points">4-5 demerit points</div>
+                    <div class="price"><sup>$</sup>449</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=qc2" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+
+                <!-- Package 3 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Quebec</div>
+                    <h3>Package 3</h3>
+                    <div class="points">6+ demerit points</div>
+                    <div class="price"><sup>$</sup>599</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=qc3" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ONTARIO PACKAGES ===== -->
+<section class="section section-gray">
+    <div class="container">
+        <div class="pricing-section">
+            <div class="pricing-section-header">
+                <span class="region-flag">&#127464;&#127462;</span>
+                <h2>Ontario Packages</h2>
+                <p>Highway Traffic Act — All courts across Ontario including Toronto, Scarborough, Whitby, Ottawa, Mississauga</p>
+            </div>
+            <div class="pricing-grid pricing-grid-4">
+                <!-- Package 4 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Ontario</div>
+                    <h3>Package 4</h3>
+                    <div class="points">0-2 demerit points</div>
+                    <div class="price"><sup>$</sup>199</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=on4" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+
+                <!-- Package 5 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Ontario</div>
+                    <h3>Package 5</h3>
+                    <div class="points">3-4 demerit points</div>
+                    <div class="price"><sup>$</sup>349</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=on5" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+
+                <!-- Package 6 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Ontario</div>
+                    <h3>Package 6</h3>
+                    <div class="points">Handheld device (texting/calling)</div>
+                    <div class="price"><sup>$</sup>499</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=on6" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+
+                <!-- Package 7 -->
+                <div class="pricing-card">
+                    <div class="region">&#127464;&#127462; Ontario</div>
+                    <h3>Package 7</h3>
+                    <div class="points">5+ demerit points (includes trial)</div>
+                    <div class="price"><sup>$</sup>1,199</div>
+                    <div class="price-note">One-time payment &bull; CAD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> Full Trial Representation</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=on7" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== NEW YORK PACKAGE ===== -->
+<section class="section">
+    <div class="container">
+        <div class="pricing-section">
+            <div class="pricing-section-header">
+                <span class="region-flag">&#127482;&#127480;</span>
+                <h2>New York Package</h2>
+                <p>Vehicle &amp; Traffic Law — All 5 NYC boroughs: Manhattan, Brooklyn, Queens, Bronx, Staten Island</p>
+            </div>
+            <div style="max-width: 380px; margin: 0 auto;">
+                <!-- Package 8 -->
+                <div class="pricing-card">
+                    <div class="region">&#127482;&#127480; New York</div>
+                    <h3>Package 8</h3>
+                    <div class="points">Any NYC traffic ticket</div>
+                    <div class="price"><sup>$</sup>579</div>
+                    <div class="price-note">One-time payment &bull; USD</div>
+                    <ul>
+                        <li><span class="ck">&#10003;</span> AI Ticket Analysis</li>
+                        <li><span class="ck">&#10003;</span> Full Legal Representation</li>
+                        <li><span class="ck">&#10003;</span> Court Appearance Included</li>
+                        <li><span class="ck">&#10003;</span> English &amp; Spanish Service</li>
+                        <li><span class="ck">&#10003;</span> Money-Back Guarantee*</li>
+                    </ul>
+                    <a href="payment.html?pkg=ny8" class="btn btn-primary btn-block btn-sm">Choose Package &#8594;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== OTHER SERVICES (Consultation Required) ===== -->
+<section class="section section-dark">
+    <div class="container">
+        <div class="section-header">
+            <div class="badge" style="background:rgba(212,168,67,0.2); color:var(--gold-light);">Consultation Required</div>
+            <h2>Other Legal Services</h2>
+            <p>These cases require a personalized assessment. Contact us for a free consultation and custom quote.</p>
+        </div>
+        <div class="consult-grid">
+            <div class="consult-card">
+                <div class="card-icon">&#127863;</div>
+                <h4>DUI / Impaired Driving</h4>
+                <p>Criminal code charges. Alcohol &amp; cannabis. Former prosecutors on your side.</p>
+            </div>
+            <div class="consult-card">
+                <div class="card-icon">&#9878;</div>
+                <h4>Criminal Charges</h4>
+                <p>Assault, theft, fraud, and other criminal code offenses. Full defense.</p>
+            </div>
+            <div class="consult-card">
+                <div class="card-icon">&#128274;</div>
+                <h4>Pardons &amp; Record Suspensions</h4>
+                <p>Clear your criminal record. Canadian pardons. Move forward with your life.</p>
+            </div>
+            <div class="consult-card">
+                <div class="card-icon">&#9992;</div>
+                <h4>Entry Waivers (Canada &amp; USA)</h4>
+                <p>Temporary Resident Permits. US waivers. Cross the border freely again.</p>
+            </div>
+            <div class="consult-card">
+                <div class="card-icon">&#128203;</div>
+                <h4>Appeals</h4>
+                <p>Lost your case? We can appeal the decision to a higher court.</p>
+            </div>
+            <div class="consult-card">
+                <div class="card-icon">&#128666;</div>
+                <h4>Heavy Vehicle Cases</h4>
+                <p>Commercial trucks, buses, taxis. SAAQ, MTO &amp; FMCSA violations.</p>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 36px;">
+            <a href="quote.html" class="btn btn-primary btn-lg">Request Free Consultation &#8594;</a>
+            <a href="tel:18444409111" class="btn btn-outline btn-lg" style="margin-left: 12px;">&#128222; 1 (844) 440-9111</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== MONEY-BACK GUARANTEE ===== -->
+<section class="section">
+    <div class="container">
+        <div class="guarantee-section">
+            <div class="shield">&#128170;</div>
+            <h2>Our Money-Back Guarantee</h2>
+            <p>We stand behind our work. If we cannot improve the outcome of your traffic ticket — whether that means a dismissal, reduction in fine, or reduction in demerit points — you receive a full refund of your package price, minus a $100 administrative fee.</p>
+            <p style="font-size: 14px; color: var(--gray);">The $100 admin fee covers court filing costs, document preparation, and AI analysis resources. This guarantee applies to all standard traffic ticket packages (Packages 1-8). Consultation-based services (DUI, criminal, pardons) are subject to separate terms discussed during your consultation.</p>
+            <div class="guarantee-details">
+                <div class="detail"><span class="ico">&#10003;</span> Applies to Packages 1 through 8</div>
+                <div class="detail"><span class="ico">&#10003;</span> Full refund minus $100 admin fee</div>
+                <div class="detail"><span class="ico">&#10003;</span> Triggered if outcome not improved</div>
+                <div class="detail"><span class="ico">&#10003;</span> Refund processed within 30 days</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PAYMENT METHODS ===== -->
+<section class="section section-gray">
+    <div class="container">
+        <div class="section-header">
+            <div class="badge">&#128274; Secure Payment</div>
+            <h2>Flexible Payment Options</h2>
+            <p>Pay your way. All transactions are encrypted with 256-bit SSL and fully PCI-DSS compliant.</p>
+        </div>
+        <div class="payment-grid">
+            <div class="payment-card">
+                <span class="pm-icon">&#128179;</span>
+                <strong>Credit Card</strong>
+                <span>Visa, Mastercard, Amex<br>Instant processing</span>
+            </div>
+            <div class="payment-card">
+                <span class="pm-icon">&#127974;</span>
+                <strong>Interac e-Transfer</strong>
+                <span>All Canadian banks<br>Processed within 24 hours</span>
+            </div>
+            <div class="payment-card">
+                <span class="pm-icon">&#127974;</span>
+                <strong>Bank Transfer (ACH)</strong>
+                <span>US &amp; Canadian banks<br>Wire transfer available</span>
+            </div>
+            <div class="payment-card">
+                <span class="pm-icon">&#128176;</span>
+                <strong>Payment Plan</strong>
+                <span>Split in 2-3 payments<br>0% interest, no credit check</span>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 24px;">
+            <p style="font-size: 13px; color: var(--gray);">&#128274; 256-bit SSL encryption &bull; PCI-DSS compliant &bull; Taxes calculated automatically (TPS/TVQ, HST, NY Tax) &bull; CAD &amp; USD accepted</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FAQ ABOUT PRICING ===== -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div class="badge">FAQ</div>
+            <h2>Pricing Questions &amp; Answers</h2>
+            <p>Everything you need to know about our pricing, packages, and payment process.</p>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-q">How do I know which package is right for my ticket?</div>
+                <div class="faq-a">Your package depends on two factors: the jurisdiction (Quebec, Ontario, or New York) and the number of demerit points on your ticket. You can find the demerit points listed on your ticket or use our free AI Ticket Analysis tool to scan your ticket — it will automatically identify the violation, demerit points, and recommend the right package for you in 30 seconds.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Are there any hidden fees beyond the package price?</div>
+                <div class="faq-a">No. The price you see is the price you pay, plus applicable taxes (TPS/TVQ in Quebec, HST in Ontario, NY Sales Tax in New York). There are no hourly fees, no surprise charges, and no additional court costs. Everything — AI analysis, lawyer fees, court appearances, and case management — is included in your package price.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How does the money-back guarantee work exactly?</div>
+                <div class="faq-a">If we cannot improve the outcome of your ticket in any way — meaning no dismissal, no fine reduction, and no demerit point reduction — you are entitled to a full refund of your package price minus a $100 administrative fee. The admin fee covers court filing costs, document preparation, and AI resources used on your case. Refunds are processed within 30 business days of the final court decision.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Can I pay in installments?</div>
+                <div class="faq-a">Yes. We offer a payment plan option that lets you split your package price into 2 or 3 equal installments at 0% interest and with no credit check required. The first payment is due at the time of booking, and subsequent payments are scheduled at 30-day intervals. Payment plans are available for all packages $349 and above.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What is the difference between Ontario Package 5 and Package 7?</div>
+                <div class="faq-a">Package 5 covers tickets with 3-4 demerit points and includes standard legal representation and court appearance. Package 7 is for more serious offenses with 5 or more demerit points, and it includes full trial representation — meaning our lawyer will represent you through the entire trial process, including cross-examination of witnesses, submission of evidence, and full legal argument. This is essential for serious charges like stunt driving or excessive speeding.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Do I need to appear in court myself?</div>
+                <div class="faq-a">No. In the vast majority of cases, our lawyer appears in court on your behalf and you do not need to be present. This is one of the key benefits of hiring Ticket911 — we handle everything so you can continue with your daily life. In rare situations where your presence is required (such as certain trial proceedings), we will notify you well in advance and prepare you thoroughly.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CTA: AI ANALYSIS ===== -->
+<section class="section section-gray">
+    <div class="container">
+        <div class="cta-banner">
+            <div style="font-size: 48px; margin-bottom: 16px;">&#129302;</div>
+            <h2>Not Sure Which Package?</h2>
+            <p>Let our AI analyze your ticket for free. Upload a photo and get your violation type, demerit points, recommended package, and success probability — all in 30 seconds.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="ai-analysis.html" class="btn btn-lg btn-white">&#129302; AI Ticket Scan — Free</a>
+                <a href="quote.html" class="btn btn-outline btn-lg" style="border-color: white; color: white;">Get a Free Quote</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">TICKET<span>911</span>.ca</div>
+                <p>Fight your traffic ticket with former prosecutors and AI technology. Serving Quebec, Ontario & New York since 2011.</p>
+                <p style="margin-top:12px;"><strong style="color:white;">1 (844) 440-9111</strong> — 24/7</p>
+                <p>info@ticket911.ca</p>
+                <div class="footer-social" style="margin-top:14px;">
+                    <a href="#">f</a>
+                    <a href="#">&#120143;</a>
+                    <a href="#">in</a>
+                    <a href="#">&#9654;</a>
+                    <a href="#">&#9883;</a>
+                </div>
+            </div>
+            <div>
+                <h4>Services</h4>
+                <a href="services.html#speeding">Speeding Tickets</a><br>
+                <a href="services.html#redlight">Red Light / Stop Sign</a><br>
+                <a href="services.html#cellphone">Cellphone Tickets</a><br>
+                <a href="services.html#careless">Careless Driving</a><br>
+                <a href="services.html#stunt">Racing / Stunt Driving</a><br>
+                <a href="services.html#dui">DUI / Impaired</a><br>
+                <a href="services.html#pardons">Pardons</a><br>
+                <a href="services.html#waivers">Entry Waivers</a>
+            </div>
+            <div>
+                <h4>Jurisdictions</h4>
+                <a href="quebec.html">Quebec</a><br>
+                <a href="ontario.html">Ontario</a><br>
+                <a href="new-york.html">New York</a><br><br>
+                <h4>Company</h4>
+                <a href="about.html">About Us</a><br>
+                <a href="blog.html">Blog</a><br>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a><br>
+                <a href="terms.html">Terms & Conditions</a><br><br>
+                <h4>My Account</h4>
+                <a href="login.html">Log In</a><br>
+                <a href="register.html">Register</a><br>
+                <a href="dashboard-client.html">My Cases</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ticket911.ca — 9493-0971 Quebec Inc. All rights reserved.</p>
+            <p>&#128274; Powered by AI &bull; SSL Encrypted &bull; Confidential</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ===== CHATBOT ===== -->
+<div class="chatbot">
+    <div class="chatbot-window" id="chatWindow">
+        <div class="chatbot-header">
+            <div class="ai-dot"></div>
+            <div>
+                <h4>Ticket911 AI Assistant</h4>
+                <p>Online — typically replies instantly</p>
+            </div>
+        </div>
+        <div class="chatbot-messages">
+            <div class="chat-msg bot">
+                Hi! &#128075; I'm the Ticket911 AI Assistant. I see you're looking at our pricing packages. I can help you pick the right one for your ticket. How can I help?
+            </div>
+            <div class="chat-msg bot" style="margin-top:4px;">
+                <strong>Quick options:</strong><br>
+                &#128203; Analyze my ticket<br>
+                &#128176; Help me choose a package<br>
+                &#128197; Book a consultation<br>
+                &#128221; Check my case status
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Type your question...">
+            <button>&#10148;</button>
+        </div>
+    </div>
+    <button class="chatbot-btn" onclick="document.getElementById('chatWindow').classList.toggle('open')">
+        &#128172;
+        <span class="badge-dot"></span>
+    </button>
+</div>
+
+<script>
+// FAQ toggle functionality
+document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+        // Close other open FAQs
+        document.querySelectorAll('.faq-q').forEach(other => {
+            if (other !== q && other.classList.contains('active')) {
+                other.classList.remove('active');
+                other.nextElementSibling.classList.remove('open');
+            }
+        });
+        q.classList.toggle('active');
+        q.nextElementSibling.classList.toggle('open');
+    });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+
+</body>
+</html>
