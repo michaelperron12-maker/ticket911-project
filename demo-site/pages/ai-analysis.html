@@ -544,16 +544,45 @@
             .result-grid { grid-template-columns: 1fr; }
             .ai-steps-grid { grid-template-columns: repeat(2, 1fr); }
             .ai-steps-grid::before { display: none; }
-            .safety-grid { grid-template-columns: 1fr; }
+            .safety-grid { grid-template-columns: 1fr 1fr; }
             .compare-table { font-size: 12px; }
             .compare-table thead th, .compare-table tbody td { padding: 12px 14px; }
+            .result-success-banner { flex-wrap: wrap; }
+            .result-success-banner .banner-text h3 { font-size: 16px; }
+            .precedent-header { flex-direction: column; gap: 8px; }
         }
         @media (max-width: 640px) {
+            .hero-ai { padding: 40px 0 50px; }
+            .hero-ai h1 { font-size: 26px; }
+            .hero-ai .hero-sub { font-size: 15px; }
             .ai-steps-grid { grid-template-columns: 1fr; }
-            .upload-zone-lg { padding: 40px 20px; }
-            .recommended-pkg { padding: 24px 16px; }
+            .upload-zone-lg { padding: 30px 16px; }
+            .upload-zone-lg .upload-icon { font-size: 48px; }
+            .upload-zone-lg h3 { font-size: 18px; }
+            .upload-btn-row { flex-direction: column; align-items: center; }
+            .result-success-banner { flex-direction: column; text-align: center; padding: 16px; gap: 10px; }
+            .result-success-banner .banner-text h3 { font-size: 15px; }
+            .result-success-banner .banner-text p { font-size: 12px; }
+            .result-panel { padding: 20px 16px; }
+            .result-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .result-row .value { font-size: 13px; }
+            .score-ring { width: 110px; height: 110px; }
+            .score-ring-inner { width: 85px; height: 85px; }
+            .score-ring-inner .big-num { font-size: 32px; }
+            .score-panel { padding: 24px 16px; }
+            .databases-bar { flex-direction: column; text-align: center; padding: 16px; }
+            .db-tags { justify-content: center; }
+            .db-tag { font-size: 10px; padding: 4px 10px; }
+            .recommended-pkg { padding: 20px 14px; }
+            .recommended-pkg h3 { font-size: 20px; }
+            .recommended-pkg .pkg-price { font-size: 40px; }
+            .recommended-pkg .pkg-features { flex-direction: column; align-items: center; gap: 10px; }
             .cta-row { flex-direction: column; align-items: center; }
-            .databases-bar { flex-direction: column; text-align: center; }
+            .safety-grid { grid-template-columns: 1fr; }
+            .safety-card { padding: 24px 16px; }
+            .precedent-card { padding: 16px; }
+            .precedent-header h5 { font-size: 13px; }
+            .scan-steps li { font-size: 12px; }
         }
     </style>
 </head>
