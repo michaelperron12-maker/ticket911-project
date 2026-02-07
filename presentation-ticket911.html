@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation — Ticket911.ca AI Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ===== SLIDE SYSTEM ===== */
+        .slide {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 100px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10,14,39,0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .nav-bar .slide-counter {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+        }
+        .nav-bar .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .nav-btn {
+            padding: 10px 24px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .nav-btn.primary {
+            background: #e63946;
+            border-color: #e63946;
+        }
+        .nav-btn.primary:hover {
+            background: #c1121f;
+        }
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #e63946, #f59e0b);
+            transition: width 0.4s ease;
+            z-index: 101;
+        }
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .slide-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slide-dots .dot.active {
+            background: #e63946;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* ===== COMMON ELEMENTS ===== */
+        .slide-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #e63946;
+            margin-bottom: 16px;
+        }
+        .slide-title {
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+        .slide-title span.accent { color: #e63946; }
+        .slide-title span.gold { color: #d4a843; }
+        .slide-title span.blue { color: #3b82f6; }
+        .slide-title span.green { color: #22c55e; }
+        .slide-subtitle {
+            font-size: 20px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+            max-width: 700px;
+        }
+
+        /* ===== GRIDS ===== */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 40px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; margin-top: 40px; }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        .card .card-icon {
+            font-size: 32px;
+            margin-bottom: 14px;
+        }
+        .card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .card p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.6;
+        }
+
+        /* ===== STAT BLOCKS ===== */
+        .stat-block {
+            text-align: center;
+            padding: 24px;
+        }
+        .stat-block .stat-num {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-block .stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 500;
+        }
+
+        /* ===== COMPARISON TABLE ===== */
+        .compare-table {
+            margin-top: 36px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .compare-table th {
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        .compare-table th:first-child { color: rgba(255,255,255,0.5); }
+        .compare-table th:nth-child(2) { color: #ef4444; }
+        .compare-table th:nth-child(3) { color: #22c55e; }
+        .compare-table td {
+            padding: 14px 20px;
+            font-size: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .compare-table td:first-child {
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+        .compare-table td:nth-child(2) { color: rgba(255,255,255,0.4); }
+        .compare-table td:nth-child(3) { color: #22c55e; font-weight: 600; }
+
+        /* ===== TIMELINE ===== */
+        .timeline-row {
+            display: flex;
+            gap: 0;
+            margin-top: 40px;
+        }
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 0 16px;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        .timeline-item:last-child::after { display: none; }
+        .timeline-num {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(230,57,70,0.15);
+            border: 2px solid #e63946;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            color: #e63946;
+            margin: 0 auto 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .timeline-item h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .timeline-item p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ===== PRICING ===== */
+        .pricing-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 36px;
+            text-align: center;
+        }
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(212,168,67,0.08));
+            border-color: rgba(230,57,70,0.3);
+        }
+        .pricing-card .price {
+            font-size: 48px;
+            font-weight: 900;
+            margin: 16px 0 8px;
+        }
+        .pricing-card .price-period {
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+        }
+        .pricing-card ul {
+            list-style: none;
+            margin: 24px 0;
+            text-align: left;
+        }
+        .pricing-card ul li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pricing-card ul li .check { color: #22c55e; font-weight: 700; }
+
+        /* ===== ROI BARS ===== */
+        .roi-bar-container {
+            margin-top: 36px;
+        }
+        .roi-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .roi-row .roi-label {
+            width: 140px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .roi-row .roi-bar {
+            flex: 1;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ===== BACKGROUNDS ===== */
+        .bg-gradient-1 {
+            background: linear-gradient(135deg, #0a0e27 0%, #111936 50%, #0f172a 100%);
+        }
+        .bg-gradient-2 {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .bg-dark { background: #0a0e27; }
+
+        /* Decorative elements */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* ===== LOGO ===== */
+        .slide-logo {
+            font-size: 14px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+            position: absolute;
+            top: 32px;
+            left: 40px;
+        }
+        .slide-logo span { color: #e63946; }
+
+        /* Print / Fullscreen */
+        @media print {
+            .nav-bar { display: none; }
+            .progress-bar { display: none; }
+            .slide { page-break-after: always; position: relative; display: flex !important; opacity: 1 !important; height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width: 12.5%;"></div>
+
+<!-- ============================================================
+     SLIDE 1 — COVER
+     ============================================================ -->
+<div class="slide active bg-gradient-1" data-slide="1">
+    <div class="glow-circle" style="width:400px;height:400px;background:#e63946;top:-100px;right:-50px;"></div>
+    <div class="glow-circle" style="width:300px;height:300px;background:#3b82f6;bottom:-50px;left:100px;"></div>
+
+    <div class="slide-tag">Proposition confidentielle</div>
+    <div class="slide-title" style="font-size:58px;">
+        Plateforme <span class="accent">IA</span> pour<br>
+        <span class="gold">Ticket911.ca</span>
+    </div>
+    <div class="slide-subtitle" style="margin-top:12px;">
+        Automatiser l'analyse de contraventions, tripler votre capacité de traitement, et générer +$50K/mois de revenus supplémentaires.
+    </div>
+    <div style="margin-top:40px; display:flex; gap:20px; align-items:center;">
+        <div style="padding:12px 28px; background:#e63946; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;" onclick="goToSlide(2)">
+            Voir la proposition &#8594;
+        </div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.4);">
+            Préparé par Michael Perron — Février 2026
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 2 — LE PROBLEME
+     ============================================================ -->
+<div class="slide bg-gradient-2" data-slide="2">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Le problème</div>
+    <div class="slide-title" style="font-size:44px;">
+        Votre processus actuel<br>
+        <span class="accent">ne scale pas</span>
+    </div>
+    <div class="slide-subtitle">
+        Chaque nouveau dossier demande du temps humain. Plus de dossiers = plus d'employés = plus de coûts.
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="card-icon">&#9201;</div>
+            <h3>15-20 min / dossier</h3>
+            <p>Analyse manuelle de chaque contravention, recherche de jurisprudence, rédaction d'arguments — tout fait à la main.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#128176;</div>
+            <h3>Capacité limitée</h3>
+            <p>Avec 200 dossiers/mois, votre équipe est au maximum. Pour en prendre plus, il faut embaucher — et ça coûte cher.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#128197;</div>
+            <h3>Risque d'erreurs</h3>
+            <p>Dates de cour manquées, dossiers en retard, clients sans nouvelles — le volume génère des erreurs humaines.</p>
+        </div>
+    </div>
+
+    <div style="margin-top:32px; background:rgba(230,57,70,0.08); border:1px solid rgba(230,57,70,0.2); border-radius:12px; padding:20px 28px; display:flex; align-items:center; gap:16px;">
+        <span style="font-size:28px;">&#9888;</span>
+        <div>
+            <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Chaque dossier refusé = argent perdu</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.5);">Si vous refusez 50 dossiers/mois à cause du volume, c'est ~$15,000/mois de revenus perdus.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 3 — LA SOLUTION
+     ============================================================ -->
+<div class="slide bg-dark" data-slide="3">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">La solution</div>
+    <div class="slide-title" style="font-size:44px;">
+        Une plateforme qui fait en<br>
+        <span class="green">30 secondes</span> ce qui prend <span class="accent">20 minutes</span>
+    </div>
+
+    <div class="grid-2" style="margin-top:36px;">
+        <div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#129302;</div>
+                <h3>Analyse IA instantanée</h3>
+                <p>L'IA analyse chaque contravention, trouve les jurisprudences pertinentes, identifie les faiblesses de l'accusation, et génère un brouillon de défense — en 30 secondes.</p>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128187;</div>
+                <h3>Portail client 24/7</h3>
+                <p>Vos clients soumettent leur contravention en ligne, suivent leur dossier en temps réel, et paient directement. Plus d'appels pour "mon dossier est où?".</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128188;</div>
+                <h3>CRM avocat complet</h3>
+                <p>Pipeline de dossiers, calendrier de cour, facturation automatique, suivi des paiements, rapports de performance — tout dans un seul outil.</p>
+            </div>
+        </div>
+        <div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128200;</div>
+                <h3>Automatisation bout en bout</h3>
+                <p>De la soumission à la résolution : notification SMS/email auto, génération de mandats, rappels de cour, factures automatiques.</p>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-icon">&#128274;</div>
+                <h3>3 juridictions intégrées</h3>
+                <p>Québec (Code de la sécurité routière), Ontario (HTA), et New York (VTL) — chaque juridiction avec ses lois, procédures et tribunaux spécifiques.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128640;</div>
+                <h3>Base de données officielle</h3>
+                <p>Connecté aux bases CanLII, SOQUIJ, et case law databases — jurisprudence toujours à jour, résultats plus précis que la recherche manuelle.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 4 — AVANT / APRES
+     ============================================================ -->
+<div class="slide bg-gradient-1" data-slide="4">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Avant vs Apres</div>
+    <div class="slide-title" style="font-size:40px;">
+        <span class="accent">Aujourd'hui</span> vs <span class="green">Avec la plateforme</span>
+    </div>
+
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Métrique</th>
+                <th>&#10060; Processus actuel</th>
+                <th>&#9989; Avec plateforme IA</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Temps d'analyse par dossier</td>
+                <td>15-20 minutes</td>
+                <td>30 secondes</td>
+            </tr>
+            <tr>
+                <td>Capacité mensuelle</td>
+                <td>~200 dossiers</td>
+                <td>500-800 dossiers</td>
+            </tr>
+            <tr>
+                <td>Recherche jurisprudence</td>
+                <td>Manuelle, 10-30 min</td>
+                <td>Automatique, instantanée</td>
+            </tr>
+            <tr>
+                <td>Suivi client</td>
+                <td>Appels / emails manuels</td>
+                <td>Portail self-service 24/7</td>
+            </tr>
+            <tr>
+                <td>Facturation</td>
+                <td>Manuelle, QuickBooks</td>
+                <td>Automatique + intégration QB</td>
+            </tr>
+            <tr>
+                <td>Rappels de cour</td>
+                <td>Calendrier manuel</td>
+                <td>SMS + email automatiques</td>
+            </tr>
+            <tr>
+                <td>Revenus potentiels / mois</td>
+                <td style="color: rgba(255,255,255,0.4);">~$60,000</td>
+                <td style="color: #22c55e; font-weight: 800; font-size: 17px;">$150,000+</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ============================================================
+     SLIDE 5 — ROI / IMPACT FINANCIER
+     ============================================================ -->
+<div class="slide bg-gradient-2" data-slide="5">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Retour sur investissement</div>
+    <div class="slide-title" style="font-size:40px;">
+        L'outil se <span class="green">rentabilise en 1 mois</span>
+    </div>
+
+    <div class="grid-2" style="margin-top:30px;">
+        <div>
+            <div class="roi-bar-container">
+                <div class="roi-row">
+                    <div class="roi-label">Revenus actuels</div>
+                    <div class="roi-bar" style="width:40%; background:rgba(255,255,255,0.1);">~$60K/mois</div>
+                </div>
+                <div class="roi-row">
+                    <div class="roi-label">Avec plateforme</div>
+                    <div class="roi-bar" style="width:85%; background:linear-gradient(90deg, #22c55e, #16a34a);">$150K+/mois</div>
+                </div>
+                <div class="roi-row">
+                    <div class="roi-label">Coût plateforme</div>
+                    <div class="roi-bar" style="width:8%; background:rgba(230,57,70,0.3); color: #e63946;">$3,950/mois</div>
+                </div>
+            </div>
+
+            <div style="margin-top:32px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:20px 24px;">
+                <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:8px;">ROI NET PREMIÈRE ANNÉE</div>
+                <div style="font-size:42px; font-weight:900; color:#22c55e;">+$1,040,600</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px;">Revenus additionnels - coûts de la plateforme</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Développement (une fois)</div>
+                        <div style="font-size:28px; font-weight:800;">$40,000</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Livraison 8 semaines<br>Paiement en 3 versements</div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Hébergement + IA / mois</div>
+                        <div style="font-size:28px; font-weight:800;">$3,950</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Serveurs, IA, base de données<br>Support inclus</div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.5);">Breakeven</div>
+                        <div style="font-size:28px; font-weight:800; color:#22c55e;">Mois 1</div>
+                    </div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-align:right;">Le coût est couvert dès<br>~13 dossiers additionnels</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 6 — TIMELINE
+     ============================================================ -->
+<div class="slide bg-dark" data-slide="6">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Plan de livraison</div>
+    <div class="slide-title" style="font-size:42px;">
+        Live en <span class="gold">8 semaines</span>
+    </div>
+    <div class="slide-subtitle">
+        Développement agile avec démos hebdomadaires. Vous voyez le progrès chaque semaine.
+    </div>
+
+    <div class="timeline-row">
+        <div class="timeline-item">
+            <div class="timeline-num">1</div>
+            <h4>Semaine 1-2</h4>
+            <p>Setup infrastructure<br>Base de données<br>Authentification</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">2</div>
+            <h4>Semaine 3-4</h4>
+            <p>Moteur IA<br>Analyse contraventions<br>Jurisprudence</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">3</div>
+            <h4>Semaine 5-6</h4>
+            <p>Portail client<br>CRM avocat<br>Facturation</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num">4</div>
+            <h4>Semaine 7</h4>
+            <p>Tests QA<br>Intégrations<br>SMS/Email</p>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-num" style="background:rgba(34,197,94,0.15); border-color:#22c55e; color:#22c55e;">&#10003;</div>
+            <h4>Semaine 8</h4>
+            <p>Déploiement<br>Formation équipe<br><strong style="color:#22c55e;">GO LIVE</strong></p>
+        </div>
+    </div>
+
+    <div style="margin-top:40px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128172;</div>
+            <h3 style="font-size:15px;">Démo chaque vendredi</h3>
+            <p>Vous voyez l'avancement en temps réel</p>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128274;</div>
+            <h3 style="font-size:15px;">Votre propriété</h3>
+            <p>Tout le code vous appartient — pas de lock-in</p>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:24px; margin-bottom:8px;">&#128640;</div>
+            <h3 style="font-size:15px;">Support 6 mois inclus</h3>
+            <p>Corrections de bugs et ajustements inclus post-lancement</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 7 — DEMO LIVE
+     ============================================================ -->
+<div class="slide bg-gradient-1" data-slide="7">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Demo en direct</div>
+    <div class="slide-title" style="font-size:42px;">
+        Voyez la plateforme <span class="accent">en action</span>
+    </div>
+    <div class="slide-subtitle">
+        Une démonstration fonctionnelle est déjà prête. Explorez le portail client, le CRM avocat, et l'analyse IA.
+    </div>
+
+    <div class="grid-3" style="margin-top:32px;">
+        <a href="https://demo-site-one-iota.vercel.app" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(230,57,70,0.3);">
+            <div class="card-icon">&#127968;</div>
+            <h3>Site principal</h3>
+            <p>Page d'accueil, services, prix, AI demo, juridictions QC/ON/NY</p>
+            <div style="margin-top:12px; font-size:12px; color:#e63946; font-weight:700;">Ouvrir &#8594;</div>
+        </a>
+        <a href="https://demo-site-one-iota.vercel.app/pages/dashboard-client.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(59,130,246,0.3);">
+            <div class="card-icon">&#128100;</div>
+            <h3>Portail Client</h3>
+            <p>Dashboard client, suivi de dossiers, paiements, documents, chatbot IA</p>
+            <div style="margin-top:12px; font-size:12px; color:#3b82f6; font-weight:700;">Ouvrir &#8594;</div>
+        </a>
+        <a href="https://demo-site-one-iota.vercel.app/pages/dashboard-lawyer.html" target="_blank" class="card" style="text-decoration:none; color:#fff; cursor:pointer; border-color:rgba(34,197,94,0.3);">
+            <div class="card-icon">&#9878;</div>
+            <h3>CRM Avocat</h3>
+            <p>Pipeline Kanban, AI queue, facturation, calendrier de cour, analytics</p>
+            <div style="margin-top:12px; font-size:12px; color:#22c55e; font-weight:700;">Ouvrir &#8594;</div>
+        </a>
+    </div>
+
+    <div style="margin-top:32px; text-align:center; font-size:13px; color:rgba(255,255,255,0.4);">
+        demo-site-one-iota.vercel.app — Accès direct, aucune installation requise
+    </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 8 — PROCHAINES ETAPES
+     ============================================================ -->
+<div class="slide bg-gradient-2" data-slide="8">
+    <div class="slide-logo">TICKET<span>911</span>.CA</div>
+    <div class="slide-tag">Prochaines étapes</div>
+    <div class="slide-title" style="font-size:44px;">
+        Prêt à <span class="green">commencer</span>?
+    </div>
+
+    <div class="grid-2" style="margin-top:30px;">
+        <div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(230,57,70,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#e63946;flex-shrink:0;">1</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Appel découverte (20 min)</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">On discute de vos besoins spécifiques et je réponds à vos questions.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#3b82f6;flex-shrink:0;">2</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Proposition sur mesure</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">J'ajuste la proposition selon vos priorités et votre budget.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#22c55e;flex-shrink:0;">3</div>
+                <div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">Signature + Début</h3>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.5);">Premier versement et début du développement. Première démo en 2 semaines.</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="text-align:center; border-color:rgba(230,57,70,0.3);">
+                <div style="font-size:15px; font-weight:700; margin-bottom:20px;">Contactez-moi</div>
+                <div style="font-size:36px; margin-bottom:16px;">&#128222;</div>
+                <div style="font-size:20px; font-weight:800; margin-bottom:4px;">514-609-2882</div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px;">michaelperron12@gmail.com</div>
+                <div style="padding:14px 28px; background:#e63946; border-radius:10px; font-weight:700; font-size:15px; display:inline-block;">
+                    Planifier un appel &#8594;
+                </div>
+                <div style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.3);">
+                    Disponible lun-ven, 9h-18h
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:32px; text-align:center; font-size:14px; color:rgba(255,255,255,0.3);">
+        Merci pour votre temps. — Michael Perron, Février 2026
+    </div>
+</div>
+
+<!-- ===== NAVIGATION BAR ===== -->
+<div class="nav-bar">
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+    </div>
+    <div class="slide-dots" id="slideDots"></div>
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="prevSlide()">&#8592; Précédent</button>
+        <button class="nav-btn primary" onclick="nextSlide()">Suivant &#8594;</button>
+    </div>
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 1;
+
+    // Build dots
+    const dotsContainer = document.getElementById('slideDots');
+    for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 1 ? ' active' : '');
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
+
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function goToSlide(n) {
+        if (n < 1 || n > totalSlides) return;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[n - 1].classList.add('active');
+        currentSlide = n;
+        document.getElementById('currentSlide').textContent = n;
+        document.getElementById('progressBar').style.width = (n / totalSlides * 100) + '%';
+
+        // Update dots
+        document.querySelectorAll('.slide-dots .dot').forEach((d, i) => {
+            d.classList.toggle('active', i === n - 1);
+        });
+    }
+
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function prevSlide() { goToSlide(currentSlide - 1); }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        if (e.key === 'Home') { e.preventDefault(); goToSlide(1); }
+        if (e.key === 'End') { e.preventDefault(); goToSlide(totalSlides); }
+    });
+
+    // Touch/swipe support
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) nextSlide();
+            else prevSlide();
+        }
+    });
+</script>
+
+</body>
+</html>
