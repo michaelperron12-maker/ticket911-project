@@ -810,6 +810,13 @@ button, input, select, textarea { font-family: inherit; }
 
     /* Chatbot */
     .chatbot-window { width: 320px; height: 450px; }
+
+    /* Inline grids — force 1 column for comparison table */
+    [style*="grid-template-columns: 1fr 1fr"],
+    [style*="grid-template-columns:1fr 1fr"] { gap: 20px !important; }
+
+    /* Dashboard table — allow scroll */
+    .dash-content { overflow-x: auto; }
 }
 
 /* ============ RESPONSIVE — MOBILE (640px) ============ */
@@ -896,6 +903,87 @@ button, input, select, textarea { font-family: inherit; }
     .chatbot { bottom: 16px; right: 16px; }
     .chatbot-btn { width: 52px; height: 52px; font-size: 22px; }
     .chatbot-window { width: calc(100vw - 32px); right: -8px; height: 400px; }
+
+    /* Dashboard table — horizontal scroll wrapper */
+    .dash-content { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .dash-content table { min-width: 600px; font-size: 11px !important; }
+
+    /* Inline grids override — comparison table, key advantages, etc. */
+    [style*="grid-template-columns: 1fr 1fr"],
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns: repeat(3"],
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+
+    /* CTA buttons — stack vertically */
+    .section-primary [style*="display:flex"][style*="gap"],
+    .section-dark [style*="display:flex"][style*="justify-content:center"] { flex-direction: column !important; align-items: center !important; }
+    .section-primary .btn-lg,
+    .section-dark .btn-lg { width: 100% !important; max-width: 320px; justify-content: center; }
+
+    /* Guarantee section */
+    .section-primary h2 { font-size: 24px !important; }
+    .section-primary p { font-size: 15px !important; }
+
+    /* Payment methods — stack */
+    .payment-methods { flex-direction: column; align-items: center; }
+    .payment-method { width: 100%; max-width: 320px; }
+
+    /* Team cards — 2 per row */
+    .team-avatar { width: 70px; height: 70px; font-size: 24px; }
+
+    /* Testimonial cards */
+    .testimonial-card blockquote { font-size: 13px; }
+
+    /* Comparison table inside section with inline styles */
+    .section [style*="grid-template-columns"] .card,
+    .section [style*="grid-template-columns"] [style*="border-radius:16px"] { padding: 20px !important; }
+
+    /* Key advantage big numbers */
+    [style*="font-size:48px"] { font-size: 32px !important; }
+}
+
+/* ============ MOBILE MENU — OPEN STATE ============ */
+.nav.nav-open {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    padding: 16px;
+    z-index: 999;
+    gap: 4px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+.nav.nav-open a,
+.nav.nav-open .dropdown {
+    padding: 12px 16px;
+    font-size: 15px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+}
+.nav.nav-open a:hover,
+.nav.nav-open .dropdown:hover { background: var(--gray-bg); }
+.nav.nav-open .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding-left: 16px;
+    min-width: auto;
+}
+.nav.nav-open .nav-cta {
+    background: var(--accent) !important;
+    color: white !important;
+    text-align: center;
+    border-radius: 50px !important;
+    margin-top: 8px;
+}
+.nav.nav-open .nav-login {
+    text-align: center;
+    margin-top: 4px;
 }
 
 /* ============ ANIMATIONS ============ */
