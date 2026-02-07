@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Services — All Traffic Violations | Ticket911.ca</title>
     <meta name="description" content="Full list of traffic ticket defense services. Speeding, red light, cellphone, careless driving, DUI, pardons, waivers. AI-powered legal defense across Quebec, Ontario & New York.">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Ticket911.ca">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta property="og:title" content="Our Services — All Traffic Violations | Ticket911.ca">
+    <meta property="og:description" content="Full list of traffic ticket defense services. AI-powered legal defense across Quebec, Ontario & New York.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ticket911.ca">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -353,15 +361,22 @@
         }
 
         /* Responsive */
+        @media (max-width: 968px) {
+            .services-hero h1 { font-size: 32px; }
+            .hero-stats-bar { gap: 20px; }
+        }
         @media (max-width: 900px) {
             .service-section .service-grid {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            .services-hero h1 { font-size: 32px; }
-            .hero-stats-bar { gap: 20px; }
             .ai-grid { grid-template-columns: 1fr; }
             .key-facts { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .services-hero { padding: 40px 0 50px; }
+            .services-hero h1 { font-size: 24px; }
+            .hero-stats-bar { flex-direction: column; gap: 12px; align-items: center; }
         }
         @media (max-width: 600px) {
             .services-nav a { font-size: 11px; padding: 6px 10px; }
@@ -424,6 +439,7 @@
             <a href="login.html" class="nav-login">Log In</a>
             <a href="quote.html" class="nav-cta">Free Quote</a>
         </nav>
+        <button class="mobile-menu-btn" onclick="document.querySelector('.nav').classList.toggle('nav-open')">&#9776;</button>
     </div>
 </header>
 

@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog — Traffic Ticket News & Legal Tips | Ticket911.ca</title>
     <meta name="description" content="Expert legal tips, traffic ticket news, and AI technology updates. Stay informed about traffic law in Quebec, Ontario & New York.">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Ticket911.ca">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta property="og:title" content="Blog — Traffic Ticket News & Legal Tips | Ticket911.ca">
+    <meta property="og:description" content="Expert legal tips, traffic ticket news, and AI technology updates. Stay informed about traffic law in Quebec, Ontario & New York.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ticket911.ca">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -316,6 +324,12 @@
             .blog-hero h1 { font-size: 32px; }
             .blog-sidebar { position: static; }
         }
+        @media (max-width: 640px) {
+            .blog-hero h1 { font-size: 26px; }
+            .blog-layout { grid-template-columns: 1fr; }
+            .featured-post { grid-template-columns: 1fr; }
+            .blog-sidebar { margin-top: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -373,6 +387,7 @@
             <a href="login.html" class="nav-login">Log In</a>
             <a href="quote.html" class="nav-cta">Free Quote</a>
         </nav>
+        <button class="mobile-menu-btn" onclick="document.querySelector('.nav').classList.toggle('nav-open')">&#9776;</button>
     </div>
 </header>
 

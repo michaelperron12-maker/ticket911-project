@@ -750,37 +750,149 @@ button, input, select, textarea { font-family: inherit; }
 .text-success { color: var(--success); }
 .fw-900 { font-weight: 900; }
 
-/* ============ RESPONSIVE ============ */
-@media (max-width: 968px) {
-    .topbar .container { flex-direction: column; gap: 4px; text-align: center; }
-    .topbar-left { flex-wrap: wrap; justify-content: center; gap: 8px; }
-    .topbar-left a:nth-child(2),
-    .topbar-left a:nth-child(3) { display: none; }
-    .topbar-right { flex-wrap: wrap; justify-content: center; gap: 6px; }
-    .hero-grid { grid-template-columns: 1fr; }
-    .ai-scanner { display: none; }
-    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: 1fr; }
-    .footer-grid { grid-template-columns: 1fr 1fr; }
-    .stat-cards { grid-template-columns: repeat(2, 1fr); }
-    .hero h1 { font-size: 34px; }
-    .process-steps { flex-direction: column; }
-    .process-step::after { display: none; }
+/* ============ MOBILE MENU BUTTON ============ */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--primary);
 }
-@media (max-width: 640px) {
-    .topbar { font-size: 12px; padding: 5px 0; }
+
+/* ============ RESPONSIVE — TABLET (968px) ============ */
+@media (max-width: 968px) {
+    /* Topbar */
     .topbar .container { flex-direction: row; justify-content: space-between; }
     .topbar-left a:nth-child(2),
     .topbar-left a:nth-child(3) { display: none; }
-    .topbar-right span { font-size: 11px; }
-    .topbar-right .lang-btn { padding: 2px 6px; font-size: 10px; }
-    .grid-2 { grid-template-columns: 1fr; }
-    .grid-4 { grid-template-columns: 1fr; }
+    .topbar-right { gap: 6px; }
+
+    /* Header */
+    .logo { font-size: 22px; }
+    .logo img { height: 34px; }
     .nav { display: none; }
-    .hero-stats { flex-wrap: wrap; gap: 16px; }
-    .section { padding: 50px 0; }
-    .footer-grid { grid-template-columns: 1fr; }
-    .stat-cards { grid-template-columns: 1fr 1fr; }
+    .mobile-menu-btn { display: block; }
+
+    /* Hero */
+    .hero { padding: 50px 0 60px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 30px; }
+    .ai-scanner { display: none; }
+    .hero h1 { font-size: 34px; }
+    .hero p { font-size: 16px; }
+    .hero-btns { flex-wrap: wrap; }
+    .hero-stats { flex-wrap: wrap; gap: 20px; }
+
+    /* Grids */
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+
+    /* Footer */
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+    /* Cards & sections */
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .section-header h2 { font-size: 28px; }
+    .section { padding: 60px 0; }
+    .process-steps { flex-direction: column; }
+    .process-step::after { display: none; }
+
+    /* AI demo */
+    .ai-demo { padding: 30px 20px; margin: 0 16px; }
+    .ai-demo-grid { grid-template-columns: 1fr; gap: 24px; }
+    .ai-demo h2 { font-size: 24px; }
+
+    /* Chatbot */
+    .chatbot-window { width: 320px; height: 450px; }
+}
+
+/* ============ RESPONSIVE — MOBILE (640px) ============ */
+@media (max-width: 640px) {
+    /* Container */
+    .container { padding: 0 16px; }
+
+    /* Topbar — single clean line */
+    .topbar { font-size: 11px; padding: 5px 0; }
+    .topbar-left a:nth-child(2),
+    .topbar-left a:nth-child(3) { display: none; }
+    .topbar-right span { font-size: 10px; }
+    .topbar-right .lang-btn { padding: 2px 6px; font-size: 9px; }
+
+    /* Header */
+    .header .container { padding: 8px 16px; }
+    .logo { font-size: 20px; gap: 6px; }
+    .logo img { height: 28px; }
+
+    /* Hero */
+    .hero { padding: 35px 0 45px; }
+    .hero h1 { font-size: 26px; }
+    .hero p { font-size: 14px; margin-bottom: 20px; }
+    .hero-btns { flex-direction: column; gap: 10px; }
+    .hero-btns .btn { width: 100%; justify-content: center; }
+    .hero-stats { gap: 14px; }
+    .hero-stat .num { font-size: 24px; }
+    .hero-stat .lbl { font-size: 10px; }
+    .hero-badge { font-size: 10px; padding: 5px 12px; }
+
+    /* Grids — all single column */
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr; }
+
+    /* Sections */
+    .section { padding: 40px 0; }
+    .section-header { margin-bottom: 30px; }
+    .section-header h2 { font-size: 24px; }
+    .section-header p { font-size: 14px; }
+
+    /* Cards */
+    .card { padding: 20px; }
+    .card h3 { font-size: 16px; }
+    .stat-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card { padding: 12px; }
+    .stat-card .stat-num { font-size: 22px; }
+
+    /* Pricing */
+    .pricing-card { padding: 24px 18px; }
+    .pricing-card .price { font-size: 38px; }
+
+    /* Buttons */
+    .btn { padding: 12px 24px; font-size: 14px; }
+    .btn-lg { padding: 14px 28px; font-size: 15px; }
+    .btn-sm { padding: 8px 18px; font-size: 12px; }
+
+    /* Footer */
+    .footer { padding: 40px 0 20px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+    .footer-bottom { flex-direction: column; gap: 6px; text-align: center; font-size: 11px; }
+
+    /* FAQ */
+    .faq-q { font-size: 14px; }
+
+    /* Forms */
+    .form-control { padding: 10px 14px; font-size: 13px; }
+
+    /* AI Demo */
+    .ai-demo { padding: 24px 16px; margin: 0; border-radius: var(--radius); }
+    .ai-demo-grid { grid-template-columns: 1fr; }
+    .ai-demo h2 { font-size: 22px; }
+    .ai-score .score-num { font-size: 36px; }
+
+    /* Payment */
+    .payment-methods { gap: 10px; }
+    .payment-method { padding: 12px 16px; font-size: 13px; }
+
+    /* Team */
+    .team-avatar { width: 80px; height: 80px; font-size: 28px; }
+
+    /* Chatbot */
+    .chatbot { bottom: 16px; right: 16px; }
+    .chatbot-btn { width: 52px; height: 52px; font-size: 22px; }
+    .chatbot-window { width: calc(100vw - 32px); right: -8px; height: 400px; }
 }
 
 /* ============ ANIMATIONS ============ */

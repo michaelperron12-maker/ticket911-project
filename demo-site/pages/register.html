@@ -384,6 +384,10 @@
         }
 
         /* ===== RESPONSIVE ===== */
+        @media (max-width: 968px) {
+            .register-hero h1 { font-size: 28px; }
+            .register-form-wrapper { padding: 32px; }
+        }
         @media (max-width: 768px) {
             .register-form-wrapper {
                 margin: 0 16px;
@@ -443,6 +447,7 @@
             <a href="login.html" class="nav-login">Log In</a>
             <a href="quote.html" class="nav-cta">Free Quote</a>
         </nav>
+        <button class="mobile-menu-btn" onclick="document.querySelector('.nav').classList.toggle('nav-open')">&#9776;</button>
     </div>
 </header>
 
