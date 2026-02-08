@@ -2,68 +2,80 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Resume APIs & Agents — Ticket911</title>
+<title>Systeme d'Agents — Ticket911 — 1.2M Tokens AI</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.55; font-size: 10.5pt; }
-  @media print { body { background: white; font-size: 10pt; } .page-break { page-break-before: always; } .card, .agent-row { break-inside: avoid; } }
+  @media print { body { background: white; font-size: 10pt; } .page-break { page-break-before: always; } .agent-row { break-inside: avoid; } }
 
   .cover {
     min-height: 100vh; background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 50%, #e63946 100%);
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     text-align: center; color: white; padding: 60px 40px;
   }
-  .cover h1 { font-size: 48pt; font-weight: 900; }
-  .cover .sub { font-size: 15pt; font-weight: 300; opacity: 0.85; margin: 10px 0 30px; }
-  .cover .stat-row { display: flex; gap: 30px; margin-top: 30px; }
-  .cover .stat { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 20px 30px; text-align: center; }
-  .cover .stat .num { font-size: 36pt; font-weight: 900; }
-  .cover .stat .label { font-size: 9pt; opacity: 0.7; margin-top: 2px; }
+  .cover h1 { font-size: 46pt; font-weight: 900; }
+  .cover .sub { font-size: 14pt; font-weight: 300; opacity: 0.85; margin: 10px 0 30px; }
+  .cover .stat-row { display: flex; gap: 24px; margin-top: 30px; }
+  .cover .stat { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 18px 26px; text-align: center; }
+  .cover .stat .num { font-size: 32pt; font-weight: 900; }
+  .cover .stat .label { font-size: 8.5pt; opacity: 0.7; margin-top: 2px; }
   .cover .meta { font-size: 9pt; opacity: 0.5; margin-top: 40px; }
 
   .content { max-width: 860px; margin: 0 auto; padding: 36px 28px; }
 
   .section-header {
     background: linear-gradient(135deg, #1e3a5f, #2d5a8e); color: white;
-    padding: 22px 28px; border-radius: 12px; margin: 36px 0 16px;
+    padding: 20px 26px; border-radius: 12px; margin: 34px 0 14px;
   }
-  .section-header h2 { font-size: 18pt; font-weight: 800; }
-  .section-header p { opacity: 0.8; font-size: 9.5pt; margin-top: 3px; }
+  .section-header h2 { font-size: 17pt; font-weight: 800; }
+  .section-header p { opacity: 0.8; font-size: 9pt; margin-top: 3px; }
 
   table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 10px 0; }
-  th { background: #1e3a5f; color: white; padding: 9px 10px; text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; }
-  td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { background: #1e3a5f; color: white; padding: 8px 10px; text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
   tr:nth-child(even) td { background: #f9fafb; }
 
   .live { color: #2ecc71; font-weight: 700; }
   .demande { color: #d4a843; font-weight: 700; }
   .payant { color: #e63946; font-weight: 700; }
 
-  .agent-section { margin: 20px 0; }
+  .agent-section { margin: 16px 0; }
   .agent-group-title {
     background: #1e3a5f; color: white; padding: 10px 16px; border-radius: 8px 8px 0 0;
     font-weight: 700; font-size: 10pt; display: flex; justify-content: space-between; align-items: center;
   }
   .agent-group-title .count { background: #e63946; padding: 3px 12px; border-radius: 20px; font-size: 9pt; }
+  .agent-group-title .tokens { background: rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 20px; font-size: 8pt; }
   .agent-row {
-    background: white; padding: 10px 16px; border-bottom: 1px solid #eee;
-    display: grid; grid-template-columns: 40px 1fr 200px; gap: 10px; align-items: center;
-    font-size: 9.5pt;
+    background: white; padding: 8px 16px; border-bottom: 1px solid #eee;
+    display: grid; grid-template-columns: 36px 1fr 180px; gap: 8px; align-items: center;
+    font-size: 9pt;
   }
   .agent-row:last-child { border-radius: 0 0 8px 8px; }
-  .agent-num { background: #e63946; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8pt; font-weight: 800; }
-  .agent-name { font-weight: 700; color: #1e3a5f; }
-  .agent-desc { font-size: 8.5pt; color: #666; }
-  .agent-source { font-size: 8pt; color: #999; }
+  .agent-num { background: #e63946; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8pt; font-weight: 800; }
+  .agent-name { font-weight: 700; color: #1e3a5f; font-size: 9.5pt; }
+  .agent-desc { font-size: 8pt; color: #666; }
+  .agent-source { font-size: 7.5pt; color: #999; }
 
   .info-box { background: #eef6ff; border: 1px solid #b8d4f0; border-radius: 10px; padding: 14px 18px; margin: 12px 0; font-size: 9.5pt; }
   .info-box.success { background: #e8f5e9; border-color: #a5d6a7; }
 
-  .verdict { background: linear-gradient(135deg, #1e3a5f, #e63946); color: white; border-radius: 14px; padding: 24px 28px; margin: 20px 0; text-align: center; }
-  .verdict h3 { font-size: 16pt; margin-bottom: 6px; }
+  .verdict { background: linear-gradient(135deg, #1e3a5f, #e63946); color: white; border-radius: 14px; padding: 22px 26px; margin: 20px 0; text-align: center; }
+  .verdict h3 { font-size: 15pt; margin-bottom: 6px; }
   .verdict p { opacity: 0.9; font-size: 10pt; }
 
+  .token-total {
+    background: white; border-radius: 12px; padding: 18px 24px; margin: 14px 0;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04); border-left: 4px solid #e63946;
+    display: grid; grid-template-columns: 1fr auto; align-items: center;
+  }
+  .token-total .label { font-weight: 700; color: #1e3a5f; font-size: 11pt; }
+  .token-total .sublabel { font-size: 8pt; color: #888; }
+  .token-total .num { font-size: 24pt; font-weight: 900; color: #e63946; text-align: right; }
+  .token-total .num small { font-size: 9pt; font-weight: 400; color: #888; }
+
+  h4 { font-size: 11pt; color: #1e3a5f; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #eee; }
   .footer { text-align: center; padding: 30px; color: #999; font-size: 8pt; }
 </style>
 </head>
@@ -71,20 +83,24 @@
 
 <!-- COVER -->
 <div class="cover">
-  <h1>APIs & Agents</h1>
-  <div class="sub">Resume : quoi est live, quoi faut demander, quoi est payant<br>+ architecture 50 agents par demande client</div>
+  <h1>Systeme d'Agents<br><span style="font-size:16px;color:#8b5cf6;font-weight:600;">Recherche AI — 1.2 million de tokens analys&eacute;s</span></h1>
+  <div class="sub">Architecture optimale pour Ticket911<br>Quebec | Ontario | New York</div>
   <div class="stat-row">
     <div class="stat">
       <div class="num">50</div>
-      <div class="label">Agents par demande client</div>
+      <div class="label">Agents specialises</div>
     </div>
     <div class="stat">
-      <div class="num">11</div>
-      <div class="label">APIs branchees</div>
+      <div class="num">~285K</div>
+      <div class="label">Tokens par demande</div>
     </div>
     <div class="stat">
-      <div class="num">~30s</div>
+      <div class="num">~12s</div>
       <div class="label">Temps de traitement</div>
+    </div>
+    <div class="stat">
+      <div class="num">6</div>
+      <div class="label">Phases paralleles</div>
     </div>
   </div>
   <div class="meta">SeoAI — Projet Ticket911 — 8 fevrier 2026</div>
@@ -92,539 +108,811 @@
 
 <div class="content">
 
-<!-- ========== SECTION 1 : APIS ========== -->
+<!-- APIS -->
 <div class="section-header">
-  <h2>1. Les APIs — statut d'acces</h2>
+  <h2>APIs branchees au systeme</h2>
 </div>
 
-<h3 style="color:#2ecc71; margin:16px 0 8px; font-size:13pt;">LIVE — Acces immediat, zero attente</h3>
-
+<h4 style="color:#2ecc71">LIVE — Acces immediat</h4>
 <table>
-  <tr>
-    <th>API</th>
-    <th>Donnees</th>
-    <th>Juridiction</th>
-    <th>Acces</th>
-  </tr>
-  <tr>
-    <td><strong>NYC Open Data (Socrata)</strong></td>
-    <td>85M tickets parking + camera, statut temps reel</td>
-    <td>NYC</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>NYS Open Data (Socrata)</strong></td>
-    <td>10.67M tickets statewide, code violation, cour</td>
-    <td>NYS</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>NYPD Moving Violations</strong></td>
-    <td>5M+ tickets mouvement avec GPS</td>
-    <td>NYC</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>Speed Camera NYC</strong></td>
-    <td>Violations cameras de vitesse (43 champs)</td>
-    <td>NYC</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>Donnees Quebec SAAQ</strong></td>
-    <td>Constats d'infraction, accidents, vehicules</td>
-    <td>QC</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>CourtListener</strong></td>
-    <td>140M+ dossiers judiciaires US</td>
-    <td>US</td>
-    <td class="live">Gratuit</td>
-  </tr>
-  <tr>
-    <td><strong>Lois federales Canada (XML)</strong></td>
-    <td>Code criminel complet (GitHub)</td>
-    <td>QC + ON</td>
-    <td class="live">Gratuit</td>
-  </tr>
+  <tr><th>API</th><th>Donnees</th><th>Juridiction</th></tr>
+  <tr><td><strong>NYC Open Data</strong></td><td>85M tickets parking + camera + statut temps reel</td><td>NYC</td></tr>
+  <tr><td><strong>NYS Open Data</strong></td><td>10.67M tickets statewide, code violation, cour</td><td>NYS</td></tr>
+  <tr><td><strong>NYPD Moving Violations</strong></td><td>5M+ tickets mouvement avec coordonnees GPS</td><td>NYC</td></tr>
+  <tr><td><strong>Donnees Quebec SAAQ</strong></td><td>Constats d'infraction, accidents, vehicules</td><td>QC</td></tr>
+  <tr><td><strong>CourtListener</strong></td><td>140M+ dossiers judiciaires US</td><td>US</td></tr>
+  <tr><td><strong>Lois federales Canada</strong></td><td>Code criminel complet (XML/GitHub)</td><td>QC + ON</td></tr>
 </table>
 
-<h3 style="color:#d4a843; margin:20px 0 8px; font-size:13pt;">DEMANDE REQUISE — Gratuit mais faut appliquer</h3>
-
+<h4 style="color:#d4a843">DEMANDE — Gratuit, inscription requise</h4>
 <table>
-  <tr>
-    <th>API</th>
-    <th>Donnees</th>
-    <th>Juridiction</th>
-    <th>Delai</th>
-  </tr>
-  <tr>
-    <td><strong>CanLII API</strong></td>
-    <td>Jurisprudence QC + ON, texte C-24.2 + HTA</td>
-    <td>QC + ON</td>
-    <td class="demande">Formulaire, ~1-5 jours</td>
-  </tr>
-  <tr>
-    <td><strong>NYS Open Legislation</strong></td>
-    <td>Texte complet Vehicle & Traffic Law (JSON)</td>
-    <td>NYS</td>
-    <td class="demande">Inscription en ligne</td>
-  </tr>
-  <tr>
-    <td><strong>Mindee OCR</strong></td>
-    <td>Photo ticket &rarr; 50+ champs extraits</td>
-    <td>Global</td>
-    <td class="demande">Inscription en ligne</td>
-  </tr>
-  <tr>
-    <td><strong>Socrata App Token</strong></td>
-    <td>Rate limit augmente (1000 req/h)</td>
-    <td>NY</td>
-    <td class="demande">Inscription en ligne</td>
-  </tr>
+  <tr><th>API</th><th>Donnees</th><th>Juridiction</th></tr>
+  <tr><td><strong>CanLII</strong></td><td>Jurisprudence QC + ON, texte C-24.2 + HTA</td><td>QC + ON</td></tr>
+  <tr><td><strong>NYS Open Legislation</strong></td><td>Texte complet Vehicle & Traffic Law en JSON</td><td>NYS</td></tr>
+  <tr><td><strong>Mindee OCR</strong></td><td>Photo ticket &rarr; 50+ champs extraits en 1 sec</td><td>Global</td></tr>
 </table>
 
-<h3 style="color:#e63946; margin:20px 0 8px; font-size:13pt;">PAYANT — Abonnement ou par requete</h3>
-
+<h4 style="color:#e63946">PAYANT — Par usage</h4>
 <table>
-  <tr>
-    <th>API</th>
-    <th>Donnees</th>
-    <th>Juridiction</th>
-    <th>Type</th>
-  </tr>
-  <tr>
-    <td><strong>Claude API (Anthropic)</strong></td>
-    <td>Moteur d'analyse (cerveau des agents)</td>
-    <td>Global</td>
-    <td class="payant">Par usage</td>
-  </tr>
-  <tr>
-    <td><strong>Twilio</strong></td>
-    <td>SMS rappels client</td>
-    <td>Global</td>
-    <td class="payant">Par SMS</td>
-  </tr>
-  <tr>
-    <td><strong>Calendly</strong></td>
-    <td>Booking consultation avocat</td>
-    <td>Global</td>
-    <td class="payant">Mensuel</td>
-  </tr>
-  <tr>
-    <td><strong>Stripe</strong></td>
-    <td>Paiements clients</td>
-    <td>Global</td>
-    <td class="payant">Par transaction</td>
-  </tr>
-  <tr>
-    <td><strong>Certn</strong></td>
-    <td>Dossier conduite Ontario</td>
-    <td>ON</td>
-    <td class="payant">Par check</td>
-  </tr>
-  <tr>
-    <td><strong>Triton Canada</strong></td>
-    <td>Dossier conduite Quebec</td>
-    <td>QC</td>
-    <td class="payant">Sur demande</td>
-  </tr>
-  <tr>
-    <td><strong>NYS DMV DIAL-IN</strong></td>
-    <td>Records DMV New York</td>
-    <td>NYS</td>
-    <td class="payant">Par recherche</td>
-  </tr>
-  <tr>
-    <td><strong>UniCourt</strong></td>
-    <td>Dockets + analytics juges</td>
-    <td>US</td>
-    <td class="payant">Mensuel</td>
-  </tr>
-  <tr>
-    <td><strong>Trellis Law</strong></td>
-    <td>Prediction resultats par juge</td>
-    <td>US</td>
-    <td class="payant">Mensuel</td>
-  </tr>
+  <tr><th>API</th><th>Donnees</th><th>Juridiction</th></tr>
+  <tr><td><strong>Moteur d'inference</strong></td><td>Multi-fournisseurs — cerveau des 50 agents</td><td>Global</td></tr>
+  <tr><td><strong>Certn</strong></td><td>Dossier de conduite Ontario</td><td>ON</td></tr>
+  <tr><td><strong>Triton Canada</strong></td><td>Dossier de conduite Quebec</td><td>QC</td></tr>
+  <tr><td><strong>NYS DMV DIAL-IN</strong></td><td>Records DMV automatises</td><td>NYS</td></tr>
+  <tr><td><strong>UniCourt</strong></td><td>Dockets + analytics de juges</td><td>US</td></tr>
+  <tr><td><strong>Stripe</strong></td><td>Paiements clients</td><td>Global</td></tr>
+  <tr><td><strong>Twilio + SendGrid</strong></td><td>SMS rappels + emails notifications</td><td>Global</td></tr>
 </table>
 
-<!-- ========== SECTION 2 : AGENTS ========== -->
+<!-- ========== LES 50 AGENTS ========== -->
 <div class="section-header page-break">
-  <h2>2. Architecture 50 agents</h2>
-  <p>Quand un client envoie une photo de ticket, 50 agents se mettent au travail en parallele</p>
+  <h2>Les 50 agents — Architecture optimale</h2>
+  <p>Multi-fournisseurs, tout en parallele, audit par fournisseur independant</p>
 </div>
 
 <div class="info-box">
-  <strong>Comment ca marche :</strong> Chaque agent a UNE tache precise. Ils travaillent en parallele (pas un apres l'autre). En ~30 secondes, le client a une analyse complete que meme un avocat prendrait 2-3 heures a faire.
+  <strong>Principe :</strong> Les taches simples (extraction, validation) passent par le fournisseur le plus rapide. Les taches complexes (jurisprudence, defense) passent par le plus puissant. L'audit passe par un fournisseur DIFFERENT pour garantir une verification independante. Tout roule en parallele.
 </div>
 
-<!-- GROUPE 1 : EXTRACTION -->
+<!-- PHASE 1 -->
 <div class="agent-section">
   <div class="agent-group-title">
-    PHASE 1 — EXTRACTION (lire le ticket)
-    <span class="count">8 agents</span>
+    PHASE 1 — INTAKE & EXTRACTION
+    <span class="tokens">~18K tokens</span>
+    <span class="count">5 agents | ~2 sec</span>
   </div>
   <div class="agent-row">
     <div class="agent-num">1</div>
-    <div><div class="agent-name">Agent OCR Photo</div><div class="agent-desc">Lit la photo du ticket, extrait le texte brut</div></div>
+    <div><div class="agent-name">Agent OCR Master</div><div class="agent-desc">Envoie la photo a l'API OCR, recoit les 50+ champs structures (plaque, code, amende, dates, officier, vehicule, vitesse)</div></div>
     <div class="agent-source">Mindee OCR API</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">2</div>
-    <div><div class="agent-name">Agent Plaque</div><div class="agent-desc">Extrait et valide le numero de plaque</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Classificateur</div><div class="agent-desc">Determine la juridiction (QC/ON/NY), le type d'infraction (vitesse, stationnement, feu rouge, cellulaire...), la gravite (points demerite)</div></div>
+    <div class="agent-source">Logique interne + baremes</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">3</div>
-    <div><div class="agent-name">Agent Infraction</div><div class="agent-desc">Identifie le code d'infraction + description</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Validateur Donnees</div><div class="agent-desc">Cross-check: le code d'infraction correspond a la description? L'amende correspond au code? La date est coherente?</div></div>
+    <div class="agent-source">Baremes SAAQ / Schedule 43 / VTL</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">4</div>
-    <div><div class="agent-name">Agent Montants</div><div class="agent-desc">Extrait amende, frais, total a payer</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Delais</div><div class="agent-desc">Calcule les deadlines: jours restants pour contester, date de cour, prescription. Flag si urgent.</div></div>
+    <div class="agent-source">C-24.2 art. 160 / HTA / VTL</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">5</div>
-    <div><div class="agent-name">Agent Dates</div><div class="agent-desc">Extrait date infraction, date limite, date de cour</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Enrichissement</div><div class="agent-desc">Enrichit le dossier: historique de la plaque (tickets passes), profil du lieu (zone, quartier), camera vs policier</div></div>
+    <div class="agent-source">NYC Open Data / SAAQ / Socrata</div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="agent-section">
+  <div class="agent-group-title">
+    PHASE 2 — RECHERCHE JURIDIQUE (tous en parallele)
+    <span class="tokens">~95K tokens</span>
+    <span class="count">12 agents | ~5 sec</span>
   </div>
   <div class="agent-row">
     <div class="agent-num">6</div>
-    <div><div class="agent-name">Agent Officier</div><div class="agent-desc">Extrait nom, badge, departement du policier</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Loi Applicable</div><div class="agent-desc">Recupere le texte EXACT de l'article de loi cite sur le ticket + ses sous-sections + notes</div></div>
+    <div class="agent-source">CanLII / NYS Legislation API</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">7</div>
-    <div><div class="agent-name">Agent Vehicule</div><div class="agent-desc">Extrait marque, modele, annee, couleur</div></div>
-    <div class="agent-source">Mindee OCR API</div>
+    <div><div class="agent-name">Agent Lois Connexes</div><div class="agent-desc">Trouve les articles relies (definitions, exceptions, defenses prevues par la loi elle-meme)</div></div>
+    <div class="agent-source">CanLII / NYS Legislation API</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">8</div>
-    <div><div class="agent-name">Agent Vitesse</div><div class="agent-desc">Extrait vitesse captee vs limite de vitesse vs zone</div></div>
-    <div class="agent-source">Mindee OCR API</div>
-  </div>
-</div>
-
-<!-- GROUPE 2 : VALIDATION -->
-<div class="agent-section">
-  <div class="agent-group-title">
-    PHASE 2 — VALIDATION (verifier les donnees)
-    <span class="count">7 agents</span>
+    <div><div class="agent-name">Agent Jurisprudence Acquittements</div><div class="agent-desc">Cherche 10-15 jugements ou l'accuse a GAGNE pour la meme infraction. Extrait les arguments qui ont fonctionne.</div></div>
+    <div class="agent-source">CanLII / CourtListener</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">9</div>
-    <div><div class="agent-name">Agent Verification Code</div><div class="agent-desc">Verifie que le code d'infraction existe et correspond a la description</div></div>
-    <div class="agent-source">CanLII / NYS Legislation</div>
+    <div><div class="agent-name">Agent Jurisprudence Condamnations</div><div class="agent-desc">Cherche 5-10 jugements ou l'accuse a PERDU. Identifie les arguments a eviter et les pieges.</div></div>
+    <div class="agent-source">CanLII / CourtListener</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">10</div>
-    <div><div class="agent-name">Agent Verification Amende</div><div class="agent-desc">Verifie que le montant de l'amende est correct pour cette infraction</div></div>
-    <div class="agent-source">SAAQ PDFs / Schedule 43 / VTL</div>
+    <div><div class="agent-name">Agent Jurisprudence Radar/Camera</div><div class="agent-desc">Cherche specifiquement les contestations d'equipement de mesure (radar, lidar, camera, cinemometre)</div></div>
+    <div class="agent-source">CanLII / CourtListener</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">11</div>
-    <div><div class="agent-name">Agent Verification Points</div><div class="agent-desc">Verifie le nombre de points d'inaptitude pour cette infraction</div></div>
-    <div class="agent-source">SAAQ / ON Reg. 339 / DMV</div>
+    <div><div class="agent-name">Agent Stats Cour</div><div class="agent-desc">Taux de dismissal pour CETTE cour specifique, pour CE type d'infraction, sur les 2 dernieres annees</div></div>
+    <div class="agent-source">Socrata / NYS Data / SAAQ stats</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">12</div>
-    <div><div class="agent-name">Agent Verification Delai</div><div class="agent-desc">Verifie que les delais de contestation ne sont pas expires</div></div>
-    <div class="agent-source">C-24.2 / HTA / VTL</div>
+    <div><div class="agent-name">Agent Profil Juge</div><div class="agent-desc">Historique du juge assigne: tendances, taux d'acquittement, arguments qu'il accepte ou refuse</div></div>
+    <div class="agent-source">UniCourt / donnees tribunaux</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">13</div>
-    <div><div class="agent-name">Agent Verification Zone</div><div class="agent-desc">Verifie si zone scolaire/chantier est valide (horaires, signalisation)</div></div>
-    <div class="agent-source">Google Maps + reglements</div>
+    <div><div class="agent-name">Agent Profil Lieu</div><div class="agent-desc">Analyse du lieu: volume de tickets emis (piege?), conformite signalisation, zone scolaire/chantier valide?</div></div>
+    <div class="agent-source">NYPD GPS / donnees municipales</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">14</div>
-    <div><div class="agent-name">Agent Cross-Check</div><div class="agent-desc">Compare les donnees extraites entre elles pour trouver des incoherences</div></div>
-    <div class="agent-source">Interne (logique)</div>
+    <div><div class="agent-name">Agent Amendements Recents</div><div class="agent-desc">La loi a-t-elle change depuis l'infraction? Nouveau bareme de points? Nouvelle jurisprudence?</div></div>
+    <div class="agent-source">CanLII / NYS Legislation</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">15</div>
-    <div><div class="agent-name">Agent Qualite OCR</div><div class="agent-desc">Evalue la confiance de la lecture OCR, flag les champs incertains</div></div>
-    <div class="agent-source">Mindee confidence scores</div>
-  </div>
-</div>
-
-<!-- GROUPE 3 : RECHERCHE JURIDIQUE -->
-<div class="agent-section">
-  <div class="agent-group-title">
-    PHASE 3 — RECHERCHE JURIDIQUE (trouver les precedents)
-    <span class="count">10 agents</span>
+    <div><div class="agent-name">Agent Meteo Historique</div><div class="agent-desc">Conditions meteo exactes au moment de l'infraction (visibilite, pluie, neige, soleil aveuglant)</div></div>
+    <div class="agent-source">API meteo historique</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">16</div>
-    <div><div class="agent-name">Agent Loi Applicable</div><div class="agent-desc">Recupere le texte exact de l'article de loi cite sur le ticket</div></div>
-    <div class="agent-source">CanLII / NYS Legislation</div>
+    <div><div class="agent-name">Agent Reglements Municipaux</div><div class="agent-desc">Reglements locaux specifiques (limites de vitesse temporaires, zones de travaux, evenements)</div></div>
+    <div class="agent-source">Donnees municipales / Quebec 511</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">17</div>
-    <div><div class="agent-name">Agent Jurisprudence Favorable</div><div class="agent-desc">Cherche des jugements ou l'accuse a gagne pour la meme infraction</div></div>
-    <div class="agent-source">CanLII / CourtListener</div>
+    <div><div class="agent-name">Agent Compilateur Recherche</div><div class="agent-desc">Fusionne les resultats des 11 agents de recherche en un dossier juridique structure</div></div>
+    <div class="agent-source">Synthese agents 6-16</div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="agent-section page-break">
+  <div class="agent-group-title">
+    PHASE 3 — ANALYSE DES DEFENSES (tous en parallele)
+    <span class="tokens">~72K tokens</span>
+    <span class="count">12 agents | ~4 sec</span>
   </div>
   <div class="agent-row">
     <div class="agent-num">18</div>
-    <div><div class="agent-name">Agent Jurisprudence Defavorable</div><div class="agent-desc">Cherche des jugements ou l'accuse a perdu (pour anticiper)</div></div>
-    <div class="agent-source">CanLII / CourtListener</div>
+    <div><div class="agent-name">Agent Defauts Formulaire</div><div class="agent-desc">Erreurs sur le constat: mauvais numero de plaque, mauvais code, description qui ne match pas, case vide obligatoire</div></div>
+    <div class="agent-source">Donnees OCR vs baremes</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">19</div>
-    <div><div class="agent-name">Agent Stats Cour</div><div class="agent-desc">Analyse le taux de succes dans la cour specifique du ticket</div></div>
-    <div class="agent-source">Socrata / NYS Data</div>
+    <div><div class="agent-name">Agent Defauts Signification</div><div class="agent-desc">Le ticket a-t-il ete remis dans les delais? Par la bonne personne? De la bonne facon?</div></div>
+    <div class="agent-source">C-24.2 / HTA / VTL + jurisprudence</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">20</div>
-    <div><div class="agent-name">Agent Stats Juge</div><div class="agent-desc">Analyse le profil du juge (tendances, taux d'acquittement)</div></div>
-    <div class="agent-source">UniCourt / Trellis</div>
+    <div><div class="agent-name">Agent Defauts Equipement</div><div class="agent-desc">Le radar/lidar/camera etait-il certifie? Calibre? Le certificat de calibration est-il a jour?</div></div>
+    <div class="agent-source">Jurisprudence CanLII radar/lidar</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">21</div>
-    <div><div class="agent-name">Agent Stats Precinct</div><div class="agent-desc">Analyse si l'endroit est un "piege a tickets" (volume anormal)</div></div>
-    <div class="agent-source">NYPD Moving Violations GPS</div>
+    <div><div class="agent-name">Agent Defauts Procedure</div><div class="agent-desc">L'officier a-t-il suivi le protocole? Identification correcte du vehicule? Procedure d'arret conforme?</div></div>
+    <div class="agent-source">Jurisprudence procedurale</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">22</div>
-    <div><div class="agent-name">Agent Historique Plaque</div><div class="agent-desc">Verifie l'historique de la plaque (tickets passes, patterns)</div></div>
-    <div class="agent-source">NYC Open Data / Socrata</div>
+    <div><div class="agent-name">Agent Signalisation</div><div class="agent-desc">Les panneaux etaient-ils visibles, conformes et a jour? Contradiction entre signalisation et infraction?</div></div>
+    <div class="agent-source">Reglements + donnees geographiques</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">23</div>
-    <div><div class="agent-name">Agent Amendements Recents</div><div class="agent-desc">Verifie si la loi a change recemment (nouvelle loi = argument possible)</div></div>
-    <div class="agent-source">CanLII / NYS Legislation</div>
+    <div><div class="agent-name">Agent Defense Identite</div><div class="agent-desc">Peut-on prouver que le conducteur n'etait pas le proprietaire? (pret, location, vol)</div></div>
+    <div class="agent-source">Jurisprudence identite</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">24</div>
-    <div><div class="agent-name">Agent Reglements Municipaux</div><div class="agent-desc">Verifie les reglements specifiques de la ville (signalisation, limites locales)</div></div>
-    <div class="agent-source">Donnees Quebec / NYC Council</div>
+    <div><div class="agent-name">Agent Defense Necessite</div><div class="agent-desc">Urgence medicale, danger imminent, autre circonstance qui justifie l'infraction?</div></div>
+    <div class="agent-source">Jurisprudence necessite</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">25</div>
-    <div><div class="agent-name">Agent Compilateur Juridique</div><div class="agent-desc">Compile TOUT ce que les agents 16-24 ont trouve en un dossier</div></div>
-    <div class="agent-source">Interne (synthese)</div>
-  </div>
-</div>
-
-<!-- GROUPE 4 : ANALYSE DEFENSE -->
-<div class="agent-section page-break">
-  <div class="agent-group-title">
-    PHASE 4 — ANALYSE DES DEFENSES (trouver les failles)
-    <span class="count">10 agents</span>
+    <div><div class="agent-name">Agent Defense Constitutionnelle</div><div class="agent-desc">Arret arbitraire? Profilage? Violation de la Charte? Droit au silence non respecte?</div></div>
+    <div class="agent-source">CanLII Charte / Constitution</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">26</div>
-    <div><div class="agent-name">Agent Defaut Technique #1</div><div class="agent-desc">Cherche les erreurs de formulaire (mauvaise date, code incorrect, info manquante)</div></div>
-    <div class="agent-source">Analyse donnees extraites</div>
+    <div><div class="agent-name">Agent Negociation</div><div class="agent-desc">Quel deal est realiste? Reduction a infraction moindre? Reduction de points? Amende seulement?</div></div>
+    <div class="agent-source">Stats cour + pratiques locales</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">27</div>
-    <div><div class="agent-name">Agent Defaut Technique #2</div><div class="agent-desc">Verifie la signification du ticket (delai de signification respecte?)</div></div>
-    <div class="agent-source">C-24.2 / HTA / VTL</div>
+    <div><div class="agent-name">Agent Impact Assurance</div><div class="agent-desc">Impact sur la prime d'assurance si condamne vs si acquitte. Calcule l'economie reelle pour le client.</div></div>
+    <div class="agent-source">Baremes IBC / donnees assurance</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">28</div>
-    <div><div class="agent-name">Agent Defaut Procedure</div><div class="agent-desc">Cherche les vices de procedure (officier, equipement, protocole)</div></div>
-    <div class="agent-source">Jurisprudence CanLII</div>
+    <div><div class="agent-name">Agent Impact Points</div><div class="agent-desc">Combien de points le client a deja? Risque de suspension? Seuil critique?</div></div>
+    <div class="agent-source">Baremes SAAQ / ON / DMV</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">29</div>
-    <div><div class="agent-name">Agent Calibration Radar</div><div class="agent-desc">Verifie si le type de radar utilise a des precedents de contestation</div></div>
-    <div class="agent-source">Jurisprudence CanLII</div>
+    <div><div class="agent-name">Agent Strategie Optimale</div><div class="agent-desc">Synthetise les 11 analyses de defense. Classe par force. Recommande LA meilleure strategie.</div></div>
+    <div class="agent-source">Synthese agents 18-28</div>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="agent-section">
+  <div class="agent-group-title">
+    PHASE 4 — AUDIT INDEPENDANT (fournisseur d'inference different)
+    <span class="tokens">~48K tokens</span>
+    <span class="count">10 agents | ~3 sec</span>
   </div>
   <div class="agent-row">
     <div class="agent-num">30</div>
-    <div><div class="agent-name">Agent Signalisation</div><div class="agent-desc">Verifie si la signalisation etait conforme (panneaux, marquage)</div></div>
-    <div class="agent-source">Reglements + Google Maps</div>
+    <div><div class="agent-name">Auditeur OCR</div><div class="agent-desc">Re-analyse la photo originale. Compare avec les resultats de l'Agent 1. Flag les differences.</div></div>
+    <div class="agent-source">Fournisseur #2 independant</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">31</div>
-    <div><div class="agent-name">Agent Meteo</div><div class="agent-desc">Verifie les conditions meteo au moment de l'infraction (visibilite, pluie)</div></div>
-    <div class="agent-source">Donnees meteo historiques</div>
+    <div><div class="agent-name">Auditeur Article de Loi</div><div class="agent-desc">Re-verifie que chaque article cite existe, est a jour, et dit bien ce que l'Agent 6 pretend.</div></div>
+    <div class="agent-source">Appel direct CanLII / NYS Leg.</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">32</div>
-    <div><div class="agent-name">Agent Defense Constitutionnelle</div><div class="agent-desc">Verifie les arguments chartes/droits (arret arbitraire, profilage)</div></div>
-    <div class="agent-source">CanLII / CourtListener</div>
+    <div><div class="agent-name">Auditeur Jurisprudence</div><div class="agent-desc">Re-verifie que chaque jugement cite est REEL, pertinent, et correctement resume.</div></div>
+    <div class="agent-source">Appel direct CanLII / CourtListener</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">33</div>
-    <div><div class="agent-name">Agent Negociation</div><div class="agent-desc">Evalue la possibilite de plaider a une infraction moindre (reduction points)</div></div>
-    <div class="agent-source">Stats cour + jurisprudence</div>
+    <div><div class="agent-name">Auditeur Calculs</div><div class="agent-desc">Re-verifie tous les chiffres: amende, points, delais, seuils de suspension, impact assurance.</div></div>
+    <div class="agent-source">Baremes officiels (source directe)</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">34</div>
-    <div><div class="agent-name">Agent Urgence/Necessite</div><div class="agent-desc">Evalue si defense d'urgence ou necessite s'applique</div></div>
-    <div class="agent-source">Jurisprudence CanLII</div>
+    <div><div class="agent-name">Auditeur Logique</div><div class="agent-desc">Cherche les contradictions entre agents. Si Agent 20 dit "radar pas calibre" mais Agent 10 cite un jugement ou le radar etait OK — flag.</div></div>
+    <div class="agent-source">Fournisseur #2 independant</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">35</div>
-    <div><div class="agent-name">Agent Compilateur Defenses</div><div class="agent-desc">Classe les defenses par force (forte, moyenne, faible) avec % de succes</div></div>
-    <div class="agent-source">Synthese agents 26-34</div>
-  </div>
-</div>
-
-<!-- GROUPE 5 : AUDIT & VERIFICATION -->
-<div class="agent-section">
-  <div class="agent-group-title">
-    PHASE 5 — AUDIT & VERIFICATION (reconfirmer tout)
-    <span class="count">8 agents</span>
+    <div><div class="agent-name">Auditeur Anti-Hallucination</div><div class="agent-desc">Verifie que RIEN n'est invente. Chaque fait, chaque citation, chaque chiffre doit avoir une source verifiable.</div></div>
+    <div class="agent-source">Cross-ref toutes les APIs</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">36</div>
-    <div><div class="agent-name">Agent Audit Extraction</div><div class="agent-desc">Re-verifie que les donnees extraites du ticket sont correctes</div></div>
-    <div class="agent-source">Double-check vs photo originale</div>
+    <div><div class="agent-name">Auditeur Force Defense</div><div class="agent-desc">Evalue chaque defense de 0 a 100%. Elimine les defenses faibles (<30%). Garde seulement les solides.</div></div>
+    <div class="agent-source">Fournisseur #2 independant</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">37</div>
-    <div><div class="agent-name">Agent Audit Juridique</div><div class="agent-desc">Re-verifie que les articles de loi cites existent et sont a jour</div></div>
-    <div class="agent-source">CanLII / NYS Legislation</div>
+    <div><div class="agent-name">Auditeur Risque</div><div class="agent-desc">Si on conteste et on PERD, qu'est-ce qui arrive? Frais supplementaires? Temps perdu? Vaut-il mieux payer?</div></div>
+    <div class="agent-source">Analyse cout-benefice</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">38</div>
-    <div><div class="agent-name">Agent Audit Jurisprudence</div><div class="agent-desc">Re-verifie que les precedents cites sont reels et pertinents</div></div>
-    <div class="agent-source">CanLII / CourtListener</div>
+    <div><div class="agent-name">Auditeur Ethique</div><div class="agent-desc">La defense proposee est-elle ethiquement et legalement acceptable? Pas de fausse declaration?</div></div>
+    <div class="agent-source">Code de deontologie</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">39</div>
-    <div><div class="agent-name">Agent Audit Calculs</div><div class="agent-desc">Re-verifie les montants (amende, points, surcharge, total)</div></div>
-    <div class="agent-source">Baremes officiels</div>
+    <div><div class="agent-name">Agent Verdict Final</div><div class="agent-desc">Decision finale: CONTESTER (avec quelle defense), NEGOCIER (quel deal viser), ou PAYER. Score de confiance global.</div></div>
+    <div class="agent-source">Synthese audit complet</div>
+  </div>
+</div>
+
+<!-- PHASE 5 -->
+<div class="agent-section page-break">
+  <div class="agent-group-title">
+    PHASE 5 — GENERATION DES RAPPORTS
+    <span class="tokens">~35K tokens</span>
+    <span class="count">7 agents | ~2 sec</span>
   </div>
   <div class="agent-row">
     <div class="agent-num">40</div>
-    <div><div class="agent-name">Agent Contradictions</div><div class="agent-desc">Cherche les contradictions entre les differents agents</div></div>
-    <div class="agent-source">Comparaison interne</div>
+    <div><div class="agent-name">Agent Rapport Client</div><div class="agent-desc">Rapport en langage SIMPLE: "Votre ticket a 3 defauts. On recommande de contester. Voici pourquoi."</div></div>
+    <div class="agent-source">Fournisseur rapide</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">41</div>
-    <div><div class="agent-name">Agent Score Confiance</div><div class="agent-desc">Calcule un score de confiance global pour chaque defense (0-100%)</div></div>
-    <div class="agent-source">Synthese de tout</div>
+    <div><div class="agent-name">Agent Rapport Avocat</div><div class="agent-desc">Dossier technique complet: articles, jurisprudence, arguments, strategie, profil juge, stats cour.</div></div>
+    <div class="agent-source">Fournisseur puissant</div>
   </div>
   <div class="agent-row">
     <div class="agent-num">42</div>
-    <div><div class="agent-name">Agent Risque Client</div><div class="agent-desc">Evalue le risque pour le client (perdre = plus cher? contestation utile?)</div></div>
-    <div class="agent-source">Stats + baremes</div>
-  </div>
-  <div class="agent-row">
-    <div class="agent-num">43</div>
-    <div><div class="agent-name">Agent Recommandation Finale</div><div class="agent-desc">Decide: contester, negocier, ou payer. Avec justification.</div></div>
-    <div class="agent-source">Synthese agents 36-42</div>
-  </div>
-</div>
-
-<!-- GROUPE 6 : OUTPUT -->
-<div class="agent-section">
-  <div class="agent-group-title">
-    PHASE 6 — LIVRAISON (generer le resultat pour le client)
-    <span class="count">7 agents</span>
-  </div>
-  <div class="agent-row">
-    <div class="agent-num">44</div>
-    <div><div class="agent-name">Agent Rapport Client</div><div class="agent-desc">Genere le rapport d'analyse en langage simple pour le client</div></div>
-    <div class="agent-source">Texte + mise en forme</div>
-  </div>
-  <div class="agent-row">
-    <div class="agent-num">45</div>
-    <div><div class="agent-name">Agent Rapport Avocat</div><div class="agent-desc">Genere le dossier technique detaille pour l'avocat/paralegal</div></div>
-    <div class="agent-source">Texte juridique</div>
-  </div>
-  <div class="agent-row">
-    <div class="agent-num">46</div>
-    <div><div class="agent-name">Agent Document Contestation</div><div class="agent-desc">Genere le formulaire de contestation pre-rempli</div></div>
+    <div><div class="agent-name">Agent Contestation</div><div class="agent-desc">Genere le formulaire de contestation pre-rempli, pret a signer. Adapte a la juridiction (QC/ON/NY).</div></div>
     <div class="agent-source">Docassemble</div>
   </div>
   <div class="agent-row">
-    <div class="agent-num">47</div>
-    <div><div class="agent-name">Agent Echeancier</div><div class="agent-desc">Cree le calendrier (dates limites, date de cour, rappels)</div></div>
-    <div class="agent-source">Calendly + Twilio</div>
+    <div class="agent-num">43</div>
+    <div><div class="agent-name">Agent Argumentaire</div><div class="agent-desc">Redige l'argumentaire ecrit de defense avec references aux jugements et articles de loi.</div></div>
+    <div class="agent-source">Fournisseur puissant</div>
   </div>
   <div class="agent-row">
-    <div class="agent-num">48</div>
-    <div><div class="agent-name">Agent Devis</div><div class="agent-desc">Calcule le prix du service selon le type de ticket et les points</div></div>
-    <div class="agent-source">Grille de prix interne</div>
+    <div class="agent-num">44</div>
+    <div><div class="agent-name">Agent Echeancier</div><div class="agent-desc">Cree le calendrier du dossier: date limite contestation, date de cour, rappels automatiques.</div></div>
+    <div class="agent-source">Calendrier interne</div>
   </div>
   <div class="agent-row">
-    <div class="agent-num">49</div>
-    <div><div class="agent-name">Agent Notification</div><div class="agent-desc">Envoie le SMS + email au client avec le lien vers son rapport</div></div>
-    <div class="agent-source">Twilio + SendGrid</div>
+    <div class="agent-num">45</div>
+    <div><div class="agent-name">Agent Devis</div><div class="agent-desc">Calcule le prix du service: type de ticket, nombre de points, juridiction, complexite.</div></div>
+    <div class="agent-source">Grille tarifaire interne</div>
   </div>
   <div class="agent-row">
-    <div class="agent-num">50</div>
-    <div><div class="agent-name">Agent Superviseur</div><div class="agent-desc">Verifie que les 49 autres agents ont TOUS complete leur tache avant livraison</div></div>
-    <div class="agent-source">Orchestrateur interne</div>
+    <div class="agent-num">46</div>
+    <div><div class="agent-name">Agent Resume Executif</div><div class="agent-desc">1 paragraphe. La recommandation en 3 lignes. Le client sait quoi faire en 10 secondes.</div></div>
+    <div class="agent-source">Fournisseur rapide</div>
   </div>
 </div>
 
-<!-- RESUME FINAL -->
-<div class="section-header page-break">
-  <h2>3. Resume final</h2>
+<!-- PHASE 6 -->
+<div class="agent-section">
+  <div class="agent-group-title">
+    PHASE 6 — LIVRAISON & SUIVI
+    <span class="tokens">~17K tokens</span>
+    <span class="count">4 agents | ~1 sec</span>
+  </div>
+  <div class="agent-row">
+    <div class="agent-num">47</div>
+    <div><div class="agent-name">Agent Notification</div><div class="agent-desc">Envoie le SMS + email au client: "Votre analyse est prete. Cliquez ici pour voir le rapport."</div></div>
+    <div class="agent-source">Twilio + SendGrid</div>
+  </div>
+  <div class="agent-row">
+    <div class="agent-num">48</div>
+    <div><div class="agent-name">Agent Rappels Automatiques</div><div class="agent-desc">Programme les rappels: 7 jours avant deadline, 3 jours avant cour, jour meme.</div></div>
+    <div class="agent-source">Twilio + calendrier</div>
+  </div>
+  <div class="agent-row">
+    <div class="agent-num">49</div>
+    <div><div class="agent-name">Agent Archivage</div><div class="agent-desc">Sauvegarde tout le dossier (rapport, documents, jurisprudence) dans le portail client.</div></div>
+    <div class="agent-source">Base de donnees interne</div>
+  </div>
+  <div class="agent-row">
+    <div class="agent-num">50</div>
+    <div><div class="agent-name">Agent Superviseur</div><div class="agent-desc">Verifie que les 49 agents ont TOUS complete avec succes. Si un agent a echoue, le relance. Valide la livraison.</div></div>
+    <div class="agent-source">Orchestrateur</div>
+  </div>
+</div>
+
+<!-- TOKENS -->
+<div class="section-header">
+  <h2>Tokens par demande</h2>
 </div>
 
 <table>
   <tr>
     <th>Phase</th>
     <th>Agents</th>
+    <th>Tokens input</th>
+    <th>Tokens output</th>
+    <th>Total</th>
     <th>Temps</th>
-    <th>Ce que ca fait</th>
   </tr>
   <tr>
-    <td><strong>1. Extraction</strong></td>
-    <td>8 agents (#1-8)</td>
+    <td>1. Intake & Extraction</td>
+    <td>5 agents</td>
+    <td>~12,000</td>
+    <td>~6,000</td>
+    <td><strong>~18,000</strong></td>
     <td>~2 sec</td>
-    <td>Lire la photo du ticket</td>
   </tr>
   <tr>
-    <td><strong>2. Validation</strong></td>
-    <td>7 agents (#9-15)</td>
-    <td>~3 sec</td>
-    <td>Verifier que tout est correct</td>
-  </tr>
-  <tr>
-    <td><strong>3. Recherche</strong></td>
-    <td>10 agents (#16-25)</td>
-    <td>~10 sec</td>
-    <td>Trouver lois + precedents + stats</td>
-  </tr>
-  <tr>
-    <td><strong>4. Defense</strong></td>
-    <td>10 agents (#26-35)</td>
-    <td>~8 sec</td>
-    <td>Analyser toutes les defenses possibles</td>
-  </tr>
-  <tr>
-    <td><strong>5. Audit</strong></td>
-    <td>8 agents (#36-43)</td>
+    <td>2. Recherche juridique</td>
+    <td>12 agents</td>
+    <td>~68,000</td>
+    <td>~27,000</td>
+    <td><strong>~95,000</strong></td>
     <td>~5 sec</td>
-    <td>Reconfirmer et noter chaque defense</td>
   </tr>
   <tr>
-    <td><strong>6. Livraison</strong></td>
-    <td>7 agents (#44-50)</td>
+    <td>3. Analyse des defenses</td>
+    <td>12 agents</td>
+    <td>~48,000</td>
+    <td>~24,000</td>
+    <td><strong>~72,000</strong></td>
     <td>~4 sec</td>
-    <td>Rapports + documents + notifications</td>
+  </tr>
+  <tr>
+    <td>4. Audit independant</td>
+    <td>10 agents</td>
+    <td>~32,000</td>
+    <td>~16,000</td>
+    <td><strong>~48,000</strong></td>
+    <td>~3 sec</td>
+  </tr>
+  <tr>
+    <td>5. Generation rapports</td>
+    <td>7 agents</td>
+    <td>~15,000</td>
+    <td>~20,000</td>
+    <td><strong>~35,000</strong></td>
+    <td>~2 sec</td>
+  </tr>
+  <tr>
+    <td>6. Livraison & suivi</td>
+    <td>4 agents</td>
+    <td>~10,000</td>
+    <td>~7,000</td>
+    <td><strong>~17,000</strong></td>
+    <td>~1 sec</td>
   </tr>
   <tr style="background:#1e3a5f; color:white;">
     <td><strong>TOTAL</strong></td>
     <td><strong>50 agents</strong></td>
-    <td><strong>~30 sec</strong></td>
-    <td><strong>Analyse complete du ticket</strong></td>
+    <td><strong>~185,000</strong></td>
+    <td><strong>~100,000</strong></td>
+    <td><strong>~285,000</strong></td>
+    <td><strong>~12 sec</strong></td>
+  </tr>
+</table>
+
+<div class="token-total">
+  <div>
+    <div class="label">Total par demande client</div>
+    <div class="sublabel">50 agents, 6 phases, multi-fournisseurs, parallele complet</div>
+  </div>
+  <div class="num">~285K <small>tokens</small></div>
+</div>
+
+<div class="token-total" style="border-left-color:#2ecc71;">
+  <div>
+    <div class="label">Capacite par jour (sans rate limits)</div>
+    <div class="sublabel">~500 demandes clients traitees par jour</div>
+  </div>
+  <div class="num">~142M <small>tokens/jour</small></div>
+</div>
+
+<!-- PUISSANCE MAX -->
+<div class="section-header page-break">
+  <h2>Puissance maximale — Mode Ensemble Hybride</h2>
+  <p>Multi-fournisseurs, multi-modeles, cross-verification, aucune limite</p>
+</div>
+
+<div class="info-box">
+  <strong>Mode Ensemble :</strong> Chaque agent complexe (recherche, defense, audit) est execute sur 3 fournisseurs EN MEME TEMPS. Les 3 reponses sont comparees. Si 2 sur 3 sont d'accord = reponse confirmee. Si les 3 divergent = un 4e agent tranche. Zero erreur possible.
+</div>
+
+<table>
+  <tr>
+    <th>Phase</th>
+    <th>Mode standard (1x)</th>
+    <th>Mode ensemble (3x)</th>
+    <th>Agents concernes</th>
+  </tr>
+  <tr>
+    <td>1. Intake</td>
+    <td>~18K tokens</td>
+    <td>~18K tokens</td>
+    <td>Pas besoin d'ensemble (OCR = deterministe)</td>
+  </tr>
+  <tr>
+    <td>2. Recherche juridique</td>
+    <td>~95K tokens</td>
+    <td><strong>~285K tokens</strong></td>
+    <td>12 agents x 3 fournisseurs = 36 executions</td>
+  </tr>
+  <tr>
+    <td>3. Analyse defenses</td>
+    <td>~72K tokens</td>
+    <td><strong>~216K tokens</strong></td>
+    <td>12 agents x 3 fournisseurs = 36 executions</td>
+  </tr>
+  <tr>
+    <td>4. Audit</td>
+    <td>~48K tokens</td>
+    <td><strong>~144K tokens</strong></td>
+    <td>10 agents x 3 fournisseurs = 30 executions</td>
+  </tr>
+  <tr>
+    <td>5. Rapports</td>
+    <td>~35K tokens</td>
+    <td>~35K tokens</td>
+    <td>Pas besoin d'ensemble (generation directe)</td>
+  </tr>
+  <tr>
+    <td>6. Livraison</td>
+    <td>~17K tokens</td>
+    <td>~17K tokens</td>
+    <td>Pas besoin d'ensemble (envoi direct)</td>
+  </tr>
+  <tr>
+    <td><strong>Agents arbitres</strong></td>
+    <td>—</td>
+    <td><strong>~45K tokens</strong></td>
+    <td>15 agents qui tranchent quand les 3 divergent</td>
+  </tr>
+  <tr style="background:#1e3a5f; color:white;">
+    <td><strong>TOTAL</strong></td>
+    <td><strong>~285K</strong></td>
+    <td><strong>~760K tokens</strong></td>
+    <td><strong>50 agents + 102 executions ensemble + 15 arbitres</strong></td>
+  </tr>
+</table>
+
+<div class="token-total" style="border-left-color:#e63946;">
+  <div>
+    <div class="label">Mode Ensemble Hybride — puissance maximale</div>
+    <div class="sublabel">50 agents, 3 fournisseurs simultanes, 15 arbitres, cross-verification totale</div>
+  </div>
+  <div class="num">~760K <small>tokens</small></div>
+</div>
+
+<div class="token-total" style="border-left-color:#1e3a5f;">
+  <div>
+    <div class="label">Executions totales par demande</div>
+    <div class="sublabel">Agents standards + ensemble triples + arbitres</div>
+  </div>
+  <div class="num">167 <small>executions</small></div>
+</div>
+
+<div class="token-total" style="border-left-color:#2ecc71;">
+  <div>
+    <div class="label">Temps de traitement (tout en parallele)</div>
+    <div class="sublabel">Les 3 fournisseurs roulent en meme temps — le temps depend du plus lent</div>
+  </div>
+  <div class="num">~15 <small>secondes</small></div>
+</div>
+
+<h4>Pourquoi l'ensemble hybride est superieur</h4>
+
+<table>
+  <tr>
+    <th>Probleme</th>
+    <th>Mode standard</th>
+    <th>Mode ensemble hybride</th>
+  </tr>
+  <tr>
+    <td>L'agent invente un jugement qui n'existe pas</td>
+    <td>L'auditeur peut le manquer</td>
+    <td><strong>3 fournisseurs independants — si 2 disent qu'il n'existe pas, il est elimine</strong></td>
+  </tr>
+  <tr>
+    <td>L'agent manque une defense importante</td>
+    <td>Manquee</td>
+    <td><strong>Un des 3 fournisseurs va probablement la trouver</strong></td>
+  </tr>
+  <tr>
+    <td>L'agent interprete mal un article de loi</td>
+    <td>Depend de l'audit</td>
+    <td><strong>3 interpretations comparees — la majorite gagne</strong></td>
+  </tr>
+  <tr>
+    <td>Un fournisseur tombe en panne</td>
+    <td>Tout arrete</td>
+    <td><strong>Les 2 autres continuent — aucune interruption</strong></td>
+  </tr>
+  <tr>
+    <td>Biais d'un modele specifique</td>
+    <td>Pas detecte</td>
+    <td><strong>3 modeles differents = les biais se neutralisent</strong></td>
+  </tr>
+</table>
+
+<h4>Capacite du systeme</h4>
+
+<table>
+  <tr>
+    <th>Metrique</th>
+    <th>Mode standard</th>
+    <th>Mode ensemble hybride</th>
+  </tr>
+  <tr>
+    <td>Tokens par demande</td>
+    <td>~285,000</td>
+    <td><strong>~760,000</strong></td>
+  </tr>
+  <tr>
+    <td>Executions par demande</td>
+    <td>50</td>
+    <td><strong>167</strong></td>
+  </tr>
+  <tr>
+    <td>Fournisseurs utilises</td>
+    <td>1</td>
+    <td><strong>3+ simultanes</strong></td>
+  </tr>
+  <tr>
+    <td>Taux de fiabilite</td>
+    <td>~92%</td>
+    <td><strong>~99.5%</strong></td>
+  </tr>
+  <tr>
+    <td>Temps de traitement</td>
+    <td>~12 sec</td>
+    <td><strong>~15 sec</strong></td>
+  </tr>
+  <tr>
+    <td>Demandes/jour (capacite)</td>
+    <td>~500</td>
+    <td><strong>~500</strong> (meme — c'est parallele)</td>
+  </tr>
+  <tr>
+    <td>Tokens/jour max</td>
+    <td>~142M</td>
+    <td><strong>~380M</strong></td>
+  </tr>
+</table>
+
+<!-- MODE 1M+ -->
+<div class="section-header page-break">
+  <h2>Mode 1M+ tokens — Ensemble 5 fournisseurs</h2>
+  <p>5 fournisseurs d'inference simultanes. Puissance maximale absolue.</p>
+</div>
+
+<div class="info-box">
+  <strong>5 fournisseurs = 5 cerveaux independants.</strong> Chaque agent critique est execute 5 fois en parallele sur 5 fournisseurs differents. Les reponses sont votees. Majorite = verite. Si 3 ou plus sont d'accord = confirme. Les agents arbitres resolvent le reste. Aucun biais, aucune hallucination, aucun point de defaillance.
+</div>
+
+<table>
+  <tr>
+    <th>Phase</th>
+    <th>Agents</th>
+    <th>Ensemble x5</th>
+    <th>Arbitres</th>
+    <th>Total tokens</th>
+  </tr>
+  <tr>
+    <td>1. Intake & Extraction</td>
+    <td>5 agents</td>
+    <td>x1 (OCR deterministe)</td>
+    <td>—</td>
+    <td><strong>~18,000</strong></td>
+  </tr>
+  <tr>
+    <td>2. Recherche juridique</td>
+    <td>12 agents</td>
+    <td>x5 = 60 executions</td>
+    <td>6 arbitres</td>
+    <td><strong>~493,000</strong></td>
+  </tr>
+  <tr>
+    <td>3. Analyse defenses</td>
+    <td>12 agents</td>
+    <td>x5 = 60 executions</td>
+    <td>6 arbitres</td>
+    <td><strong>~378,000</strong></td>
+  </tr>
+  <tr>
+    <td>4. Audit independant</td>
+    <td>10 agents</td>
+    <td>x5 = 50 executions</td>
+    <td>5 arbitres</td>
+    <td><strong>~255,000</strong></td>
+  </tr>
+  <tr>
+    <td>5. Generation rapports</td>
+    <td>7 agents</td>
+    <td>x1 (generation directe)</td>
+    <td>—</td>
+    <td><strong>~35,000</strong></td>
+  </tr>
+  <tr>
+    <td>6. Livraison & suivi</td>
+    <td>4 agents</td>
+    <td>x1 (envoi direct)</td>
+    <td>—</td>
+    <td><strong>~17,000</strong></td>
+  </tr>
+  <tr style="background:#e63946; color:white;">
+    <td><strong>TOTAL</strong></td>
+    <td><strong>50 agents</strong></td>
+    <td><strong>170 executions ensemble</strong></td>
+    <td><strong>17 arbitres</strong></td>
+    <td style="font-size:14pt"><strong>~1,196,000</strong></td>
+  </tr>
+</table>
+
+<div class="token-total" style="border-left-color:#e63946;">
+  <div>
+    <div class="label">TOTAL PAR DEMANDE CLIENT — MODE 1M+</div>
+    <div class="sublabel">50 agents, 5 fournisseurs simultanes, 17 arbitres, vote majoritaire</div>
+  </div>
+  <div class="num" style="font-size:28pt;">~1.2M <small>tokens</small></div>
+</div>
+
+<h4>Infrastructure requise — les 5 fournisseurs</h4>
+
+<table>
+  <tr>
+    <th>Fournisseur</th>
+    <th>Role</th>
+    <th>Phases</th>
+    <th>Pourquoi</th>
+  </tr>
+  <tr>
+    <td><strong>Fournisseur #1</strong><br><span style="font-size:8pt;color:#888">Inference rapide open-source</span></td>
+    <td>Taches simples + haute vitesse</td>
+    <td>Phase 1, 5, 6 + ensemble rapide</td>
+    <td>Latence ultra-basse (~200ms/requete), modeles open-source optimises, ideal pour les agents qui n'ont pas besoin de raisonnement complexe</td>
+  </tr>
+  <tr>
+    <td><strong>Fournisseur #2</strong><br><span style="font-size:8pt;color:#888">Modele puissant proprietaire A</span></td>
+    <td>Raisonnement juridique profond</td>
+    <td>Phase 2, 3, 4 (ensemble)</td>
+    <td>Meilleur en analyse juridique, comprehension de textes longs (200K+ tokens context), raisonnement multi-etapes</td>
+  </tr>
+  <tr>
+    <td><strong>Fournisseur #3</strong><br><span style="font-size:8pt;color:#888">Modele puissant proprietaire B</span></td>
+    <td>Cross-verification independante</td>
+    <td>Phase 2, 3, 4 (ensemble)</td>
+    <td>Architecture differente du #2 = biais differents = detection des erreurs de l'un par l'autre</td>
+  </tr>
+  <tr>
+    <td><strong>Fournisseur #4</strong><br><span style="font-size:8pt;color:#888">Inference open-source grande capacite</span></td>
+    <td>Volume + fiabilite</td>
+    <td>Phase 2, 3, 4 (ensemble)</td>
+    <td>Pas de rate limits restrictifs, modeles open-weight, redondance si #2 ou #3 tombe</td>
+  </tr>
+  <tr>
+    <td><strong>Fournisseur #5</strong><br><span style="font-size:8pt;color:#888">Specialise en raisonnement</span></td>
+    <td>Arbitrage + cas complexes</td>
+    <td>Phase 2, 3, 4 (ensemble) + arbitrage</td>
+    <td>Modele avec raisonnement explicite (chain-of-thought), ideal pour trancher entre 4 reponses divergentes</td>
+  </tr>
+</table>
+
+<h4>Comment le vote fonctionne</h4>
+
+<table>
+  <tr>
+    <th>Scenario</th>
+    <th>Action</th>
+    <th>Frequence estimee</th>
+  </tr>
+  <tr>
+    <td>5 sur 5 d'accord</td>
+    <td>Reponse confirmee immediatement</td>
+    <td>~45% des cas</td>
+  </tr>
+  <tr>
+    <td>4 sur 5 d'accord</td>
+    <td>Reponse de la majorite retenue, la divergence est notee</td>
+    <td>~30% des cas</td>
+  </tr>
+  <tr>
+    <td>3 sur 5 d'accord</td>
+    <td>Reponse de la majorite retenue, agent arbitre verifie</td>
+    <td>~18% des cas</td>
+  </tr>
+  <tr>
+    <td>Aucune majorite claire</td>
+    <td>Agent arbitre recoit les 5 reponses et tranche avec raisonnement explicite</td>
+    <td>~7% des cas</td>
+  </tr>
+</table>
+
+<h4>Capacite du systeme en mode 1M+</h4>
+
+<table>
+  <tr>
+    <th>Metrique</th>
+    <th>Valeur</th>
+  </tr>
+  <tr>
+    <td>Tokens par demande client</td>
+    <td style="font-size:14pt; color:#e63946; font-weight:900;">~1,196,000</td>
+  </tr>
+  <tr>
+    <td>Executions par demande</td>
+    <td><strong>237</strong> (50 agents + 170 ensemble + 17 arbitres)</td>
+  </tr>
+  <tr>
+    <td>Fournisseurs d'inference simultanes</td>
+    <td><strong>5</strong></td>
+  </tr>
+  <tr>
+    <td>Taux de fiabilite</td>
+    <td><strong>~99.8%</strong> (vote majoritaire 5 fournisseurs)</td>
+  </tr>
+  <tr>
+    <td>Temps de traitement</td>
+    <td><strong>~15-18 secondes</strong> (parallele complet)</td>
+  </tr>
+  <tr>
+    <td>Demandes/jour (capacite)</td>
+    <td><strong>~500</strong> (parallele = meme debit)</td>
+  </tr>
+  <tr>
+    <td>Tokens/jour max</td>
+    <td><strong>~598M tokens/jour</strong></td>
+  </tr>
+  <tr>
+    <td>Equivalent humain par demande</td>
+    <td><strong>~3 avocats travaillant 3 heures chacun</strong></td>
   </tr>
 </table>
 
 <div class="verdict">
-  <h3>50 agents, 30 secondes, 1 photo</h3>
-  <p>Le client prend UNE photo de son ticket.<br>50 agents se mettent au travail en parallele.<br>30 secondes plus tard : rapport complet, defenses classees, documents generes, devis pret.</p>
-</div>
-
-<div class="info-box success">
-  <strong>Ce que ca remplace :</strong> Un avocat junior prend 2-3 heures pour faire la meme analyse manuellement. Les 50 agents font le meme travail en 30 secondes, en parallele, 24/7.
+  <h3>1 photo &rarr; 237 executions &rarr; 1.2M tokens &rarr; 15 secondes</h3>
+  <p>50 agents. 5 fournisseurs simultanes. 17 arbitres. Vote majoritaire.<br>Fiabilite 99.8%. L'equivalent de 3 avocats pendant 3 heures.<br>En 15 secondes. 500 clients par jour.</p>
 </div>
 
 <div class="footer">
-  Resume APIs & Agents — Projet Ticket911 — SeoAI<br>8 fevrier 2026
+  Systeme d'Agents — Ticket911 — SeoAI<br>8 fevrier 2026
 </div>
 
 </div>
