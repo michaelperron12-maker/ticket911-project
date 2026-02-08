@@ -572,10 +572,85 @@
             .compare-table th { padding: 8px 6px; font-size: 9px; }
         }
 
+        /* ===== DEMO LINKS BAR ===== */
+        .demo-links-bar {
+            position: fixed;
+            top: 3px;
+            right: 40px;
+            display: flex;
+            gap: 10px;
+            z-index: 102;
+            align-items: center;
+        }
+        .demo-links-bar a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .demo-links-bar a.link-site {
+            background: rgba(230,57,70,0.15);
+            border: 1px solid rgba(230,57,70,0.4);
+            color: #e63946;
+        }
+        .demo-links-bar a.link-site:hover {
+            background: rgba(230,57,70,0.3);
+            transform: translateY(-1px);
+        }
+        .demo-links-bar a.link-client {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+        }
+        .demo-links-bar a.link-client:hover {
+            background: rgba(59,130,246,0.3);
+            transform: translateY(-1px);
+        }
+        .demo-links-bar a.link-crm {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.4);
+            color: #22c55e;
+        }
+        .demo-links-bar a.link-crm:hover {
+            background: rgba(34,197,94,0.3);
+            transform: translateY(-1px);
+        }
+        .demo-links-bar .link-icon {
+            font-size: 14px;
+        }
+        .demo-links-bar .link-label-fr { display: inline; }
+        .demo-links-bar .link-label-en { display: none; }
+        body.en .demo-links-bar .link-label-fr { display: none; }
+        body.en .demo-links-bar .link-label-en { display: inline; }
+
+        @media (max-width: 768px) {
+            .demo-links-bar {
+                top: auto;
+                bottom: 60px;
+                right: 10px;
+                left: 10px;
+                justify-content: center;
+                gap: 6px;
+            }
+            .demo-links-bar a {
+                padding: 6px 10px;
+                font-size: 10px;
+                gap: 4px;
+            }
+            .demo-links-bar .link-icon { font-size: 12px; }
+        }
+
         /* Print / Fullscreen */
         @media print {
             .nav-bar { display: none; }
             .progress-bar { display: none; }
+            .demo-links-bar { display: none; }
             .slide { page-break-after: always; position: relative; display: flex !important; opacity: 1 !important; height: 100vh; }
         }
     </style>
@@ -583,6 +658,25 @@
 <body>
 
 <div class="progress-bar" id="progressBar" style="width: 12.5%;"></div>
+
+<!-- ===== DEMO LINKS BAR (visible on all slides) ===== -->
+<div class="demo-links-bar">
+    <a href="https://911-virid.vercel.app/demo-site/" target="_blank" class="link-site">
+        <span class="link-icon">&#127968;</span>
+        <span class="link-label-fr">Site Demo</span>
+        <span class="link-label-en">Demo Site</span>
+    </a>
+    <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-client.html" target="_blank" class="link-client">
+        <span class="link-icon">&#128100;</span>
+        <span class="link-label-fr">Portail Client</span>
+        <span class="link-label-en">Client Portal</span>
+    </a>
+    <a href="https://911-virid.vercel.app/demo-site/pages/dashboard-lawyer.html" target="_blank" class="link-crm">
+        <span class="link-icon">&#9878;</span>
+        <span class="link-label-fr">CRM Avocat</span>
+        <span class="link-label-en">Lawyer CRM</span>
+    </a>
+</div>
 
 <!-- ============================================================
      SLIDE 1 — COVER
