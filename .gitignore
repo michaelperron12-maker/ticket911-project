@@ -1,1 +1,8 @@
 .vercel
+node_modules/
+venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+.DS_Store
