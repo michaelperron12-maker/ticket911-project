@@ -234,7 +234,7 @@
 <!-- HEADER -->
 <div class="header">
     <div class="container">
-        <div class="logo">TICKET<span>911</span></div>
+        <div class="logo">TICKET<span>911</span> <span style="font-size:11px;font-weight:500;color:var(--gray);margin-left:6px;opacity:0.7">par SeoAI</span></div>
         <div class="header-stats">
             <div class="header-stat"><span class="num" id="statJuris">—</span><span class="lbl">Cas indexes</span></div>
             <div class="header-stat"><span class="num" id="statLois">—</span><span class="lbl">Lois</span></div>
@@ -378,11 +378,13 @@
 </div>
 
 <div class="footer">
-    Ticket911 &mdash; Systeme multi-agent par SeoAI &mdash; 5 agents specialises
+    &copy; 2026 SeoAI &mdash; Ticket911 &mdash; Systeme multi-agent &mdash; 5 agents specialises
 </div>
 
 <script>
-const API = window.location.origin;
+// Detecte si on est sous /scanticket ou a la racine
+const basePath = window.location.pathname.replace(/\/+$/, '');
+const API = window.location.origin + (basePath.startsWith('/scanticket') ? '/scanticket' : '');
 
 async function loadStats() {
     try {
