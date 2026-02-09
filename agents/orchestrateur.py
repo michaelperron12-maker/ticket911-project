@@ -211,7 +211,7 @@ class Orchestrateur(BaseAgent):
 
         # Agent Validateur
         try:
-            validation_ticket = self.validateur.valider(ticket)
+            validation_ticket = self.validateur.valider(ticket, classification)
             rapport["phases"]["intake"]["validateur"] = {"status": "OK", "data": validation_ticket}
         except Exception as e:
             validation_ticket = {}
@@ -220,7 +220,7 @@ class Orchestrateur(BaseAgent):
 
         # Agent Routing
         try:
-            route = self.routing.router(ticket)
+            route = self.routing.router(ticket, classification)
             rapport["phases"]["intake"]["routing"] = {"status": "OK", "data": route}
         except Exception as e:
             route = {"team": "team_qc"}  # Default QC

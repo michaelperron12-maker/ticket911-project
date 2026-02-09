@@ -43,10 +43,10 @@ class AgentRouting(BaseAgent):
 
     def _get_team(self, juridiction):
         return {
-            "QC": "Team Quebec (CSR)",
-            "ON": "Team Ontario (HTA)",
-            "NY": "Team New York (VTL)",
-        }.get(juridiction, "Team Quebec (CSR)")
+            "QC": "team_qc",
+            "ON": "team_on",
+            "NY": "team_ny",
+        }.get(juridiction, "team_qc")
 
     def _get_apis(self, juridiction):
         # APIs communes

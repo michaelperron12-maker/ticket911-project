@@ -14,7 +14,7 @@ from openai import OpenAI
 # Config
 FIREWORKS_API_KEY = "fw_CbsGnsaL5NSi4wgasWhjtQ"
 DEEPSEEK_MODEL = "accounts/fireworks/models/deepseek-v3p2"
-DEEPSEEK_R1 = "accounts/fireworks/models/deepseek-r1"
+DEEPSEEK_R1 = "accounts/fireworks/models/deepseek-r1-0528"
 DB_PATH = "/var/www/ticket911/db/ticket911.db"
 DATA_DIR = "/var/www/ticket911/data"
 LOG_DIR = "/var/www/ticket911/logs"
