@@ -5,8 +5,8 @@ Lance une analyse complete avec un ticket QC de test
 Envoie le resultat par email
 
 Usage:
-  python3 test_pipeline.py
-  SMTP_USER=x SMTP_PASS=x python3 test_pipeline.py   # avec email
+  SMTP_PASS=xxx python3 test_pipeline.py              # avec email alert@seoparai.com
+  python3 test_pipeline.py                             # sans email (analyse seulement)
 """
 
 import sys

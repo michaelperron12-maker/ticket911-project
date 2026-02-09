@@ -16,11 +16,11 @@ TWILIO_FROM = os.environ.get("TWILIO_FROM", "")
 SENDGRID_KEY = os.environ.get("SENDGRID_KEY", "")
 
 # SMTP fallback (test sans SendGrid)
-SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_HOST = os.environ.get("SMTP_HOST", "ssl0.ovh.net")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
-SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_USER = os.environ.get("SMTP_USER", "alert@seoparai.com")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
-SMTP_FROM = os.environ.get("SMTP_FROM", "")
+SMTP_FROM = os.environ.get("SMTP_FROM", "alert@seoparai.com")
 
 
 class AgentNotification(BaseAgent):
