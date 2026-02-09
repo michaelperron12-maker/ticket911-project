@@ -123,6 +123,7 @@ def analyze():
         dossier_uuid = str(uuid.uuid4())[:8].upper()
         folder = get_client_folder(dossier_uuid)
         image_path = None
+        evidence_photos = []
 
         for key in request.files:
             file = request.files[key]
@@ -132,6 +133,16 @@ def analyze():
                 file.save(filepath)
                 if key in ("ticket_photo", "ticket"):
                     image_path = filepath
+                elif key.startswith("evidence") or key.startswith("photo") or key.startswith("preuve"):
+                    evidence_photos.append(filepath)
+
+        # Temoignage et temoins (depuis form data)
+        temoignage = request.form.get("temoignage", "")
+        temoins_json = request.form.get("temoins", "[]")
+        try:
+            temoins = json.loads(temoins_json)
+        except json.JSONDecodeError:
+            temoins = []
     else:
         data = request.get_json()
         if not data:
@@ -139,13 +150,20 @@ def analyze():
         ticket = data.get("ticket", data)
         client_info = data.get("client_info", {})
         image_path = None
+        evidence_photos = []
+        temoignage = data.get("temoignage", "")
+        temoins = data.get("temoins", [])
 
     if not ticket.get("infraction"):
         return jsonify({"error": "Champ 'infraction' requis"}), 400
 
     try:
         orch = get_orchestrateur()
-        rapport = orch.analyser_ticket(ticket, image_path=image_path, client_info=client_info)
+        rapport = orch.analyser_ticket(
+            ticket, image_path=image_path, client_info=client_info,
+            evidence_photos=evidence_photos if evidence_photos else None,
+            temoignage=temoignage if temoignage else None,
+            temoins=temoins if temoins else None)
 
         dossier_uuid = rapport.get("dossier_uuid", "")
 

@@ -46,6 +46,10 @@ from agents.agent_procedure_ny import AgentProcedureNY
 from agents.agent_points_ny import AgentPointsNY
 from agents.agent_verificateur_ny import AgentVerificateurNY
 
+# Gold Standard: Preuves
+from agents.agent_photo_analyse import AgentPhotoAnalyse
+from agents.agent_temoignage import AgentTemoignage
+
 # Phase 3: Audit
 from agents.agent_cross_verification import AgentCrossVerification
 
@@ -93,6 +97,10 @@ class Orchestrateur(BaseAgent):
         self.points_ny = AgentPointsNY()
         self.verificateur_ny = AgentVerificateurNY()
 
+        # Gold Standard: Preuves
+        self.photo_analyse = AgentPhotoAnalyse()
+        self.temoignage = AgentTemoignage()
+
         # Phase 3: Audit
         self.cross_verif = AgentCrossVerification()
 
@@ -130,10 +138,11 @@ class Orchestrateur(BaseAgent):
         conn.commit()
         conn.close()
 
-    def analyser_ticket(self, ticket_input, image_path=None, client_info=None):
+    def analyser_ticket(self, ticket_input, image_path=None, client_info=None,
+                        evidence_photos=None, temoignage=None, temoins=None):
         """
-        Pipeline complet 26 agents / 4 phases
-        Input: ticket_input (dict ou texte), image optionnelle, info client
+        Pipeline complet 26+ agents / 4 phases + Gold Standard preuves
+        Input: ticket_input, image, client_info, photos preuves, temoignage, temoins
         Output: rapport complet avec UUID
         """
         dossier_uuid = str(uuid.uuid4())[:8].upper()
@@ -305,6 +314,51 @@ class Orchestrateur(BaseAgent):
         except Exception as e:
             rapport["phases"]["analyse"]["points"] = {"status": "FAIL", "error": str(e)}
             rapport["erreurs"].append(f"Points {tag}: {e}")
+
+        # ═══════════════════════════════════════════════════════
+        # GOLD STANDARD: ANALYSE PREUVES (si fournies)
+        # ═══════════════════════════════════════════════════════
+        photo_analyse_result = {}
+        temoignage_result = {}
+
+        if evidence_photos or temoignage or temoins:
+            print(f"\n{'─'*50}")
+            print("  GOLD STANDARD: ANALYSE PREUVES")
+            print(f"{'─'*50}")
+
+            # Analyse photos
+            if evidence_photos and isinstance(evidence_photos, list) and len(evidence_photos) > 0:
+                try:
+                    photo_analyse_result = self.photo_analyse.analyser_photos(evidence_photos, ticket)
+                    rapport["phases"]["preuves"] = rapport.get("phases", {}).get("preuves", {})
+                    rapport["phases"]["preuves"]["photos"] = {"status": "OK", "data": photo_analyse_result}
+                    # Ajuster le score selon les preuves
+                    bonus_photo = photo_analyse_result.get("impact_defense", {}).get("score_bonus", 0)
+                    if analyse and isinstance(analyse, dict) and bonus_photo > 0:
+                        old_score = analyse.get("score_contestation", 0)
+                        analyse["score_contestation"] = min(100, old_score + bonus_photo)
+                        analyse["preuves_photo_bonus"] = bonus_photo
+                        print(f"  >>> Score ajuste: {old_score}% + {bonus_photo}% (photos) = {analyse['score_contestation']}%")
+                except Exception as e:
+                    rapport["phases"].setdefault("preuves", {})["photos"] = {"status": "FAIL", "error": str(e)}
+                    rapport["erreurs"].append(f"Photo Analyse: {e}")
+
+            # Analyse temoignage
+            if temoignage or temoins:
+                try:
+                    temoignage_result = self.temoignage.analyser_temoignage(
+                        temoignage or "", temoins or [], ticket)
+                    rapport["phases"].setdefault("preuves", {})["temoignage"] = {"status": "OK", "data": temoignage_result}
+                    # Ajuster le score
+                    bonus_tem = temoignage_result.get("impact_defense", {}).get("score_bonus", 0)
+                    if analyse and isinstance(analyse, dict) and bonus_tem > 0:
+                        old_score = analyse.get("score_contestation", 0)
+                        analyse["score_contestation"] = min(100, old_score + bonus_tem)
+                        analyse["preuves_temoignage_bonus"] = bonus_tem
+                        print(f"  >>> Score ajuste: {old_score}% + {bonus_tem}% (temoignage) = {analyse['score_contestation']}%")
+                except Exception as e:
+                    rapport["phases"].setdefault("preuves", {})["temoignage"] = {"status": "FAIL", "error": str(e)}
+                    rapport["erreurs"].append(f"Temoignage: {e}")
 
         # ═══════════════════════════════════════════════════════
         # PHASE 3: AUDIT QUALITE (~150K tokens)
