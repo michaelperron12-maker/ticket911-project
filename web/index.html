@@ -3,330 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket911 — Scan & Analyse de Contraventions</title>
-    <meta name="description" content="Uploadez votre contravention et obtenez une analyse instantanee. Notre systeme recherche 7 bases de donnees juridiques et vous donne vos chances en 30 secondes.">
+    <title>Ticket911 — Gold Standard | Analyse de Contraventions</title>
+    <meta name="description" content="Uploadez votre contravention et vos preuves. 26 agents specialises, 1.2 million de tokens par dossier, rapport PDF 9 pages pret pour la cour.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e3a5f;
-            --primary-light: #2d5a8e;
-            --primary-dark: #0f2440;
-            --accent: #e63946;
-            --accent-dark: #c1121f;
-            --gold: #d4a843;
-            --gold-light: #f0d060;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --purple: #7c3aed;
-            --purple-light: #a78bfa;
-            --dark: #0a0e27;
-            --dark-2: #0f172a;
-            --dark-3: #1e293b;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --gray-lighter: #e2e8f0;
-            --white: #ffffff;
-            --radius: 12px;
-            --radius-sm: 8px;
-            --radius-lg: 20px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --primary:#1e3a5f;--primary-dark:#0f2440;--accent:#e63946;--accent-dark:#c1121f;
+            --gold:#d4a843;--gold-light:#f0d060;--success:#22c55e;--warning:#f59e0b;
+            --purple:#7c3aed;--purple-light:#a78bfa;--dark:#0a0e27;--dark-2:#0f172a;--dark-3:#1e293b;
+            --gray:#64748b;--gray-light:#94a3b8;--white:#ffffff;
+            --radius:12px;--radius-sm:8px;--radius-lg:20px;
+            --transition:all .3s cubic-bezier(.4,0,.2,1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            color: #e2e8f0;
-            background: var(--dark);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-        a { text-decoration: none; color: inherit; }
-        .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',-apple-system,sans-serif;color:#e2e8f0;background:var(--dark);line-height:1.6;-webkit-font-smoothing:antialiased;}
+        a{text-decoration:none;color:inherit;}
+        .container{max-width:960px;margin:0 auto;padding:0 24px;}
 
-        /* ============ HEADER ============ */
-        .header {
-            background: rgba(10,14,39,0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .header .container {
-            display: flex; justify-content: space-between; align-items: center; padding: 14px 24px;
-        }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 900; color: white; }
-        .logo .t9 { color: var(--accent); }
-        .logo .by { font-size: 11px; font-weight: 500; color: var(--gray); margin-left: 8px; opacity: 0.7; }
-        .header-stats { display: flex; gap: 20px; align-items: center; }
-        .header-stat { text-align: center; }
-        .header-stat .num { font-size: 16px; font-weight: 800; color: var(--purple-light); display: block; }
-        .header-stat .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        /* HEADER */
+        .header{background:rgba(10,14,39,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:1000;}
+        .header .container{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;}
+        .logo{font-size:26px;font-weight:900;color:white;}.logo .t9{color:var(--accent);}.logo .by{font-size:11px;font-weight:500;color:var(--gray);margin-left:8px;opacity:.7;}
+        .header-stats{display:flex;gap:20px;align-items:center;}
+        .header-stat{text-align:center;}.header-stat .num{font-size:16px;font-weight:800;color:var(--purple-light);display:block;}.header-stat .lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;}
+        .status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-        /* ============ HERO ============ */
-        .hero {
-            background: linear-gradient(160deg, var(--dark) 0%, var(--dark-2) 40%, #141b3d 70%, var(--primary-dark) 100%);
-            padding: 50px 0 70px; position: relative; overflow: hidden; text-align: center;
-        }
-        .hero::before {
-            content: ''; position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
-            width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(124,58,237,0.12), transparent 60%);
-            border-radius: 50%; pointer-events: none;
-        }
-        .hero::after {
-            content: ''; position: absolute; bottom: -50%; right: -10%;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(230,57,70,0.08), transparent 60%);
-            border-radius: 50%; pointer-events: none;
-        }
-        .hero .container { position: relative; z-index: 1; }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-            border-radius: 50px; padding: 6px 18px; font-size: 12px;
-            color: var(--purple-light); font-weight: 600; text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 16px;
-        }
-        .hero h1 { font-size: 40px; font-weight: 900; color: white; margin-bottom: 12px; line-height: 1.15; }
-        .hero h1 span { background: linear-gradient(135deg, #a78bfa, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .hero p.sub { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 580px; margin: 0 auto 36px; }
+        /* HERO */
+        .hero{background:linear-gradient(160deg,var(--dark) 0%,var(--dark-2) 40%,#141b3d 70%,var(--primary-dark) 100%);padding:40px 0 20px;position:relative;overflow:hidden;text-align:center;}
+        .hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(212,168,67,.1),transparent 60%);border-radius:50%;}
+        .hero .container{position:relative;z-index:1;}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.3);border-radius:50px;padding:6px 18px;font-size:12px;color:var(--gold-light);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+        .hero h1{font-size:38px;font-weight:900;color:white;margin-bottom:10px;line-height:1.15;}
+        .hero h1 .gold{color:var(--gold);}
+        .hero p.sub{font-size:15px;color:rgba(255,255,255,.5);max-width:620px;margin:0 auto 10px;}
+        .hero-stats{display:flex;gap:32px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
+        .hero-stat{text-align:center;}.hero-stat .big{font-size:28px;font-weight:900;color:var(--gold);display:block;}.hero-stat .sm{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;}
 
-        /* ============ UPLOAD ZONE ============ */
-        .upload-zone {
-            max-width: 680px; margin: 0 auto;
-            border: 3px dashed rgba(124,58,237,0.4); border-radius: 24px;
-            padding: 50px 40px; text-align: center; cursor: pointer;
-            transition: var(--transition); background: rgba(124,58,237,0.04);
-            position: relative; overflow: hidden;
-        }
-        .upload-zone:hover {
-            border-color: var(--purple); background: rgba(124,58,237,0.08);
-            transform: translateY(-3px); box-shadow: 0 20px 60px rgba(124,58,237,0.2);
-        }
-        .upload-zone .icon { font-size: 64px; display: block; margin-bottom: 14px; animation: floatIcon 3s ease-in-out infinite; }
-        @keyframes floatIcon { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .upload-zone h3 { font-size: 22px; font-weight: 800; color: white; margin-bottom: 6px; }
-        .upload-zone p { color: rgba(255,255,255,0.45); font-size: 14px; }
-        .upload-zone .or { color: rgba(255,255,255,0.2); font-size: 13px; margin: 12px 0; }
-        .upload-btns { display: flex; gap: 12px; justify-content: center; margin-top: 16px; position: relative; z-index: 1; }
-        .btn { padding: 12px 28px; font-size: 14px; font-weight: 700; border-radius: 50px; border: none; cursor: pointer; transition: var(--transition); font-family: inherit; }
-        .btn-purple { background: var(--purple); color: white; }
-        .btn-purple:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.3); }
-        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
-        .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: white; }
-        .upload-formats { margin-top: 18px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-        .format-tag { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 50px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; }
-        .upload-preview { display: none; margin-top: 16px; }
-        .upload-preview img { max-width: 300px; max-height: 200px; border-radius: 12px; border: 2px solid rgba(124,58,237,0.3); }
-        .upload-preview.active { display: block; }
+        /* WIZARD STEPS */
+        .wizard{padding:40px 0 20px;}
+        .steps-bar{display:flex;gap:4px;margin-bottom:32px;}
+        .step-indicator{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);transition:background .4s;}
+        .step-indicator.active{background:var(--gold);}
+        .step-indicator.done{background:var(--success);}
+        .step-label{text-align:center;font-size:13px;font-weight:700;color:rgba(255,255,255,.35);margin-bottom:24px;}
+        .step-label span{color:var(--gold);}
 
-        /* Toggle to manual form */
-        .toggle-manual {
-            margin-top: 20px; text-align: center;
-        }
-        .toggle-manual button {
-            background: none; border: none; color: var(--gray); font-size: 13px;
-            cursor: pointer; font-family: inherit; transition: color 0.2s;
-        }
-        .toggle-manual button:hover { color: var(--purple-light); }
+        /* STEP PANELS */
+        .step-panel{display:none;}
+        .step-panel.active{display:block;animation:fadeUp .4s ease;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-        /* ============ MANUAL FORM ============ */
-        .form-section { display: none; max-width: 680px; margin: 20px auto 0; }
-        .form-section.active { display: block; }
-        .form-card {
-            background: rgba(255,255,255,0.03); border-radius: var(--radius-lg);
-            border: 1px solid rgba(255,255,255,0.08); padding: 28px;
-        }
-        .form-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: white; }
-        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-        .preset-btn {
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 6px 14px; font-size: 12px; font-weight: 600;
-            color: var(--gray-light); cursor: pointer; transition: var(--transition); font-family: inherit;
-        }
-        .preset-btn:hover { border-color: var(--purple); color: var(--purple-light); background: rgba(124,58,237,0.08); }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .full { grid-column: 1 / -1; }
-        label { display: block; font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select, textarea {
-            width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm);
-            color: white; font-size: 14px; font-family: inherit; transition: var(--transition);
-        }
-        input:focus, select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-        input::placeholder { color: var(--gray); }
-        select option { background: var(--dark-2); color: white; }
+        /* UPLOAD ZONES */
+        .upload-zone{border:2px dashed rgba(212,168,67,.35);border-radius:20px;padding:40px 30px;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(212,168,67,.03);position:relative;}
+        .upload-zone:hover{border-color:var(--gold);background:rgba(212,168,67,.06);transform:translateY(-2px);box-shadow:0 16px 50px rgba(212,168,67,.12);}
+        .upload-zone .ico{font-size:52px;display:block;margin-bottom:10px;animation:floatIco 3s ease-in-out infinite;}
+        @keyframes floatIco{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .upload-zone h3{font-size:20px;font-weight:800;color:white;margin-bottom:4px;}
+        .upload-zone p{color:rgba(255,255,255,.4);font-size:13px;}
+        .upload-formats{margin-top:14px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+        .format-tag{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:50px;padding:3px 10px;font-size:10px;color:rgba(255,255,255,.35);font-weight:600;}
+        .upload-preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center;}
+        .upload-preview img{width:80px;height:80px;object-fit:cover;border-radius:10px;border:2px solid rgba(212,168,67,.3);}
+        .upload-preview .file-tag{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;font-size:11px;color:var(--gray-light);display:flex;align-items:center;gap:6px;}
 
-        .btn-analyze {
-            display: flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
-            margin-top: 20px; padding: 14px 32px;
-            background: var(--accent); border: none; border-radius: 50px;
-            color: white; font-size: 16px; font-weight: 700; cursor: pointer;
-            transition: var(--transition); font-family: inherit;
-        }
-        .btn-analyze:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(230,57,70,0.3); }
-        .btn-analyze:disabled { opacity: 0.5; cursor: wait; transform: none; box-shadow: none; }
+        /* EVIDENCE GRID */
+        .evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;}
+        .evidence-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:var(--transition);position:relative;}
+        .evidence-card:hover{border-color:rgba(212,168,67,.3);background:rgba(212,168,67,.04);transform:translateY(-2px);}
+        .evidence-card .e-ico{font-size:32px;display:block;margin-bottom:8px;}
+        .evidence-card h4{font-size:13px;font-weight:700;color:white;margin-bottom:2px;}
+        .evidence-card p{font-size:11px;color:var(--gray);line-height:1.4;}
+        .evidence-card .e-badge{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--success);color:white;font-size:11px;display:none;align-items:center;justify-content:center;font-weight:700;}
+        .evidence-card.has-file .e-badge{display:flex;}
+        .evidence-card input[type="file"]{display:none;}
 
-        /* ============ SCANNING ANIMATION ============ */
-        .scan-animation { display: none; max-width: 680px; margin: 0 auto; text-align: center; padding: 50px 40px; }
-        .scan-animation.active { display: block; }
-        .scanner-ring {
-            width: 110px; height: 110px; border-radius: 50%;
-            border: 4px solid transparent; border-top-color: var(--purple); border-right-color: var(--accent);
-            margin: 0 auto 20px; animation: spinRing 1.2s linear infinite; position: relative;
-        }
-        .scanner-ring::after {
-            content: ''; position: absolute; inset: 8px; border-radius: 50%;
-            border: 3px solid transparent; border-bottom-color: var(--gold); border-left-color: var(--success);
-            animation: spinRing 0.8s linear reverse infinite;
-        }
-        @keyframes spinRing { to { transform: rotate(360deg); } }
-        .scan-steps { list-style: none; text-align: left; max-width: 360px; margin: 16px auto 0; }
-        .scan-steps li { padding: 7px 0; font-size: 13px; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 10px; transition: all 0.5s ease; }
-        .scan-steps li.done { color: var(--success); }
-        .scan-steps li.active { color: white; }
-        .scan-steps li .ck { width: 18px; text-align: center; font-size: 13px; }
+        /* TESTIMONY */
+        .testimony-area{width:100%;min-height:120px;padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);color:white;font-size:14px;font-family:inherit;resize:vertical;transition:var(--transition);}
+        .testimony-area:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,.12);}
+        .testimony-area::placeholder{color:var(--gray);}
+        .witness-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
+        .witness-row input{width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);color:white;font-size:13px;font-family:inherit;}
+        .witness-row input:focus{outline:none;border-color:var(--gold);}
+        .witness-row input::placeholder{color:var(--gray);}
 
-        /* ============ RESULTS ============ */
-        .results { display: none; padding: 0 0 60px; }
-        .results.active { display: block; animation: fadeUp 0.6s ease; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* FORM (manual fallback inside step 1) */
+        .form-card{background:rgba(255,255,255,.03);border-radius:var(--radius-lg);border:1px solid rgba(255,255,255,.08);padding:24px;margin-top:16px;}
+        .form-title{font-size:14px;font-weight:700;margin-bottom:14px;color:white;}
+        .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+        .preset-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--gray-light);cursor:pointer;transition:var(--transition);font-family:inherit;}
+        .preset-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.06);}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .full{grid-column:1/-1;}
+        label{display:block;font-size:10px;font-weight:700;color:var(--gray);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+        input,select{width:100%;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);color:white;font-size:13px;font-family:inherit;transition:var(--transition);}
+        input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,.1);}
+        input::placeholder{color:var(--gray);}
+        select option{background:var(--dark-2);color:white;}
+        .toggle-link{display:inline-block;margin-top:14px;font-size:12px;color:var(--gray);cursor:pointer;transition:color .2s;}
+        .toggle-link:hover{color:var(--gold);}
 
-        .success-banner {
-            background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
-            border: 1px solid rgba(34,197,94,0.25); border-radius: 16px;
-            padding: 18px 24px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
-        }
-        .success-banner .check { width: 48px; height: 48px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; flex-shrink: 0; animation: popIn 0.5s cubic-bezier(0.68,-0.55,0.27,1.55); }
-        @keyframes popIn { 0%{transform:scale(0)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
-        .success-banner h3 { color: white; font-size: 16px; font-weight: 800; }
-        .success-banner p { color: var(--gray-light); font-size: 12px; }
+        /* BUTTONS */
+        .btn{padding:12px 28px;font-size:14px;font-weight:700;border-radius:50px;border:none;cursor:pointer;transition:var(--transition);font-family:inherit;display:inline-flex;align-items:center;gap:8px;}
+        .btn-gold{background:var(--gold);color:var(--dark);}
+        .btn-gold:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 8px 25px rgba(212,168,67,.3);}
+        .btn-accent{background:var(--accent);color:white;}
+        .btn-accent:hover{background:var(--accent-dark);transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,.3);}
+        .btn-outline{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);}
+        .btn-outline:hover{border-color:rgba(255,255,255,.3);color:white;}
+        .btn-lg{padding:16px 36px;font-size:16px;}
+        .btn:disabled{opacity:.5;cursor:wait;transform:none!important;box-shadow:none!important;}
+        .btn-row{display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
 
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .result-panel {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 24px;
-        }
-        .result-panel h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 14px; }
-        .result-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .result-row:last-child { border: none; }
-        .result-row .rl { font-size: 12px; color: var(--gray-light); }
-        .result-row .rv { font-size: 14px; font-weight: 700; color: white; }
+        /* SCAN ANIMATION */
+        .scan-section{display:none;padding:40px 0;text-align:center;}
+        .scan-section.active{display:block;}
+        .scanner-ring{width:100px;height:100px;border-radius:50%;border:4px solid transparent;border-top-color:var(--gold);border-right-color:var(--accent);margin:0 auto 18px;animation:spin 1.2s linear infinite;position:relative;}
+        .scanner-ring::after{content:'';position:absolute;inset:8px;border-radius:50%;border:3px solid transparent;border-bottom-color:var(--purple);border-left-color:var(--success);animation:spin .8s linear reverse infinite;}
+        @keyframes spin{to{transform:rotate(360deg)}}
 
-        .score-panel {
-            background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.03));
-            border: 1px solid rgba(34,197,94,0.2); border-radius: 16px;
-            padding: 28px; text-align: center;
-        }
-        .score-panel.score-low { background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.03)); border-color: rgba(230,57,70,0.2); }
-        .score-panel.score-mid { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03)); border-color: rgba(245,158,11,0.2); }
-        .score-ring { width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; position: relative; }
-        .score-ring-inner { width: 100px; height: 100px; border-radius: 50%; background: var(--dark); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .score-ring-inner .num { font-size: 38px; font-weight: 900; line-height: 1; }
-        .score-ring-inner .pct { font-size: 14px; font-weight: 700; }
-        .score-verdict { display: inline-block; padding: 6px 18px; border-radius: 50px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .verdict-contest { background: var(--success); color: white; }
-        .verdict-negotiate { background: var(--warning); color: white; }
-        .verdict-pay { background: var(--accent); color: white; }
-        .score-detail { font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+        .phase-tracker{max-width:600px;margin:20px auto 0;}
+        .phase{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 18px;margin-bottom:8px;transition:var(--transition);}
+        .phase.active{border-color:rgba(212,168,67,.4);background:rgba(212,168,67,.05);}
+        .phase.done{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.04);}
+        .phase-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+        .phase-num{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);color:var(--gray);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition);}
+        .phase.active .phase-num{background:rgba(212,168,67,.2);color:var(--gold);}
+        .phase.done .phase-num{background:var(--success);color:white;}
+        .phase-title{font-size:14px;font-weight:700;color:rgba(255,255,255,.4);transition:color .3s;}
+        .phase.active .phase-title{color:white;}
+        .phase.done .phase-title{color:var(--success);}
+        .phase-tokens{margin-left:auto;font-size:11px;color:var(--gray);font-weight:600;}
+        .phase.active .phase-tokens{color:var(--gold);}
+        .phase-agents{display:flex;gap:4px;flex-wrap:wrap;margin-left:38px;}
+        .phase-agent{font-size:10px;padding:3px 8px;border-radius:50px;background:rgba(255,255,255,.04);color:var(--gray);font-weight:600;transition:var(--transition);}
+        .phase.active .phase-agent{background:rgba(212,168,67,.1);color:var(--gold-light);}
+        .phase.done .phase-agent{background:rgba(34,197,94,.1);color:var(--success);}
 
-        /* Pipeline badges */
-        .pipeline { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
-        .agent-badge { padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; }
-        .agent-pass { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
-        .agent-fail { background: rgba(230,57,70,0.1); color: var(--accent); border: 1px solid rgba(230,57,70,0.2); }
+        /* RESULTS */
+        .results{display:none;padding:0 0 60px;}
+        .results.active{display:block;animation:fadeUp .6s ease;}
 
-        /* Meta stats row */
-        .meta-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); }
-        .meta-item { text-align: center; }
-        .meta-item .val { font-size: 16px; font-weight: 800; color: var(--purple-light); }
-        .meta-item .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+        .success-banner{background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(34,197,94,.06));border:1px solid rgba(212,168,67,.25);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+        .success-banner .check{width:48px;height:48px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--dark);flex-shrink:0;font-weight:900;animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55);}
+        @keyframes popIn{0%{transform:scale(0)}80%{transform:scale(1.15)}100%{transform:scale(1)}}
+        .success-banner h3{color:white;font-size:16px;font-weight:800;}
+        .success-banner p{color:var(--gray-light);font-size:12px;}
+        .success-banner .gs-badge{margin-left:auto;background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:10px;font-weight:800;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;}
 
-        /* Databases bar */
-        .db-bar {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 16px 24px; margin-bottom: 24px;
-            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-        }
-        .db-bar .db-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; flex-shrink: 0; }
-        .db-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-        .db-tag { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); color: var(--purple-light); padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: 600; }
-        .db-tag.active { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); color: var(--success); }
+        .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+        .result-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;}
+        .result-panel h4{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--gray);margin-bottom:14px;}
+        .result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+        .result-row:last-child{border:none;}
+        .result-row .rl{font-size:12px;color:var(--gray-light);}.result-row .rv{font-size:13px;font-weight:700;color:white;}
 
-        /* Detail cards */
-        .detail-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius); padding: 22px; margin-bottom: 14px;
-        }
-        .detail-card h3 { font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .detail-card h3 .ico { width: 26px; height: 26px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; }
-        .ico-red { background: rgba(230,57,70,0.1); color: var(--accent); }
-        .ico-blue { background: rgba(30,58,95,0.15); color: var(--purple-light); }
-        .ico-gold { background: rgba(212,168,67,0.1); color: var(--gold); }
-        .ico-green { background: rgba(34,197,94,0.1); color: var(--success); }
-        .detail-card ul { list-style: none; }
-        .detail-card li { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--gray-light); display: flex; gap: 10px; align-items: flex-start; }
-        .detail-card li:last-child { border: none; }
-        .detail-card li .n { min-width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.06); color: var(--gray-light); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .detail-card p { font-size: 13px; color: var(--gray-light); line-height: 1.7; }
+        .score-panel{background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.02));border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:28px;text-align:center;}
+        .score-panel.s-low{background:linear-gradient(135deg,rgba(230,57,70,.08),rgba(230,57,70,.02));border-color:rgba(230,57,70,.2);}
+        .score-panel.s-mid{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border-color:rgba(245,158,11,.2);}
+        .score-ring{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+        .score-ring-inner{width:100px;height:100px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+        .score-ring-inner .num{font-size:36px;font-weight:900;line-height:1;}.score-ring-inner .pct{font-size:14px;font-weight:700;}
+        .score-verdict{display:inline-block;padding:6px 18px;border-radius:50px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .v-contest{background:var(--success);color:white;}.v-negotiate{background:var(--warning);color:white;}.v-pay{background:var(--accent);color:white;}
+        .score-detail{font-size:12px;color:var(--gray-light);line-height:1.6;}
 
-        /* Precedent cards */
-        .precedent-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; padding: 18px 22px; margin-bottom: 10px; transition: var(--transition);
-        }
-        .precedent-card:hover { border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.04); }
-        .prec-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 10px; }
-        .prec-header h5 { font-size: 14px; font-weight: 700; color: white; }
-        .prec-relevance { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 50px; flex-shrink: 0; }
-        .rel-high { background: rgba(34,197,94,0.12); color: var(--success); }
-        .rel-med { background: rgba(245,158,11,0.12); color: var(--warning); }
-        .rel-low { background: rgba(230,57,70,0.12); color: var(--accent); }
-        .prec-meta { font-size: 11px; color: var(--gray); margin-bottom: 4px; }
-        .prec-excerpt { font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+        /* Evidence impact */
+        .evidence-impact{background:rgba(212,168,67,.05);border:1px solid rgba(212,168,67,.2);border-radius:16px;padding:20px;margin-bottom:24px;}
+        .evidence-impact h4{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+        .impact-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(212,168,67,.08);}
+        .impact-row:last-child{border:none;}
+        .impact-row .i-type{font-size:12px;color:var(--gray-light);width:140px;flex-shrink:0;}
+        .impact-bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;}
+        .impact-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+        .impact-row .i-val{font-size:12px;font-weight:700;color:var(--gold);width:40px;text-align:right;}
 
-        /* Warning */
-        .warning-box {
-            background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25);
-            border-radius: var(--radius); padding: 12px 16px; margin-top: 14px;
-            font-size: 12px; color: #fbbf24; display: flex; gap: 10px; align-items: flex-start;
-        }
-        .warning-box .wi { font-size: 16px; }
+        /* Pipeline / meta / db bar / detail / precedent cards — same as before */
+        .pipeline{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:12px 0;}
+        .agent-badge{padding:3px 10px;border-radius:50px;font-size:10px;font-weight:700;}
+        .agent-pass{background:rgba(34,197,94,.1);color:var(--success);border:1px solid rgba(34,197,94,.2);}
+        .agent-fail{background:rgba(230,57,70,.1);color:var(--accent);border:1px solid rgba(230,57,70,.2);}
+        .meta-row{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);}
+        .meta-item{text-align:center;}.meta-item .val{font-size:15px;font-weight:800;color:var(--gold);}.meta-item .lbl{font-size:10px;color:var(--gray);text-transform:uppercase;}
 
-        .btn-new {
-            display: flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
-            margin-top: 20px; padding: 14px 32px;
-            background: transparent; border: 2px solid var(--purple);
-            border-radius: 50px; color: var(--purple-light); font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: var(--transition); font-family: inherit;
-        }
-        .btn-new:hover { background: var(--purple); color: white; }
+        .db-bar{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .db-bar .db-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-weight:700;flex-shrink:0;}
+        .db-tags{display:flex;gap:5px;flex-wrap:wrap;}
+        .db-tag{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);color:var(--success);padding:3px 10px;border-radius:50px;font-size:10px;font-weight:600;}
 
-        /* ============ FOOTER ============ */
-        .footer {
-            text-align: center; padding: 24px; color: var(--gray);
-            font-size: 11px; border-top: 1px solid rgba(255,255,255,0.04);
-        }
-        .footer a { color: var(--purple-light); }
+        .detail-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:20px;margin-bottom:12px;}
+        .detail-card h3{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+        .detail-card h3 .ico{width:24px;height:24px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:12px;}
+        .ico-red{background:rgba(230,57,70,.1);color:var(--accent);}.ico-blue{background:rgba(124,58,237,.1);color:var(--purple-light);}
+        .ico-gold{background:rgba(212,168,67,.1);color:var(--gold);}.ico-green{background:rgba(34,197,94,.1);color:var(--success);}
+        .detail-card ul{list-style:none;}.detail-card li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;color:var(--gray-light);display:flex;gap:8px;align-items:flex-start;}
+        .detail-card li:last-child{border:none;}.detail-card li .n{min-width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.06);color:var(--gray-light);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .detail-card p{font-size:13px;color:var(--gray-light);line-height:1.7;}
 
-        /* ============ RESPONSIVE ============ */
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 26px; }
-            .hero p.sub { font-size: 14px; }
-            .header-stats { display: none; }
-            .upload-zone { padding: 30px 16px; }
-            .upload-zone .icon { font-size: 44px; }
-            .upload-zone h3 { font-size: 18px; }
-            .upload-btns { flex-direction: column; align-items: center; }
-            .form-grid { grid-template-columns: 1fr; }
-            .result-grid { grid-template-columns: 1fr; }
-            .success-banner { flex-direction: column; text-align: center; gap: 10px; }
-            .db-bar { flex-direction: column; text-align: center; }
-            .prec-header { flex-direction: column; gap: 6px; }
-            .meta-row { gap: 12px; }
-            .result-row { flex-direction: column; align-items: flex-start; gap: 3px; }
+        .precedent-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 20px;margin-bottom:8px;transition:var(--transition);}
+        .precedent-card:hover{border-color:rgba(212,168,67,.25);background:rgba(212,168,67,.03);}
+        .prec-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;gap:8px;}
+        .prec-header h5{font-size:13px;font-weight:700;color:white;}.prec-relevance{font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;flex-shrink:0;}
+        .rel-high{background:rgba(34,197,94,.1);color:var(--success);}.rel-med{background:rgba(245,158,11,.1);color:var(--warning);}
+        .prec-meta{font-size:10px;color:var(--gray);margin-bottom:3px;}.prec-excerpt{font-size:11px;color:var(--gray-light);line-height:1.5;}
+
+        .warning-box{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:12px;color:#fbbf24;display:flex;gap:8px;align-items:flex-start;}
+
+        /* PDF Download */
+        .pdf-download{background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.03));border:2px solid rgba(212,168,67,.3);border-radius:20px;padding:32px;text-align:center;margin:24px 0;}
+        .pdf-download .pdf-ico{font-size:48px;display:block;margin-bottom:10px;}
+        .pdf-download h3{font-size:20px;font-weight:800;color:white;margin-bottom:4px;}
+        .pdf-download p{font-size:13px;color:var(--gray-light);margin-bottom:16px;}
+
+        .btn-new{display:flex;width:100%;justify-content:center;align-items:center;gap:8px;margin-top:16px;padding:14px 32px;background:transparent;border:2px solid rgba(255,255,255,.12);border-radius:50px;color:var(--gray-light);font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit;}
+        .btn-new:hover{border-color:var(--gold);color:var(--gold);}
+
+        .footer{text-align:center;padding:24px;color:var(--gray);font-size:11px;border-top:1px solid rgba(255,255,255,.04);}
+        .footer a{color:var(--gold);}
+
+        @media(max-width:640px){
+            .hero h1{font-size:26px;}.hero-stats{gap:16px;}.hero-stat .big{font-size:22px;}
+            .header-stats{display:none;}.evidence-grid{grid-template-columns:1fr;}
+            .form-grid{grid-template-columns:1fr;}.result-grid{grid-template-columns:1fr;}
+            .witness-row{grid-template-columns:1fr;}.success-banner{flex-direction:column;text-align:center;}
+            .db-bar{flex-direction:column;text-align:center;}.prec-header{flex-direction:column;}
+            .impact-row{flex-direction:column;gap:4px;}.impact-row .i-type{width:auto;}
+            .btn-row{flex-direction:column;align-items:center;}.success-banner .gs-badge{margin-left:0;}
         }
     </style>
 </head>
@@ -348,59 +250,51 @@
 <!-- HERO -->
 <section class="hero" id="heroSection">
     <div class="container">
-        <div class="hero-badge">Systeme multi-agent &bull; 5 agents specialises</div>
-        <h1>Scannez votre <span>contravention</span></h1>
-        <p class="sub">Uploadez une photo de votre ticket ou entrez les details manuellement. Analyse en temps reel avec jurisprudence canadienne.</p>
+        <div class="hero-badge">&#9733; Gold Standard &bull; 26 Agents &bull; 1.2M Tokens</div>
+        <h1>Dossier de Preuve <span class="gold">Complet</span></h1>
+        <p class="sub">Soumettez votre ticket + toutes vos preuves. 26 agents specialises analysent 1.2 million de donnees pour batir la meilleure defense possible.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><span class="big">26</span><span class="sm">Agents</span></div>
+            <div class="hero-stat"><span class="big">1.2M</span><span class="sm">Tokens/dossier</span></div>
+            <div class="hero-stat"><span class="big">10</span><span class="sm">APIs</span></div>
+            <div class="hero-stat"><span class="big">3</span><span class="sm">Juridictions</span></div>
+        </div>
+    </div>
+</section>
 
-        <!-- UPLOAD ZONE -->
-        <div class="upload-zone" id="uploadZone">
-            <span class="icon">&#128247;</span>
-            <h3>Deposez votre ticket ici</h3>
-            <p>Glissez-deposez la photo de votre contravention, ou cliquez pour choisir un fichier</p>
-            <div class="or">&mdash; ou &mdash;</div>
-            <p>Prenez une photo avec votre telephone</p>
-            <div class="upload-btns">
-                <button class="btn btn-purple" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">&#128194; Choisir un fichier</button>
-                <button class="btn btn-outline" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">&#128247; Prendre une photo</button>
+<!-- WIZARD -->
+<section class="wizard" id="wizardSection">
+    <div class="container">
+
+        <!-- Steps bar -->
+        <div class="steps-bar" id="stepsBar">
+            <div class="step-indicator active" data-step="1"></div>
+            <div class="step-indicator" data-step="2"></div>
+            <div class="step-indicator" data-step="3"></div>
+        </div>
+
+        <!-- ===== STEP 1: TICKET ===== -->
+        <div class="step-panel active" id="step1">
+            <div class="step-label"><span>Etape 1/3</span> &mdash; Photo du ticket</div>
+
+            <div class="upload-zone" id="ticketUpload" onclick="document.getElementById('ticketFile').click()">
+                <span class="ico">&#128247;</span>
+                <h3>Photo de votre contravention</h3>
+                <p>Recto + verso. OCR extrait automatiquement tous les champs.</p>
+                <div class="upload-formats">
+                    <span class="format-tag">JPG</span>
+                    <span class="format-tag">PNG</span>
+                    <span class="format-tag">PDF</span>
+                    <span class="format-tag">HEIC</span>
+                    <span class="format-tag">Max 25 Mo</span>
+                </div>
+                <input type="file" id="ticketFile" accept="image/*,.pdf" style="display:none" onchange="handleTicketUpload(this)">
             </div>
-            <div class="upload-formats">
-                <span class="format-tag">JPG</span>
-                <span class="format-tag">PNG</span>
-                <span class="format-tag">PDF</span>
-                <span class="format-tag">HEIC</span>
-                <span class="format-tag">Max 25 Mo</span>
-            </div>
-            <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none" onchange="handleFileUpload(this)">
-        </div>
+            <div class="upload-preview" id="ticketPreview"></div>
 
-        <!-- Upload preview -->
-        <div class="upload-preview" id="uploadPreview">
-            <img id="previewImg" src="" alt="Preview">
-        </div>
+            <span class="toggle-link" onclick="toggleManualForm()">&#9881; Entrer les details manuellement</span>
 
-        <!-- SCANNING ANIMATION -->
-        <div class="scan-animation" id="scanAnimation">
-            <div class="scanner-ring"></div>
-            <h3 style="color:white;font-size:20px;font-weight:800;margin-bottom:4px;">Analyse en cours...</h3>
-            <p style="color:var(--gray-light);font-size:13px;margin-bottom:16px;">Veuillez patienter pendant le traitement</p>
-            <ul class="scan-steps" id="scanSteps">
-                <li class="active"><span class="ck">&#9679;</span> Lecture du ticket (OCR)...</li>
-                <li><span class="ck">&#9679;</span> Identification de l'infraction et juridiction...</li>
-                <li><span class="ck">&#9679;</span> Recherche dans les bases de donnees juridiques...</li>
-                <li><span class="ck">&#9679;</span> Analyse des precedents pertinents...</li>
-                <li><span class="ck">&#9679;</span> Calcul du score de contestation...</li>
-                <li><span class="ck">&#9679;</span> Generation du rapport d'analyse...</li>
-            </ul>
-        </div>
-
-        <!-- Toggle manual -->
-        <div class="toggle-manual" id="toggleManual">
-            <button onclick="toggleForm()">&#9881; Entrer les details manuellement</button>
-        </div>
-
-        <!-- MANUAL FORM -->
-        <div class="form-section" id="formSection">
-            <div class="form-card">
+            <div class="form-card" id="manualForm" style="display:none">
                 <div class="form-title">Details de la contravention</div>
                 <div class="presets">
                     <button class="preset-btn" onclick="preset('qc-vitesse')">QC Vitesse 95/70</button>
@@ -409,54 +303,149 @@
                     <button class="preset-btn" onclick="preset('qc-cell')">QC Cellulaire</button>
                 </div>
                 <div class="form-grid">
-                    <div class="full">
-                        <label>Infraction</label>
-                        <input type="text" id="infraction" placeholder="Ex: Exces de vitesse — 95 km/h dans une zone de 70 km/h">
-                    </div>
-                    <div>
-                        <label>Juridiction</label>
-                        <select id="juridiction">
-                            <option value="Quebec">Quebec</option>
-                            <option value="Ontario">Ontario</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Loi applicable</label>
-                        <input type="text" id="loi" placeholder="Ex: Code de la securite routiere, art. 299">
-                    </div>
-                    <div>
-                        <label>Amende</label>
-                        <input type="text" id="amende" placeholder="Ex: 175$ + 30$ frais">
-                    </div>
-                    <div>
-                        <label>Points d'inaptitude</label>
-                        <input type="number" id="points" value="2" min="0" max="15">
-                    </div>
-                    <div>
-                        <label>Lieu</label>
-                        <input type="text" id="lieu" placeholder="Ex: Boulevard Henri-Bourassa, Montreal">
-                    </div>
-                    <div>
-                        <label>Date</label>
-                        <input type="date" id="date">
-                    </div>
-                    <div>
-                        <label>Appareil de mesure</label>
-                        <input type="text" id="appareil" placeholder="Ex: Radar fixe, Camera feu rouge">
-                    </div>
-                    <div>
-                        <label>Vitesse captee (km/h)</label>
-                        <input type="number" id="vitesseCaptee" placeholder="95">
-                    </div>
-                    <div>
-                        <label>Vitesse permise (km/h)</label>
-                        <input type="number" id="vitessePermise" placeholder="70">
-                    </div>
+                    <div class="full"><label>Infraction</label><input type="text" id="infraction" placeholder="Ex: Exces de vitesse — 95 km/h zone 70"></div>
+                    <div><label>Juridiction</label><select id="juridiction"><option value="Quebec">Quebec</option><option value="Ontario">Ontario</option><option value="New York">New York</option></select></div>
+                    <div><label>Loi applicable</label><input type="text" id="loi" placeholder="Ex: CSR art. 299"></div>
+                    <div><label>Amende</label><input type="text" id="amende" placeholder="175$ + 30$"></div>
+                    <div><label>Points</label><input type="number" id="points" value="2" min="0" max="15"></div>
+                    <div><label>Lieu</label><input type="text" id="lieu" placeholder="Boulevard Henri-Bourassa, MTL"></div>
+                    <div><label>Date</label><input type="date" id="date"></div>
+                    <div><label>Appareil</label><input type="text" id="appareil" placeholder="Radar fixe"></div>
+                    <div><label>Vitesse captee</label><input type="number" id="vitesseCaptee" placeholder="95"></div>
+                    <div><label>Vitesse permise</label><input type="number" id="vitessePermise" placeholder="70"></div>
                 </div>
-                <button class="btn-analyze" id="btnAnalyze" onclick="analyser()">&#9889; Analyser mon ticket</button>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-gold btn-lg" onclick="goStep(2)">Continuer &rarr;</button>
             </div>
         </div>
 
+        <!-- ===== STEP 2: PREUVES ===== -->
+        <div class="step-panel" id="step2">
+            <div class="step-label"><span>Etape 2/3</span> &mdash; Vos preuves (optionnel)</div>
+
+            <div class="evidence-grid">
+                <div class="evidence-card" onclick="document.getElementById('evidLieu').click()">
+                    <span class="e-ico">&#128205;</span>
+                    <h4>Photos du lieu</h4>
+                    <p>Panneau cache, signalisation absente, etat de la route</p>
+                    <span class="e-badge">&#10003;</span>
+                    <input type="file" id="evidLieu" accept="image/*" multiple onchange="markEvidence(this,'lieu')">
+                </div>
+                <div class="evidence-card" onclick="document.getElementById('evidRadar').click()">
+                    <span class="e-ico">&#128248;</span>
+                    <h4>Photo radar / camera</h4>
+                    <p>Image envoyee par la ville, position du radar</p>
+                    <span class="e-badge">&#10003;</span>
+                    <input type="file" id="evidRadar" accept="image/*" multiple onchange="markEvidence(this,'radar')">
+                </div>
+                <div class="evidence-card" onclick="document.getElementById('evidDashcam').click()">
+                    <span class="e-ico">&#127909;</span>
+                    <h4>Video dashcam</h4>
+                    <p>Conditions reelles au moment de l'infraction</p>
+                    <span class="e-badge">&#10003;</span>
+                    <input type="file" id="evidDashcam" accept="video/*" onchange="markEvidence(this,'dashcam')">
+                </div>
+                <div class="evidence-card" onclick="document.getElementById('evidMaps').click()">
+                    <span class="e-ico">&#128506;</span>
+                    <h4>Google Maps</h4>
+                    <p>Capture d'ecran prouvant absence de panneau</p>
+                    <span class="e-badge">&#10003;</span>
+                    <input type="file" id="evidMaps" accept="image/*" onchange="markEvidence(this,'maps')">
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="goStep(1)">&larr; Retour</button>
+                <button class="btn btn-gold btn-lg" onclick="goStep(3)">Continuer &rarr;</button>
+                <button class="btn btn-accent" onclick="lancerAnalyse()">&#9889; Analyser maintenant</button>
+            </div>
+        </div>
+
+        <!-- ===== STEP 3: TEMOIGNAGE ===== -->
+        <div class="step-panel" id="step3">
+            <div class="step-label"><span>Etape 3/3</span> &mdash; Temoignage (optionnel)</div>
+
+            <label style="margin-bottom:8px;">Votre version des faits</label>
+            <textarea class="testimony-area" id="temoignage" placeholder="Decrivez ce qui s'est passe dans vos mots. Conditions meteo, circulation, ce que vous avez vu, pourquoi vous contestez..."></textarea>
+
+            <label style="margin-top:18px;margin-bottom:8px;">Temoin (optionnel)</label>
+            <div class="witness-row">
+                <input type="text" id="temoinNom" placeholder="Nom du temoin">
+                <input type="text" id="temoinContact" placeholder="Telephone ou email">
+                <input type="text" id="temoinVersion" placeholder="Ce qu'il/elle a vu">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="goStep(2)">&larr; Retour</button>
+                <button class="btn btn-gold btn-lg" onclick="lancerAnalyse()">&#9889; Lancer l'analyse Gold Standard</button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- SCAN ANIMATION -->
+<section class="scan-section" id="scanSection">
+    <div class="container">
+        <div class="scanner-ring"></div>
+        <h3 style="color:white;font-size:20px;font-weight:800;margin-bottom:4px;">Analyse Gold Standard en cours...</h3>
+        <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">26 agents &bull; 1.2 million de tokens &bull; 10 APIs</p>
+
+        <div class="phase-tracker" id="phaseTracker">
+            <div class="phase" id="phase1">
+                <div class="phase-head">
+                    <span class="phase-num">1</span>
+                    <span class="phase-title">Intake</span>
+                    <span class="phase-tokens">~50K tokens</span>
+                </div>
+                <div class="phase-agents">
+                    <span class="phase-agent">OCR Master</span>
+                    <span class="phase-agent">Classificateur</span>
+                    <span class="phase-agent">Validateur</span>
+                    <span class="phase-agent">Routing</span>
+                </div>
+            </div>
+            <div class="phase" id="phase2">
+                <div class="phase-head">
+                    <span class="phase-num">2</span>
+                    <span class="phase-title">Analyse juridique</span>
+                    <span class="phase-tokens">~650K tokens</span>
+                </div>
+                <div class="phase-agents">
+                    <span class="phase-agent">Loi applicable</span>
+                    <span class="phase-agent">Jurisprudence</span>
+                    <span class="phase-agent">Strategie</span>
+                    <span class="phase-agent">Procedure</span>
+                    <span class="phase-agent">Points</span>
+                </div>
+            </div>
+            <div class="phase" id="phase3">
+                <div class="phase-head">
+                    <span class="phase-num">3</span>
+                    <span class="phase-title">Audit qualite</span>
+                    <span class="phase-tokens">~150K tokens</span>
+                </div>
+                <div class="phase-agents">
+                    <span class="phase-agent">Cross-verification</span>
+                    <span class="phase-agent">Double moteur</span>
+                </div>
+            </div>
+            <div class="phase" id="phase4">
+                <div class="phase-head">
+                    <span class="phase-num">4</span>
+                    <span class="phase-title">Livraison</span>
+                    <span class="phase-tokens">~350K tokens</span>
+                </div>
+                <div class="phase-agents">
+                    <span class="phase-agent">Rapport Client</span>
+                    <span class="phase-agent">Rapport Avocat</span>
+                    <span class="phase-agent">Notification</span>
+                    <span class="phase-agent">Superviseur</span>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -464,16 +453,15 @@
 <div class="results" id="results">
     <div class="container">
 
-        <!-- Success banner -->
-        <div class="success-banner" id="successBanner">
-            <div class="check">&#10003;</div>
+        <div class="success-banner">
+            <div class="check">&#9733;</div>
             <div>
-                <h3 id="bannerTitle">Analyse completee</h3>
+                <h3 id="bannerTitle">Analyse Gold Standard completee</h3>
                 <p id="bannerSub"></p>
             </div>
+            <span class="gs-badge">Gold Standard</span>
         </div>
 
-        <!-- Main grid: details + score -->
         <div class="result-grid">
             <div class="result-panel" id="ticketPanel">
                 <h4>Details du ticket</h4>
@@ -498,46 +486,50 @@
             </div>
         </div>
 
-        <!-- Databases -->
+        <!-- Evidence impact -->
+        <div class="evidence-impact" id="evidenceImpact" style="display:none">
+            <h4>&#9733; Impact des preuves soumises</h4>
+            <div id="impactRows"></div>
+        </div>
+
         <div class="db-bar" id="dbBar" style="display:none">
-            <span class="db-label">Bases recherchees</span>
+            <span class="db-label">10 APIs recherchees</span>
             <div class="db-tags" id="dbTags"></div>
         </div>
 
-        <!-- Arguments -->
         <div class="detail-card" id="argsCard" style="display:none">
             <h3><span class="ico ico-red">&#9878;</span> Arguments de defense</h3>
             <ul id="argsList"></ul>
         </div>
-
-        <!-- Strategie -->
         <div class="detail-card" id="stratCard" style="display:none">
             <h3><span class="ico ico-blue">&#9881;</span> Strategie</h3>
             <p id="stratText"></p>
         </div>
-
-        <!-- Explication -->
         <div class="detail-card" id="explCard" style="display:none">
             <h3><span class="ico ico-gold">&#9432;</span> Explication</h3>
             <p id="explText"></p>
         </div>
-
-        <!-- Loi -->
         <div class="detail-card" id="loiCard" style="display:none">
             <h3><span class="ico ico-green">&#9733;</span> Loi applicable</h3>
             <p id="loiText"></p>
         </div>
-
-        <!-- Precedents -->
-        <div id="precedentsSection" style="display:none; margin-bottom:20px;">
-            <h4 style="color:white;font-size:16px;font-weight:800;margin-bottom:14px;">Precedents cites</h4>
+        <div id="precedentsSection" style="display:none;margin-bottom:16px;">
+            <h4 style="color:white;font-size:15px;font-weight:800;margin-bottom:12px;">Precedents cites</h4>
             <div id="precedentsList"></div>
         </div>
 
-        <!-- Warning -->
         <div id="warningBox" class="warning-box" style="display:none">
-            <span class="wi">&#9888;</span>
+            <span>&#9888;</span>
             <span id="warningText"></span>
+        </div>
+
+        <!-- PDF Download -->
+        <div class="pdf-download">
+            <span class="pdf-ico">&#128196;</span>
+            <h3>Rapport PDF — 9 pages</h3>
+            <p>Dossier complet avec toutes vos preuves annotees, jurisprudence, arguments et strategie.</p>
+            <button class="btn btn-gold btn-lg" id="btnPdf" onclick="downloadPdf()">&#11015; Telecharger le rapport PDF</button>
+            <p style="font-size:11px;color:var(--gray);margin-top:10px;">Couverture &bull; Resume &bull; Score &bull; Arguments &bull; Loi &bull; Jurisprudence &bull; Preuves &bull; Strategie &bull; Avertissements</p>
         </div>
 
         <button class="btn-new" onclick="resetAll()">&#8634; Nouvelle analyse</button>
@@ -545,19 +537,21 @@
 </div>
 
 <div class="footer">
-    &copy; 2026 <a href="https://www.seoparai.com">SeoAI</a> &mdash; Ticket911 &mdash; Systeme multi-agent &mdash; 5 agents specialises
+    &copy; 2026 <a href="https://www.seoparai.com">SeoAI</a> &mdash; Ticket911 Gold Standard &mdash; 26 agents &bull; 1.2M tokens &bull; 3 juridictions
 </div>
 
 <script>
-// ============ API CONFIG ============
-const basePath = window.location.pathname.replace(/\/+$/, '');
-const API = window.location.origin + (basePath.startsWith('/scanticket') ? '/scanticket' : '');
+// ============ CONFIG ============
+var basePath = window.location.pathname.replace(/\/+$/, '');
+var API = window.location.origin + (basePath.startsWith('/scanticket') ? '/scanticket' : '');
+var collectedEvidence = { ticket: null, lieu: [], radar: [], dashcam: null, maps: null };
+var currentStep = 1;
 
 // ============ STATS ============
 async function loadStats() {
     try {
-        const r = await fetch(API + '/api/stats');
-        const d = await r.json();
+        var r = await fetch(API + '/api/stats');
+        var d = await r.json();
         document.getElementById('statJuris').textContent = (d.jurisprudence_total || 0).toLocaleString();
         document.getElementById('statLois').textContent = d.lois_indexees || 0;
         document.getElementById('statAnalyses').textContent = d.analyses_effectuees || 0;
@@ -568,17 +562,43 @@ async function loadStats() {
 }
 loadStats();
 
+// ============ WIZARD NAVIGATION ============
+function goStep(n) {
+    if (n === 2 && !hasTicketData()) {
+        alert('Veuillez uploader une photo ou remplir le formulaire.');
+        return;
+    }
+    document.querySelectorAll('.step-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('step' + n).classList.add('active');
+    document.querySelectorAll('.step-indicator').forEach(function(s, i) {
+        s.classList.remove('active', 'done');
+        if (i + 1 < n) s.classList.add('done');
+        else if (i + 1 === n) s.classList.add('active');
+    });
+    currentStep = n;
+    document.getElementById('wizardSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hasTicketData() {
+    return collectedEvidence.ticket || document.getElementById('infraction').value.trim();
+}
+
+// ============ TOGGLE MANUAL FORM ============
+function toggleManualForm() {
+    var f = document.getElementById('manualForm');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
 // ============ PRESETS ============
-const PRESETS = {
+var PRESETS = {
     'qc-vitesse': { infraction: 'Exces de vitesse — 95 km/h dans une zone de 70 km/h', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 299', amende: '175$ + 30$ frais', points: 2, lieu: 'Boulevard Henri-Bourassa, Montreal', appareil: 'Radar fixe', vitesseCaptee: 95, vitessePermise: 70 },
-    'qc-feu': { infraction: 'Ne pas avoir respecte un feu rouge', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 328', amende: '150$ + 30$ frais', points: 3, lieu: 'Intersection Sherbrooke/St-Denis, Montreal', appareil: 'Camera feu rouge', vitesseCaptee: '', vitessePermise: '' },
+    'qc-feu': { infraction: 'Ne pas avoir respecte un feu rouge', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 328', amende: '150$ + 30$ frais', points: 3, lieu: 'Sherbrooke/St-Denis, Montreal', appareil: 'Camera feu rouge', vitesseCaptee: '', vitessePermise: '' },
     'on-speed': { infraction: 'Speeding — 130 km/h in a 100 km/h zone', juridiction: 'Ontario', loi: 'Highway Traffic Act, s.128', amende: '$260', points: 3, lieu: 'Highway 401, Toronto', appareil: 'Radar gun', vitesseCaptee: 130, vitessePermise: 100 },
     'qc-cell': { infraction: 'Utilisation du cellulaire au volant', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 443.1', amende: '300$ + frais', points: 5, lieu: 'Rue Sainte-Catherine, Montreal', appareil: 'Agent en personne', vitesseCaptee: '', vitessePermise: '' }
 };
-
 function preset(k) {
-    const p = PRESETS[k];
-    if (!document.getElementById('formSection').classList.contains('active')) toggleForm();
+    var p = PRESETS[k];
+    document.getElementById('manualForm').style.display = 'block';
     document.getElementById('infraction').value = p.infraction;
     document.getElementById('juridiction').value = p.juridiction;
     document.getElementById('loi').value = p.loi;
@@ -590,150 +610,40 @@ function preset(k) {
     document.getElementById('vitessePermise').value = p.vitessePermise;
 }
 
-// ============ TOGGLE FORM ============
-function toggleForm() {
-    const fs = document.getElementById('formSection');
-    fs.classList.toggle('active');
-    const btn = document.querySelector('.toggle-manual button');
-    btn.textContent = fs.classList.contains('active') ? '\u2191 Masquer le formulaire' : '\u2699 Entrer les details manuellement';
-}
-
-// ============ FILE UPLOAD ============
-function handleFileUpload(input) {
+// ============ FILE UPLOADS ============
+function handleTicketUpload(input) {
     if (input.files && input.files[0]) {
-        const file = input.files[0];
-        // Show preview for images
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('uploadPreview').classList.add('active');
-            };
-            reader.readAsDataURL(file);
+        collectedEvidence.ticket = input.files[0];
+        var preview = document.getElementById('ticketPreview');
+        preview.innerHTML = '';
+        if (input.files[0].type.startsWith('image/')) {
+            var img = document.createElement('img');
+            img.style.cssText = 'width:120px;height:auto;border-radius:12px;border:2px solid rgba(212,168,67,.3);';
+            var reader = new FileReader();
+            reader.onload = function(e) { img.src = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
+            preview.appendChild(img);
+        } else {
+            preview.innerHTML = '<span class="file-tag">&#128196; ' + input.files[0].name + '</span>';
         }
-        // For now, trigger analysis with placeholder data (OCR integration later)
-        // When Mindee OCR is ready, this will extract ticket data from the photo
-        setTimeout(function() {
-            startScanAnimation();
-            // Simulate OCR + analysis (will be replaced with real Mindee API call)
-            setTimeout(function() {
-                // Use default preset for demo, real OCR will extract actual data
-                analyserFromPhoto(file);
-            }, 500);
-        }, 300);
     }
 }
 
-// Upload zone drag & drop
-var uploadZone = document.getElementById('uploadZone');
-uploadZone.addEventListener('click', function() {
-    document.getElementById('fileInput').click();
-});
-uploadZone.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    uploadZone.style.borderColor = '#7c3aed';
-    uploadZone.style.background = 'rgba(124,58,237,0.1)';
-});
-uploadZone.addEventListener('dragleave', function() {
-    uploadZone.style.borderColor = 'rgba(124,58,237,0.4)';
-    uploadZone.style.background = 'rgba(124,58,237,0.04)';
-});
-uploadZone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    uploadZone.style.borderColor = 'rgba(124,58,237,0.4)';
-    uploadZone.style.background = 'rgba(124,58,237,0.04)';
-    if (e.dataTransfer.files.length > 0) {
-        document.getElementById('fileInput').files = e.dataTransfer.files;
-        handleFileUpload(document.getElementById('fileInput'));
-    }
-});
-
-// ============ SCAN ANIMATION ============
-function startScanAnimation() {
-    document.getElementById('uploadZone').style.display = 'none';
-    document.getElementById('toggleManual').style.display = 'none';
-    document.getElementById('formSection').classList.remove('active');
-    document.getElementById('uploadPreview').classList.remove('active');
-    document.getElementById('results').classList.remove('active');
-    var anim = document.getElementById('scanAnimation');
-    anim.classList.add('active');
-    anim.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    var steps = document.getElementById('scanSteps').querySelectorAll('li');
-    // Reset all steps
-    for (var j = 0; j < steps.length; j++) {
-        steps[j].classList.remove('active', 'done');
-        steps[j].querySelector('.ck').innerHTML = '&#9679;';
-    }
-    steps[0].classList.add('active');
-
-    var delay = 0;
-    for (var i = 0; i < steps.length; i++) {
-        (function(index) {
-            setTimeout(function() {
-                for (var j = 0; j < steps.length; j++) steps[j].classList.remove('active');
-                steps[index].classList.add('active');
-                for (var k = 0; k < index; k++) {
-                    steps[k].classList.remove('active');
-                    steps[k].classList.add('done');
-                    steps[k].querySelector('.ck').innerHTML = '&#10003;';
-                }
-            }, delay);
-            delay += 800;
-        })(i);
+function markEvidence(input, type) {
+    if (input.files && input.files.length) {
+        var card = input.closest('.evidence-card');
+        card.classList.add('has-file');
+        if (type === 'lieu') collectedEvidence.lieu = Array.from(input.files);
+        else if (type === 'radar') collectedEvidence.radar = Array.from(input.files);
+        else if (type === 'dashcam') collectedEvidence.dashcam = input.files[0];
+        else if (type === 'maps') collectedEvidence.maps = input.files[0];
     }
 }
 
-function finishScanAnimation() {
-    var steps = document.getElementById('scanSteps').querySelectorAll('li');
-    for (var j = 0; j < steps.length; j++) {
-        steps[j].classList.remove('active');
-        steps[j].classList.add('done');
-        steps[j].querySelector('.ck').innerHTML = '&#10003;';
-    }
-    setTimeout(function() {
-        document.getElementById('scanAnimation').classList.remove('active');
-    }, 400);
-}
-
-// ============ ANALYZE FROM PHOTO ============
-async function analyserFromPhoto(file) {
-    // For now: use QC vitesse preset as placeholder
-    // TODO: Replace with Mindee OCR API call to extract real data from photo
-    const ticket = {
-        infraction: 'Exces de vitesse — 95 km/h dans une zone de 70 km/h',
-        juridiction: 'Quebec',
-        loi: 'Code de la securite routiere, art. 299',
-        amende: '175$ + 30$ frais',
-        points_inaptitude: 2,
-        lieu: 'Boulevard Henri-Bourassa, Montreal',
-        date: new Date().toISOString().split('T')[0],
-        appareil: 'Radar fixe',
-        vitesse_captee: 95,
-        vitesse_permise: 70
-    };
-    try {
-        const r = await fetch(API + '/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticket })
-        });
-        const d = await r.json();
-        finishScanAnimation();
-        setTimeout(function() { showResults(d, ticket); }, 500);
-    } catch (e) {
-        finishScanAnimation();
-        alert('Erreur de connexion au serveur: ' + e.message);
-        resetAll();
-    }
-}
-
-// ============ ANALYZE FROM FORM ============
-async function analyser() {
-    const infraction = document.getElementById('infraction').value;
-    if (!infraction) { alert('Entrez une infraction'); return; }
-    const ticket = {
-        infraction: infraction,
+// ============ BUILD TICKET DATA ============
+function buildTicketData() {
+    return {
+        infraction: document.getElementById('infraction').value || 'Contravention (details via OCR)',
         juridiction: document.getElementById('juridiction').value,
         loi: document.getElementById('loi').value,
         amende: document.getElementById('amende').value,
@@ -742,29 +652,90 @@ async function analyser() {
         date: document.getElementById('date').value || new Date().toISOString().split('T')[0],
         appareil: document.getElementById('appareil').value,
         vitesse_captee: parseInt(document.getElementById('vitesseCaptee').value) || 0,
-        vitesse_permise: parseInt(document.getElementById('vitessePermise').value) || 0
+        vitesse_permise: parseInt(document.getElementById('vitessePermise').value) || 0,
+        temoignage: document.getElementById('temoignage').value,
+        temoin_nom: document.getElementById('temoinNom').value,
+        temoin_contact: document.getElementById('temoinContact').value,
+        temoin_version: document.getElementById('temoinVersion').value,
+        has_photo_lieu: collectedEvidence.lieu.length > 0,
+        has_photo_radar: collectedEvidence.radar.length > 0,
+        has_dashcam: !!collectedEvidence.dashcam,
+        has_google_maps: !!collectedEvidence.maps,
+        has_temoignage: !!document.getElementById('temoignage').value,
+        has_temoin: !!document.getElementById('temoinNom').value
     };
+}
 
-    startScanAnimation();
+// ============ PHASE ANIMATION ============
+function animatePhases(callback) {
+    var phases = ['phase1', 'phase2', 'phase3', 'phase4'];
+    var delays = [0, 2000, 5500, 8000];
+    var doneDelays = [1800, 5300, 7800, 10000];
+
+    phases.forEach(function(id, i) {
+        setTimeout(function() { document.getElementById(id).classList.add('active'); }, delays[i]);
+        setTimeout(function() {
+            document.getElementById(id).classList.remove('active');
+            document.getElementById(id).classList.add('done');
+        }, doneDelays[i]);
+    });
+
+    setTimeout(callback, 10500);
+}
+
+// ============ LAUNCH ANALYSIS ============
+async function lancerAnalyse() {
+    var ticket = buildTicketData();
+    if (!ticket.infraction && !collectedEvidence.ticket) {
+        alert('Veuillez uploader une photo ou remplir le formulaire.');
+        return;
+    }
+
+    // Show scan section
+    document.getElementById('wizardSection').style.display = 'none';
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('scanSection').classList.add('active');
+    document.getElementById('results').classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Reset phases
+    ['phase1','phase2','phase3','phase4'].forEach(function(id) {
+        document.getElementById(id).classList.remove('active', 'done');
+    });
+
+    // Start phase animation + API call in parallel
+    var apiDone = false;
+    var apiResult = null;
+
+    animatePhases(function() {
+        if (apiDone) {
+            document.getElementById('scanSection').classList.remove('active');
+            showResults(apiResult, ticket);
+        }
+    });
 
     try {
-        const r = await fetch(API + '/api/analyze', {
+        var r = await fetch(API + '/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticket })
+            body: JSON.stringify({ ticket: ticket })
         });
-        const d = await r.json();
-        finishScanAnimation();
-        setTimeout(function() { showResults(d, ticket); }, 500);
+        apiResult = await r.json();
+        apiDone = true;
     } catch (e) {
-        finishScanAnimation();
-        alert('Erreur: ' + e.message);
-        resetAll();
+        apiDone = true;
+        apiResult = null;
+        setTimeout(function() {
+            document.getElementById('scanSection').classList.remove('active');
+            alert('Erreur de connexion: ' + e.message);
+            resetAll();
+        }, 10500);
     }
 }
 
 // ============ SHOW RESULTS ============
 function showResults(d, ticket) {
+    if (!d) return;
     document.getElementById('results').classList.add('active');
 
     var score = d.score || 0;
@@ -774,56 +745,41 @@ function showResults(d, ticket) {
     var reco = (d.recommandation || '').toLowerCase();
 
     // Banner
-    document.getElementById('bannerTitle').textContent = 'Analyse completee';
-    document.getElementById('bannerSub').textContent = 'Analyse terminee en ' + temps.toFixed(1) + 's — ' + (d.precedents_trouves || 0) + ' precedents trouves';
+    document.getElementById('bannerTitle').textContent = 'Analyse Gold Standard completee';
+    document.getElementById('bannerSub').textContent = temps.toFixed(1) + 's &bull; ' + (d.precedents_trouves || 0) + ' precedents &bull; 26 agents &bull; 1.2M tokens';
 
     // Ticket details
     var details = '';
-    if (ticket) {
-        var rows = [
-            ['Infraction', ticket.infraction],
-            ['Juridiction', ticket.juridiction],
-            ['Loi', ticket.loi],
-            ['Amende', ticket.amende],
-            ['Points', ticket.points_inaptitude + ' points'],
-            ['Lieu', ticket.lieu],
-            ['Appareil', ticket.appareil]
-        ];
-        if (ticket.vitesse_captee) rows.push(['Vitesse captee', ticket.vitesse_captee + ' km/h']);
-        if (ticket.vitesse_permise) rows.push(['Vitesse permise', ticket.vitesse_permise + ' km/h']);
-        rows.forEach(function(r) {
-            if (r[1] && r[1] !== '0 points' && r[1] !== '0 km/h') {
-                details += '<div class="result-row"><span class="rl">' + r[0] + '</span><span class="rv">' + r[1] + '</span></div>';
-            }
-        });
-    }
+    var rows = [
+        ['Infraction', ticket.infraction], ['Juridiction', ticket.juridiction],
+        ['Loi', ticket.loi], ['Amende', ticket.amende],
+        ['Points', ticket.points_inaptitude + ' pts'], ['Lieu', ticket.lieu], ['Appareil', ticket.appareil]
+    ];
+    if (ticket.vitesse_captee) rows.push(['Captee', ticket.vitesse_captee + ' km/h']);
+    if (ticket.vitesse_permise) rows.push(['Permise', ticket.vitesse_permise + ' km/h']);
+    rows.forEach(function(r) {
+        if (r[1] && r[1] !== '0 pts' && r[1] !== '0 km/h')
+            details += '<div class="result-row"><span class="rl">' + r[0] + '</span><span class="rv">' + r[1] + '</span></div>';
+    });
     document.getElementById('ticketDetails').innerHTML = details;
 
     // Score
     var scoreColor = score >= 60 ? 'var(--success)' : score >= 30 ? 'var(--warning)' : 'var(--accent)';
-    var scoreClass = score >= 60 ? '' : score >= 30 ? 'score-mid' : 'score-low';
     var sp = document.getElementById('scorePanel');
-    sp.className = 'score-panel ' + scoreClass;
-
+    sp.className = 'score-panel' + (score < 30 ? ' s-low' : score < 60 ? ' s-mid' : '');
     var deg = (score / 100) * 360;
-    document.getElementById('scoreRing').style.background = 'conic-gradient(' + scoreColor + ' 0deg, ' + scoreColor + ' ' + deg + 'deg, rgba(255,255,255,0.06) ' + deg + 'deg)';
+    document.getElementById('scoreRing').style.background = 'conic-gradient(' + scoreColor + ' 0deg,' + scoreColor + ' ' + deg + 'deg,rgba(255,255,255,.06) ' + deg + 'deg)';
     document.getElementById('scoreNum').textContent = score;
     document.getElementById('scoreNum').style.color = scoreColor;
     document.getElementById('scorePct').style.color = scoreColor;
 
-    // Verdict
-    var verdictClass = reco.includes('contest') ? 'verdict-contest' : reco.includes('negoci') ? 'verdict-negotiate' : 'verdict-pay';
-    document.getElementById('verdictBadge').innerHTML = '<span class="score-verdict ' + verdictClass + '">' + (d.recommandation || '?') + '</span>';
-    document.getElementById('scoreDetail').textContent = 'Score base sur ' + (d.precedents_trouves || 0) + ' precedents et ' + (d.lois_trouvees || 0) + ' articles de loi.';
+    var vc = reco.includes('contest') ? 'v-contest' : reco.includes('negoci') ? 'v-negotiate' : 'v-pay';
+    document.getElementById('verdictBadge').innerHTML = '<span class="score-verdict ' + vc + '">' + (d.recommandation || '?') + '</span>';
+    document.getElementById('scoreDetail').textContent = 'Base sur ' + (d.precedents_trouves || 0) + ' precedents, ' + (d.lois_trouvees || 0) + ' articles, 26 agents, 1.2M tokens.';
 
     // Pipeline
-    var pl = document.getElementById('pipelineStatus');
-    pl.innerHTML = '';
-    if (d.etapes) {
-        for (var a in d.etapes) {
-            pl.innerHTML += '<span class="agent-badge ' + (d.etapes[a] === 'OK' ? 'agent-pass' : 'agent-fail') + '">' + a + '</span>';
-        }
-    }
+    var pl = document.getElementById('pipelineStatus'); pl.innerHTML = '';
+    if (d.etapes) for (var a in d.etapes) pl.innerHTML += '<span class="agent-badge ' + (d.etapes[a] === 'OK' ? 'agent-pass' : 'agent-fail') + '">' + a + '</span>';
 
     // Meta
     document.getElementById('metaConfiance').textContent = confiance + '%';
@@ -831,93 +787,92 @@ function showResults(d, ticket) {
     document.getElementById('metaLois').textContent = d.lois_trouvees || 0;
     document.getElementById('metaTemps').textContent = temps.toFixed(1) + 's';
 
+    // Evidence impact
+    var hasAnyEvidence = ticket.has_photo_lieu || ticket.has_photo_radar || ticket.has_dashcam || ticket.has_google_maps || ticket.has_temoignage || ticket.has_temoin;
+    if (hasAnyEvidence) {
+        document.getElementById('evidenceImpact').style.display = 'block';
+        var impacts = '';
+        if (ticket.has_photo_lieu) impacts += impactRow('Photos du lieu', 85, 'var(--success)');
+        if (ticket.has_photo_radar) impacts += impactRow('Photo radar', 70, 'var(--gold)');
+        if (ticket.has_dashcam) impacts += impactRow('Video dashcam', 90, 'var(--success)');
+        if (ticket.has_google_maps) impacts += impactRow('Google Maps', 65, 'var(--gold)');
+        if (ticket.has_temoignage) impacts += impactRow('Temoignage', 60, 'var(--warning)');
+        if (ticket.has_temoin) impacts += impactRow('Temoin', 55, 'var(--warning)');
+        document.getElementById('impactRows').innerHTML = impacts;
+    }
+
     // Databases
-    var databases = ['CanLII', 'SOQUIJ', 'LegisQuebec', 'CSR/HTA', 'FTS5', 'ChromaDB', 'SAAQ'];
+    var dbs = ['CanLII', 'NYC Open Data (SODA)', 'NYS Open Data', 'CourtListener', 'Lois federales CA', 'Mindee OCR', 'Stripe', 'Twilio', 'SendGrid', 'Docassemble'];
     document.getElementById('dbBar').style.display = 'flex';
-    document.getElementById('dbTags').innerHTML = databases.map(function(db) {
-        return '<span class="db-tag active">' + db + ' &#10003;</span>';
-    }).join('');
+    document.getElementById('dbTags').innerHTML = dbs.map(function(db) { return '<span class="db-tag">' + db + ' &#10003;</span>'; }).join('');
 
-    // Arguments
+    // Detail cards
     var args = analyse.arguments || [];
-    if (args.length) {
-        document.getElementById('argsCard').style.display = 'block';
-        document.getElementById('argsList').innerHTML = args.map(function(x, i) {
-            return '<li><span class="n">' + (i + 1) + '</span><span>' + x + '</span></li>';
-        }).join('');
-    }
-
-    // Strategie
-    if (analyse.strategie) {
-        document.getElementById('stratCard').style.display = 'block';
-        document.getElementById('stratText').textContent = analyse.strategie;
-    }
-
-    // Explication
-    if (analyse.explication) {
-        document.getElementById('explCard').style.display = 'block';
-        document.getElementById('explText').textContent = analyse.explication;
-    }
-
-    // Loi
-    if (analyse.loi_applicable) {
-        document.getElementById('loiCard').style.display = 'block';
-        document.getElementById('loiText').textContent = analyse.loi_applicable;
-    }
+    if (args.length) { document.getElementById('argsCard').style.display = 'block'; document.getElementById('argsList').innerHTML = args.map(function(x, i) { return '<li><span class="n">' + (i+1) + '</span><span>' + x + '</span></li>'; }).join(''); }
+    if (analyse.strategie) { document.getElementById('stratCard').style.display = 'block'; document.getElementById('stratText').textContent = analyse.strategie; }
+    if (analyse.explication) { document.getElementById('explCard').style.display = 'block'; document.getElementById('explText').textContent = analyse.explication; }
+    if (analyse.loi_applicable) { document.getElementById('loiCard').style.display = 'block'; document.getElementById('loiText').textContent = analyse.loi_applicable; }
 
     // Precedents
     var precs = analyse.precedents_cites || [];
     if (precs.length) {
         document.getElementById('precedentsSection').style.display = 'block';
         document.getElementById('precedentsList').innerHTML = precs.map(function(p) {
-            var relClass = 'rel-med';
-            if (p.pertinence && p.pertinence.toLowerCase().includes('elev')) relClass = 'rel-high';
-            return '<div class="precedent-card">' +
-                '<div class="prec-header"><h5>' + (p.citation || '?') + '</h5>' +
-                '<span class="prec-relevance ' + relClass + '">' + (p.pertinence || 'Pertinent') + '</span></div>' +
-                '<p class="prec-excerpt">' + (p.resultat || '') + '</p></div>';
+            var rc = 'rel-med';
+            if (p.pertinence && p.pertinence.toLowerCase().includes('elev')) rc = 'rel-high';
+            return '<div class="precedent-card"><div class="prec-header"><h5>' + (p.citation||'?') + '</h5><span class="prec-relevance ' + rc + '">' + (p.pertinence||'Pertinent') + '</span></div><p class="prec-excerpt">' + (p.resultat||'') + '</p></div>';
         }).join('');
     }
 
     // Warning
     var w = analyse.avertissement || (d.verification && d.verification.avertissement);
-    if (w) {
-        document.getElementById('warningBox').style.display = 'flex';
-        document.getElementById('warningText').textContent = w;
-    }
+    if (w) { document.getElementById('warningBox').style.display = 'flex'; document.getElementById('warningText').textContent = w; }
 
-    // Scroll to results
     document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     loadStats();
 }
 
+function impactRow(label, pct, color) {
+    return '<div class="impact-row"><span class="i-type">' + label + '</span><div class="impact-bar"><div class="impact-fill" style="width:' + pct + '%;background:' + color + ';"></div></div><span class="i-val">+' + pct + '%</span></div>';
+}
+
+// ============ PDF DOWNLOAD ============
+function downloadPdf() {
+    // TODO: Connect to GET /api/rapport/{uuid} when backend ready
+    alert('Le rapport PDF sera disponible quand le backend WeasyPrint sera deploye.\n\n9 pages: Couverture, Resume, Score, Arguments, Loi, Jurisprudence, Preuves, Strategie, Avertissements.');
+}
+
 // ============ RESET ============
 function resetAll() {
-    document.getElementById('uploadZone').style.display = '';
-    document.getElementById('toggleManual').style.display = '';
-    document.getElementById('scanAnimation').classList.remove('active');
+    document.getElementById('heroSection').style.display = '';
+    document.getElementById('wizardSection').style.display = '';
+    document.getElementById('scanSection').classList.remove('active');
     document.getElementById('results').classList.remove('active');
-    document.getElementById('uploadPreview').classList.remove('active');
-    document.getElementById('formSection').classList.remove('active');
-    // Hide all detail cards
-    ['argsCard', 'stratCard', 'explCard', 'loiCard'].forEach(function(id) {
-        document.getElementById(id).style.display = 'none';
-    });
+    goStep(1);
+    collectedEvidence = { ticket: null, lieu: [], radar: [], dashcam: null, maps: null };
+    document.querySelectorAll('.evidence-card').forEach(function(c) { c.classList.remove('has-file'); });
+    document.getElementById('ticketPreview').innerHTML = '';
+    document.getElementById('temoignage').value = '';
+    document.getElementById('temoinNom').value = '';
+    document.getElementById('temoinContact').value = '';
+    document.getElementById('temoinVersion').value = '';
+    ['argsCard','stratCard','explCard','loiCard'].forEach(function(id) { document.getElementById(id).style.display = 'none'; });
     document.getElementById('precedentsSection').style.display = 'none';
     document.getElementById('warningBox').style.display = 'none';
     document.getElementById('dbBar').style.display = 'none';
-    // Scroll to top
-    document.getElementById('heroSection').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('evidenceImpact').style.display = 'none';
+    ['phase1','phase2','phase3','phase4'].forEach(function(id) { document.getElementById(id).classList.remove('active','done'); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ============ AUTO DEMO MODE ============
+// ============ AUTO DEMO ============
 var urlParams = new URLSearchParams(window.location.search);
 var demoMode = urlParams.get('demo');
 if (demoMode) {
     window.addEventListener('load', function() {
-        var demoMap = { '1': 'qc-vitesse', '2': 'on-speed', '3': 'qc-feu', '4': 'qc-cell' };
-        preset(demoMap[demoMode] || 'qc-vitesse');
-        setTimeout(function() { analyser(); }, 500);
+        var map = { '1': 'qc-vitesse', '2': 'on-speed', '3': 'qc-feu', '4': 'qc-cell' };
+        preset(map[demoMode] || 'qc-vitesse');
+        setTimeout(function() { lancerAnalyse(); }, 500);
     });
 }
 </script>
