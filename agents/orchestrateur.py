@@ -19,16 +19,26 @@ from agents.agent_classificateur import AgentClassificateur
 from agents.agent_validateur import AgentValidateur
 from agents.agent_routing import AgentRouting
 
-# Phase 2: Analyse — Agents partages (QC/ON)
+# Phase 2: Analyse — Lecteur (partage)
 from agents.agent_lecteur import AgentLecteur
-from agents.agent_lois import AgentLois
-from agents.agent_precedents import AgentPrecedents
-from agents.agent_analyste import AgentAnalyste
-from agents.agent_verificateur import AgentVerificateur
-from agents.agent_procedure import AgentProcedure
-from agents.agent_points import AgentPoints
 
-# Phase 2: Analyse — Agents NY specifiques
+# Phase 2: Agents QC specifiques
+from agents.agent_lois_qc import AgentLoisQC
+from agents.agent_precedents_qc import AgentPrecedentsQC
+from agents.agent_analyste_qc import AgentAnalysteQC
+from agents.agent_procedure_qc import AgentProcedureQC
+from agents.agent_points_qc import AgentPointsQC
+from agents.agent_verificateur_qc import AgentVerificateurQC
+
+# Phase 2: Agents ON specifiques
+from agents.agent_lois_on import AgentLoisON
+from agents.agent_precedents_on import AgentPrecedentsON
+from agents.agent_analyste_on import AgentAnalysteON
+from agents.agent_procedure_on import AgentProcedureON
+from agents.agent_points_on import AgentPointsON
+from agents.agent_verificateur_on import AgentVerificateurON
+
+# Phase 2: Agents NY specifiques
 from agents.agent_lois_ny import AgentLoisNY
 from agents.agent_precedents_ny import AgentPrecedentsNY
 from agents.agent_analyste_ny import AgentAnalysteNY
@@ -58,14 +68,22 @@ class Orchestrateur(BaseAgent):
         self.validateur = AgentValidateur()
         self.routing = AgentRouting()
 
-        # Phase 2: QC/ON
+        # Phase 2: QC
         self.lecteur = AgentLecteur()
-        self.lois = AgentLois()
-        self.precedents = AgentPrecedents()
-        self.analyste = AgentAnalyste()
-        self.verificateur = AgentVerificateur()
-        self.procedure = AgentProcedure()
-        self.points = AgentPoints()
+        self.lois_qc = AgentLoisQC()
+        self.precedents_qc = AgentPrecedentsQC()
+        self.analyste_qc = AgentAnalysteQC()
+        self.verificateur_qc = AgentVerificateurQC()
+        self.procedure_qc = AgentProcedureQC()
+        self.points_qc = AgentPointsQC()
+
+        # Phase 2: ON
+        self.lois_on = AgentLoisON()
+        self.precedents_on = AgentPrecedentsON()
+        self.analyste_on = AgentAnalysteON()
+        self.verificateur_on = AgentVerificateurON()
+        self.procedure_on = AgentProcedureON()
+        self.points_on = AgentPointsON()
 
         # Phase 2: NY
         self.lois_ny = AgentLoisNY()
@@ -218,95 +236,75 @@ class Orchestrateur(BaseAgent):
         procedure_result = {}
         points_result = {}
 
+        # Selectionner les agents selon la juridiction
         if team == "team_ny":
-            # ── Pipeline NY ──
-            try:
-                lois_trouvees = self.lois_ny.chercher_loi(ticket)
-                rapport["phases"]["analyse"]["lois"] = {"status": "OK", "nb": len(lois_trouvees)}
-            except Exception as e:
-                rapport["phases"]["analyse"]["lois"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Lois NY: {e}")
-
-            try:
-                precedents_trouves = self.precedents_ny.chercher_precedents(ticket, lois_trouvees)
-                rapport["phases"]["analyse"]["precedents"] = {"status": "OK", "nb": len(precedents_trouves)}
-            except Exception as e:
-                rapport["phases"]["analyse"]["precedents"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Precedents NY: {e}")
-
-            try:
-                analyse = self.analyste_ny.analyser(ticket, lois_trouvees, precedents_trouves)
-                rapport["phases"]["analyse"]["analyste"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["analyste"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Analyste NY: {e}")
-
-            try:
-                verification = self.verificateur_ny.verifier(analyse, precedents_trouves, ticket)
-                rapport["phases"]["analyse"]["verificateur"] = {"status": "OK"}
-            except Exception as e:
-                verification = {"confiance_globale": 0}
-                rapport["phases"]["analyse"]["verificateur"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Verificateur NY: {e}")
-
-            try:
-                procedure_result = self.procedure_ny.determiner_procedure(ticket)
-                rapport["phases"]["analyse"]["procedure"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["procedure"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Procedure NY: {e}")
-
-            try:
-                points_result = self.points_ny.calculer(ticket, analyse)
-                rapport["phases"]["analyse"]["points"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["points"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Points NY: {e}")
-
+            ag_lois = self.lois_ny
+            ag_prec = self.precedents_ny
+            ag_anal = self.analyste_ny
+            ag_verif = self.verificateur_ny
+            ag_proc = self.procedure_ny
+            ag_pts = self.points_ny
+            tag = "NY"
+        elif team == "team_on":
+            ag_lois = self.lois_on
+            ag_prec = self.precedents_on
+            ag_anal = self.analyste_on
+            ag_verif = self.verificateur_on
+            ag_proc = self.procedure_on
+            ag_pts = self.points_on
+            tag = "ON"
         else:
-            # ── Pipeline QC/ON (partage) ──
-            try:
-                lois_trouvees = self.lois.chercher_loi(ticket)
-                rapport["phases"]["analyse"]["lois"] = {"status": "OK", "nb": len(lois_trouvees)}
-            except Exception as e:
-                rapport["phases"]["analyse"]["lois"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Lois: {e}")
+            ag_lois = self.lois_qc
+            ag_prec = self.precedents_qc
+            ag_anal = self.analyste_qc
+            ag_verif = self.verificateur_qc
+            ag_proc = self.procedure_qc
+            ag_pts = self.points_qc
+            tag = "QC"
 
-            try:
-                precedents_trouves = self.precedents.chercher_precedents(ticket, lois_trouvees)
-                rapport["phases"]["analyse"]["precedents"] = {"status": "OK", "nb": len(precedents_trouves)}
-            except Exception as e:
-                rapport["phases"]["analyse"]["precedents"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Precedents: {e}")
+        # ── Pipeline juridiction-specifique ──
+        try:
+            lois_trouvees = ag_lois.chercher_loi(ticket)
+            rapport["phases"]["analyse"]["lois"] = {"status": "OK", "nb": len(lois_trouvees)}
+        except Exception as e:
+            rapport["phases"]["analyse"]["lois"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Lois {tag}: {e}")
 
-            try:
-                analyse = self.analyste.analyser(ticket, lois_trouvees, precedents_trouves)
-                rapport["phases"]["analyse"]["analyste"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["analyste"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Analyste: {e}")
+        try:
+            precedents_trouves = ag_prec.chercher_precedents(ticket, lois_trouvees)
+            rapport["phases"]["analyse"]["precedents"] = {"status": "OK", "nb": len(precedents_trouves)}
+        except Exception as e:
+            rapport["phases"]["analyse"]["precedents"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Precedents {tag}: {e}")
 
-            try:
-                verification = self.verificateur.verifier(analyse, precedents_trouves)
-                rapport["phases"]["analyse"]["verificateur"] = {"status": "OK"}
-            except Exception as e:
-                verification = {"confiance_globale": 0}
-                rapport["phases"]["analyse"]["verificateur"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Verificateur: {e}")
+        try:
+            analyse = ag_anal.analyser(ticket, lois_trouvees, precedents_trouves)
+            rapport["phases"]["analyse"]["analyste"] = {"status": "OK"}
+        except Exception as e:
+            rapport["phases"]["analyse"]["analyste"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Analyste {tag}: {e}")
 
-            try:
-                procedure_result = self.procedure.determiner_procedure(ticket)
-                rapport["phases"]["analyse"]["procedure"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["procedure"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Procedure: {e}")
+        try:
+            verification = ag_verif.verifier(analyse, precedents_trouves, ticket)
+            rapport["phases"]["analyse"]["verificateur"] = {"status": "OK"}
+        except Exception as e:
+            verification = {"confiance_globale": 0}
+            rapport["phases"]["analyse"]["verificateur"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Verificateur {tag}: {e}")
 
-            try:
-                points_result = self.points.calculer(ticket, analyse)
-                rapport["phases"]["analyse"]["points"] = {"status": "OK"}
-            except Exception as e:
-                rapport["phases"]["analyse"]["points"] = {"status": "FAIL", "error": str(e)}
-                rapport["erreurs"].append(f"Points: {e}")
+        try:
+            procedure_result = ag_proc.determiner_procedure(ticket)
+            rapport["phases"]["analyse"]["procedure"] = {"status": "OK"}
+        except Exception as e:
+            rapport["phases"]["analyse"]["procedure"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Procedure {tag}: {e}")
+
+        try:
+            points_result = ag_pts.calculer(ticket, analyse)
+            rapport["phases"]["analyse"]["points"] = {"status": "OK"}
+        except Exception as e:
+            rapport["phases"]["analyse"]["points"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Points {tag}: {e}")
 
         # ═══════════════════════════════════════════════════════
         # PHASE 3: AUDIT QUALITE (~150K tokens)
