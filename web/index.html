@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket911 — Analyse de Contraventions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Ticket911 — Scan & Analyse de Contraventions</title>
+    <meta name="description" content="Uploadez votre contravention et obtenez une analyse instantanee. Notre systeme recherche 7 bases de donnees juridiques et vous donne vos chances en 30 secondes.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1e3a5f;
@@ -16,12 +17,14 @@
             --gold-light: #f0d060;
             --success: #22c55e;
             --warning: #f59e0b;
-            --dark: #0f172a;
-            --dark-2: #1e293b;
+            --purple: #7c3aed;
+            --purple-light: #a78bfa;
+            --dark: #0a0e27;
+            --dark-2: #0f172a;
+            --dark-3: #1e293b;
             --gray: #64748b;
             --gray-light: #94a3b8;
             --gray-lighter: #e2e8f0;
-            --gray-bg: #f8fafc;
             --white: #ffffff;
             --radius: 12px;
             --radius-sm: 8px;
@@ -33,8 +36,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            color: var(--dark);
-            background: var(--white);
+            color: #e2e8f0;
+            background: var(--dark);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
         }
@@ -43,189 +46,287 @@
 
         /* ============ HEADER ============ */
         .header {
-            background: var(--white);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            background: rgba(10,14,39,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             position: sticky; top: 0; z-index: 1000;
         }
         .header .container {
-            display: flex; justify-content: space-between; align-items: center; padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center; padding: 14px 24px;
         }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 900; color: var(--primary); }
-        .logo span { color: var(--accent); }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 900; color: white; }
+        .logo .t9 { color: var(--accent); }
+        .logo .by { font-size: 11px; font-weight: 500; color: var(--gray); margin-left: 8px; opacity: 0.7; }
         .header-stats { display: flex; gap: 20px; align-items: center; }
         .header-stat { text-align: center; }
-        .header-stat .num { font-size: 16px; font-weight: 800; color: var(--primary); display: block; }
+        .header-stat .num { font-size: 16px; font-weight: 800; color: var(--purple-light); display: block; }
         .header-stat .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 
         /* ============ HERO ============ */
         .hero {
-            background: linear-gradient(160deg, var(--dark) 0%, var(--primary-dark) 50%, var(--primary) 100%);
-            color: white; padding: 50px 0 60px; position: relative; overflow: hidden;
+            background: linear-gradient(160deg, var(--dark) 0%, var(--dark-2) 40%, #141b3d 70%, var(--primary-dark) 100%);
+            padding: 50px 0 70px; position: relative; overflow: hidden; text-align: center;
         }
         .hero::before {
-            content: ''; position: absolute; top: -50%; right: -20%;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(230,57,70,0.12), transparent 70%);
-            border-radius: 50%;
+            content: ''; position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(124,58,237,0.12), transparent 60%);
+            border-radius: 50%; pointer-events: none;
         }
-        .hero .container { position: relative; z-index: 1; text-align: center; }
+        .hero::after {
+            content: ''; position: absolute; bottom: -50%; right: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(230,57,70,0.08), transparent 60%);
+            border-radius: 50%; pointer-events: none;
+        }
+        .hero .container { position: relative; z-index: 1; }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);
+            background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
             border-radius: 50px; padding: 6px 18px; font-size: 12px;
-            color: var(--gold-light); font-weight: 600; text-transform: uppercase;
+            color: var(--purple-light); font-weight: 600; text-transform: uppercase;
             letter-spacing: 1px; margin-bottom: 16px;
         }
-        .hero h1 { font-size: 36px; font-weight: 900; margin-bottom: 10px; }
-        .hero h1 em { color: var(--accent); font-style: normal; }
-        .hero p { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 560px; margin: 0 auto; }
+        .hero h1 { font-size: 40px; font-weight: 900; color: white; margin-bottom: 12px; line-height: 1.15; }
+        .hero h1 span { background: linear-gradient(135deg, #a78bfa, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p.sub { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 580px; margin: 0 auto 36px; }
 
-        /* ============ FORM ============ */
-        .form-section { padding: 40px 0 20px; }
+        /* ============ UPLOAD ZONE ============ */
+        .upload-zone {
+            max-width: 680px; margin: 0 auto;
+            border: 3px dashed rgba(124,58,237,0.4); border-radius: 24px;
+            padding: 50px 40px; text-align: center; cursor: pointer;
+            transition: var(--transition); background: rgba(124,58,237,0.04);
+            position: relative; overflow: hidden;
+        }
+        .upload-zone:hover {
+            border-color: var(--purple); background: rgba(124,58,237,0.08);
+            transform: translateY(-3px); box-shadow: 0 20px 60px rgba(124,58,237,0.2);
+        }
+        .upload-zone .icon { font-size: 64px; display: block; margin-bottom: 14px; animation: floatIcon 3s ease-in-out infinite; }
+        @keyframes floatIcon { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .upload-zone h3 { font-size: 22px; font-weight: 800; color: white; margin-bottom: 6px; }
+        .upload-zone p { color: rgba(255,255,255,0.45); font-size: 14px; }
+        .upload-zone .or { color: rgba(255,255,255,0.2); font-size: 13px; margin: 12px 0; }
+        .upload-btns { display: flex; gap: 12px; justify-content: center; margin-top: 16px; position: relative; z-index: 1; }
+        .btn { padding: 12px 28px; font-size: 14px; font-weight: 700; border-radius: 50px; border: none; cursor: pointer; transition: var(--transition); font-family: inherit; }
+        .btn-purple { background: var(--purple); color: white; }
+        .btn-purple:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.3); }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: white; }
+        .upload-formats { margin-top: 18px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .format-tag { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 50px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; }
+        .upload-preview { display: none; margin-top: 16px; }
+        .upload-preview img { max-width: 300px; max-height: 200px; border-radius: 12px; border: 2px solid rgba(124,58,237,0.3); }
+        .upload-preview.active { display: block; }
+
+        /* Toggle to manual form */
+        .toggle-manual {
+            margin-top: 20px; text-align: center;
+        }
+        .toggle-manual button {
+            background: none; border: none; color: var(--gray); font-size: 13px;
+            cursor: pointer; font-family: inherit; transition: color 0.2s;
+        }
+        .toggle-manual button:hover { color: var(--purple-light); }
+
+        /* ============ MANUAL FORM ============ */
+        .form-section { display: none; max-width: 680px; margin: 20px auto 0; }
+        .form-section.active { display: block; }
         .form-card {
-            background: var(--white); border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-lighter); padding: 32px;
-            box-shadow: var(--shadow); margin-top: -40px; position: relative; z-index: 2;
+            background: rgba(255,255,255,0.03); border-radius: var(--radius-lg);
+            border: 1px solid rgba(255,255,255,0.08); padding: 28px;
         }
-        .form-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
-        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .form-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: white; }
+        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
         .preset-btn {
-            background: var(--gray-bg); border: 1px solid var(--gray-lighter);
-            border-radius: 50px; padding: 7px 16px; font-size: 13px; font-weight: 500;
-            color: var(--gray); cursor: pointer; transition: var(--transition);
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px; padding: 6px 14px; font-size: 12px; font-weight: 600;
+            color: var(--gray-light); cursor: pointer; transition: var(--transition); font-family: inherit;
         }
-        .preset-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(30,58,95,0.05); }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+        .preset-btn:hover { border-color: var(--purple); color: var(--purple-light); background: rgba(124,58,237,0.08); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .full { grid-column: 1 / -1; }
-        label { display: block; font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select, textarea {
-            width: 100%; padding: 11px 14px; background: var(--gray-bg);
-            border: 1px solid var(--gray-lighter); border-radius: var(--radius-sm);
-            color: var(--dark); font-size: 14px; font-family: inherit; transition: var(--transition);
+            width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm);
+            color: white; font-size: 14px; font-family: inherit; transition: var(--transition);
         }
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+        input:focus, select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+        input::placeholder { color: var(--gray); }
+        select option { background: var(--dark-2); color: white; }
+
         .btn-analyze {
             display: flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
-            margin-top: 22px; padding: 15px 32px;
+            margin-top: 20px; padding: 14px 32px;
             background: var(--accent); border: none; border-radius: 50px;
             color: white; font-size: 16px; font-weight: 700; cursor: pointer;
-            transition: var(--transition);
+            transition: var(--transition); font-family: inherit;
         }
         .btn-analyze:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(230,57,70,0.3); }
         .btn-analyze:disabled { opacity: 0.5; cursor: wait; transform: none; box-shadow: none; }
 
-        /* ============ LOADING ============ */
-        .loading { text-align: center; padding: 60px 0; display: none; }
-        .loading.active { display: block; }
-        .spinner {
-            width: 44px; height: 44px; border: 3px solid var(--gray-lighter);
-            border-top-color: var(--accent); border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin: 0 auto 18px;
+        /* ============ SCANNING ANIMATION ============ */
+        .scan-animation { display: none; max-width: 680px; margin: 0 auto; text-align: center; padding: 50px 40px; }
+        .scan-animation.active { display: block; }
+        .scanner-ring {
+            width: 110px; height: 110px; border-radius: 50%;
+            border: 4px solid transparent; border-top-color: var(--purple); border-right-color: var(--accent);
+            margin: 0 auto 20px; animation: spinRing 1.2s linear infinite; position: relative;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading p { color: var(--gray); font-size: 15px; }
-        .loading .sub { color: var(--gray-light); font-size: 12px; margin-top: 6px; }
+        .scanner-ring::after {
+            content: ''; position: absolute; inset: 8px; border-radius: 50%;
+            border: 3px solid transparent; border-bottom-color: var(--gold); border-left-color: var(--success);
+            animation: spinRing 0.8s linear reverse infinite;
+        }
+        @keyframes spinRing { to { transform: rotate(360deg); } }
+        .scan-steps { list-style: none; text-align: left; max-width: 360px; margin: 16px auto 0; }
+        .scan-steps li { padding: 7px 0; font-size: 13px; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 10px; transition: all 0.5s ease; }
+        .scan-steps li.done { color: var(--success); }
+        .scan-steps li.active { color: white; }
+        .scan-steps li .ck { width: 18px; text-align: center; font-size: 13px; }
 
         /* ============ RESULTS ============ */
-        .results { display: none; padding-bottom: 60px; }
-        .results.active { display: block; }
+        .results { display: none; padding: 0 0 60px; }
+        .results.active { display: block; animation: fadeUp 0.6s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .score-card {
-            background: var(--white); border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-lighter); padding: 40px;
-            box-shadow: var(--shadow); text-align: center; margin-bottom: 24px;
+        .success-banner {
+            background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
+            border: 1px solid rgba(34,197,94,0.25); border-radius: 16px;
+            padding: 18px 24px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
         }
-        .score-circle {
-            width: 130px; height: 130px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; font-weight: 900; color: var(--white);
-            margin: 0 auto 18px; border: 5px solid;
-        }
-        .score-low { border-color: var(--accent); background: rgba(230,57,70,0.12); color: var(--accent); }
-        .score-mid { border-color: var(--warning); background: rgba(245,158,11,0.12); color: var(--warning); }
-        .score-high { border-color: var(--success); background: rgba(34,197,94,0.12); color: var(--success); }
-        .score-label { font-size: 14px; color: var(--gray); margin-bottom: 14px; }
+        .success-banner .check { width: 48px; height: 48px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; flex-shrink: 0; animation: popIn 0.5s cubic-bezier(0.68,-0.55,0.27,1.55); }
+        @keyframes popIn { 0%{transform:scale(0)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
+        .success-banner h3 { color: white; font-size: 16px; font-weight: 800; }
+        .success-banner p { color: var(--gray-light); font-size: 12px; }
 
-        .reco-badge {
-            display: inline-block; padding: 8px 24px; border-radius: 50px;
-            font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .result-panel {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 24px;
         }
-        .reco-payer { background: rgba(230,57,70,0.1); color: var(--accent); border: 1px solid rgba(230,57,70,0.3); }
-        .reco-contester { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
-        .reco-negocier { background: rgba(212,168,67,0.1); color: var(--gold); border: 1px solid rgba(212,168,67,0.3); }
+        .result-panel h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 14px; }
+        .result-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .result-row:last-child { border: none; }
+        .result-row .rl { font-size: 12px; color: var(--gray-light); }
+        .result-row .rv { font-size: 14px; font-weight: 700; color: white; }
 
-        .pipeline { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 18px 0; }
-        .agent-badge {
-            padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 600;
+        .score-panel {
+            background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.03));
+            border: 1px solid rgba(34,197,94,0.2); border-radius: 16px;
+            padding: 28px; text-align: center;
         }
-        .agent-pass { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
-        .agent-fail { background: rgba(230,57,70,0.1); color: var(--accent); border: 1px solid rgba(230,57,70,0.25); }
+        .score-panel.score-low { background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.03)); border-color: rgba(230,57,70,0.2); }
+        .score-panel.score-mid { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03)); border-color: rgba(245,158,11,0.2); }
+        .score-ring { width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; position: relative; }
+        .score-ring-inner { width: 100px; height: 100px; border-radius: 50%; background: var(--dark); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .score-ring-inner .num { font-size: 38px; font-weight: 900; line-height: 1; }
+        .score-ring-inner .pct { font-size: 14px; font-weight: 700; }
+        .score-verdict { display: inline-block; padding: 6px 18px; border-radius: 50px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .verdict-contest { background: var(--success); color: white; }
+        .verdict-negotiate { background: var(--warning); color: white; }
+        .verdict-pay { background: var(--accent); color: white; }
+        .score-detail { font-size: 12px; color: var(--gray-light); line-height: 1.6; }
 
-        .meta-row {
-            display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
-            margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-lighter);
-        }
+        /* Pipeline badges */
+        .pipeline { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
+        .agent-badge { padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+        .agent-pass { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+        .agent-fail { background: rgba(230,57,70,0.1); color: var(--accent); border: 1px solid rgba(230,57,70,0.2); }
+
+        /* Meta stats row */
+        .meta-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); }
         .meta-item { text-align: center; }
-        .meta-item .val { font-size: 18px; font-weight: 800; color: var(--primary); }
-        .meta-item .lbl { font-size: 11px; color: var(--gray-light); text-transform: uppercase; }
+        .meta-item .val { font-size: 16px; font-weight: 800; color: var(--purple-light); }
+        .meta-item .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+
+        /* Databases bar */
+        .db-bar {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 16px 24px; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .db-bar .db-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; flex-shrink: 0; }
+        .db-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .db-tag { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); color: var(--purple-light); padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: 600; }
+        .db-tag.active { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); color: var(--success); }
 
         /* Detail cards */
         .detail-card {
-            background: var(--white); border-radius: var(--radius);
-            border: 1px solid var(--gray-lighter); padding: 24px;
-            box-shadow: var(--shadow); margin-bottom: 16px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius); padding: 22px; margin-bottom: 14px;
         }
-        .detail-card h3 {
-            font-size: 13px; font-weight: 700; color: var(--gray);
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .detail-card h3 .icon {
-            width: 28px; height: 28px; border-radius: var(--radius-sm);
-            display: flex; align-items: center; justify-content: center; font-size: 14px;
-        }
-        .icon-red { background: rgba(230,57,70,0.1); color: var(--accent); }
-        .icon-blue { background: rgba(30,58,95,0.1); color: var(--primary); }
-        .icon-gold { background: rgba(212,168,67,0.1); color: var(--gold); }
-        .icon-green { background: rgba(34,197,94,0.1); color: var(--success); }
-
+        .detail-card h3 { font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .detail-card h3 .ico { width: 26px; height: 26px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .ico-red { background: rgba(230,57,70,0.1); color: var(--accent); }
+        .ico-blue { background: rgba(30,58,95,0.15); color: var(--purple-light); }
+        .ico-gold { background: rgba(212,168,67,0.1); color: var(--gold); }
+        .ico-green { background: rgba(34,197,94,0.1); color: var(--success); }
         .detail-card ul { list-style: none; }
-        .detail-card li {
-            padding: 10px 0; border-bottom: 1px solid var(--gray-bg);
-            font-size: 14px; color: var(--dark-2); display: flex; gap: 10px; align-items: flex-start;
-        }
+        .detail-card li { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--gray-light); display: flex; gap: 10px; align-items: flex-start; }
         .detail-card li:last-child { border: none; }
-        .detail-card li .num {
-            min-width: 24px; height: 24px; border-radius: 50%;
-            background: var(--gray-bg); color: var(--gray);
-            font-size: 12px; font-weight: 700; display: flex;
-            align-items: center; justify-content: center;
-        }
-        .detail-card p { font-size: 14px; color: var(--dark-2); line-height: 1.7; }
+        .detail-card li .n { min-width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.06); color: var(--gray-light); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .detail-card p { font-size: 13px; color: var(--gray-light); line-height: 1.7; }
 
-        .warning-box {
-            background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3);
-            border-radius: var(--radius); padding: 14px 18px; margin-top: 16px;
-            font-size: 13px; color: #92400e; display: flex; gap: 10px; align-items: flex-start;
+        /* Precedent cards */
+        .precedent-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 18px 22px; margin-bottom: 10px; transition: var(--transition);
         }
-        .warning-box .wi { font-size: 18px; }
+        .precedent-card:hover { border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.04); }
+        .prec-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 10px; }
+        .prec-header h5 { font-size: 14px; font-weight: 700; color: white; }
+        .prec-relevance { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 50px; flex-shrink: 0; }
+        .rel-high { background: rgba(34,197,94,0.12); color: var(--success); }
+        .rel-med { background: rgba(245,158,11,0.12); color: var(--warning); }
+        .rel-low { background: rgba(230,57,70,0.12); color: var(--accent); }
+        .prec-meta { font-size: 11px; color: var(--gray); margin-bottom: 4px; }
+        .prec-excerpt { font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+
+        /* Warning */
+        .warning-box {
+            background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25);
+            border-radius: var(--radius); padding: 12px 16px; margin-top: 14px;
+            font-size: 12px; color: #fbbf24; display: flex; gap: 10px; align-items: flex-start;
+        }
+        .warning-box .wi { font-size: 16px; }
 
         .btn-new {
             display: flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
-            margin-top: 24px; padding: 14px 32px;
-            background: var(--white); border: 2px solid var(--primary);
-            border-radius: 50px; color: var(--primary); font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: var(--transition);
+            margin-top: 20px; padding: 14px 32px;
+            background: transparent; border: 2px solid var(--purple);
+            border-radius: 50px; color: var(--purple-light); font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
         }
-        .btn-new:hover { background: var(--primary); color: white; }
+        .btn-new:hover { background: var(--purple); color: white; }
 
         /* ============ FOOTER ============ */
         .footer {
-            text-align: center; padding: 24px; color: var(--gray-light);
-            font-size: 12px; border-top: 1px solid var(--gray-lighter);
+            text-align: center; padding: 24px; color: var(--gray);
+            font-size: 11px; border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .footer a { color: var(--purple-light); }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 26px; }
+            .hero p.sub { font-size: 14px; }
+            .header-stats { display: none; }
+            .upload-zone { padding: 30px 16px; }
+            .upload-zone .icon { font-size: 44px; }
+            .upload-zone h3 { font-size: 18px; }
+            .upload-btns { flex-direction: column; align-items: center; }
+            .form-grid { grid-template-columns: 1fr; }
+            .result-grid { grid-template-columns: 1fr; }
+            .success-banner { flex-direction: column; text-align: center; gap: 10px; }
+            .db-bar { flex-direction: column; text-align: center; }
+            .prec-header { flex-direction: column; gap: 6px; }
+            .meta-row { gap: 12px; }
+            .result-row { flex-direction: column; align-items: flex-start; gap: 3px; }
         }
     </style>
 </head>
@@ -234,192 +335,250 @@
 <!-- HEADER -->
 <div class="header">
     <div class="container">
-        <div class="logo">TICKET<span>911</span> <span style="font-size:11px;font-weight:500;color:var(--gray);margin-left:6px;opacity:0.7">par SeoAI</span></div>
+        <div class="logo">TICKET<span class="t9">911</span> <span class="by">par SeoAI</span></div>
         <div class="header-stats">
-            <div class="header-stat"><span class="num" id="statJuris">—</span><span class="lbl">Cas indexes</span></div>
-            <div class="header-stat"><span class="num" id="statLois">—</span><span class="lbl">Lois</span></div>
-            <div class="header-stat"><span class="num" id="statAnalyses">—</span><span class="lbl">Analyses</span></div>
+            <div class="header-stat"><span class="num" id="statJuris">&mdash;</span><span class="lbl">Jurisprudence</span></div>
+            <div class="header-stat"><span class="num" id="statLois">&mdash;</span><span class="lbl">Lois</span></div>
+            <div class="header-stat"><span class="num" id="statAnalyses">&mdash;</span><span class="lbl">Analyses</span></div>
             <div class="header-stat"><span class="status-dot"></span> <span class="lbl" id="statStatus" style="color:var(--success)">En ligne</span></div>
         </div>
     </div>
 </div>
 
 <!-- HERO -->
-<div class="hero">
+<section class="hero" id="heroSection">
     <div class="container">
-        <div class="hero-badge">Systeme multi-agent</div>
-        <h1>Analysez votre <em>contravention</em></h1>
-        <p>5 agents specialises analysent votre ticket en temps reel avec 24,600+ decisions de jurisprudence canadienne.</p>
-    </div>
-</div>
+        <div class="hero-badge">Systeme multi-agent &bull; 5 agents specialises</div>
+        <h1>Scannez votre <span>contravention</span></h1>
+        <p class="sub">Uploadez une photo de votre ticket ou entrez les details manuellement. Analyse en temps reel avec jurisprudence canadienne.</p>
 
-<!-- FORM -->
-<div class="form-section">
-    <div class="container">
-        <div class="form-card" id="formCard">
-            <div class="form-title">Entrez les details de votre ticket</div>
-
-            <div class="presets">
-                <button class="preset-btn" onclick="preset('qc-vitesse')">QC Vitesse 95/70</button>
-                <button class="preset-btn" onclick="preset('qc-feu')">QC Feu rouge</button>
-                <button class="preset-btn" onclick="preset('on-speed')">ON Speed 130/100</button>
-                <button class="preset-btn" onclick="preset('qc-cell')">QC Cellulaire</button>
+        <!-- UPLOAD ZONE -->
+        <div class="upload-zone" id="uploadZone">
+            <span class="icon">&#128247;</span>
+            <h3>Deposez votre ticket ici</h3>
+            <p>Glissez-deposez la photo de votre contravention, ou cliquez pour choisir un fichier</p>
+            <div class="or">&mdash; ou &mdash;</div>
+            <p>Prenez une photo avec votre telephone</p>
+            <div class="upload-btns">
+                <button class="btn btn-purple" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">&#128194; Choisir un fichier</button>
+                <button class="btn btn-outline" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">&#128247; Prendre une photo</button>
             </div>
-
-            <div class="form-grid">
-                <div class="full">
-                    <label>Infraction</label>
-                    <input type="text" id="infraction" placeholder="Ex: Exces de vitesse — 95 km/h dans une zone de 70 km/h">
-                </div>
-                <div>
-                    <label>Juridiction</label>
-                    <select id="juridiction">
-                        <option value="Quebec">Quebec</option>
-                        <option value="Ontario">Ontario</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Loi applicable</label>
-                    <input type="text" id="loi" placeholder="Ex: Code de la securite routiere, art. 299">
-                </div>
-                <div>
-                    <label>Amende</label>
-                    <input type="text" id="amende" placeholder="Ex: 175$ + 30$ frais">
-                </div>
-                <div>
-                    <label>Points d'inaptitude</label>
-                    <input type="number" id="points" value="2" min="0" max="15">
-                </div>
-                <div>
-                    <label>Lieu</label>
-                    <input type="text" id="lieu" placeholder="Ex: Boulevard Henri-Bourassa, Montreal">
-                </div>
-                <div>
-                    <label>Date</label>
-                    <input type="date" id="date">
-                </div>
-                <div>
-                    <label>Appareil de mesure</label>
-                    <input type="text" id="appareil" placeholder="Ex: Radar fixe, Camera feu rouge">
-                </div>
-                <div>
-                    <label>Vitesse captee (km/h)</label>
-                    <input type="number" id="vitesseCaptee" placeholder="95">
-                </div>
-                <div>
-                    <label>Vitesse permise (km/h)</label>
-                    <input type="number" id="vitessePermise" placeholder="70">
-                </div>
+            <div class="upload-formats">
+                <span class="format-tag">JPG</span>
+                <span class="format-tag">PNG</span>
+                <span class="format-tag">PDF</span>
+                <span class="format-tag">HEIC</span>
+                <span class="format-tag">Max 25 Mo</span>
             </div>
-
-            <button class="btn-analyze" id="btnAnalyze" onclick="analyser()">Analyser mon ticket</button>
+            <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none" onchange="handleFileUpload(this)">
         </div>
-    </div>
-</div>
 
-<!-- LOADING -->
-<div class="loading" id="loading">
-    <div class="container">
-        <div class="spinner"></div>
-        <p>Analyse en cours...</p>
-        <p class="sub">Lecteur &rarr; Lois &rarr; Precedents &rarr; Analyste &rarr; Verificateur</p>
+        <!-- Upload preview -->
+        <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" src="" alt="Preview">
+        </div>
+
+        <!-- SCANNING ANIMATION -->
+        <div class="scan-animation" id="scanAnimation">
+            <div class="scanner-ring"></div>
+            <h3 style="color:white;font-size:20px;font-weight:800;margin-bottom:4px;">Analyse en cours...</h3>
+            <p style="color:var(--gray-light);font-size:13px;margin-bottom:16px;">Veuillez patienter pendant le traitement</p>
+            <ul class="scan-steps" id="scanSteps">
+                <li class="active"><span class="ck">&#9679;</span> Lecture du ticket (OCR)...</li>
+                <li><span class="ck">&#9679;</span> Identification de l'infraction et juridiction...</li>
+                <li><span class="ck">&#9679;</span> Recherche dans les bases de donnees juridiques...</li>
+                <li><span class="ck">&#9679;</span> Analyse des precedents pertinents...</li>
+                <li><span class="ck">&#9679;</span> Calcul du score de contestation...</li>
+                <li><span class="ck">&#9679;</span> Generation du rapport d'analyse...</li>
+            </ul>
+        </div>
+
+        <!-- Toggle manual -->
+        <div class="toggle-manual" id="toggleManual">
+            <button onclick="toggleForm()">&#9881; Entrer les details manuellement</button>
+        </div>
+
+        <!-- MANUAL FORM -->
+        <div class="form-section" id="formSection">
+            <div class="form-card">
+                <div class="form-title">Details de la contravention</div>
+                <div class="presets">
+                    <button class="preset-btn" onclick="preset('qc-vitesse')">QC Vitesse 95/70</button>
+                    <button class="preset-btn" onclick="preset('qc-feu')">QC Feu rouge</button>
+                    <button class="preset-btn" onclick="preset('on-speed')">ON Speed 130/100</button>
+                    <button class="preset-btn" onclick="preset('qc-cell')">QC Cellulaire</button>
+                </div>
+                <div class="form-grid">
+                    <div class="full">
+                        <label>Infraction</label>
+                        <input type="text" id="infraction" placeholder="Ex: Exces de vitesse — 95 km/h dans une zone de 70 km/h">
+                    </div>
+                    <div>
+                        <label>Juridiction</label>
+                        <select id="juridiction">
+                            <option value="Quebec">Quebec</option>
+                            <option value="Ontario">Ontario</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Loi applicable</label>
+                        <input type="text" id="loi" placeholder="Ex: Code de la securite routiere, art. 299">
+                    </div>
+                    <div>
+                        <label>Amende</label>
+                        <input type="text" id="amende" placeholder="Ex: 175$ + 30$ frais">
+                    </div>
+                    <div>
+                        <label>Points d'inaptitude</label>
+                        <input type="number" id="points" value="2" min="0" max="15">
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <input type="text" id="lieu" placeholder="Ex: Boulevard Henri-Bourassa, Montreal">
+                    </div>
+                    <div>
+                        <label>Date</label>
+                        <input type="date" id="date">
+                    </div>
+                    <div>
+                        <label>Appareil de mesure</label>
+                        <input type="text" id="appareil" placeholder="Ex: Radar fixe, Camera feu rouge">
+                    </div>
+                    <div>
+                        <label>Vitesse captee (km/h)</label>
+                        <input type="number" id="vitesseCaptee" placeholder="95">
+                    </div>
+                    <div>
+                        <label>Vitesse permise (km/h)</label>
+                        <input type="number" id="vitessePermise" placeholder="70">
+                    </div>
+                </div>
+                <button class="btn-analyze" id="btnAnalyze" onclick="analyser()">&#9889; Analyser mon ticket</button>
+            </div>
+        </div>
+
     </div>
-</div>
+</section>
 
 <!-- RESULTS -->
 <div class="results" id="results">
     <div class="container">
 
-        <div class="score-card">
-            <div class="score-circle" id="scoreCircle">—</div>
-            <div class="score-label">Score de contestation</div>
-            <div id="recoBadge"></div>
-            <div class="pipeline" id="pipelineStatus"></div>
-            <div class="meta-row">
-                <div class="meta-item"><span class="val" id="metaConfiance">—</span><span class="lbl">Confiance</span></div>
-                <div class="meta-item"><span class="val" id="metaPrec">—</span><span class="lbl">Precedents</span></div>
-                <div class="meta-item"><span class="val" id="metaLois">—</span><span class="lbl">Lois</span></div>
-                <div class="meta-item"><span class="val" id="metaTemps">—</span><span class="lbl">Temps</span></div>
+        <!-- Success banner -->
+        <div class="success-banner" id="successBanner">
+            <div class="check">&#10003;</div>
+            <div>
+                <h3 id="bannerTitle">Analyse completee</h3>
+                <p id="bannerSub"></p>
             </div>
         </div>
 
+        <!-- Main grid: details + score -->
+        <div class="result-grid">
+            <div class="result-panel" id="ticketPanel">
+                <h4>Details du ticket</h4>
+                <div id="ticketDetails"></div>
+            </div>
+            <div class="score-panel" id="scorePanel">
+                <div class="score-ring" id="scoreRing">
+                    <div class="score-ring-inner">
+                        <span class="num" id="scoreNum">&mdash;</span>
+                        <span class="pct" id="scorePct">%</span>
+                    </div>
+                </div>
+                <div id="verdictBadge"></div>
+                <p class="score-detail" id="scoreDetail"></p>
+                <div class="pipeline" id="pipelineStatus"></div>
+                <div class="meta-row">
+                    <div class="meta-item"><span class="val" id="metaConfiance">&mdash;</span><span class="lbl">Confiance</span></div>
+                    <div class="meta-item"><span class="val" id="metaPrec">&mdash;</span><span class="lbl">Precedents</span></div>
+                    <div class="meta-item"><span class="val" id="metaLois">&mdash;</span><span class="lbl">Lois</span></div>
+                    <div class="meta-item"><span class="val" id="metaTemps">&mdash;</span><span class="lbl">Temps</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Databases -->
+        <div class="db-bar" id="dbBar" style="display:none">
+            <span class="db-label">Bases recherchees</span>
+            <div class="db-tags" id="dbTags"></div>
+        </div>
+
+        <!-- Arguments -->
         <div class="detail-card" id="argsCard" style="display:none">
-            <h3><span class="icon icon-red">&#9878;</span> Arguments de defense</h3>
+            <h3><span class="ico ico-red">&#9878;</span> Arguments de defense</h3>
             <ul id="argsList"></ul>
         </div>
 
+        <!-- Strategie -->
         <div class="detail-card" id="stratCard" style="display:none">
-            <h3><span class="icon icon-blue">&#9881;</span> Strategie</h3>
+            <h3><span class="ico ico-blue">&#9881;</span> Strategie</h3>
             <p id="stratText"></p>
         </div>
 
+        <!-- Explication -->
         <div class="detail-card" id="explCard" style="display:none">
-            <h3><span class="icon icon-gold">&#9432;</span> Explication</h3>
+            <h3><span class="ico ico-gold">&#9432;</span> Explication</h3>
             <p id="explText"></p>
         </div>
 
+        <!-- Loi -->
         <div class="detail-card" id="loiCard" style="display:none">
-            <h3><span class="icon icon-green">&#9733;</span> Loi applicable</h3>
+            <h3><span class="ico ico-green">&#9733;</span> Loi applicable</h3>
             <p id="loiText"></p>
         </div>
 
-        <div class="detail-card" id="precedentsCard" style="display:none">
-            <h3><span class="icon icon-blue">&#128218;</span> Precedents cites</h3>
-            <ul id="precedentsList"></ul>
+        <!-- Precedents -->
+        <div id="precedentsSection" style="display:none; margin-bottom:20px;">
+            <h4 style="color:white;font-size:16px;font-weight:800;margin-bottom:14px;">Precedents cites</h4>
+            <div id="precedentsList"></div>
         </div>
 
+        <!-- Warning -->
         <div id="warningBox" class="warning-box" style="display:none">
             <span class="wi">&#9888;</span>
             <span id="warningText"></span>
         </div>
 
-        <button class="btn-new" onclick="resetForm()">Nouvelle analyse</button>
+        <button class="btn-new" onclick="resetAll()">&#8634; Nouvelle analyse</button>
     </div>
 </div>
 
 <div class="footer">
-    &copy; 2026 SeoAI &mdash; Ticket911 &mdash; Systeme multi-agent &mdash; 5 agents specialises
+    &copy; 2026 <a href="https://www.seoparai.com">SeoAI</a> &mdash; Ticket911 &mdash; Systeme multi-agent &mdash; 5 agents specialises
 </div>
 
 <script>
-// Detecte si on est sous /scanticket ou a la racine
+// ============ API CONFIG ============
 const basePath = window.location.pathname.replace(/\/+$/, '');
 const API = window.location.origin + (basePath.startsWith('/scanticket') ? '/scanticket' : '');
 
+// ============ STATS ============
 async function loadStats() {
     try {
-        const r = await fetch(API+'/api/stats');
+        const r = await fetch(API + '/api/stats');
         const d = await r.json();
-        document.getElementById('statJuris').textContent = (d.jurisprudence_total||0).toLocaleString();
-        document.getElementById('statLois').textContent = d.lois_indexees||0;
-        document.getElementById('statAnalyses').textContent = d.analyses_effectuees||0;
-    } catch(e) {
+        document.getElementById('statJuris').textContent = (d.jurisprudence_total || 0).toLocaleString();
+        document.getElementById('statLois').textContent = d.lois_indexees || 0;
+        document.getElementById('statAnalyses').textContent = d.analyses_effectuees || 0;
+    } catch (e) {
         document.getElementById('statStatus').textContent = 'Hors ligne';
         document.getElementById('statStatus').style.color = 'var(--accent)';
     }
 }
 loadStats();
 
-// Auto-demo: si ?demo=1 ou ?demo=2 dans l'URL, lance une analyse automatiquement
-const urlParams = new URLSearchParams(window.location.search);
-const demoMode = urlParams.get('demo');
-if (demoMode) {
-    window.addEventListener('load', () => {
-        const demoMap = {'1':'qc-vitesse','2':'on-speed','3':'qc-feu','4':'qc-cell'};
-        preset(demoMap[demoMode] || 'qc-vitesse');
-        setTimeout(() => analyser(), 500);
-    });
-}
-
+// ============ PRESETS ============
 const PRESETS = {
-    'qc-vitesse': { infraction:'Exces de vitesse — 95 km/h dans une zone de 70 km/h', juridiction:'Quebec', loi:'Code de la securite routiere, art. 299', amende:'175$ + 30$ frais', points:2, lieu:'Boulevard Henri-Bourassa, Montreal', appareil:'Radar fixe', vitesseCaptee:95, vitessePermise:70 },
-    'qc-feu': { infraction:'Ne pas avoir respecte un feu rouge', juridiction:'Quebec', loi:'Code de la securite routiere, art. 328', amende:'150$ + 30$ frais', points:3, lieu:'Intersection Sherbrooke/St-Denis, Montreal', appareil:'Camera feu rouge', vitesseCaptee:'', vitessePermise:'' },
-    'on-speed': { infraction:'Speeding — 130 km/h in a 100 km/h zone', juridiction:'Ontario', loi:'Highway Traffic Act, s.128', amende:'$260', points:3, lieu:'Highway 401, Toronto', appareil:'Radar gun', vitesseCaptee:130, vitessePermise:100 },
-    'qc-cell': { infraction:'Utilisation du cellulaire au volant', juridiction:'Quebec', loi:'Code de la securite routiere, art. 443.1', amende:'300$ + frais', points:5, lieu:'Rue Sainte-Catherine, Montreal', appareil:'Agent en personne', vitesseCaptee:'', vitessePermise:'' }
+    'qc-vitesse': { infraction: 'Exces de vitesse — 95 km/h dans une zone de 70 km/h', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 299', amende: '175$ + 30$ frais', points: 2, lieu: 'Boulevard Henri-Bourassa, Montreal', appareil: 'Radar fixe', vitesseCaptee: 95, vitessePermise: 70 },
+    'qc-feu': { infraction: 'Ne pas avoir respecte un feu rouge', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 328', amende: '150$ + 30$ frais', points: 3, lieu: 'Intersection Sherbrooke/St-Denis, Montreal', appareil: 'Camera feu rouge', vitesseCaptee: '', vitessePermise: '' },
+    'on-speed': { infraction: 'Speeding — 130 km/h in a 100 km/h zone', juridiction: 'Ontario', loi: 'Highway Traffic Act, s.128', amende: '$260', points: 3, lieu: 'Highway 401, Toronto', appareil: 'Radar gun', vitesseCaptee: 130, vitessePermise: 100 },
+    'qc-cell': { infraction: 'Utilisation du cellulaire au volant', juridiction: 'Quebec', loi: 'Code de la securite routiere, art. 443.1', amende: '300$ + frais', points: 5, lieu: 'Rue Sainte-Catherine, Montreal', appareil: 'Agent en personne', vitesseCaptee: '', vitessePermise: '' }
 };
 
 function preset(k) {
     const p = PRESETS[k];
+    if (!document.getElementById('formSection').classList.contains('active')) toggleForm();
     document.getElementById('infraction').value = p.infraction;
     document.getElementById('juridiction').value = p.juridiction;
     document.getElementById('loi').value = p.loi;
@@ -431,65 +590,335 @@ function preset(k) {
     document.getElementById('vitessePermise').value = p.vitessePermise;
 }
 
+// ============ TOGGLE FORM ============
+function toggleForm() {
+    const fs = document.getElementById('formSection');
+    fs.classList.toggle('active');
+    const btn = document.querySelector('.toggle-manual button');
+    btn.textContent = fs.classList.contains('active') ? '\u2191 Masquer le formulaire' : '\u2699 Entrer les details manuellement';
+}
+
+// ============ FILE UPLOAD ============
+function handleFileUpload(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        // Show preview for images
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('uploadPreview').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+        // For now, trigger analysis with placeholder data (OCR integration later)
+        // When Mindee OCR is ready, this will extract ticket data from the photo
+        setTimeout(function() {
+            startScanAnimation();
+            // Simulate OCR + analysis (will be replaced with real Mindee API call)
+            setTimeout(function() {
+                // Use default preset for demo, real OCR will extract actual data
+                analyserFromPhoto(file);
+            }, 500);
+        }, 300);
+    }
+}
+
+// Upload zone drag & drop
+var uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+uploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#7c3aed';
+    uploadZone.style.background = 'rgba(124,58,237,0.1)';
+});
+uploadZone.addEventListener('dragleave', function() {
+    uploadZone.style.borderColor = 'rgba(124,58,237,0.4)';
+    uploadZone.style.background = 'rgba(124,58,237,0.04)';
+});
+uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadZone.style.borderColor = 'rgba(124,58,237,0.4)';
+    uploadZone.style.background = 'rgba(124,58,237,0.04)';
+    if (e.dataTransfer.files.length > 0) {
+        document.getElementById('fileInput').files = e.dataTransfer.files;
+        handleFileUpload(document.getElementById('fileInput'));
+    }
+});
+
+// ============ SCAN ANIMATION ============
+function startScanAnimation() {
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('toggleManual').style.display = 'none';
+    document.getElementById('formSection').classList.remove('active');
+    document.getElementById('uploadPreview').classList.remove('active');
+    document.getElementById('results').classList.remove('active');
+    var anim = document.getElementById('scanAnimation');
+    anim.classList.add('active');
+    anim.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    var steps = document.getElementById('scanSteps').querySelectorAll('li');
+    // Reset all steps
+    for (var j = 0; j < steps.length; j++) {
+        steps[j].classList.remove('active', 'done');
+        steps[j].querySelector('.ck').innerHTML = '&#9679;';
+    }
+    steps[0].classList.add('active');
+
+    var delay = 0;
+    for (var i = 0; i < steps.length; i++) {
+        (function(index) {
+            setTimeout(function() {
+                for (var j = 0; j < steps.length; j++) steps[j].classList.remove('active');
+                steps[index].classList.add('active');
+                for (var k = 0; k < index; k++) {
+                    steps[k].classList.remove('active');
+                    steps[k].classList.add('done');
+                    steps[k].querySelector('.ck').innerHTML = '&#10003;';
+                }
+            }, delay);
+            delay += 800;
+        })(i);
+    }
+}
+
+function finishScanAnimation() {
+    var steps = document.getElementById('scanSteps').querySelectorAll('li');
+    for (var j = 0; j < steps.length; j++) {
+        steps[j].classList.remove('active');
+        steps[j].classList.add('done');
+        steps[j].querySelector('.ck').innerHTML = '&#10003;';
+    }
+    setTimeout(function() {
+        document.getElementById('scanAnimation').classList.remove('active');
+    }, 400);
+}
+
+// ============ ANALYZE FROM PHOTO ============
+async function analyserFromPhoto(file) {
+    // For now: use QC vitesse preset as placeholder
+    // TODO: Replace with Mindee OCR API call to extract real data from photo
+    const ticket = {
+        infraction: 'Exces de vitesse — 95 km/h dans une zone de 70 km/h',
+        juridiction: 'Quebec',
+        loi: 'Code de la securite routiere, art. 299',
+        amende: '175$ + 30$ frais',
+        points_inaptitude: 2,
+        lieu: 'Boulevard Henri-Bourassa, Montreal',
+        date: new Date().toISOString().split('T')[0],
+        appareil: 'Radar fixe',
+        vitesse_captee: 95,
+        vitesse_permise: 70
+    };
+    try {
+        const r = await fetch(API + '/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket })
+        });
+        const d = await r.json();
+        finishScanAnimation();
+        setTimeout(function() { showResults(d, ticket); }, 500);
+    } catch (e) {
+        finishScanAnimation();
+        alert('Erreur de connexion au serveur: ' + e.message);
+        resetAll();
+    }
+}
+
+// ============ ANALYZE FROM FORM ============
 async function analyser() {
     const infraction = document.getElementById('infraction').value;
     if (!infraction) { alert('Entrez une infraction'); return; }
     const ticket = {
-        infraction, juridiction: document.getElementById('juridiction').value,
-        loi: document.getElementById('loi').value, amende: document.getElementById('amende').value,
-        points_inaptitude: parseInt(document.getElementById('points').value)||0,
+        infraction: infraction,
+        juridiction: document.getElementById('juridiction').value,
+        loi: document.getElementById('loi').value,
+        amende: document.getElementById('amende').value,
+        points_inaptitude: parseInt(document.getElementById('points').value) || 0,
         lieu: document.getElementById('lieu').value,
         date: document.getElementById('date').value || new Date().toISOString().split('T')[0],
         appareil: document.getElementById('appareil').value,
-        vitesse_captee: parseInt(document.getElementById('vitesseCaptee').value)||0,
-        vitesse_permise: parseInt(document.getElementById('vitessePermise').value)||0
+        vitesse_captee: parseInt(document.getElementById('vitesseCaptee').value) || 0,
+        vitesse_permise: parseInt(document.getElementById('vitessePermise').value) || 0
     };
-    document.getElementById('formCard').style.display = 'none';
-    document.getElementById('loading').classList.add('active');
-    document.getElementById('results').classList.remove('active');
+
+    startScanAnimation();
+
     try {
-        const r = await fetch(API+'/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ticket}) });
+        const r = await fetch(API + '/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket })
+        });
         const d = await r.json();
-        showResults(d);
-    } catch(e) { alert('Erreur: '+e.message); resetForm(); }
+        finishScanAnimation();
+        setTimeout(function() { showResults(d, ticket); }, 500);
+    } catch (e) {
+        finishScanAnimation();
+        alert('Erreur: ' + e.message);
+        resetAll();
+    }
 }
 
-function showResults(d) {
-    document.getElementById('loading').classList.remove('active');
+// ============ SHOW RESULTS ============
+function showResults(d, ticket) {
     document.getElementById('results').classList.add('active');
-    const score = d.score||0;
-    const c = document.getElementById('scoreCircle');
-    c.textContent = score+'%';
-    c.className = 'score-circle '+(score<30?'score-low':score<60?'score-mid':'score-high');
-    const reco = (d.recommandation||'?').toLowerCase();
-    const rc = reco.includes('contest')?'reco-contester':reco.includes('negoci')?'reco-negocier':'reco-payer';
-    document.getElementById('recoBadge').innerHTML = '<span class="reco-badge '+rc+'">'+(d.recommandation||'?')+'</span>';
-    const pl = document.getElementById('pipelineStatus'); pl.innerHTML = '';
-    if (d.etapes) for (const [a,s] of Object.entries(d.etapes))
-        pl.innerHTML += '<span class="agent-badge '+(s==='OK'?'agent-pass':'agent-fail')+'">'+a+'</span>';
-    document.getElementById('metaConfiance').textContent = (d.confiance||0)+'%';
-    document.getElementById('metaPrec').textContent = d.precedents_trouves||0;
-    document.getElementById('metaLois').textContent = d.lois_trouvees||0;
-    document.getElementById('metaTemps').textContent = (d.temps||0).toFixed(1)+'s';
-    const a = d.analyse||{};
-    const args = a.arguments||[];
-    if (args.length) { document.getElementById('argsCard').style.display='block'; document.getElementById('argsList').innerHTML = args.map((x,i)=>'<li><span class="num">'+(i+1)+'</span><span>'+x+'</span></li>').join(''); }
-    if (a.strategie) { document.getElementById('stratCard').style.display='block'; document.getElementById('stratText').textContent = a.strategie; }
-    if (a.explication) { document.getElementById('explCard').style.display='block'; document.getElementById('explText').textContent = a.explication; }
-    if (a.loi_applicable) { document.getElementById('loiCard').style.display='block'; document.getElementById('loiText').textContent = a.loi_applicable; }
-    const precs = a.precedents_cites||[];
-    if (precs.length) { document.getElementById('precedentsCard').style.display='block'; document.getElementById('precedentsList').innerHTML = precs.map(p=>'<li><strong>'+( p.citation||'?')+'</strong> — '+(p.resultat||'?')+(p.pertinence?'<br><span style="color:var(--gray);font-size:12px">'+p.pertinence+'</span>':'')+'</li>').join(''); }
-    const w = a.avertissement||(d.verification&&d.verification.avertissement);
-    if (w) { document.getElementById('warningBox').style.display='flex'; document.getElementById('warningText').textContent = w; }
+
+    var score = d.score || 0;
+    var temps = d.temps || 0;
+    var confiance = d.confiance || 0;
+    var analyse = d.analyse || {};
+    var reco = (d.recommandation || '').toLowerCase();
+
+    // Banner
+    document.getElementById('bannerTitle').textContent = 'Analyse completee';
+    document.getElementById('bannerSub').textContent = 'Analyse terminee en ' + temps.toFixed(1) + 's — ' + (d.precedents_trouves || 0) + ' precedents trouves';
+
+    // Ticket details
+    var details = '';
+    if (ticket) {
+        var rows = [
+            ['Infraction', ticket.infraction],
+            ['Juridiction', ticket.juridiction],
+            ['Loi', ticket.loi],
+            ['Amende', ticket.amende],
+            ['Points', ticket.points_inaptitude + ' points'],
+            ['Lieu', ticket.lieu],
+            ['Appareil', ticket.appareil]
+        ];
+        if (ticket.vitesse_captee) rows.push(['Vitesse captee', ticket.vitesse_captee + ' km/h']);
+        if (ticket.vitesse_permise) rows.push(['Vitesse permise', ticket.vitesse_permise + ' km/h']);
+        rows.forEach(function(r) {
+            if (r[1] && r[1] !== '0 points' && r[1] !== '0 km/h') {
+                details += '<div class="result-row"><span class="rl">' + r[0] + '</span><span class="rv">' + r[1] + '</span></div>';
+            }
+        });
+    }
+    document.getElementById('ticketDetails').innerHTML = details;
+
+    // Score
+    var scoreColor = score >= 60 ? 'var(--success)' : score >= 30 ? 'var(--warning)' : 'var(--accent)';
+    var scoreClass = score >= 60 ? '' : score >= 30 ? 'score-mid' : 'score-low';
+    var sp = document.getElementById('scorePanel');
+    sp.className = 'score-panel ' + scoreClass;
+
+    var deg = (score / 100) * 360;
+    document.getElementById('scoreRing').style.background = 'conic-gradient(' + scoreColor + ' 0deg, ' + scoreColor + ' ' + deg + 'deg, rgba(255,255,255,0.06) ' + deg + 'deg)';
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('scoreNum').style.color = scoreColor;
+    document.getElementById('scorePct').style.color = scoreColor;
+
+    // Verdict
+    var verdictClass = reco.includes('contest') ? 'verdict-contest' : reco.includes('negoci') ? 'verdict-negotiate' : 'verdict-pay';
+    document.getElementById('verdictBadge').innerHTML = '<span class="score-verdict ' + verdictClass + '">' + (d.recommandation || '?') + '</span>';
+    document.getElementById('scoreDetail').textContent = 'Score base sur ' + (d.precedents_trouves || 0) + ' precedents et ' + (d.lois_trouvees || 0) + ' articles de loi.';
+
+    // Pipeline
+    var pl = document.getElementById('pipelineStatus');
+    pl.innerHTML = '';
+    if (d.etapes) {
+        for (var a in d.etapes) {
+            pl.innerHTML += '<span class="agent-badge ' + (d.etapes[a] === 'OK' ? 'agent-pass' : 'agent-fail') + '">' + a + '</span>';
+        }
+    }
+
+    // Meta
+    document.getElementById('metaConfiance').textContent = confiance + '%';
+    document.getElementById('metaPrec').textContent = d.precedents_trouves || 0;
+    document.getElementById('metaLois').textContent = d.lois_trouvees || 0;
+    document.getElementById('metaTemps').textContent = temps.toFixed(1) + 's';
+
+    // Databases
+    var databases = ['CanLII', 'SOQUIJ', 'LegisQuebec', 'CSR/HTA', 'FTS5', 'ChromaDB', 'SAAQ'];
+    document.getElementById('dbBar').style.display = 'flex';
+    document.getElementById('dbTags').innerHTML = databases.map(function(db) {
+        return '<span class="db-tag active">' + db + ' &#10003;</span>';
+    }).join('');
+
+    // Arguments
+    var args = analyse.arguments || [];
+    if (args.length) {
+        document.getElementById('argsCard').style.display = 'block';
+        document.getElementById('argsList').innerHTML = args.map(function(x, i) {
+            return '<li><span class="n">' + (i + 1) + '</span><span>' + x + '</span></li>';
+        }).join('');
+    }
+
+    // Strategie
+    if (analyse.strategie) {
+        document.getElementById('stratCard').style.display = 'block';
+        document.getElementById('stratText').textContent = analyse.strategie;
+    }
+
+    // Explication
+    if (analyse.explication) {
+        document.getElementById('explCard').style.display = 'block';
+        document.getElementById('explText').textContent = analyse.explication;
+    }
+
+    // Loi
+    if (analyse.loi_applicable) {
+        document.getElementById('loiCard').style.display = 'block';
+        document.getElementById('loiText').textContent = analyse.loi_applicable;
+    }
+
+    // Precedents
+    var precs = analyse.precedents_cites || [];
+    if (precs.length) {
+        document.getElementById('precedentsSection').style.display = 'block';
+        document.getElementById('precedentsList').innerHTML = precs.map(function(p) {
+            var relClass = 'rel-med';
+            if (p.pertinence && p.pertinence.toLowerCase().includes('elev')) relClass = 'rel-high';
+            return '<div class="precedent-card">' +
+                '<div class="prec-header"><h5>' + (p.citation || '?') + '</h5>' +
+                '<span class="prec-relevance ' + relClass + '">' + (p.pertinence || 'Pertinent') + '</span></div>' +
+                '<p class="prec-excerpt">' + (p.resultat || '') + '</p></div>';
+        }).join('');
+    }
+
+    // Warning
+    var w = analyse.avertissement || (d.verification && d.verification.avertissement);
+    if (w) {
+        document.getElementById('warningBox').style.display = 'flex';
+        document.getElementById('warningText').textContent = w;
+    }
+
+    // Scroll to results
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     loadStats();
 }
 
-function resetForm() {
-    document.getElementById('formCard').style.display='block';
+// ============ RESET ============
+function resetAll() {
+    document.getElementById('uploadZone').style.display = '';
+    document.getElementById('toggleManual').style.display = '';
+    document.getElementById('scanAnimation').classList.remove('active');
     document.getElementById('results').classList.remove('active');
-    document.getElementById('loading').classList.remove('active');
-    ['argsCard','stratCard','explCard','loiCard','precedentsCard'].forEach(id=>document.getElementById(id).style.display='none');
-    document.getElementById('warningBox').style.display='none';
+    document.getElementById('uploadPreview').classList.remove('active');
+    document.getElementById('formSection').classList.remove('active');
+    // Hide all detail cards
+    ['argsCard', 'stratCard', 'explCard', 'loiCard'].forEach(function(id) {
+        document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('precedentsSection').style.display = 'none';
+    document.getElementById('warningBox').style.display = 'none';
+    document.getElementById('dbBar').style.display = 'none';
+    // Scroll to top
+    document.getElementById('heroSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============ AUTO DEMO MODE ============
+var urlParams = new URLSearchParams(window.location.search);
+var demoMode = urlParams.get('demo');
+if (demoMode) {
+    window.addEventListener('load', function() {
+        var demoMap = { '1': 'qc-vitesse', '2': 'on-speed', '3': 'qc-feu', '4': 'qc-cell' };
+        preset(demoMap[demoMode] || 'qc-vitesse');
+        setTimeout(function() { analyser(); }, 500);
+    });
 }
 </script>
 </body>
