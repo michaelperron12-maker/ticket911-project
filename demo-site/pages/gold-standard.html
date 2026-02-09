@@ -424,8 +424,8 @@
                 <div class="pipeline-num gold">1</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Reception securisee" data-en="Secure Reception">Reception securisee</h3>
-                    <p>Upload multi-fichiers securise. Dossier unique par client. Stockage chiffre de grade militaire. Suppression automatique apres 90 jours.</p>
-                    <span class="tech-tag">Chiffrement</span><span class="tech-tag">Securise</span><span class="tech-tag">Auto-expiration</span>
+                    <p>Upload multi-fichiers securise. Dossier unique par client. Stockage chiffre AES-256. Suppression automatique apres 90 jours.</p>
+                    <span class="tech-tag">AES-256</span><span class="tech-tag">Chiffrement</span><span class="tech-tag">Auto-expiration</span>
                 </div>
             </div>
 
@@ -433,8 +433,8 @@
                 <div class="pipeline-num red">2</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Reconnaissance — Photo du ticket" data-en="Recognition — Ticket Photo">Reconnaissance — Photo du ticket</h3>
-                    <p>Le client prend une photo de son ticket. Notre moteur de reconnaissance optique extrait automatiquement 50+ champs: infraction, article de loi, amende, points, lieu, date, agent, appareil de mesure. Auto-rempli le formulaire.</p>
-                    <span class="tech-tag">Reconnaissance optique</span><span class="tech-tag">50+ champs</span><span class="tech-tag">Auto-rempli</span>
+                    <p>Le client prend une photo de son ticket. Mindee extrait automatiquement 50+ champs: infraction, article de loi, amende, points, lieu, date, agent, appareil de mesure. Auto-rempli le formulaire.</p>
+                    <span class="tech-tag">Mindee</span><span class="tech-tag">50+ champs</span><span class="tech-tag">Auto-rempli</span>
                 </div>
             </div>
 
@@ -451,8 +451,8 @@
                 <div class="pipeline-num blue">4</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Analyse video dashcam" data-en="Dashcam Video Analysis">Analyse video dashcam</h3>
-                    <p>Extraction des images cles de la dashcam: vitesse au compteur, couleur du feu, conditions de circulation, comportement du conducteur. Chaque element horodate et capture.</p>
-                    <span class="tech-tag">Dashcam</span><span class="tech-tag">Extraction</span><span class="tech-tag">Horodatage</span>
+                    <p>Extraction des images cles de la dashcam via FFmpeg: vitesse au compteur, couleur du feu, conditions de circulation, comportement du conducteur. Chaque element horodate et capture.</p>
+                    <span class="tech-tag">FFmpeg</span><span class="tech-tag">Extraction</span><span class="tech-tag">Horodatage</span>
                 </div>
             </div>
 
@@ -460,8 +460,8 @@
                 <div class="pipeline-num green">5</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Analyse des temoignages" data-en="Testimony Analysis">Analyse des temoignages</h3>
-                    <p>Temoignage ecrit du client + temoins. Le systeme extrait les faits pertinents, identifie les contradictions avec le constat d'infraction, et isole les elements de defense exploitables.</p>
-                    <span class="tech-tag">Temoignages</span><span class="tech-tag">Extraction de faits</span><span class="tech-tag">Contradictions</span>
+                    <p>Temoignage ecrit du client + temoins. Le NLP extrait les faits pertinents, identifie les contradictions avec le constat d'infraction, et isole les elements de defense exploitables.</p>
+                    <span class="tech-tag">NLP</span><span class="tech-tag">Extraction de faits</span><span class="tech-tag">Contradictions</span>
                 </div>
             </div>
 
@@ -469,8 +469,8 @@
                 <div class="pipeline-num purple">6</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Pipeline 5 Agents" data-en="5-Agent Pipeline">Pipeline 5 Agents</h3>
-                    <p>Lecteur → Lois → Precedents → Analyste → Verificateur. Les 5 agents travaillent avec les VRAIES preuves du client. Recherche dans 4,119 articles de loi + jurisprudence officielle. Cross-verification par double moteur independant.</p>
-                    <span class="tech-tag">5 Agents</span><span class="tech-tag">Double verification</span><span class="tech-tag">Zero hallucination</span>
+                    <p>Lecteur → Lois → Precedents → Analyste → Verificateur. Les 5 agents travaillent avec les VRAIES preuves du client. Recherche dans 4,119 articles de loi + jurisprudence CanLII. Cross-verification via FTS5 + ChromaDB.</p>
+                    <span class="tech-tag">5 Agents</span><span class="tech-tag">FTS5 + ChromaDB</span><span class="tech-tag">CanLII</span>
                 </div>
             </div>
 
@@ -478,8 +478,8 @@
                 <div class="pipeline-num gold">7</div>
                 <div class="pipeline-content">
                     <h3 data-fr="Rapport PDF — 9 pages" data-en="PDF Report — 9 pages">Rapport PDF — 9 pages</h3>
-                    <p>Rapport professionnel complet. Score de contestation ajuste selon les preuves reelles. Tous les arguments, lois, precedents et strategies compiles dans un dossier PDF telechargeable de 9 pages.</p>
-                    <span class="tech-tag">PDF</span><span class="tech-tag">9 pages</span><span class="tech-tag">Telechargeable</span>
+                    <p>Rapport professionnel complet via WeasyPrint. Score de contestation ajuste selon les preuves reelles. Tous les arguments, lois, precedents et strategies compiles dans un dossier PDF telechargeable de 9 pages.</p>
+                    <span class="tech-tag">WeasyPrint</span><span class="tech-tag">PDF 9 pages</span><span class="tech-tag">Telechargeable</span>
                 </div>
             </div>
 
