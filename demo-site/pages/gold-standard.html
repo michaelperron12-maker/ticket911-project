@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Standard — Dossier de Preuve AI | Ticket911.ca</title>
+    <meta name="description" content="Le Gold Standard Ticket911: photo du ticket OCR, upload de preuves, analyse AI vision, rapport PDF de 9 pages pret pour la cour.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css?v=4">
+    <style>
+        .hero-gs {
+            background: linear-gradient(160deg, #0a0e27 0%, #1a1207 40%, #0f172a 100%);
+            padding: 70px 0 90px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-gs::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(212,168,67,0.15), transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero-gs .container { position: relative; z-index: 1; }
+        .hero-gs h1 {
+            font-size: 46px;
+            font-weight: 900;
+            color: white;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+        .hero-gs h1 .gold { color: #d4a843; }
+        .hero-gs h1 .star { font-size: 38px; }
+        .hero-gs .hero-sub {
+            font-size: 18px;
+            color: rgba(255,255,255,0.6);
+            max-width: 650px;
+            margin: 0 auto 40px;
+        }
+        .hero-gs .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212,168,67,0.12);
+            border: 1px solid rgba(212,168,67,0.3);
+            color: #d4a843;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-bottom: 24px;
+        }
+
+        /* Pipeline section */
+        .pipeline-section {
+            background: var(--dark);
+            padding: 80px 0;
+        }
+        .pipeline-section .section-title {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+        .pipeline-section .section-sub {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 15px;
+            margin-bottom: 50px;
+        }
+
+        .pipeline {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .pipeline::before {
+            content: '';
+            position: absolute;
+            left: 32px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(212,168,67,0.4), rgba(212,168,67,0.05));
+        }
+        .pipeline-step {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .pipeline-num {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .pipeline-num.gold { background: rgba(212,168,67,0.12); border: 1px solid rgba(212,168,67,0.3); color: #d4a843; }
+        .pipeline-num.purple { background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.3); color: #8b5cf6; }
+        .pipeline-num.green { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+        .pipeline-num.red { background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); color: #e63946; }
+        .pipeline-num.blue { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .pipeline-content {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 22px 28px;
+        }
+        .pipeline-content h3 {
+            color: white;
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .pipeline-content p {
+            color: rgba(255,255,255,0.45);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .pipeline-content .tech-tag {
+            display: inline-block;
+            background: rgba(139,92,246,0.1);
+            border: 1px solid rgba(139,92,246,0.2);
+            color: #a78bfa;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            margin-right: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Impact table */
+        .impact-section {
+            background: #0f172a;
+            padding: 80px 0;
+        }
+        .impact-section .section-title {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+        .impact-section .section-sub {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 15px;
+            margin-bottom: 50px;
+        }
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .impact-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 28px;
+            text-align: center;
+        }
+        .impact-card .scenario {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .impact-scores {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .score-box {
+            text-align: center;
+        }
+        .score-box .label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 4px;
+        }
+        .score-box .value {
+            font-size: 32px;
+            font-weight: 900;
+        }
+        .score-box .value.before { color: rgba(230,57,70,0.6); }
+        .score-box .value.after { color: #22c55e; }
+        .score-arrow {
+            font-size: 24px;
+            color: rgba(212,168,67,0.6);
+        }
+
+        /* Report preview */
+        .report-section {
+            background: var(--dark);
+            padding: 80px 0;
+        }
+        .report-section .section-title {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+        .report-section .section-sub {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 15px;
+            margin-bottom: 50px;
+        }
+        .report-pages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .report-page {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all .25s;
+        }
+        .report-page:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(212,168,67,0.3);
+            transform: translateY(-2px);
+        }
+        .report-page .page-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: #d4a843;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .report-page .page-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .report-page .page-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+        .report-page .page-desc {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            line-height: 1.5;
+        }
+
+        /* Competitors */
+        .comp-section {
+            background: #0f172a;
+            padding: 80px 0;
+        }
+        .comp-section .section-title {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 50px;
+        }
+        .comp-table {
+            max-width: 800px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .comp-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .comp-table td {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .comp-table tr:first-child td {
+            color: #d4a843;
+            font-weight: 700;
+        }
+        .comp-table .check { color: #22c55e; font-weight: 700; }
+        .comp-table .cross { color: rgba(230,57,70,0.5); }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(160deg, #1a1207, #0f172a);
+            padding: 80px 0;
+            text-align: center;
+        }
+        .cta-section h2 {
+            color: white;
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+        .cta-section h2 .gold { color: #d4a843; }
+        .cta-section p {
+            color: rgba(255,255,255,0.4);
+            font-size: 16px;
+            max-width: 550px;
+            margin: 0 auto 32px;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #d4a843, #b8922e);
+            color: #0a0e27;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 16px 36px;
+            border-radius: 12px;
+            transition: all .25s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(212,168,67,0.3);
+        }
+
+        /* Back link */
+        .back-hub {
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all .2s;
+        }
+        .back-hub:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Lang toggle */
+        .lang-toggle{position:fixed;top:16px;right:20px;z-index:100;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
+        .lang-btn{padding:8px 16px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .2s;}
+        .lang-btn.active{background:rgba(212,168,67,0.2);color:#d4a843;}
+
+        @media(max-width:700px){
+            .hero-gs h1{font-size:28px;}
+            .pipeline-step{flex-direction:column;gap:12px;}
+            .pipeline::before{display:none;}
+            .pipeline-num{width:48px;height:48px;font-size:18px;}
+            .impact-grid{grid-template-columns:1fr;}
+            .report-pages{grid-template-columns:repeat(2,1fr);}
+            .comp-table{font-size:11px;}
+            .comp-table th,.comp-table td{padding:8px 10px;}
+        }
+    </style>
+</head>
+<body>
+
+<a class="back-hub" href="../hub.html">&#8592; Hub</a>
+
+<div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<!-- HERO -->
+<section class="hero-gs">
+    <div class="container">
+        <div class="hero-badge">&#9733; Gold Standard</div>
+        <h1 data-fr="Dossier de Preuve &#10;&#10;&#10;Complet par <span class='gold'>AI</span>" data-en="Complete AI-Powered &#10;&#10;&#10;<span class='gold'>Evidence File</span>">Dossier de Preuve <br>Complet par <span class="gold">AI</span></h1>
+        <p class="hero-sub" data-fr="Le client upload son dossier complet — photos, videos, temoignages — et notre AI analyse TOUT pour batir la meilleure defense possible. Rapport PDF pret pour la cour." data-en="The client uploads their complete file — photos, videos, testimonies — and our AI analyzes EVERYTHING to build the strongest possible defense. Court-ready PDF report.">Le client upload son dossier complet — photos, videos, temoignages — et notre AI analyse TOUT pour batir la meilleure defense possible. Rapport PDF pret pour la cour.</p>
+    </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="pipeline-section">
+    <div class="container">
+        <h2 class="section-title" data-fr="Pipeline de Traitement" data-en="Processing Pipeline">Pipeline de Traitement</h2>
+        <p class="section-sub" data-fr="7 etapes automatisees — du upload au rapport final" data-en="7 automated steps — from upload to final report">7 etapes automatisees — du upload au rapport final</p>
+
+        <div class="pipeline">
+
+            <div class="pipeline-step">
+                <div class="pipeline-num gold">1</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Reception securisee" data-en="Secure Reception">Reception securisee</h3>
+                    <p data-fr="Upload multi-fichiers securise. Dossier unique par client avec ID UUID. Stockage chiffre AES-256. Suppression automatique apres 90 jours." data-en="Secure multi-file upload. Unique case ID per client (UUID). AES-256 encrypted storage. Auto-deletion after 90 days.">Upload multi-fichiers securise. Dossier unique par client avec ID UUID. Stockage chiffre AES-256. Suppression automatique apres 90 jours.</p>
+                    <span class="tech-tag">AES-256</span><span class="tech-tag">UUID</span><span class="tech-tag">Flask</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num red">2</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="OCR — Photo du ticket" data-en="OCR — Ticket Photo">OCR — Photo du ticket</h3>
+                    <p data-fr="Le client prend une photo de son ticket. Mindee OCR extrait automatiquement 50+ champs: infraction, article de loi, amende, points, lieu, date, agent, appareil de mesure. Auto-rempli le formulaire." data-en="Client takes a photo of their ticket. Mindee OCR auto-extracts 50+ fields: violation, law article, fine, points, location, date, officer, measuring device. Auto-fills the form.">Le client prend une photo de son ticket. Mindee OCR extrait automatiquement 50+ champs: infraction, article de loi, amende, points, lieu, date, agent, appareil de mesure. Auto-rempli le formulaire.</p>
+                    <span class="tech-tag">Mindee OCR</span><span class="tech-tag">250 pages/mois gratuit</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num purple">3</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Analyse des photos — Vision AI" data-en="Photo Analysis — AI Vision">Analyse des photos — Vision AI</h3>
+                    <p data-fr="Photos du lieu d'infraction analysees par AI vision: panneau present ou absent? Visible ou obstrue? Conditions de route, meteo, eclairage. Position du radar/camera. Chaque photo annotee automatiquement." data-en="Photos of the violation location analyzed by AI vision: sign present or absent? Visible or obstructed? Road conditions, weather, lighting. Radar/camera position. Each photo auto-annotated.">Photos du lieu d'infraction analysees par AI vision: panneau present ou absent? Visible ou obstrue? Conditions de route, meteo, eclairage. Position du radar/camera. Chaque photo annotee automatiquement.</p>
+                    <span class="tech-tag">Claude Vision</span><span class="tech-tag">Detection AI</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num blue">4</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Analyse video dashcam" data-en="Dashcam Video Analysis">Analyse video dashcam</h3>
+                    <p data-fr="Extraction des frames cles de la dashcam: vitesse au compteur, couleur du feu, conditions de circulation, comportement du conducteur. Chaque element horodate et capture." data-en="Key frame extraction from dashcam: speedometer reading, traffic light color, traffic conditions, driver behavior. Each element timestamped and captured.">Extraction des frames cles de la dashcam: vitesse au compteur, couleur du feu, conditions de circulation, comportement du conducteur. Chaque element horodate et capture.</p>
+                    <span class="tech-tag">FFmpeg</span><span class="tech-tag">Frame extraction</span><span class="tech-tag">AI Vision</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num green">5</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Analyse des temoignages" data-en="Testimony Analysis">Analyse des temoignages</h3>
+                    <p data-fr="Temoignage ecrit du client + temoins. L'AI extrait les faits pertinents, identifie les contradictions avec le constat d'infraction, et isole les elements de defense exploitables." data-en="Written testimony from client + witnesses. AI extracts relevant facts, identifies contradictions with the violation report, and isolates actionable defense elements.">Temoignage ecrit du client + temoins. L'AI extrait les faits pertinents, identifie les contradictions avec le constat d'infraction, et isole les elements de defense exploitables.</p>
+                    <span class="tech-tag">NLP</span><span class="tech-tag">Extraction de faits</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num purple">6</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Pipeline 5 Agents AI" data-en="5-Agent AI Pipeline">Pipeline 5 Agents AI</h3>
+                    <p data-fr="Lecteur → Lois → Precedents → Analyste → Verificateur. Les 5 agents travaillent avec les VRAIES preuves du client. Recherche dans 4,119 articles de loi + jurisprudence CanLII. Cross-verification double moteur." data-en="Reader → Laws → Precedents → Analyst → Verifier. All 5 agents work with the client's REAL evidence. Search across 4,119 law articles + CanLII case law. Double-engine cross-verification.">Lecteur → Lois → Precedents → Analyste → Verificateur. Les 5 agents travaillent avec les VRAIES preuves du client. Recherche dans 4,119 articles de loi + jurisprudence CanLII. Cross-verification double moteur.</p>
+                    <span class="tech-tag">5 Agents</span><span class="tech-tag">FTS5 + ChromaDB</span><span class="tech-tag">Anti-hallucination</span>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num gold">7</div>
+                <div class="pipeline-content">
+                    <h3 data-fr="Rapport PDF — 9 pages" data-en="PDF Report — 9 pages">Rapport PDF — 9 pages</h3>
+                    <p data-fr="Rapport professionnel pret pour la cour. Score de contestation ajuste selon les preuves reelles. Tous les arguments, lois, precedents et strategies compiles dans un dossier PDF telechargeable." data-en="Professional court-ready report. Contestation score adjusted based on real evidence. All arguments, laws, precedents and strategies compiled into a downloadable PDF file.">Rapport professionnel pret pour la cour. Score de contestation ajuste selon les preuves reelles. Tous les arguments, lois, precedents et strategies compiles dans un dossier PDF telechargeable.</p>
+                    <span class="tech-tag">WeasyPrint</span><span class="tech-tag">PDF 9 pages</span><span class="tech-tag">Pret pour la cour</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- IMPACT -->
+<section class="impact-section">
+    <div class="container">
+        <h2 class="section-title" data-fr="Impact des Preuves sur le Score" data-en="Evidence Impact on Score">Impact des Preuves sur le Score</h2>
+        <p class="section-sub" data-fr="Les vraies preuves changent tout — comparaison sans vs avec upload" data-en="Real evidence changes everything — comparison without vs with upload">Les vraies preuves changent tout — comparaison sans vs avec upload</p>
+
+        <div class="impact-grid">
+            <div class="impact-card">
+                <div class="scenario" data-fr="Vitesse — panneau cache" data-en="Speeding — hidden sign">Vitesse — panneau cache</div>
+                <div class="impact-scores">
+                    <div class="score-box">
+                        <div class="label" data-fr="Sans preuve" data-en="No evidence">Sans preuve</div>
+                        <div class="value before">30%</div>
+                    </div>
+                    <div class="score-arrow">&#8594;</div>
+                    <div class="score-box">
+                        <div class="label" data-fr="Avec photo" data-en="With photo">Avec photo</div>
+                        <div class="value after">75%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="impact-card">
+                <div class="scenario" data-fr="Feu rouge — etait jaune" data-en="Red light — was yellow">Feu rouge — etait jaune</div>
+                <div class="impact-scores">
+                    <div class="score-box">
+                        <div class="label" data-fr="Sans preuve" data-en="No evidence">Sans preuve</div>
+                        <div class="value before">20%</div>
+                    </div>
+                    <div class="score-arrow">&#8594;</div>
+                    <div class="score-box">
+                        <div class="label" data-fr="Avec dashcam" data-en="With dashcam">Avec dashcam</div>
+                        <div class="value after">80%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="impact-card">
+                <div class="scenario" data-fr="Radar — mal positionne" data-en="Radar — mispositioned">Radar — mal positionne</div>
+                <div class="impact-scores">
+                    <div class="score-box">
+                        <div class="label" data-fr="Sans preuve" data-en="No evidence">Sans preuve</div>
+                        <div class="value before">25%</div>
+                    </div>
+                    <div class="score-arrow">&#8594;</div>
+                    <div class="score-box">
+                        <div class="label" data-fr="Avec photo" data-en="With photo">Avec photo</div>
+                        <div class="value after">70%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="impact-card">
+                <div class="scenario" data-fr="Cellulaire — pas au volant" data-en="Phone — not driving">Cellulaire — pas au volant</div>
+                <div class="impact-scores">
+                    <div class="score-box">
+                        <div class="label" data-fr="Sans preuve" data-en="No evidence">Sans preuve</div>
+                        <div class="value before">15%</div>
+                    </div>
+                    <div class="score-arrow">&#8594;</div>
+                    <div class="score-box">
+                        <div class="label" data-fr="Avec temoin" data-en="With witness">Avec temoin</div>
+                        <div class="value after">65%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RAPPORT PREVIEW -->
+<section class="report-section">
+    <div class="container">
+        <h2 class="section-title" data-fr="Rapport PDF — 9 Pages" data-en="PDF Report — 9 Pages">Rapport PDF — 9 Pages</h2>
+        <p class="section-sub" data-fr="Un dossier complet genere automatiquement — pret pour la cour" data-en="A complete file generated automatically — court-ready">Un dossier complet genere automatiquement — pret pour la cour</p>
+
+        <div class="report-pages">
+            <div class="report-page">
+                <div class="page-num">Page 1</div>
+                <div class="page-icon">&#128209;</div>
+                <div class="page-title" data-fr="Couverture" data-en="Cover">Couverture</div>
+                <div class="page-desc" data-fr="Logo, numero de dossier, date, juridiction" data-en="Logo, case number, date, jurisdiction">Logo, numero de dossier, date, juridiction</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 2</div>
+                <div class="page-icon">&#128203;</div>
+                <div class="page-title" data-fr="Resume du Ticket" data-en="Ticket Summary">Resume du Ticket</div>
+                <div class="page-desc" data-fr="Infraction, article, amende, points, lieu, date" data-en="Violation, article, fine, points, location, date">Infraction, article, amende, points, lieu, date</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 3</div>
+                <div class="page-icon">&#127919;</div>
+                <div class="page-title" data-fr="Score de Contestation" data-en="Contestation Score">Score de Contestation</div>
+                <div class="page-desc" data-fr="Score, recommandation, niveau de confiance" data-en="Score, recommendation, confidence level">Score, recommandation, niveau de confiance</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 4</div>
+                <div class="page-icon">&#9878;</div>
+                <div class="page-title" data-fr="Arguments de Defense" data-en="Defense Arguments">Arguments de Defense</div>
+                <div class="page-desc" data-fr="Arguments numerotes avec force de chacun" data-en="Numbered arguments with strength rating">Arguments numerotes avec force de chacun</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 5</div>
+                <div class="page-icon">&#128220;</div>
+                <div class="page-title" data-fr="Loi Applicable" data-en="Applicable Law">Loi Applicable</div>
+                <div class="page-desc" data-fr="Texte exact de l'article + explication simple" data-en="Exact article text + plain language explanation">Texte exact de l'article + explication simple</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 6</div>
+                <div class="page-icon">&#128218;</div>
+                <div class="page-title" data-fr="Jurisprudence" data-en="Case Law">Jurisprudence</div>
+                <div class="page-desc" data-fr="Precedents reels avec citation, tribunal, resultat" data-en="Real precedents with citation, court, outcome">Precedents reels avec citation, tribunal, resultat</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 7</div>
+                <div class="page-icon">&#128247;</div>
+                <div class="page-title" data-fr="Preuves Soumises" data-en="Submitted Evidence">Preuves Soumises</div>
+                <div class="page-desc" data-fr="Photos annotees par AI + resume temoignages" data-en="AI-annotated photos + testimony summaries">Photos annotees par AI + resume temoignages</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 8</div>
+                <div class="page-icon">&#128640;</div>
+                <div class="page-title" data-fr="Strategie Recommandee" data-en="Recommended Strategy">Strategie Recommandee</div>
+                <div class="page-desc" data-fr="Plan d'action, quoi dire en cour, quoi apporter" data-en="Action plan, what to say in court, what to bring">Plan d'action, quoi dire en cour, quoi apporter</div>
+            </div>
+            <div class="report-page">
+                <div class="page-num">Page 9</div>
+                <div class="page-icon">&#9888;</div>
+                <div class="page-title" data-fr="Avertissements" data-en="Disclaimers">Avertissements</div>
+                <div class="page-desc" data-fr="Pas un avis juridique, consulter un avocat si score &lt;50%" data-en="Not legal advice, consult a lawyer if score &lt;50%">Pas un avis juridique, consulter un avocat si score &lt;50%</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COMPETITORS -->
+<section class="comp-section">
+    <div class="container">
+        <h2 class="section-title" data-fr="Pourquoi c'est le Gold Standard" data-en="Why It's the Gold Standard">Pourquoi c'est le Gold Standard</h2>
+
+        <table class="comp-table">
+            <thead>
+                <tr>
+                    <th data-fr="Fonctionnalite" data-en="Feature">Fonctionnalite</th>
+                    <th>Ticket911</th>
+                    <th>SOS Ticket</th>
+                    <th>X-Copper</th>
+                    <th>WinIt (NY)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-fr="OCR photo du ticket" data-en="Ticket photo OCR">OCR photo du ticket</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Upload preuves (photos, video)" data-en="Evidence upload (photos, video)">Upload preuves (photos, video)</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Analyse AI vision des photos" data-en="AI vision photo analysis">Analyse AI vision des photos</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Analyse dashcam" data-en="Dashcam analysis">Analyse dashcam</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Rapport PDF pret pour la cour" data-en="Court-ready PDF report">Rapport PDF pret pour la cour</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Score base sur preuves reelles" data-en="Score based on real evidence">Score base sur preuves reelles</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Portail self-serve 24/7" data-en="24/7 self-serve portal">Portail self-serve 24/7</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="check">&#10003;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Mobile-first" data-en="Mobile-first">Mobile-first</td>
+                    <td class="check">&#10003;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="cross">&#10007;</td>
+                    <td class="check">&#10003;</td>
+                </tr>
+                <tr>
+                    <td data-fr="Anti-hallucination (verification)" data-en="Anti-hallucination (verification)">Anti-hallucination (verification)</td>
+                    <td class="check">&#10003;</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td class="cross">&#10007;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <h2 data-fr="Le futur de la defense <span class='gold'>est ici</span>" data-en="The future of defense <span class='gold'>is here</span>">Le futur de la defense <span class="gold">est ici</span></h2>
+        <p data-fr="Aucun competiteur au Quebec, en Ontario ou a New York n'offre ce niveau d'analyse automatisee par AI avec de vraies preuves." data-en="No competitor in Quebec, Ontario or New York offers this level of automated AI analysis with real evidence.">Aucun competiteur au Quebec, en Ontario ou a New York n'offre ce niveau d'analyse automatisee par AI avec de vraies preuves.</p>
+        <a class="cta-btn" href="../hub.html">&#8592; <span data-fr="Retour au Hub" data-en="Back to Hub">Retour au Hub</span></a>
+    </div>
+</section>
+
+<script>
+function setLang(lang){
+    document.querySelectorAll('[data-'+lang+']').forEach(el=>{
+        const val = el.getAttribute('data-'+lang);
+        if(el.children.length > 0 && val.includes('<')){
+            el.innerHTML = val;
+        } else {
+            el.textContent = val;
+        }
+    });
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+        b.classList.toggle('active',b.textContent.trim()===lang.toUpperCase());
+    });
+    document.documentElement.lang=lang;
+}
+</script>
+
+</body>
+</html>
