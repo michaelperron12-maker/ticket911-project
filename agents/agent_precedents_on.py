@@ -1,12 +1,15 @@
 """
-Agent ON: PRECEDENTS ONTARIO — CanLII + local DB
-Recherche hybride FTS + ChromaDB specifique Ontario
-Provincial Offences Court, Ontario Court of Justice, Superior Court
+Agent ON: PRECEDENTS ONTARIO — FTS local + CanLII API (optionnel)
+Recherche hybride FTS5 + ChromaDB specifique Ontario
+ONCJ, ONSC, ONCA — Provincial Offences Act
 """
 
 import sqlite3
 import time
+import os
 from agents.base_agent import BaseAgent, DB_PATH
+
+CANLII_API_KEY = os.environ.get("CANLII_API_KEY", "")
 
 
 class AgentPrecedentsON(BaseAgent):
@@ -40,12 +43,20 @@ class AgentPrecedentsON(BaseAgent):
         self.log(f"  FTS local: {len(fts_results)} cas ON", "OK" if fts_results else "WARN")
 
         semantic_results = self._recherche_semantique_on(infraction, n_results)
-        self.log(f"  Semantique: {len(semantic_results)} cas ON", "OK" if semantic_results else "WARN")
+        if semantic_results:
+            self.log(f"  Semantique: {len(semantic_results)} cas ON", "OK")
 
         canlii_results = []
-        if lois:
+        if CANLII_API_KEY:
             canlii_results = self._recherche_canlii_on(infraction, lois)
             self.log(f"  CanLII ON: {len(canlii_results)} cas", "OK" if canlii_results else "WARN")
+
+        # Fallback: cherche aussi dans les cas federaux (CSC) applicables a ON
+        if len(fts_results) < 3:
+            fallback = self._recherche_fts_federale(infraction, 5)
+            if fallback:
+                self.log(f"  Fallback federal: {len(fallback)} cas (CSC)", "OK")
+                fts_results.extend(fallback)
 
         combined = self._combiner(fts_results, semantic_results, canlii_results)
         top = combined[:n_results]
@@ -68,6 +79,7 @@ class AgentPrecedentsON(BaseAgent):
                 return results
 
             queries = self._generer_requetes_on(infraction)
+            seen_ids = set()
             for query in queries:
                 try:
                     c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
@@ -78,17 +90,52 @@ class AgentPrecedentsON(BaseAgent):
                                  AND j.juridiction = 'ON'
                                  LIMIT ?""", (query, limit))
                     for row in c.fetchall():
-                        results.append({
-                            "id": row[0], "citation": row[1], "tribunal": row[2],
-                            "date": row[3], "resume": (row[4] or "")[:300],
-                            "juridiction": row[5], "resultat": row[6] or "inconnu",
-                            "source": "FTS-ON", "score": 70
-                        })
+                        if row[0] not in seen_ids:
+                            seen_ids.add(row[0])
+                            results.append({
+                                "id": row[0], "citation": row[1], "tribunal": row[2],
+                                "date": row[3], "resume": (row[4] or "")[:300],
+                                "juridiction": row[5], "resultat": row[6] or "inconnu",
+                                "source": "FTS-ON", "score": 75
+                            })
                 except sqlite3.OperationalError:
                     pass
         except Exception as e:
             self.log(f"Erreur FTS ON: {e}", "FAIL")
 
+        conn.close()
+        return results
+
+    def _recherche_fts_federale(self, infraction, limit=5):
+        """Fallback: CSC decisions applicable to Ontario"""
+        results = []
+        conn = self.get_db()
+        c = conn.cursor()
+        try:
+            queries = self._generer_requetes_on(infraction)
+            seen_ids = set()
+            for query in queries:
+                try:
+                    c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                        j.resume, j.juridiction, j.resultat
+                                 FROM jurisprudence_fts fts
+                                 JOIN jurisprudence j ON fts.rowid = j.id
+                                 WHERE jurisprudence_fts MATCH ?
+                                 AND j.tribunal IN ('CSC', 'SCC')
+                                 LIMIT ?""", (query, limit))
+                    for row in c.fetchall():
+                        if row[0] not in seen_ids:
+                            seen_ids.add(row[0])
+                            results.append({
+                                "id": row[0], "citation": row[1], "tribunal": row[2],
+                                "date": row[3], "resume": (row[4] or "")[:300],
+                                "juridiction": "ON", "resultat": row[6] or "inconnu",
+                                "source": "FTS-Federal", "score": 60
+                            })
+                except sqlite3.OperationalError:
+                    pass
+        except Exception as e:
+            self.log(f"Erreur FTS Federal: {e}", "FAIL")
         conn.close()
         return results
 
@@ -124,30 +171,36 @@ class AgentPrecedentsON(BaseAgent):
         return results
 
     def _recherche_canlii_on(self, infraction, lois):
-        """CanLII API pour jurisprudence Ontario"""
+        """CanLII API v1 — Ontario databases"""
         results = []
+        if not CANLII_API_KEY:
+            return results
         try:
             import requests
-            params = {
-                "q": infraction[:80],
-                "jurisdiction": "on",
-                "resultCount": 5
-            }
-            resp = requests.get("https://api.canlii.org/v1/caseBrowse/on/",
-                                params=params, timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                for item in data.get("cases", [])[:5]:
-                    results.append({
-                        "id": f"CANLII-ON-{item.get('caseId', '')}",
-                        "citation": item.get("citation", item.get("title", ""))[:100],
-                        "tribunal": item.get("court", "Ontario Court"),
-                        "date": item.get("date", ""),
-                        "resume": item.get("title", "")[:300],
-                        "juridiction": "ON",
-                        "resultat": "inconnu",
-                        "source": "CanLII-ON", "score": 55
-                    })
+            databases = ["oncj", "onsc", "onca"]
+            for db_id in databases:
+                params = {
+                    "api_key": CANLII_API_KEY,
+                    "offset": 0,
+                    "resultCount": 3
+                }
+                resp = requests.get(f"https://api.canlii.org/v1/caseBrowse/{db_id}/",
+                                    params=params, timeout=10)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    for item in data.get("cases", [])[:3]:
+                        results.append({
+                            "id": f"CANLII-ON-{item.get('caseId', {}).get('en', '')}",
+                            "citation": item.get("citation", item.get("title", ""))[:100],
+                            "tribunal": db_id.upper(),
+                            "date": item.get("date", ""),
+                            "resume": item.get("title", "")[:300],
+                            "juridiction": "ON",
+                            "resultat": "inconnu",
+                            "source": "CanLII-ON", "score": 55
+                        })
+                if len(results) >= 5:
+                    break
         except Exception as e:
             self.log(f"CanLII ON erreur: {e}", "WARN")
         return results
@@ -166,18 +219,22 @@ class AgentPrecedentsON(BaseAgent):
         queries = []
         lower = infraction.lower()
 
-        if any(w in lower for w in ["speed", "vitesse", "km/h", "speeding"]):
-            queries.extend(["speeding OR speed", "HTA 128", "radar OR lidar"])
-        if any(w in lower for w in ["red light", "feu rouge"]):
-            queries.extend(["red light", "HTA 144"])
-        if any(w in lower for w in ["cell", "phone", "handheld", "distracted"]):
-            queries.extend(["handheld OR distracted", "HTA 78.1"])
-        if any(w in lower for w in ["stop", "arret"]):
-            queries.extend(["stop sign", "HTA 136"])
-        if any(w in lower for w in ["careless", "dangereuse"]):
+        if any(w in lower for w in ["speed", "vitesse", "km/h", "speeding", "radar", "lidar"]):
+            queries.extend(["speeding OR speed OR radar", "HTA 128", "lidar OR radar"])
+        if any(w in lower for w in ["red light", "feu rouge", "traffic signal"]):
+            queries.extend(["red light OR traffic signal", "HTA 144"])
+        if any(w in lower for w in ["cell", "phone", "handheld", "distracted", "texting"]):
+            queries.extend(["handheld OR distracted OR cell phone", "HTA 78"])
+        if any(w in lower for w in ["stop", "arret", "stop sign"]):
+            queries.extend(["stop sign OR fail to stop", "HTA 136"])
+        if any(w in lower for w in ["careless", "dangereuse", "dangerous"]):
             queries.extend(["careless driving", "HTA 130"])
-        if any(w in lower for w in ["stunt", "racing", "course"]):
+        if any(w in lower for w in ["stunt", "racing", "course", "street racing"]):
             queries.extend(["stunt driving OR racing", "HTA 172"])
+        if any(w in lower for w in ["seatbelt", "ceinture", "belt"]):
+            queries.extend(["seatbelt OR seat belt", "HTA 106"])
+        if any(w in lower for w in ["impaired", "dui", "alcohol", "alcool"]):
+            queries.extend(["impaired driving OR alcohol", "Criminal Code 253"])
 
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]

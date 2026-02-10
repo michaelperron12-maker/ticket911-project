@@ -1,13 +1,15 @@
 """
-Agent QC: PRECEDENTS QUEBEC — CanLII + local DB
-Recherche hybride FTS + ChromaDB specifique Quebec
-Cour municipale, Cour superieure, Cour d'appel du Quebec
+Agent QC: PRECEDENTS QUEBEC — FTS local + CanLII API (optionnel)
+Recherche hybride FTS5 + ChromaDB specifique Quebec
+Cour municipale (QCCM), Cour du Quebec (QCCQ), CS, CA du Quebec
 """
 
 import sqlite3
 import time
 import os
 from agents.base_agent import BaseAgent, DB_PATH
+
+CANLII_API_KEY = os.environ.get("CANLII_API_KEY", "")
 
 
 class AgentPrecedentsQC(BaseAgent):
@@ -37,21 +39,29 @@ class AgentPrecedentsQC(BaseAgent):
         self.log(f"Recherche precedents QC: {infraction[:50]}...", "STEP")
         start = time.time()
 
-        # 1. FTS local
+        # 1. FTS local — recherche principale
         fts_results = self._recherche_fts_qc(infraction, n_results)
         self.log(f"  FTS local: {len(fts_results)} cas QC", "OK" if fts_results else "WARN")
 
-        # 2. Semantique
+        # 2. Semantique (ChromaDB si disponible)
         semantic_results = self._recherche_semantique_qc(infraction, n_results)
-        self.log(f"  Semantique: {len(semantic_results)} cas QC", "OK" if semantic_results else "WARN")
+        if semantic_results:
+            self.log(f"  Semantique: {len(semantic_results)} cas QC", "OK")
 
-        # 3. CanLII (si articles de loi connus)
+        # 3. CanLII API (si cle configuree)
         canlii_results = []
-        if lois:
+        if CANLII_API_KEY:
             canlii_results = self._recherche_canlii(infraction, lois)
             self.log(f"  CanLII: {len(canlii_results)} cas", "OK" if canlii_results else "WARN")
 
-        # Combiner
+        # 4. Fallback: recherche elargie si peu de resultats QC
+        if len(fts_results) < 3:
+            fallback = self._recherche_fts_federale(infraction, 5)
+            if fallback:
+                self.log(f"  Fallback federal: {len(fallback)} cas (CSC/CA)", "OK")
+                fts_results.extend(fallback)
+
+        # Combiner et deduplication
         combined = self._combiner(fts_results, semantic_results, canlii_results)
         top = combined[:n_results]
 
@@ -73,6 +83,7 @@ class AgentPrecedentsQC(BaseAgent):
                 return results
 
             queries = self._generer_requetes_qc(infraction)
+            seen_ids = set()
             for query in queries:
                 try:
                     c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
@@ -83,17 +94,52 @@ class AgentPrecedentsQC(BaseAgent):
                                  AND j.juridiction = 'QC'
                                  LIMIT ?""", (query, limit))
                     for row in c.fetchall():
-                        results.append({
-                            "id": row[0], "citation": row[1], "tribunal": row[2],
-                            "date": row[3], "resume": (row[4] or "")[:300],
-                            "juridiction": row[5], "resultat": row[6] or "inconnu",
-                            "source": "FTS-QC", "score": 70
-                        })
+                        if row[0] not in seen_ids:
+                            seen_ids.add(row[0])
+                            results.append({
+                                "id": row[0], "citation": row[1], "tribunal": row[2],
+                                "date": row[3], "resume": (row[4] or "")[:300],
+                                "juridiction": row[5], "resultat": row[6] or "inconnu",
+                                "source": "FTS-QC", "score": 75
+                            })
                 except sqlite3.OperationalError:
                     pass
         except Exception as e:
             self.log(f"Erreur FTS QC: {e}", "FAIL")
 
+        conn.close()
+        return results
+
+    def _recherche_fts_federale(self, infraction, limit=5):
+        """Fallback: cherche precedents federaux (CSC) applicables au QC"""
+        results = []
+        conn = self.get_db()
+        c = conn.cursor()
+        try:
+            queries = self._generer_requetes_qc(infraction)
+            seen_ids = set()
+            for query in queries:
+                try:
+                    c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                        j.resume, j.juridiction, j.resultat
+                                 FROM jurisprudence_fts fts
+                                 JOIN jurisprudence j ON fts.rowid = j.id
+                                 WHERE jurisprudence_fts MATCH ?
+                                 AND j.tribunal IN ('CSC', 'SCC')
+                                 LIMIT ?""", (query, limit))
+                    for row in c.fetchall():
+                        if row[0] not in seen_ids:
+                            seen_ids.add(row[0])
+                            results.append({
+                                "id": row[0], "citation": row[1], "tribunal": row[2],
+                                "date": row[3], "resume": (row[4] or "")[:300],
+                                "juridiction": "QC", "resultat": row[6] or "inconnu",
+                                "source": "FTS-Federal", "score": 60
+                            })
+                except sqlite3.OperationalError:
+                    pass
+        except Exception as e:
+            self.log(f"Erreur FTS Federal: {e}", "FAIL")
         conn.close()
         return results
 
@@ -129,32 +175,38 @@ class AgentPrecedentsQC(BaseAgent):
         return results
 
     def _recherche_canlii(self, infraction, lois):
-        """Recherche CanLII API pour jurisprudence QC additionnelle"""
+        """Recherche CanLII API v1 — necessite API key"""
         results = []
+        if not CANLII_API_KEY:
+            return results
         try:
             import requests
-            # CanLII API gratuite — jurisprudence quebecoise
-            query = infraction[:80]
-            params = {
-                "q": query,
-                "jurisdiction": "qc",
-                "resultCount": 5
-            }
-            resp = requests.get("https://api.canlii.org/v1/caseBrowse/qc/",
-                                params=params, timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                for item in data.get("cases", [])[:5]:
-                    results.append({
-                        "id": f"CANLII-{item.get('caseId', '')}",
-                        "citation": item.get("citation", item.get("title", ""))[:100],
-                        "tribunal": item.get("court", "Cour QC"),
-                        "date": item.get("date", ""),
-                        "resume": item.get("title", "")[:300],
-                        "juridiction": "QC",
-                        "resultat": "inconnu",
-                        "source": "CanLII", "score": 55
-                    })
+            # CanLII API v1 search endpoint
+            # Databases QC: qcca (CA), qccs (CS), qccq (CQ), qccm (CM)
+            databases = ["qccq", "qcca", "qccs", "qccm"]
+            for db_id in databases:
+                params = {
+                    "api_key": CANLII_API_KEY,
+                    "offset": 0,
+                    "resultCount": 3
+                }
+                resp = requests.get(f"https://api.canlii.org/v1/caseBrowse/{db_id}/",
+                                    params=params, timeout=10)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    for item in data.get("cases", [])[:3]:
+                        results.append({
+                            "id": f"CANLII-{item.get('caseId', {}).get('en', '')}",
+                            "citation": item.get("citation", item.get("title", ""))[:100],
+                            "tribunal": db_id.upper(),
+                            "date": item.get("date", ""),
+                            "resume": item.get("title", "")[:300],
+                            "juridiction": "QC",
+                            "resultat": "inconnu",
+                            "source": "CanLII-QC", "score": 55
+                        })
+                if len(results) >= 5:
+                    break
         except Exception as e:
             self.log(f"CanLII erreur: {e}", "WARN")
         return results
@@ -173,19 +225,23 @@ class AgentPrecedentsQC(BaseAgent):
         queries = []
         lower = infraction.lower()
 
-        if any(w in lower for w in ["vitesse", "excès", "exces", "km/h", "radar"]):
+        if any(w in lower for w in ["vitesse", "excès", "exces", "km/h", "radar", "photo radar", "cinémomètre"]):
             queries.extend(["vitesse OR excès OR radar", "cinémomètre OR photo radar",
                            "art 299 OR art 303"])
-        if any(w in lower for w in ["feu rouge", "signalisation"]):
+        if any(w in lower for w in ["feu rouge", "feu", "signalisation", "lumiere"]):
             queries.extend(["feu rouge OR signalisation", "art 328 OR art 359"])
-        if any(w in lower for w in ["cellulaire", "telephone", "portable"]):
-            queries.extend(["cellulaire OR téléphone OR appareil", "art 443.1"])
+        if any(w in lower for w in ["cellulaire", "telephone", "portable", "texte", "texto"]):
+            queries.extend(["cellulaire OR téléphone OR appareil", "art 443"])
         if any(w in lower for w in ["stop", "arrêt", "arret"]):
-            queries.extend(["arrêt OR stop", "panneau arrêt"])
-        if any(w in lower for w in ["alcool", "ivresse", "facultes"]):
+            queries.extend(["arrêt OR stop", "panneau arrêt OR panneau stop"])
+        if any(w in lower for w in ["alcool", "ivresse", "facultes", "alcootest", "capacité affaiblie"]):
             queries.extend(["alcool OR facultés affaiblies", "alcootest OR ivressomètre"])
         if any(w in lower for w in ["ceinture"]):
-            queries.extend(["ceinture sécurité"])
+            queries.extend(["ceinture sécurité OR ceinture"])
+        if any(w in lower for w in ["dangereuse", "dangereux", "imprudent"]):
+            queries.extend(["conduite dangereuse OR écart marqué"])
+        if any(w in lower for w in ["permis", "suspendu", "suspension"]):
+            queries.extend(["permis suspendu OR conduite sans permis"])
 
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]
