@@ -626,6 +626,52 @@ def get_dossier(dossier_uuid):
         return jsonify({"error": str(e)}), 500
 
 
+# ─── ENVOI EMAIL RAPPORT ──────────────────────
+@app.route("/api/send-report", methods=["POST"])
+def send_report():
+    """Envoie le rapport par email a un destinataire"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "JSON requis"}), 400
+
+    email = data.get("email", "")
+    dossier_uuid = data.get("dossier_uuid", "")
+
+    if not email or not dossier_uuid:
+        return jsonify({"error": "email et dossier_uuid requis"}), 400
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""SELECT rapport_client_json, score_final, recommandation
+                     FROM analyses_completes WHERE dossier_uuid = ?""", (dossier_uuid,))
+        row = c.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
+
+        rapport_client = json.loads(row[0] or "{}")
+        rapport_client["score"] = row[1]
+
+        from agents.agent_notification import AgentNotification
+        notif = AgentNotification()
+        result = notif.notifier(
+            dossier_uuid,
+            {"email": email},
+            rapport_client
+        )
+
+        return jsonify({
+            "success": result.get("email", {}).get("sent", False),
+            "status": result.get("email", {}).get("status", "?"),
+            "dossier_uuid": dossier_uuid,
+            "email": email
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     print("TICKET911 API v2 — 26 agents — http://0.0.0.0:8912")
     app.run(host="0.0.0.0", port=8912, debug=False)
