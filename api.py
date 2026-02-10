@@ -167,6 +167,20 @@ def analyze():
 
         dossier_uuid = rapport.get("dossier_uuid", "")
 
+        # Extraire l'analyse complete depuis le rapport sauvegardé en DB
+        analyse_data = None
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("SELECT analyse_json FROM analyses_completes WHERE dossier_uuid = ?",
+                      (dossier_uuid,))
+            row = c.fetchone()
+            if row and row[0]:
+                analyse_data = json.loads(row[0])
+            conn.close()
+        except Exception:
+            pass
+
         return jsonify({
             "success": True,
             "dossier_uuid": dossier_uuid,
@@ -183,7 +197,7 @@ def analyze():
                 } if isinstance(agents, dict) else {}
                 for phase, agents in rapport.get("phases", {}).items()
             },
-            "analyse": rapport.get("phases", {}).get("analyse", {}).get("analyste", {}).get("analyse") if isinstance(rapport.get("phases", {}).get("analyse", {}).get("analyste"), dict) else None,
+            "analyse": analyse_data,
             "rapport_client": rapport.get("phases", {}).get("livraison", {}).get("rapport_client"),
             "procedure": rapport.get("phases", {}).get("analyse", {}).get("procedure"),
             "points": rapport.get("phases", {}).get("analyse", {}).get("points"),
