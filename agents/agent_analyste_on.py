@@ -1,11 +1,12 @@
 """
 Agent ON: ANALYSTE ONTARIO — Strategie HTA, Provincial Offences Court
 Highway Traffic Act, stunt driving, disclosure rights, early resolution
+Moteur: Qwen3-235B (meilleur knowledge/classification EN)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, DEEPSEEK_MODEL
+from agents.base_agent import BaseAgent, QWEN3
 
 
 class AgentAnalysteON(BaseAgent):
@@ -91,7 +92,7 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
         system = ("Avocat ON specialise HTA/POA. Cite UNIQUEMENT les precedents fournis. "
                   "Connais le Highway Traffic Act et la procedure POA. JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=QWEN3, temperature=0.1, max_tokens=3000)
         duration = time.time() - start
 
         if response["success"]:

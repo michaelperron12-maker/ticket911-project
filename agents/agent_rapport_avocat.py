@@ -5,7 +5,7 @@ Jargon juridique, citations, references legales completes
 
 import time
 import json
-from agents.base_agent import BaseAgent
+from agents.base_agent import BaseAgent, MIXTRAL_FR, GLM4
 
 
 class AgentRapportAvocat(BaseAgent):
@@ -81,9 +81,14 @@ Score: {score}% | Confiance verification: {confiance}
     "note_confidentielle": "observations internes"
 }}"""
 
+        # Choisir le moteur selon la juridiction
+        jur = ticket.get("juridiction", "QC")
+        model = MIXTRAL_FR if jur == "QC" else GLM4
+        lang = "Francais" if jur == "QC" else "English"
+
         response = self.call_ai(prompt,
-                                system_prompt="Redige pour un avocat. Jargon juridique, citations precises. JSON uniquement.",
-                                temperature=0.1, max_tokens=3000)
+                                system_prompt=f"Redige pour un avocat. Jargon juridique, citations precises. {lang}. JSON uniquement.",
+                                model=model, temperature=0.1, max_tokens=3000)
         duration = time.time() - start
 
         if response["success"]:

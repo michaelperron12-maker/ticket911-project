@@ -1,11 +1,12 @@
 """
 Agent QC: ANALYSTE QUEBEC — Strategie specifique droit routier QC
 Code de la securite routiere, SAAQ, Cour municipale, reglements municipaux
+Moteur: DeepSeek V3p2 (raisonnement juridique FR)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, DEEPSEEK_MODEL
+from agents.base_agent import BaseAgent, DEEPSEEK_V3
 
 
 class AgentAnalysteQC(BaseAgent):
@@ -91,7 +92,7 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
         system = ("Avocat QC specialise CSR/SAAQ. Cite UNIQUEMENT les precedents fournis. "
                   "Connais le Code de la securite routiere par coeur. JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=DEEPSEEK_V3, temperature=0.1, max_tokens=3000)
         duration = time.time() - start
 
         if response["success"]:

@@ -1,13 +1,13 @@
 """
 Agent Phase 1: OCR MASTER — Photo de contravention → 50+ champs extraits
-Utilise Mindee API quand disponible, sinon fallback sur AI vision
+Moteur: Qwen3-VL-235B (vision) + Mindee API fallback
 """
 
 import os
 import json
 import time
 import base64
-from agents.base_agent import BaseAgent
+from agents.base_agent import BaseAgent, QWEN_VL
 
 MINDEE_API_KEY = os.environ.get("MINDEE_API_KEY", "")
 
@@ -88,10 +88,48 @@ class AgentOCR(BaseAgent):
             return None
 
     def _ocr_ai_vision(self, image_path, image_base64):
-        """Fallback: utiliser AI pour lire le ticket depuis le texte extrait"""
-        self.log("Fallback: AI text extraction", "WARN")
-        # Pour l'instant, retourner None — sera implemente avec Claude Vision ou equivalent
-        return None
+        """Vision AI: Qwen3-VL lit directement la photo du ticket"""
+        self.log("Vision AI: Qwen3-VL analyse la photo du ticket...", "STEP")
+
+        prompt = """Lis cette photo de contravention/ticket routier.
+Extrais TOUS les champs visibles sur le document.
+
+Reponds UNIQUEMENT en JSON:
+{
+    "infraction": "type d'infraction",
+    "juridiction": "Quebec|Ontario|New York",
+    "loi": "article de loi",
+    "amende": "montant",
+    "points_inaptitude": 0,
+    "lieu": "lieu de l'infraction",
+    "date": "YYYY-MM-DD",
+    "appareil": "type d'appareil de mesure si visible",
+    "vitesse_captee": 0,
+    "vitesse_permise": 0,
+    "numero_constat": "numero du constat",
+    "agent": "nom/matricule de l'agent",
+    "poste_police": "poste de police",
+    "plaque": "numero de plaque",
+    "vehicule": "marque/modele si visible"
+}"""
+
+        response = self.call_ai_vision(prompt,
+                                       image_path=image_path,
+                                       image_base64=image_base64,
+                                       system_prompt="OCR expert. Lis le ticket et extrais toutes les donnees. JSON uniquement.",
+                                       temperature=0.05, max_tokens=1500)
+
+        if response["success"]:
+            try:
+                result = self.parse_json_response(response["text"])
+                self.log(f"Vision OCR reussi — {len([v for v in result.values() if v])} champs extraits", "OK")
+                return result
+            except Exception as e:
+                self.log(f"Vision OCR parsing error: {e}", "FAIL")
+                return None
+        else:
+            self.log(f"Vision OCR error: {response.get('error', '?')}", "FAIL")
+            return None
 
     def _mapper_mindee(self, prediction):
         """Mappe les champs Mindee vers le format Ticket911"""

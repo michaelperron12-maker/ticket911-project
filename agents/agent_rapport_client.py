@@ -5,7 +5,7 @@ Pas de jargon juridique, comprehensible par tout le monde
 
 import time
 import json
-from agents.base_agent import BaseAgent
+from agents.base_agent import BaseAgent, MIXTRAL_FR, GLM4
 
 
 class AgentRapportClient(BaseAgent):
@@ -58,9 +58,14 @@ REPONDS EN JSON:
     "economie": "combien le client peut economiser"
 }}"""
 
+        # Choisir le moteur selon la langue de la juridiction
+        jur = ticket.get("juridiction", "QC")
+        model = MIXTRAL_FR if jur == "QC" else GLM4
+        lang = "Francais" if jur == "QC" else "English"
+
         response = self.call_ai(prompt,
-                                system_prompt="Redige pour un client non-juriste. Clair, simple, direct. Francais. JSON uniquement.",
-                                temperature=0.2, max_tokens=1500)
+                                system_prompt=f"Redige pour un client non-juriste. Clair, simple, direct. {lang}. JSON uniquement.",
+                                model=model, temperature=0.2, max_tokens=1500)
         duration = time.time() - start
 
         if response["success"]:

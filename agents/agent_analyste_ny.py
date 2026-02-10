@@ -1,11 +1,12 @@
 """
 Agent NY: ANALYSTE NEW YORK — Strategie TVB/court specifique NY
 Vehicle and Traffic Law, Traffic Violations Bureau, plea bargaining rules
+Moteur: Kimi K2p5 (agentic EN)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, DEEPSEEK_MODEL
+from agents.base_agent import BaseAgent, KIMI_K2
 
 
 class AgentAnalysteNY(BaseAgent):
@@ -81,7 +82,7 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
         system = ("Avocat NY specialise VTL/TVB. Cite UNIQUEMENT les precedents fournis. "
                   "Connais les regles TVB (pas de plea bargain dans NYC). JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=KIMI_K2, temperature=0.1, max_tokens=3000)
         duration = time.time() - start
 
         if response["success"]:

@@ -1,14 +1,14 @@
 """
-Agent Gold Standard: ANALYSE PHOTOS — AI Vision
+Agent Gold Standard: ANALYSE PHOTOS — AI Vision reelle
+Moteur: Qwen3-VL-235B (vision multimodale)
 Detecte panneaux, signalisation, conditions route, position radar
-Analyse les photos du lieu soumises par le client
 """
 
 import time
 import os
 import json
 import base64
-from agents.base_agent import BaseAgent
+from agents.base_agent import BaseAgent, QWEN_VL
 
 
 class AgentPhotoAnalyse(BaseAgent):
@@ -124,9 +124,10 @@ REPONDS EN JSON:
     "note": "observation importante"
 }}"""
 
-        response = self.call_ai(prompt,
-                                system_prompt="Analyse photo expert en droit routier. Identifie tous les elements pertinents pour une defense. JSON uniquement.",
-                                temperature=0.1, max_tokens=1500)
+        response = self.call_ai_vision(prompt,
+                                       image_path=path,
+                                       system_prompt="Analyse photo expert en droit routier. Identifie tous les elements pertinents pour une defense. JSON uniquement.",
+                                       temperature=0.1, max_tokens=1500)
 
         if response["success"]:
             try:

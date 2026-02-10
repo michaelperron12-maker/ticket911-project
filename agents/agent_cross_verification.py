@@ -5,7 +5,7 @@ Verifie l'analyse avec un modele DIFFERENT pour fiabilite 99.5%
 
 import time
 import json
-from agents.base_agent import BaseAgent, DEEPSEEK_R1
+from agents.base_agent import BaseAgent, DEEPSEEK_R1, KIMI_THINK
 
 
 class AgentCrossVerification(BaseAgent):
