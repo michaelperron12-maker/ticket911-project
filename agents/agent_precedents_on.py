@@ -80,6 +80,8 @@ class AgentPrecedentsON(BaseAgent):
 
             queries = self._generer_requetes_on(infraction)
             seen_ids = set()
+
+            # Priorite 1: tribunaux traffic (ONCJ, ONSC) — cases directement pertinentes
             for query in queries:
                 try:
                     c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
@@ -88,6 +90,7 @@ class AgentPrecedentsON(BaseAgent):
                                  JOIN jurisprudence j ON fts.rowid = j.id
                                  WHERE jurisprudence_fts MATCH ?
                                  AND j.juridiction = 'ON'
+                                 AND j.tribunal IN ('ONCJ', 'ONSC')
                                  LIMIT ?""", (query, limit))
                     for row in c.fetchall():
                         if row[0] not in seen_ids:
@@ -96,10 +99,34 @@ class AgentPrecedentsON(BaseAgent):
                                 "id": row[0], "citation": row[1], "tribunal": row[2],
                                 "date": row[3], "resume": (row[4] or "")[:300],
                                 "juridiction": row[5], "resultat": row[6] or "inconnu",
-                                "source": "FTS-ON", "score": 75
+                                "source": "FTS-ON", "score": 85
                             })
                 except sqlite3.OperationalError:
                     pass
+
+            # Priorite 2: ONCA (Court of Appeal) — precedents d'appel
+            if len(results) < limit:
+                for query in queries:
+                    try:
+                        c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                            j.resume, j.juridiction, j.resultat
+                                     FROM jurisprudence_fts fts
+                                     JOIN jurisprudence j ON fts.rowid = j.id
+                                     WHERE jurisprudence_fts MATCH ?
+                                     AND j.juridiction = 'ON'
+                                     AND j.tribunal = 'ONCA'
+                                     LIMIT ?""", (query, limit - len(results)))
+                        for row in c.fetchall():
+                            if row[0] not in seen_ids:
+                                seen_ids.add(row[0])
+                                results.append({
+                                    "id": row[0], "citation": row[1], "tribunal": row[2],
+                                    "date": row[3], "resume": (row[4] or "")[:300],
+                                    "juridiction": row[5], "resultat": row[6] or "inconnu",
+                                    "source": "FTS-ON", "score": 65
+                                })
+                    except sqlite3.OperationalError:
+                        pass
         except Exception as e:
             self.log(f"Erreur FTS ON: {e}", "FAIL")
 

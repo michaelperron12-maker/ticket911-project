@@ -84,6 +84,8 @@ class AgentPrecedentsQC(BaseAgent):
 
             queries = self._generer_requetes_qc(infraction)
             seen_ids = set()
+
+            # Priorite 1: Cour municipale et Cour du Quebec — cases traffic directes
             for query in queries:
                 try:
                     c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
@@ -92,18 +94,44 @@ class AgentPrecedentsQC(BaseAgent):
                                  JOIN jurisprudence j ON fts.rowid = j.id
                                  WHERE jurisprudence_fts MATCH ?
                                  AND j.juridiction = 'QC'
+                                 AND j.tribunal IN ('QCCM', 'QCCQ', 'QCCS', 'QCCA', 'CSC')
                                  LIMIT ?""", (query, limit))
                     for row in c.fetchall():
                         if row[0] not in seen_ids:
                             seen_ids.add(row[0])
+                            # Score plus haut pour cour municipale (cas directs)
+                            tribunal_score = 90 if row[2] == 'QCCM' else 85 if row[2] == 'QCCQ' else 75
                             results.append({
                                 "id": row[0], "citation": row[1], "tribunal": row[2],
                                 "date": row[3], "resume": (row[4] or "")[:300],
                                 "juridiction": row[5], "resultat": row[6] or "inconnu",
-                                "source": "FTS-QC", "score": 75
+                                "source": "FTS-QC", "score": tribunal_score
                             })
                 except sqlite3.OperationalError:
                     pass
+
+            # Priorite 2: tout le reste QC
+            if len(results) < limit:
+                for query in queries:
+                    try:
+                        c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                            j.resume, j.juridiction, j.resultat
+                                     FROM jurisprudence_fts fts
+                                     JOIN jurisprudence j ON fts.rowid = j.id
+                                     WHERE jurisprudence_fts MATCH ?
+                                     AND j.juridiction = 'QC'
+                                     LIMIT ?""", (query, limit - len(results)))
+                        for row in c.fetchall():
+                            if row[0] not in seen_ids:
+                                seen_ids.add(row[0])
+                                results.append({
+                                    "id": row[0], "citation": row[1], "tribunal": row[2],
+                                    "date": row[3], "resume": (row[4] or "")[:300],
+                                    "juridiction": row[5], "resultat": row[6] or "inconnu",
+                                    "source": "FTS-QC", "score": 65
+                                })
+                    except sqlite3.OperationalError:
+                        pass
         except Exception as e:
             self.log(f"Erreur FTS QC: {e}", "FAIL")
 
