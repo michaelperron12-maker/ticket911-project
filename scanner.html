@@ -255,7 +255,7 @@
 
         .agent-icon { font-size:1.4rem; display:block; margin-bottom:3px; position:relative; }
         .agent-name { font-size:.65rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; }
-        .agent-model { font-size:.55rem; color:rgba(255,255,255,0.2); margin-top:2px; }
+        .agent-model { display:none; }
         .agent-status {
             font-size:.55rem; font-weight:600; margin-top:3px;
             display:flex; align-items:center; justify-content:center; gap:3px;
@@ -390,13 +390,6 @@
         }
         .precedent-chip .cit { color:var(--gold); font-weight:600; }
 
-        .models-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px; }
-        .model-chip {
-            padding:8px 10px; border-radius:10px; font-size:.65rem;
-            background:rgba(255,255,255,0.03); border:1px solid var(--border);
-            text-align:center; line-height:1.4;
-        }
-        .model-chip .mn { color:var(--cyan); font-weight:700; font-size:.7rem; }
 
         .btn-secondary {
             width:100%; padding:14px; border:1px solid var(--border); border-radius:14px;
@@ -441,7 +434,7 @@
         <div class="badge-row">
             <span class="badge live" id="statusBadge">Connexion...</span>
             <span class="badge">26 agents</span>
-            <span class="badge">12 moteurs AI</span>
+            <span class="badge">12 moteurs</span>
             <span class="badge">4 phases</span>
         </div>
     </div>
@@ -654,24 +647,6 @@
             <h2 style="justify-content:center">&#128196; Rapport</h2>
             <p id="rapportResume" style="font-size:.88rem;color:#aab;line-height:1.7;text-align:left;margin-bottom:1rem"></p>
             <a class="btn-pdf" id="pdfLink" href="#" target="_blank">Telecharger le rapport PDF</a>
-        </div>
-
-        <div class="card fade-in">
-            <h2>&#129302; Moteurs AI utilises</h2>
-            <div class="models-grid">
-                <div class="model-chip"><span class="mn">DeepSeek V3p2</span><br>Analyse gen.</div>
-                <div class="model-chip"><span class="mn">Qwen3 235B</span><br>Classification</div>
-                <div class="model-chip"><span class="mn">DeepSeek R1</span><br>Verification</div>
-                <div class="model-chip"><span class="mn">Cogito 671B</span><br>Temoignage</div>
-                <div class="model-chip"><span class="mn">Mixtral 8x22B</span><br>Rapports FR</div>
-                <div class="model-chip"><span class="mn">GLM-4p7</span><br>Ontario EN</div>
-                <div class="model-chip"><span class="mn">Kimi K2</span><br>Agentic</div>
-                <div class="model-chip"><span class="mn">Kimi Think</span><br>Audit</div>
-                <div class="model-chip"><span class="mn">Qwen3-VL</span><br>Vision OCR</div>
-                <div class="model-chip"><span class="mn">GPT-OSS 20B</span><br>Rapide</div>
-                <div class="model-chip"><span class="mn">GPT-OSS 120B</span><br>Points calc.</div>
-                <div class="model-chip"><span class="mn">MiniMax M2</span><br>Supervision</div>
-            </div>
         </div>
 
         <button class="btn-secondary" onclick="resetForm()">&#8634; Nouvelle analyse</button>
@@ -904,10 +879,14 @@ async function runDemo(){
     document.getElementById('pipelineSection').style.display='block';
     document.getElementById('resultsSection').style.display='none';
     runPipelineAnimation();
+    const demoStart=Date.now();
     try{
         const resp=await fetch(API_BASE+'/demo',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
         const data=await resp.json();
-        showResults(data);
+        // Attendre au moins 8s pour voir l'animation
+        const elapsed=Date.now()-demoStart;
+        const wait=Math.max(0, 8000-elapsed);
+        setTimeout(()=>showResults(data), wait);
     }catch(err){
         alert('Erreur demo: '+err.message); resetForm();
     }
