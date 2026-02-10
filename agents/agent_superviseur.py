@@ -33,7 +33,7 @@ class AgentSuperviseur(BaseAgent):
         else:
             checks.append({"agent": "OCR Master", "status": "SKIP", "note": "Pas de photo fournie"})
 
-        for agent in ["classificateur", "validateur", "routing"]:
+        for agent in ["classificateur", "validateur", "routing", "lecteur"]:
             data = intake.get(agent, {})
             if data:
                 checks.append({"agent": agent.capitalize(), "status": "OK"})
@@ -43,7 +43,7 @@ class AgentSuperviseur(BaseAgent):
 
         # Phase 2: Analyse juridique
         analyse = phases.get("analyse", {})
-        for agent in ["lecteur", "lois", "precedents", "analyste", "verificateur", "procedure", "points"]:
+        for agent in ["lois", "precedents", "analyste", "verificateur", "procedure", "points"]:
             data = analyse.get(agent, {})
             status = data.get("status", "FAIL") if isinstance(data, dict) else "FAIL"
             checks.append({"agent": agent.capitalize(), "status": status})
