@@ -16,6 +16,13 @@ from flask import Flask, request, jsonify, send_from_directory, send_file, abort
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+# Load .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv("/var/www/ticket911/.env")
+except ImportError:
+    pass
+
 import sys
 sys.path.insert(0, "/var/www/ticket911")
 from agents.orchestrateur import Orchestrateur

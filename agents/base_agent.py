@@ -12,10 +12,17 @@ import base64
 from datetime import datetime
 from openai import OpenAI
 
+# Load .env si disponible
+try:
+    from dotenv import load_dotenv
+    load_dotenv("/var/www/ticket911/.env")
+except ImportError:
+    pass
+
 # ═══════════════════════════════════════════════════════════
 # FIREWORKS AI — STACK 12 MODELES
 # ═══════════════════════════════════════════════════════════
-FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "fw_CbsGnsaL5NSi4wgasWhjtQ")
+FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "")
 
 # --- Vision (seul modele multimodal) ---
 QWEN_VL = "accounts/fireworks/models/qwen3-vl-235b-a22b-instruct"
