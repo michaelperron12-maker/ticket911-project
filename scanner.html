@@ -524,6 +524,12 @@
             </div>
             <br>
             <button type="submit" class="btn-analyze" id="btnAnalyze">&#9889; Lancer l'analyse — 26 agents AI</button>
+            <div style="text-align:center;margin-top:1rem">
+                <button type="button" class="btn-secondary" onclick="runDemo()" style="width:auto;padding:10px 28px;border-color:var(--cyan);color:var(--cyan);font-size:.85rem;">
+                    &#127916; Demo — Tester sans ticket
+                </button>
+                <p class="desc-note">Simule une analyse complete avec des donnees fictives</p>
+            </div>
         </form>
     </div>
 
@@ -889,6 +895,22 @@ function showResults(data){
         // Stagger fade-in
         document.querySelectorAll('.results-section .card').forEach((c,i)=>{c.style.animationDelay=(i*.15)+'s';});
     },1500);
+}
+
+// ═══ DEMO MODE ═══
+async function runDemo(){
+    document.getElementById('btnAnalyze').disabled=true;
+    document.getElementById('formCard').style.display='none';
+    document.getElementById('pipelineSection').style.display='block';
+    document.getElementById('resultsSection').style.display='none';
+    runPipelineAnimation();
+    try{
+        const resp=await fetch(API_BASE+'/demo',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+        const data=await resp.json();
+        showResults(data);
+    }catch(err){
+        alert('Erreur demo: '+err.message); resetForm();
+    }
 }
 
 // ═══ RESET ═══

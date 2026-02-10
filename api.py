@@ -12,7 +12,7 @@ import uuid
 import sqlite3
 import hashlib
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory, send_file, abort
+from flask import Flask, request, jsonify, send_from_directory, send_file, abort, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -65,7 +65,11 @@ def get_client_folder(dossier_uuid):
 # ─── PAGE WEB ─────────────────────────────────
 @app.route("/")
 def index():
-    return send_from_directory(".", "scanner.html")
+    resp = make_response(send_from_directory(".", "scanner.html"))
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 
 # ─── UPLOAD FICHIERS ──────────────────────────
@@ -677,6 +681,58 @@ def send_report():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ─── DEMO (test sans ticket reel) ────────────
+@app.route("/api/demo", methods=["POST"])
+def demo_analyze():
+    """Retourne un resultat simule pour tester le frontend"""
+    import random
+    score = random.randint(62, 88)
+    confiance = random.randint(75, 95)
+    uuid_demo = f"DEMO{random.randint(1000,9999)}"
+    return jsonify({
+        "success": True,
+        "dossier_uuid": uuid_demo,
+        "score": score,
+        "score_final": score,
+        "confiance": confiance,
+        "recommandation": "contester" if score >= 65 else "negocier",
+        "juridiction": "QC",
+        "temps": 45.2,
+        "temps_total": 45.2,
+        "nb_erreurs": 0,
+        "phases": {
+            "intake": {"lecteur": "OK", "ocr": "OK", "classificateur": "OK", "validateur": "OK", "routing": "OK"},
+            "analyse": {"lois": "OK", "precedents": "OK", "analyste": "OK", "procedure": "OK", "points": "OK",
+                        "temoignage": "OK", "photo": "OK", "lois_qc": "OK", "precedents_qc": "OK",
+                        "analyste_qc": "OK", "procedure_qc": "OK", "lois_on": "SKIP", "precedents_on": "SKIP",
+                        "analyste_on": "SKIP", "procedure_on": "SKIP"},
+            "audit": {"verificateur": "OK", "cross_verification": "OK"},
+            "livraison": {"rapport_client": "OK", "rapport_avocat": "OK", "notification": "OK", "supervision": "OK"}
+        },
+        "arguments": [
+            "L'appareil de mesure (cinematometre laser) doit etre calibre quotidiennement selon le Manuel du fabricant — verifier le registre de calibration",
+            "L'agent n'a pas precise dans son rapport la distance de captation — une mesure a plus de 300m est contestable (R. c. Beaulieu, 2019)",
+            "La signalisation de la zone de vitesse reduite doit etre conforme aux normes MTQ — verifier la presence du panneau a l'entree de la zone",
+            "Le delai entre la captation et l'interception est un facteur: un delai trop long empeche l'identification formelle du vehicule",
+            "La marge d'erreur de +/- 2 km/h de l'appareil peut etre invoquee si l'exces est marginal"
+        ],
+        "supervision": {"score_qualite": 92, "decision": "APPROUVE", "agents_verifies": 26},
+        "rapport_client": {
+            "resume": "Votre contravention pour exces de vitesse presente plusieurs elements contestables. L'analyse de 26 agents IA specialises identifie 5 arguments de defense solides bases sur la jurisprudence quebecoise et les normes de calibration des appareils de mesure. Nous recommandons de contester cette infraction.",
+            "verdict": "CONTESTER — Bonnes chances de reussite",
+            "prochaines_etapes": [
+                "Enregistrer votre plaidoyer de non-culpabilite au greffe de la cour municipale dans les 30 jours",
+                "Demander la divulgation de la preuve (rapport d'infraction, registre de calibration, formation de l'agent)",
+                "Preparer votre defense avec les arguments identifies ci-dessus",
+                "Si possible, consulter un avocat specialise en droit routier pour maximiser vos chances"
+            ]
+        },
+        "precedents_trouves": 8,
+        "lois_trouvees": 4,
+        "timestamp": datetime.now().isoformat()
+    })
 
 
 if __name__ == "__main__":
