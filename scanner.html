@@ -14,222 +14,132 @@
         }
         .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 2rem 0 1.5rem;
-        }
+        .header { text-align: center; padding: 2rem 0 1.5rem; }
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
+            font-size: 2.5rem; font-weight: 800;
             background: linear-gradient(135deg, #e63946, #d4a843);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
-        .header .subtitle {
-            color: #8899aa;
-            font-size: 1rem;
-        }
-        .badge-row {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
+        .header .subtitle { color: #8899aa; font-size: 1rem; }
+        .badge-row { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
         .badge {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #aab;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; color: #aab;
         }
         .badge.live { border-color: #4ade80; color: #4ade80; }
 
-        /* Card */
         .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; backdrop-filter: blur(10px);
         }
-        .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: #d4a843;
-        }
+        .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #d4a843; }
 
-        /* Form */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
         .form-group.full { grid-column: 1 / -1; }
+        .form-group.hidden { display: none; }
         label { font-size: 0.8rem; color: #889; font-weight: 500; }
         input, select, textarea {
-            padding: 10px 14px;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            color: #fff;
-            font-size: 0.95rem;
-            outline: none;
+            padding: 10px 14px; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+            background: rgba(255,255,255,0.06); color: #fff; font-size: 0.95rem; outline: none;
             transition: border 0.2s;
         }
-        input:focus, select:focus, textarea:focus {
-            border-color: #d4a843;
-        }
+        input:focus, select:focus, textarea:focus { border-color: #d4a843; }
         select { cursor: pointer; }
         select option { background: #1a1a3e; color: #fff; }
         textarea { resize: vertical; min-height: 80px; }
 
-        /* Upload */
+        /* Type selector */
+        .type-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.6rem; margin-bottom: 1.5rem;
+        }
+        .type-btn {
+            padding: 12px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            background: rgba(255,255,255,0.04); color: #aab; text-align: center;
+            cursor: pointer; transition: all 0.2s; font-size: 0.8rem;
+        }
+        .type-btn:hover { border-color: #d4a843; background: rgba(212,168,67,0.08); }
+        .type-btn.selected { border-color: #e63946; background: rgba(230,57,70,0.15); color: #fff; }
+        .type-icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+
         .upload-zone {
-            border: 2px dashed rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
+            border: 2px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2rem;
+            text-align: center; cursor: pointer; transition: all 0.3s; position: relative;
         }
         .upload-zone:hover { border-color: #d4a843; background: rgba(212,168,67,0.05); }
-        .upload-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
+        .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
         .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
         .upload-text { color: #889; font-size: 0.85rem; }
         .file-name { color: #4ade80; font-size: 0.85rem; margin-top: 0.5rem; }
 
-        /* Button */
+        .or-divider {
+            text-align: center; margin: 1.5rem 0; color: #556; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .or-divider::before, .or-divider::after {
+            content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1);
+        }
+
         .btn-analyze {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #e63946, #c62828);
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 0.5px;
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #e63946, #c62828); color: #fff;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
         }
         .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(230,57,70,0.3); }
         .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* Progress */
         .progress-section { display: none; }
-        .progress-bar-bg {
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #e63946, #d4a843);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.5s;
-        }
+        .progress-bar-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #e63946, #d4a843); border-radius: 3px; width: 0%; transition: width 0.5s; }
         .progress-phases { display: flex; flex-direction: column; gap: 0.5rem; }
-        .phase-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #667;
-        }
+        .phase-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #667; }
         .phase-item.active { color: #d4a843; }
         .phase-item.done { color: #4ade80; }
-        .phase-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: #334;
-        }
+        .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: #334; }
         .phase-item.active .phase-dot { background: #d4a843; animation: pulse 1s infinite; }
         .phase-item.done .phase-dot { background: #4ade80; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* Results */
         .results-section { display: none; }
         .score-circle {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 800;
-            margin: 0 auto 1rem;
-            border: 4px solid;
+            width: 130px; height: 130px; border-radius: 50%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; margin: 0 auto 1rem; border: 4px solid;
         }
+        .score-circle .score-num { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+        .score-circle .score-label { font-size: 0.65rem; opacity: 0.7; }
         .score-low { border-color: #ef4444; color: #ef4444; }
         .score-mid { border-color: #f59e0b; color: #f59e0b; }
         .score-high { border-color: #4ade80; color: #4ade80; }
         .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.7rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            font-size: 0.9rem;
+            display: flex; justify-content: space-between; padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.9rem;
         }
         .result-label { color: #889; }
         .result-value { font-weight: 600; }
-        .reco-box {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-        }
+        .reco-box { margin-top: 1rem; padding: 1rem; border-radius: 10px; text-align: center; font-weight: 600; font-size: 1.1rem; }
         .reco-payer { background: rgba(239,68,68,0.15); color: #ef4444; }
         .reco-contester { background: rgba(74,222,128,0.15); color: #4ade80; }
         .reco-negocier { background: rgba(245,158,11,0.15); color: #f59e0b; }
 
         .args-list { list-style: none; margin-top: 0.5rem; }
-        .args-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.85rem;
-            color: #bbc;
-        }
-        .args-list li::before { content: ""; margin-right: 0.5rem; }
-
+        .args-list li { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: #bbc; }
         .etapes-list { list-style: decimal; padding-left: 1.5rem; }
         .etapes-list li { padding: 0.4rem 0; font-size: 0.85rem; color: #bbc; }
 
-        /* Models used */
-        .models-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
+        .models-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; }
         .model-chip {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 0.7rem;
-            color: #889;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; padding: 6px 10px; font-size: 0.7rem; color: #889;
         }
         .model-chip .model-name { color: #d4a843; font-weight: 600; }
 
-        /* Responsive */
+        .desc-note { font-size: 0.75rem; color: #667; margin-top: 0.5rem; font-style: italic; }
+
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
+            .type-grid { grid-template-columns: repeat(3, 1fr); }
             .header h1 { font-size: 1.8rem; }
         }
     </style>
@@ -237,7 +147,6 @@
 <body>
 
 <div class="container">
-    <!-- Header -->
     <div class="header">
         <h1>TICKET911</h1>
         <p class="subtitle">Analyseur AI Multi-Agents | Droit routier QC & ON</p>
@@ -249,15 +158,58 @@
         </div>
     </div>
 
-    <!-- Form -->
+    <!-- FORM -->
     <div class="card" id="formCard">
-        <h2>Analyser votre contravention</h2>
+        <h2>1. Type de contravention</h2>
+        <div class="type-grid" id="typeGrid">
+            <div class="type-btn" data-type="vitesse" onclick="selectType(this)">
+                <span class="type-icon">&#9889;</span>Exces de vitesse
+            </div>
+            <div class="type-btn" data-type="feu_rouge" onclick="selectType(this)">
+                <span class="type-icon">&#128308;</span>Feu rouge
+            </div>
+            <div class="type-btn" data-type="stop" onclick="selectType(this)">
+                <span class="type-icon">&#9940;</span>Arret / Stop
+            </div>
+            <div class="type-btn" data-type="cellulaire" onclick="selectType(this)">
+                <span class="type-icon">&#128241;</span>Cellulaire au volant
+            </div>
+            <div class="type-btn" data-type="ceinture" onclick="selectType(this)">
+                <span class="type-icon">&#128737;</span>Ceinture de securite
+            </div>
+            <div class="type-btn" data-type="alcool" onclick="selectType(this)">
+                <span class="type-icon">&#127866;</span>Alcool / Capacites affaiblies
+            </div>
+            <div class="type-btn" data-type="conduite_dangereuse" onclick="selectType(this)">
+                <span class="type-icon">&#9888;</span>Conduite dangereuse
+            </div>
+            <div class="type-btn" data-type="stationnement" onclick="selectType(this)">
+                <span class="type-icon">&#127359;</span>Stationnement
+            </div>
+            <div class="type-btn" data-type="permis" onclick="selectType(this)">
+                <span class="type-icon">&#128179;</span>Permis / Immatriculation
+            </div>
+            <div class="type-btn" data-type="autre" onclick="selectType(this)">
+                <span class="type-icon">&#128221;</span>Autre infraction
+            </div>
+        </div>
+
+        <div class="or-divider">OU</div>
+
+        <div class="form-group full" style="margin-bottom:1.5rem">
+            <label>Photo du ticket (l'AI va tout lire automatiquement)</label>
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="ticketPhoto" accept="image/*" onchange="showFileName(this)">
+                <div class="upload-icon">&#128247;</div>
+                <div class="upload-text">Glisser ou cliquer pour ajouter la photo de votre ticket</div>
+                <div class="file-name" id="fileName"></div>
+            </div>
+            <p class="desc-note">Vision AI Qwen3-VL va extraire automatiquement toutes les informations du ticket</p>
+        </div>
+
         <form id="ticketForm" onsubmit="return submitAnalysis(event)">
+            <h2>2. Details de la contravention</h2>
             <div class="form-grid">
-                <div class="form-group">
-                    <label>Infraction</label>
-                    <input type="text" id="infraction" placeholder="Ex: Exces de vitesse" required>
-                </div>
                 <div class="form-group">
                     <label>Juridiction</label>
                     <select id="juridiction">
@@ -266,8 +218,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Article de loi</label>
-                    <input type="text" id="loi" placeholder="Ex: Art. 299 CSR">
+                    <label>Infraction</label>
+                    <input type="text" id="infraction" placeholder="Ex: Exces de vitesse, feu rouge..." required>
+                </div>
+                <div class="form-group">
+                    <label>Article de loi (si connu)</label>
+                    <input type="text" id="loi" placeholder="Ex: Art. 299 CSR, s.144 HTA">
                 </div>
                 <div class="form-group">
                     <label>Amende ($)</label>
@@ -278,33 +234,55 @@
                     <input type="number" id="points" value="0" min="0" max="15">
                 </div>
                 <div class="form-group">
-                    <label>Lieu</label>
-                    <input type="text" id="lieu" placeholder="Ex: Autoroute 15, Laval">
+                    <label>Lieu de l'infraction</label>
+                    <input type="text" id="lieu" placeholder="Ex: Boul. Rene-Levesque, Montreal">
                 </div>
                 <div class="form-group">
                     <label>Date de l'infraction</label>
                     <input type="date" id="date">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="grp_appareil">
                     <label>Appareil de mesure</label>
-                    <input type="text" id="appareil" placeholder="Ex: Cinematometre laser">
+                    <select id="appareil">
+                        <option value="">Aucun / Inconnu</option>
+                        <option value="Cinematometre laser">Cinematometre laser</option>
+                        <option value="Radar photo">Radar photo (camera fixe)</option>
+                        <option value="Radar mobile">Radar mobile</option>
+                        <option value="Camera feu rouge">Camera feu rouge</option>
+                        <option value="Estimation visuelle">Estimation visuelle agent</option>
+                        <option value="Autre">Autre</option>
+                    </select>
                 </div>
-                <div class="form-group">
+
+                <!-- Speed fields - only for vitesse -->
+                <div class="form-group speed-field" id="grp_captee">
                     <label>Vitesse captee (km/h)</label>
                     <input type="number" id="vitesse_captee" value="0" min="0">
                 </div>
-                <div class="form-group">
+                <div class="form-group speed-field" id="grp_permise">
                     <label>Vitesse permise (km/h)</label>
                     <input type="number" id="vitesse_permise" value="0" min="0">
                 </div>
+
+                <!-- Alcool fields -->
+                <div class="form-group alcool-field hidden" id="grp_taux">
+                    <label>Taux d'alcoolemie (mg/100ml)</label>
+                    <input type="number" id="taux_alcool" value="0" min="0" max="500">
+                </div>
+                <div class="form-group alcool-field hidden" id="grp_test">
+                    <label>Type de test</label>
+                    <select id="test_alcool">
+                        <option value="">Non precise</option>
+                        <option value="Alcootest approuve">Alcootest approuve</option>
+                        <option value="Ethylometre">Ethylometre</option>
+                        <option value="Coordination physique">Test de coordination</option>
+                        <option value="Refus">Refus de fournir echantillon</option>
+                    </select>
+                </div>
+
                 <div class="form-group full">
-                    <label>Photo du ticket (optionnel)</label>
-                    <div class="upload-zone" id="uploadZone">
-                        <input type="file" id="ticketPhoto" accept="image/*" onchange="showFileName(this)">
-                        <div class="upload-icon">&#128247;</div>
-                        <div class="upload-text">Glisser ou cliquer pour ajouter la photo du ticket</div>
-                        <div class="file-name" id="fileName"></div>
-                    </div>
+                    <label>Description / Contexte (optionnel)</label>
+                    <textarea id="description" placeholder="Decrivez ce qui s'est passe. Circonstances, ce que vous contestez, temoins, etc."></textarea>
                 </div>
                 <div class="form-group full">
                     <label>Email (pour recevoir le rapport)</label>
@@ -318,11 +296,11 @@
         </form>
     </div>
 
-    <!-- Progress -->
+    <!-- PROGRESS -->
     <div class="card progress-section" id="progressSection">
         <h2>Analyse en cours...</h2>
         <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
-        <div class="progress-phases" id="progressPhases">
+        <div class="progress-phases">
             <div class="phase-item" id="phase1"><span class="phase-dot"></span> Phase 1: Intake (OCR, Classification, Validation, Routing)</div>
             <div class="phase-item" id="phase2"><span class="phase-dot"></span> Phase 2: Analyse juridique (Lois, Precedents, Analyste, Procedure, Points)</div>
             <div class="phase-item" id="phase3"><span class="phase-dot"></span> Phase 3: Audit qualite (Cross-verification double moteur)</div>
@@ -331,16 +309,19 @@
         <p style="margin-top:1rem;font-size:0.8rem;color:#667" id="progressTime">Temps estime: ~50 secondes</p>
     </div>
 
-    <!-- Results -->
+    <!-- RESULTS -->
     <div class="results-section" id="resultsSection">
         <div class="card" style="text-align:center">
             <h2>Resultat de l'analyse</h2>
-            <div class="score-circle" id="scoreCircle">0%</div>
+            <div class="score-circle" id="scoreCircle">
+                <span class="score-num">0%</span>
+                <span class="score-label">contestation</span>
+            </div>
             <div class="reco-box" id="recoBox"></div>
         </div>
 
         <div class="card">
-            <h2>Details</h2>
+            <h2>Details du dossier</h2>
             <div id="resultDetails"></div>
         </div>
 
@@ -354,6 +335,11 @@
             <ol class="etapes-list" id="etapesList"></ol>
         </div>
 
+        <div class="card" id="rapportCard">
+            <h2>Rapport client</h2>
+            <p id="rapportResume" style="font-size:0.9rem;color:#bbc;line-height:1.6"></p>
+        </div>
+
         <div class="card">
             <h2>Moteurs AI utilises</h2>
             <div class="models-grid">
@@ -363,7 +349,7 @@
                 <div class="model-chip"><span class="model-name">Mixtral 8x22B</span><br>Rapports FR</div>
                 <div class="model-chip"><span class="model-name">GLM-4p7</span><br>Rapports EN</div>
                 <div class="model-chip"><span class="model-name">Qwen3-VL</span><br>Vision/OCR</div>
-                <div class="model-chip"><span class="model-name">Cogito 671B</span><br>Temoignage</div>
+                <div class="model-chip"><span class="model-name">Cogito 671B</span><br>Temoignage NLP</div>
                 <div class="model-chip"><span class="model-name">GPT-OSS-20b</span><br>Lecteur rapide</div>
             </div>
         </div>
@@ -375,11 +361,9 @@
 </div>
 
 <script>
-const API_BASE = window.location.pathname.includes('/scanticket')
-    ? '/scanticket/api'
-    : '/api';
+const API_BASE = window.location.pathname.includes('/scanticket') ? '/scanticket/api' : '/api';
+let selectedType = '';
 
-// Check API health
 fetch(API_BASE + '/health')
     .then(r => r.json())
     .then(d => {
@@ -391,9 +375,37 @@ fetch(API_BASE + '/health')
         document.getElementById('statusBadge').classList.remove('live');
     });
 
+function selectType(el) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedType = el.dataset.type;
+
+    // Type names mapping
+    const names = {
+        vitesse: 'Exces de vitesse', feu_rouge: 'Feu rouge', stop: 'Arret stop',
+        cellulaire: 'Cellulaire au volant', ceinture: 'Ceinture de securite',
+        alcool: 'Alcool / Capacites affaiblies', conduite_dangereuse: 'Conduite dangereuse',
+        stationnement: 'Stationnement', permis: 'Permis / Immatriculation', autre: ''
+    };
+    document.getElementById('infraction').value = names[selectedType] || '';
+
+    // Show/hide speed fields
+    document.querySelectorAll('.speed-field').forEach(el => {
+        el.classList.toggle('hidden', selectedType !== 'vitesse');
+    });
+
+    // Show/hide alcool fields
+    document.querySelectorAll('.alcool-field').forEach(el => {
+        el.classList.toggle('hidden', selectedType !== 'alcool');
+    });
+
+    // Show/hide appareil
+    document.getElementById('grp_appareil').classList.toggle('hidden',
+        !['vitesse', 'feu_rouge'].includes(selectedType));
+}
+
 function showFileName(input) {
-    const name = input.files[0] ? input.files[0].name : '';
-    document.getElementById('fileName').textContent = name;
+    document.getElementById('fileName').textContent = input.files[0] ? input.files[0].name : '';
 }
 
 async function submitAnalysis(e) {
@@ -402,15 +414,11 @@ async function submitAnalysis(e) {
     btn.disabled = true;
     btn.textContent = 'Analyse en cours...';
 
-    // Show progress
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('progressSection').style.display = 'block';
     document.getElementById('resultsSection').style.display = 'none';
-
-    // Animate phases
     animatePhases();
 
-    // Build form data
     const formData = new FormData();
     const ticket = {
         infraction: document.getElementById('infraction').value,
@@ -423,7 +431,18 @@ async function submitAnalysis(e) {
         appareil: document.getElementById('appareil').value,
         vitesse_captee: parseInt(document.getElementById('vitesse_captee').value) || 0,
         vitesse_permise: parseInt(document.getElementById('vitesse_permise').value) || 0,
+        type_infraction: selectedType,
     };
+
+    // Alcool fields
+    if (selectedType === 'alcool') {
+        ticket.taux_alcool = parseInt(document.getElementById('taux_alcool').value) || 0;
+        ticket.test_alcool = document.getElementById('test_alcool').value;
+    }
+
+    // Temoignage (description)
+    const desc = document.getElementById('description').value;
+    if (desc) formData.append('temoignage', desc);
 
     const client = { email: document.getElementById('email').value || '' };
 
@@ -445,7 +464,7 @@ async function submitAnalysis(e) {
 
 function animatePhases() {
     const phases = ['phase1', 'phase2', 'phase3', 'phase4'];
-    const durations = [8, 30, 10, 12]; // estimated seconds
+    const durations = [8, 30, 10, 12];
     let elapsed = 0;
     const total = durations.reduce((a, b) => a + b, 0);
 
@@ -458,7 +477,6 @@ function animatePhases() {
         elapsed += durations[i];
     });
 
-    // Progress bar
     let progress = 0;
     const interval = setInterval(() => {
         progress += 100 / (total * 2);
@@ -467,15 +485,12 @@ function animatePhases() {
         document.getElementById('progressTime').textContent =
             'Temps ecoule: ' + Math.round(progress * total / 100) + 's / ~' + total + 's';
     }, 500);
-
     window._progressInterval = interval;
 }
 
 function showResults(data) {
     clearInterval(window._progressInterval);
     document.getElementById('progressBar').style.width = '100%';
-
-    // Mark all phases done
     ['phase1','phase2','phase3','phase4'].forEach(p => {
         document.getElementById(p).classList.remove('active');
         document.getElementById(p).classList.add('done');
@@ -485,59 +500,53 @@ function showResults(data) {
         document.getElementById('progressSection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
 
-        // Score
         const score = data.score_final || 0;
         const circle = document.getElementById('scoreCircle');
-        circle.textContent = score + '%';
+        circle.querySelector('.score-num').textContent = score + '%';
         circle.className = 'score-circle ' + (score >= 60 ? 'score-high' : score >= 30 ? 'score-mid' : 'score-low');
 
-        // Recommendation
         const reco = (data.recommandation || '').toLowerCase();
         const recoBox = document.getElementById('recoBox');
         if (reco.includes('contester')) {
-            recoBox.textContent = 'Recommandation: CONTESTER';
+            recoBox.textContent = 'CONTESTER — Bonnes chances de gagner';
             recoBox.className = 'reco-box reco-contester';
         } else if (reco.includes('negocier')) {
-            recoBox.textContent = 'Recommandation: NEGOCIER';
+            recoBox.textContent = 'NEGOCIER — Reduction possible';
             recoBox.className = 'reco-box reco-negocier';
         } else {
-            recoBox.textContent = 'Recommandation: PAYER';
+            recoBox.textContent = 'PAYER — Faibles chances de contester';
             recoBox.className = 'reco-box reco-payer';
         }
 
-        // Details
         const details = document.getElementById('resultDetails');
         details.innerHTML = [
             ['Dossier', '#' + (data.dossier_uuid || '?')],
             ['Juridiction', data.juridiction || '?'],
-            ['Confiance', (data.confiance || 0) + '%'],
-            ['Qualite', ((data.supervision || {}).score_qualite || '?') + '%'],
-            ['Temps', (data.temps_total || 0) + 's'],
-            ['Erreurs', data.nb_erreurs || 0],
+            ['Confiance analyse', (data.confiance || 0) + '%'],
+            ['Qualite supervision', ((data.supervision || {}).score_qualite || '?') + '%'],
+            ['Temps d\'analyse', (data.temps_total || 0) + 's'],
+            ['Erreurs pipeline', data.nb_erreurs || 0],
         ].map(([l, v]) => `<div class="result-row"><span class="result-label">${l}</span><span class="result-value">${v}</span></div>`).join('');
 
         // Arguments
         const phases = data.phases || {};
-        const analyse = phases.analyse || {};
-        const analyste = analyse.analyste || {};
-        const args = (data.phases?.analyse?.analyste?.data?.arguments) ||
-                     (data.arguments) || [];
+        const args = (phases.analyse?.analyste?.data?.arguments) || (data.arguments) || [];
         const argsList = document.getElementById('argsList');
-        if (args.length) {
-            argsList.innerHTML = args.map(a => `<li>${a}</li>`).join('');
-        } else {
-            argsList.innerHTML = '<li>Aucun argument genere</li>';
-        }
+        argsList.innerHTML = args.length
+            ? args.map(a => `<li>${a}</li>`).join('')
+            : '<li style="color:#667">Aucun argument de defense identifie pour ce type de dossier</li>';
 
         // Etapes
         const rapportClient = phases.livraison?.rapport_client || {};
         const etapes = rapportClient.prochaines_etapes || [];
         const etapesList = document.getElementById('etapesList');
-        if (etapes.length) {
-            etapesList.innerHTML = etapes.map(e => `<li>${e}</li>`).join('');
-        } else {
-            etapesList.innerHTML = '<li>Consultez un avocat specialise</li>';
-        }
+        etapesList.innerHTML = etapes.length
+            ? etapes.map(e => `<li>${e}</li>`).join('')
+            : '<li>Consultez un avocat specialise en droit routier</li>';
+
+        // Rapport resume
+        const resume = rapportClient.resume || '';
+        document.getElementById('rapportResume').textContent = resume || 'Rapport non disponible';
     }, 1500);
 }
 
@@ -551,7 +560,13 @@ function resetForm() {
     ['phase1','phase2','phase3','phase4'].forEach(p => {
         document.getElementById(p).classList.remove('active', 'done');
     });
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    selectedType = '';
 }
+
+// Init: hide speed fields by default
+document.querySelectorAll('.speed-field').forEach(el => el.classList.add('hidden'));
+document.getElementById('grp_appareil').classList.add('hidden');
 </script>
 </body>
 </html>
