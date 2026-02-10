@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket911 — Analyseur AI Multi-Agents</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a1a2a 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #e0e0e0;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 0 1.5rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e63946, #d4a843);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .header .subtitle {
+            color: #8899aa;
+            font-size: 1rem;
+        }
+        .badge-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #aab;
+        }
+        .badge.live { border-color: #4ade80; color: #4ade80; }
+
+        /* Card */
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #d4a843;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 0.8rem; color: #889; font-weight: 500; }
+        input, select, textarea {
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #d4a843;
+        }
+        select { cursor: pointer; }
+        select option { background: #1a1a3e; color: #fff; }
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* Upload */
+        .upload-zone {
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .upload-zone:hover { border-color: #d4a843; background: rgba(212,168,67,0.05); }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .upload-text { color: #889; font-size: 0.85rem; }
+        .file-name { color: #4ade80; font-size: 0.85rem; margin-top: 0.5rem; }
+
+        /* Button */
+        .btn-analyze {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e63946, #c62828);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(230,57,70,0.3); }
+        .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Progress */
+        .progress-section { display: none; }
+        .progress-bar-bg {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e63946, #d4a843);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .progress-phases { display: flex; flex-direction: column; gap: 0.5rem; }
+        .phase-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #667;
+        }
+        .phase-item.active { color: #d4a843; }
+        .phase-item.done { color: #4ade80; }
+        .phase-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #334;
+        }
+        .phase-item.active .phase-dot { background: #d4a843; animation: pulse 1s infinite; }
+        .phase-item.done .phase-dot { background: #4ade80; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Results */
+        .results-section { display: none; }
+        .score-circle {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 1rem;
+            border: 4px solid;
+        }
+        .score-low { border-color: #ef4444; color: #ef4444; }
+        .score-mid { border-color: #f59e0b; color: #f59e0b; }
+        .score-high { border-color: #4ade80; color: #4ade80; }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.9rem;
+        }
+        .result-label { color: #889; }
+        .result-value { font-weight: 600; }
+        .reco-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .reco-payer { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .reco-contester { background: rgba(74,222,128,0.15); color: #4ade80; }
+        .reco-negocier { background: rgba(245,158,11,0.15); color: #f59e0b; }
+
+        .args-list { list-style: none; margin-top: 0.5rem; }
+        .args-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            color: #bbc;
+        }
+        .args-list li::before { content: ""; margin-right: 0.5rem; }
+
+        .etapes-list { list-style: decimal; padding-left: 1.5rem; }
+        .etapes-list li { padding: 0.4rem 0; font-size: 0.85rem; color: #bbc; }
+
+        /* Models used */
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .model-chip {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            color: #889;
+        }
+        .model-chip .model-name { color: #d4a843; font-weight: 600; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>TICKET911</h1>
+        <p class="subtitle">Analyseur AI Multi-Agents | Droit routier QC & ON</p>
+        <div class="badge-row">
+            <span class="badge live" id="statusBadge">API en ligne</span>
+            <span class="badge">28 agents</span>
+            <span class="badge">12 moteurs AI</span>
+            <span class="badge">QC + ON</span>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card" id="formCard">
+        <h2>Analyser votre contravention</h2>
+        <form id="ticketForm" onsubmit="return submitAnalysis(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Infraction</label>
+                    <input type="text" id="infraction" placeholder="Ex: Exces de vitesse" required>
+                </div>
+                <div class="form-group">
+                    <label>Juridiction</label>
+                    <select id="juridiction">
+                        <option value="QC">Quebec</option>
+                        <option value="ON">Ontario</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Article de loi</label>
+                    <input type="text" id="loi" placeholder="Ex: Art. 299 CSR">
+                </div>
+                <div class="form-group">
+                    <label>Amende ($)</label>
+                    <input type="text" id="amende" placeholder="Ex: 368$">
+                </div>
+                <div class="form-group">
+                    <label>Points d'inaptitude</label>
+                    <input type="number" id="points" value="0" min="0" max="15">
+                </div>
+                <div class="form-group">
+                    <label>Lieu</label>
+                    <input type="text" id="lieu" placeholder="Ex: Autoroute 15, Laval">
+                </div>
+                <div class="form-group">
+                    <label>Date de l'infraction</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="form-group">
+                    <label>Appareil de mesure</label>
+                    <input type="text" id="appareil" placeholder="Ex: Cinematometre laser">
+                </div>
+                <div class="form-group">
+                    <label>Vitesse captee (km/h)</label>
+                    <input type="number" id="vitesse_captee" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Vitesse permise (km/h)</label>
+                    <input type="number" id="vitesse_permise" value="0" min="0">
+                </div>
+                <div class="form-group full">
+                    <label>Photo du ticket (optionnel)</label>
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="ticketPhoto" accept="image/*" onchange="showFileName(this)">
+                        <div class="upload-icon">&#128247;</div>
+                        <div class="upload-text">Glisser ou cliquer pour ajouter la photo du ticket</div>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label>Email (pour recevoir le rapport)</label>
+                    <input type="email" id="email" placeholder="votre@email.com">
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn-analyze" id="btnAnalyze">
+                Analyser avec 28 agents AI
+            </button>
+        </form>
+    </div>
+
+    <!-- Progress -->
+    <div class="card progress-section" id="progressSection">
+        <h2>Analyse en cours...</h2>
+        <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-phases" id="progressPhases">
+            <div class="phase-item" id="phase1"><span class="phase-dot"></span> Phase 1: Intake (OCR, Classification, Validation, Routing)</div>
+            <div class="phase-item" id="phase2"><span class="phase-dot"></span> Phase 2: Analyse juridique (Lois, Precedents, Analyste, Procedure, Points)</div>
+            <div class="phase-item" id="phase3"><span class="phase-dot"></span> Phase 3: Audit qualite (Cross-verification double moteur)</div>
+            <div class="phase-item" id="phase4"><span class="phase-dot"></span> Phase 4: Livraison (Rapports, Notification, Supervision)</div>
+        </div>
+        <p style="margin-top:1rem;font-size:0.8rem;color:#667" id="progressTime">Temps estime: ~50 secondes</p>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+        <div class="card" style="text-align:center">
+            <h2>Resultat de l'analyse</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <div class="reco-box" id="recoBox"></div>
+        </div>
+
+        <div class="card">
+            <h2>Details</h2>
+            <div id="resultDetails"></div>
+        </div>
+
+        <div class="card">
+            <h2>Arguments de defense</h2>
+            <ul class="args-list" id="argsList"></ul>
+        </div>
+
+        <div class="card">
+            <h2>Prochaines etapes</h2>
+            <ol class="etapes-list" id="etapesList"></ol>
+        </div>
+
+        <div class="card">
+            <h2>Moteurs AI utilises</h2>
+            <div class="models-grid">
+                <div class="model-chip"><span class="model-name">DeepSeek V3p2</span><br>Analyse QC</div>
+                <div class="model-chip"><span class="model-name">Qwen3-235B</span><br>Analyse ON</div>
+                <div class="model-chip"><span class="model-name">DeepSeek R1</span><br>Cross-verification</div>
+                <div class="model-chip"><span class="model-name">Mixtral 8x22B</span><br>Rapports FR</div>
+                <div class="model-chip"><span class="model-name">GLM-4p7</span><br>Rapports EN</div>
+                <div class="model-chip"><span class="model-name">Qwen3-VL</span><br>Vision/OCR</div>
+                <div class="model-chip"><span class="model-name">Cogito 671B</span><br>Temoignage</div>
+                <div class="model-chip"><span class="model-name">GPT-OSS-20b</span><br>Lecteur rapide</div>
+            </div>
+        </div>
+
+        <button class="btn-analyze" onclick="resetForm()" style="background:linear-gradient(135deg,#1e3a5f,#2a4a7f)">
+            Nouvelle analyse
+        </button>
+    </div>
+</div>
+
+<script>
+const API_BASE = window.location.pathname.includes('/scanticket')
+    ? '/scanticket/api'
+    : '/api';
+
+// Check API health
+fetch(API_BASE + '/health')
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('statusBadge').textContent =
+            d.status === 'ok' ? 'API en ligne — ' + d.agents + ' agents' : 'API hors ligne';
+    })
+    .catch(() => {
+        document.getElementById('statusBadge').textContent = 'API hors ligne';
+        document.getElementById('statusBadge').classList.remove('live');
+    });
+
+function showFileName(input) {
+    const name = input.files[0] ? input.files[0].name : '';
+    document.getElementById('fileName').textContent = name;
+}
+
+async function submitAnalysis(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnAnalyze');
+    btn.disabled = true;
+    btn.textContent = 'Analyse en cours...';
+
+    // Show progress
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('progressSection').style.display = 'block';
+    document.getElementById('resultsSection').style.display = 'none';
+
+    // Animate phases
+    animatePhases();
+
+    // Build form data
+    const formData = new FormData();
+    const ticket = {
+        infraction: document.getElementById('infraction').value,
+        juridiction: document.getElementById('juridiction').value,
+        loi: document.getElementById('loi').value,
+        amende: document.getElementById('amende').value,
+        points_inaptitude: parseInt(document.getElementById('points').value) || 0,
+        lieu: document.getElementById('lieu').value,
+        date: document.getElementById('date').value,
+        appareil: document.getElementById('appareil').value,
+        vitesse_captee: parseInt(document.getElementById('vitesse_captee').value) || 0,
+        vitesse_permise: parseInt(document.getElementById('vitesse_permise').value) || 0,
+    };
+
+    const client = { email: document.getElementById('email').value || '' };
+
+    formData.append('ticket', JSON.stringify(ticket));
+    formData.append('client_info', JSON.stringify(client));
+
+    const photo = document.getElementById('ticketPhoto').files[0];
+    if (photo) formData.append('image', photo);
+
+    try {
+        const resp = await fetch(API_BASE + '/analyze', { method: 'POST', body: formData });
+        const data = await resp.json();
+        showResults(data);
+    } catch (err) {
+        alert('Erreur: ' + err.message);
+        resetForm();
+    }
+}
+
+function animatePhases() {
+    const phases = ['phase1', 'phase2', 'phase3', 'phase4'];
+    const durations = [8, 30, 10, 12]; // estimated seconds
+    let elapsed = 0;
+    const total = durations.reduce((a, b) => a + b, 0);
+
+    phases.forEach((id, i) => {
+        setTimeout(() => {
+            phases.forEach(p => document.getElementById(p).classList.remove('active'));
+            for (let j = 0; j < i; j++) document.getElementById(phases[j]).classList.add('done');
+            document.getElementById(id).classList.add('active');
+        }, elapsed * 1000);
+        elapsed += durations[i];
+    });
+
+    // Progress bar
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 100 / (total * 2);
+        if (progress >= 95) { clearInterval(interval); progress = 95; }
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('progressTime').textContent =
+            'Temps ecoule: ' + Math.round(progress * total / 100) + 's / ~' + total + 's';
+    }, 500);
+
+    window._progressInterval = interval;
+}
+
+function showResults(data) {
+    clearInterval(window._progressInterval);
+    document.getElementById('progressBar').style.width = '100%';
+
+    // Mark all phases done
+    ['phase1','phase2','phase3','phase4'].forEach(p => {
+        document.getElementById(p).classList.remove('active');
+        document.getElementById(p).classList.add('done');
+    });
+
+    setTimeout(() => {
+        document.getElementById('progressSection').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'block';
+
+        // Score
+        const score = data.score_final || 0;
+        const circle = document.getElementById('scoreCircle');
+        circle.textContent = score + '%';
+        circle.className = 'score-circle ' + (score >= 60 ? 'score-high' : score >= 30 ? 'score-mid' : 'score-low');
+
+        // Recommendation
+        const reco = (data.recommandation || '').toLowerCase();
+        const recoBox = document.getElementById('recoBox');
+        if (reco.includes('contester')) {
+            recoBox.textContent = 'Recommandation: CONTESTER';
+            recoBox.className = 'reco-box reco-contester';
+        } else if (reco.includes('negocier')) {
+            recoBox.textContent = 'Recommandation: NEGOCIER';
+            recoBox.className = 'reco-box reco-negocier';
+        } else {
+            recoBox.textContent = 'Recommandation: PAYER';
+            recoBox.className = 'reco-box reco-payer';
+        }
+
+        // Details
+        const details = document.getElementById('resultDetails');
+        details.innerHTML = [
+            ['Dossier', '#' + (data.dossier_uuid || '?')],
+            ['Juridiction', data.juridiction || '?'],
+            ['Confiance', (data.confiance || 0) + '%'],
+            ['Qualite', ((data.supervision || {}).score_qualite || '?') + '%'],
+            ['Temps', (data.temps_total || 0) + 's'],
+            ['Erreurs', data.nb_erreurs || 0],
+        ].map(([l, v]) => `<div class="result-row"><span class="result-label">${l}</span><span class="result-value">${v}</span></div>`).join('');
+
+        // Arguments
+        const phases = data.phases || {};
+        const analyse = phases.analyse || {};
+        const analyste = analyse.analyste || {};
+        const args = (data.phases?.analyse?.analyste?.data?.arguments) ||
+                     (data.arguments) || [];
+        const argsList = document.getElementById('argsList');
+        if (args.length) {
+            argsList.innerHTML = args.map(a => `<li>${a}</li>`).join('');
+        } else {
+            argsList.innerHTML = '<li>Aucun argument genere</li>';
+        }
+
+        // Etapes
+        const rapportClient = phases.livraison?.rapport_client || {};
+        const etapes = rapportClient.prochaines_etapes || [];
+        const etapesList = document.getElementById('etapesList');
+        if (etapes.length) {
+            etapesList.innerHTML = etapes.map(e => `<li>${e}</li>`).join('');
+        } else {
+            etapesList.innerHTML = '<li>Consultez un avocat specialise</li>';
+        }
+    }, 1500);
+}
+
+function resetForm() {
+    document.getElementById('formCard').style.display = 'block';
+    document.getElementById('progressSection').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('btnAnalyze').disabled = false;
+    document.getElementById('btnAnalyze').textContent = 'Analyser avec 28 agents AI';
+    document.getElementById('progressBar').style.width = '0%';
+    ['phase1','phase2','phase3','phase4'].forEach(p => {
+        document.getElementById(p).classList.remove('active', 'done');
+    });
+}
+</script>
+</body>
+</html>

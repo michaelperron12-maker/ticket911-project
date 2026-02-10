@@ -58,7 +58,7 @@ def get_client_folder(dossier_uuid):
 # ─── PAGE WEB ─────────────────────────────────
 @app.route("/")
 def index():
-    return send_from_directory("web", "index.html")
+    return send_from_directory(".", "scanner.html")
 
 
 # ─── UPLOAD FICHIERS ──────────────────────────
