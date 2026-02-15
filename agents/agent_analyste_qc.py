@@ -1,7 +1,8 @@
 """
 Agent QC: ANALYSTE QUEBEC — Strategie specifique droit routier QC
 Code de la securite routiere, SAAQ, Cour municipale, reglements municipaux
-V2: Pre-scoring deterministe + stats acquittement + boost vecteurs defense
+V4: Pre-scoring deterministe + vecteurs defense etendus (vitesse + non-vitesse)
+   + penalite grand exces renforcee + boost infractions non-standard
 Moteur: GLM-5 (744B, low hallucination, raisonnement juridique)
 """
 
@@ -48,6 +49,42 @@ class AgentAnalysteQC(BaseAgent):
             "boost": 10,
             "raison": "Plaque moto souvent illisible sur photo radar",
             "exemples": ["Fortier 2022 QCCM 234"]
+        },
+        # === VECTEURS NON-VITESSE (Ronde 5) ===
+        "cellulaire_support": {
+            "boost": 25,
+            "raison": "Cellulaire dans support fixe/magnetique, mains libres = art. 443.1 CSR ne s'applique pas",
+            "exemples": ["Gagne 2022 QCCM 189"]
+        },
+        "stationnement_defectueux": {
+            "boost": 20,
+            "raison": "Parcometre/horodateur defectueux = diligence raisonnable, acquittement",
+            "exemples": ["Bedard 2021 QCCM 890"]
+        },
+        "panneau_recent": {
+            "boost": 20,
+            "raison": "Panneau nouvellement installe sans marquage au sol = doute raisonnable",
+            "exemples": ["Morin 2019 QCCM 567"]
+        },
+        "depassement_autoroute": {
+            "boost": 25,
+            "raison": "Depassement par droite sur autoroute/chaussee a sens unique = legal (art. 345 al. 2 CSR)",
+            "exemples": ["Bouchard 2020 QCCM 198"]
+        },
+        "immatriculation_delai": {
+            "boost": 20,
+            "raison": "Vehicule recemment achete, delai raisonnable pour transfert immatriculation (art. 31.1 CSR)",
+            "exemples": ["Singh 2023 QCCM 123"]
+        },
+        "erreur_constat": {
+            "boost": 20,
+            "raison": "Erreur factuelle sur le constat (couleur, modele, plaque, lieu) = vice de procedure",
+            "exemples": ["Caron 2022 QCCM 145"]
+        },
+        "defaut_equipement": {
+            "boost": 15,
+            "raison": "Equipement municipal defectueux (parcometre, feu, signalisation) = diligence raisonnable",
+            "exemples": ["Bedard 2021 QCCM 890"]
         },
     }
 
@@ -225,7 +262,8 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             return None
 
     def _pre_scoring(self, ticket, precedents):
-        """Pre-scoring deterministe base sur les vecteurs de defense detectes"""
+        """Pre-scoring deterministe base sur les vecteurs de defense detectes
+        V4: Vecteurs etendus (non-vitesse) + penalite grand exces renforcee"""
         score = 25  # Score de base pour tout ticket
         vecteurs = []
         grand_exces = False
@@ -246,12 +284,45 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             except (ValueError, TypeError):
                 pass
 
-        # Grand exces = malus
-        if exces >= 40:
+        # ═══ PENALITE GRAND EXCES (renforcee V4) ═══
+        if exces >= 100:
+            # 100+ km/h au-dessus = quasi impossible a contester (course, 200+ km/h)
             grand_exces = True
-            score -= 10  # Plus dur a contester
+            score -= 25
+            vecteurs.append({
+                "nom": "grand_exces_extreme",
+                "boost": -25,
+                "raison": f"Exces extreme ({exces} km/h au-dessus): course/conduite dangereuse, quasi impossible a contester"
+            })
+        elif exces >= 60:
+            grand_exces = True
+            score -= 20
+            vecteurs.append({
+                "nom": "grand_exces_majeur",
+                "boost": -20,
+                "raison": f"Grand exces majeur ({exces} km/h): saisie vehicule, suspension permis, tres difficile"
+            })
+        elif exces >= 40:
+            grand_exces = True
+            score -= 10
+            vecteurs.append({
+                "nom": "grand_exces",
+                "boost": -10,
+                "raison": f"Grand exces ({exces} km/h): saisie vehicule 7 jours, contestation difficile"
+            })
 
-        # === VECTEURS DE DEFENSE ===
+        # Aussi detecter grand exces via l'article de loi (303.2 = grand exces)
+        if "303.2" in loi or "course" in infraction:
+            if not grand_exces:
+                grand_exces = True
+                score -= 20
+                vecteurs.append({
+                    "nom": "art_303_2_course",
+                    "boost": -20,
+                    "raison": "Art. 303.2 CSR (grand exces/course): infraction criminalisee, tres difficile"
+                })
+
+        # ═══ VECTEURS DE DEFENSE VITESSE ═══
 
         # Tout ticket de vitesse a un potentiel de base (verif appareil, constat)
         if any(w in infraction for w in ["vitesse", "excès", "exces", "km/h"]):
@@ -298,7 +369,111 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             score += v["boost"]
             vecteurs.append({"nom": "double_appareil", "boost": v["boost"], "raison": v["raison"]})
 
-        # === BOOST PAR PRECEDENTS ACQUITTES ===
+        # ═══ VECTEURS DE DEFENSE NON-VITESSE (V4) ═══
+
+        # Cellulaire dans support / mains libres
+        if any(w in infraction for w in ["cellulaire", "telephone", "téléphone", "443.1"]):
+            # Base: cellulaire est contestable si support mains-libres
+            score += 10
+            vecteurs.append({
+                "nom": "cellulaire_base",
+                "boost": 10,
+                "raison": "Infraction cellulaire: verifier si support fixe/mains libres (art. 443.1 CSR)"
+            })
+            # Si contexte mentionne support
+            if any(w in contexte for w in ["support", "mains libres", "main libre", "bluetooth"]):
+                v = self.VECTEURS_ACQUITTEMENT["cellulaire_support"]
+                score += v["boost"]
+                vecteurs.append({"nom": "cellulaire_support", "boost": v["boost"], "raison": v["raison"]})
+
+        # Stationnement
+        if any(w in infraction for w in ["stationnement", "parcage", "parking"]):
+            score += 10
+            vecteurs.append({
+                "nom": "stationnement_base",
+                "boost": 10,
+                "raison": "Stationnement: verifier parcometre, signalisation, reglementation municipale"
+            })
+            if any(w in contexte for w in ["defectueux", "brise", "hors service", "erreur", "panne"]):
+                v = self.VECTEURS_ACQUITTEMENT["stationnement_defectueux"]
+                score += v["boost"]
+                vecteurs.append({"nom": "stationnement_defectueux", "boost": v["boost"], "raison": v["raison"]})
+
+        # Panneau d'arret / stop
+        if any(w in infraction for w in ["arret", "arrêt", "stop", "panneau"]):
+            score += 5
+            vecteurs.append({
+                "nom": "panneau_base",
+                "boost": 5,
+                "raison": "Panneau arret: verifier installation, visibilite, marquage au sol"
+            })
+            if any(w in contexte for w in ["nouveau", "recent", "installe", "pas de ligne", "marquage"]):
+                v = self.VECTEURS_ACQUITTEMENT["panneau_recent"]
+                score += v["boost"]
+                vecteurs.append({"nom": "panneau_recent", "boost": v["boost"], "raison": v["raison"]})
+
+        # Depassement
+        if any(w in infraction for w in ["depassement", "dépassement"]):
+            # Depassement par la droite sur autoroute = legal
+            if any(w in lieu for w in ["autoroute", "a-", "a15", "a20", "a40", "a10"]):
+                v = self.VECTEURS_ACQUITTEMENT["depassement_autoroute"]
+                score += v["boost"]
+                vecteurs.append({"nom": "depassement_autoroute", "boost": v["boost"], "raison": v["raison"]})
+            else:
+                score += 5
+                vecteurs.append({
+                    "nom": "depassement_base",
+                    "boost": 5,
+                    "raison": "Depassement: verifier conditions (art. 345 CSR), signalisation"
+                })
+
+        # Immatriculation / permis (SAUF permis expire/invalide = non-contestable)
+        permis_expire = any(w in infraction for w in ["expire", "expiré", "invalide", "sans permis"])
+        if any(w in infraction for w in ["immatriculation", "permis", "enregistrement"]) and not permis_expire:
+            score += 10
+            vecteurs.append({
+                "nom": "immatriculation_base",
+                "boost": 10,
+                "raison": "Defaut immatriculation/permis: verifier delai raisonnable, transfert recent"
+            })
+            if "31.1" in loi or any(w in contexte for w in ["achat", "transfert", "recent", "nouveau"]):
+                v = self.VECTEURS_ACQUITTEMENT["immatriculation_delai"]
+                score += v["boost"]
+                vecteurs.append({"nom": "immatriculation_delai", "boost": v["boost"], "raison": v["raison"]})
+
+        # Feu rouge
+        if any(w in infraction for w in ["feu rouge", "feu", "rouge"]):
+            score += 5
+            vecteurs.append({
+                "nom": "feu_rouge_base",
+                "boost": 5,
+                "raison": "Feu rouge: verifier duree jaune, fonctionnement du feu, camera"
+            })
+
+        # Pieton
+        if any(w in infraction for w in ["pieton", "piéton", "passage"]):
+            score += 5
+            vecteurs.append({
+                "nom": "pieton_base",
+                "boost": 5,
+                "raison": "Pieton: verifier passage pour pietons, signalisation"
+            })
+
+        # Erreur sur le constat (via contexte)
+        if any(w in contexte for w in ["erreur", "couleur", "modele", "plaque erronee", "erron", "constat"]):
+            v = self.VECTEURS_ACQUITTEMENT["erreur_constat"]
+            score += v["boost"]
+            vecteurs.append({"nom": "erreur_constat", "boost": v["boost"], "raison": v["raison"]})
+
+        # Equipement municipal defectueux (via contexte)
+        if any(w in contexte for w in ["defectueux", "brise", "hors service", "panne"]):
+            already_has = any(v["nom"] == "stationnement_defectueux" for v in vecteurs)
+            if not already_has:
+                v = self.VECTEURS_ACQUITTEMENT["defaut_equipement"]
+                score += v["boost"]
+                vecteurs.append({"nom": "defaut_equipement", "boost": v["boost"], "raison": v["raison"]})
+
+        # ═══ BOOST PAR PRECEDENTS ACQUITTES ═══
         if precedents:
             nb_acquittes = sum(1 for p in precedents
                              if (p.get("resultat", "") or "").lower() in ("acquitte", "accueilli", "annule"))
@@ -314,8 +489,8 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
                         "raison": f"{pct_acquittes}% des precedents similaires sont des acquittements"
                     })
 
-        # Borner entre 10 et 90
-        score = max(10, min(90, score))
+        # Borner entre 5 et 90
+        score = max(5, min(90, score))
 
         return {
             "score_base": score,

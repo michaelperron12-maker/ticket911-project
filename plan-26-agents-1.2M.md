@@ -1,4 +1,4 @@
-we# Plan Architecture AI — Ticket911
+we# Plan Architecture AI — AITicketInfo
 ## 26 Agents | 1.2 Million tokens par analyse | 3 Juridictions
 
 ---

@@ -1,4 +1,4 @@
-# Ticket911 — Systeme Multi-Agent (28 agents)
+# AITicketInfo — Systeme Multi-Agent (28 agents)
 # Phase 1: Intake (4 partages)
 # Phase 2: Analyse juridique (6 par juridiction x 3 = 18)
 # Phase 3: Audit qualite (1 partage)

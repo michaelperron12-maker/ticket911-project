@@ -26,7 +26,7 @@
 - **URL:** https://insighto.ai/
 - **Ce que ca fait:** Plateforme no-code pour creer des chatbots AI et voicebots white-label. Tu peux brander completement, mettre ton domaine, ta facturation.
 - **Prix:** Pay-as-you-go: $0.06/min (voix), $0.015/requete (chat). $10 credits gratuits au depart.
-- **Usage pour tickets:** Creer un chatbot d'intake automatise qui pose les questions sur la contravention, collecte les infos du client, et genere un lead qualifie. Peut etre integre direct sur le site Ticket911.
+- **Usage pour tickets:** Creer un chatbot d'intake automatise qui pose les questions sur la contravention, collecte les infos du client, et genere un lead qualifie. Peut etre integre direct sur le site AITicketInfo.
 - **Complexite:** FAIBLE. No-code, deployable en quelques jours. 50+ langues incluant le francais.
 - **Potentiel:** ELEVE. Tu revends le chatbot sous ta marque avec ta propre tarification.
 
@@ -80,7 +80,7 @@
   - Scalable en cloud
   - Integration e-filing via Suffolk LIT Lab
   - Utilise dans 42+ etats US, Canada, Australie
-- **Usage pour tickets:** Creer un flow complet ou le client repond a des questions simples et le systeme genere tous les documents de contestation necessaires. EXACTEMENT ce dont Ticket911 a besoin.
+- **Usage pour tickets:** Creer un flow complet ou le client repond a des questions simples et le systeme genere tous les documents de contestation necessaires. EXACTEMENT ce dont AITicketInfo a besoin.
 - **Complexite:** MOYENNE-ELEVEE. Python/YAML, besoin de dev. Mais communaute active et beaucoup d'exemples.
 - **Potentiel:** MAXIMAL. Base technologique ideale pour une plateforme de contestation. Gratuit, open source, prouve.
 
@@ -193,7 +193,7 @@
 - **URL:** https://www.appwinit.com/
 - **Modele:** App + equipe legale (incluant ex-policiers et juges retraites). Contingency: 50% de l'amende seulement si le ticket est rejete. 700,000+ utilisateurs.
 - **Couverture:** 5 boroughs de New York City (parking + traffic).
-- **Relevance:** Modele de prix "risk-free" tres attractif pour les clients. A considerer pour Ticket911.
+- **Relevance:** Modele de prix "risk-free" tres attractif pour les clients. A considerer pour AITicketInfo.
 
 ### E) Legal Services Franchises Generales
 - **URL:** https://www.franchising.com/legal_services_franchises/
@@ -220,7 +220,7 @@
 - **API:** GraphQL API complete. Developer Center dedie. Construit API-first pour les devs legal tech.
 - **Developer center:** https://confidolegal.com/developer-center
 - **Compliance:** Gestion de compte en fideicommis, conformite aux regles de conduite professionnelle, surcharge conforme.
-- **Usage pour tickets:** IDEAL pour integrer les paiements dans une plateforme custom. API-first = facile a integrer dans Ticket911.
+- **Usage pour tickets:** IDEAL pour integrer les paiements dans une plateforme custom. API-first = facile a integrer dans AITicketInfo.
 - **Complexite:** FAIBLE-MOYENNE. API bien documentee, concu pour les developpeurs.
 - **Potentiel:** TRES ELEVE. Meilleur choix pour une plateforme custom.
 
@@ -278,7 +278,7 @@
   - Constats Express = plateforme de paiement/contestation pour municipalites
 - **API:** PAS D'API PUBLIQUE. Le plumitif est consultable en ligne via SOQUIJ mais pas via API.
 - **Contestation:** Se fait par coupon-reponse ou formulaire en ligne selon la municipalite. 30 jours pour plaider.
-- **Usage pour tickets:** Au Quebec, la contestation reste largement manuelle. Le processus varie par cour municipale. C'est justement LA RAISON pour laquelle une plateforme comme Ticket911 a de la valeur: automatiser ce processus fragmenté.
+- **Usage pour tickets:** Au Quebec, la contestation reste largement manuelle. Le processus varie par cour municipale. C'est justement LA RAISON pour laquelle une plateforme comme AITicketInfo a de la valeur: automatiser ce processus fragmenté.
 - **Complexite:** N/A.
 - **Potentiel:** L'ABSENCE d'API = OPPORTUNITE. Le marche est mur pour la disruption.
 
@@ -335,7 +335,7 @@
 - **Usage pour tickets:**
   - Prise de rendez-vous pour consultations avec avocats
   - Booking de sessions de revision de dossier
-  - Widget integre directement sur le site Ticket911
+  - Widget integre directement sur le site AITicketInfo
 - **Complexite:** FAIBLE. Embed en quelques lignes de code.
 - **Potentiel:** ELEVE. Experience client professionnelle.
 
@@ -400,7 +400,7 @@
 - **Fonde:** 2017, Montreal.
 - **Services:** Contestation de contraventions + autres services juridiques.
 - **Tech:** Le plus avance technologiquement parmi les competiteurs quebecois. Portail web, communication en ligne, processus automatise.
-- **LECON CLE:** Neolegal est le competiteur tech le plus direct de Ticket911 au Quebec. Mais ils font BEAUCOUP plus que juste les tickets. Ticket911 peut se differencier en etant 100% specialise tickets.
+- **LECON CLE:** Neolegal est le competiteur tech le plus direct de AITicketInfo au Quebec. Mais ils font BEAUCOUP plus que juste les tickets. AITicketInfo peut se differencier en etant 100% specialise tickets.
 
 ### E) Doyon Avocats (Quebec City)
 - **URL:** https://www.doyonavocats.ca/

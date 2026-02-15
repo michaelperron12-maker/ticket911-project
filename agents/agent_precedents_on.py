@@ -5,6 +5,7 @@ ONCJ, ONSC, ONCA — Provincial Offences Act
 """
 
 import time
+import os
 from agents.base_agent import BaseAgent, CANLII_API_KEY
 
 
@@ -12,18 +13,20 @@ class AgentPrecedentsON(BaseAgent):
 
     def __init__(self):
         super().__init__("Precedents_ON")
-        self._embedding_service = None
+        self.chroma_collection = None
+        self._init_chroma()
 
-    def _get_embedding_service(self):
-        if self._embedding_service is None:
-            try:
-                import sys
-                sys.path.insert(0, "/var/www/aiticketinfo")
-                from embedding_service import embedding_service
-                self._embedding_service = embedding_service
-            except Exception as e:
-                self.log(f"Embedding service indisponible: {e}", "WARN")
-        return self._embedding_service
+    def _init_chroma(self):
+        try:
+            import chromadb
+            _proj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            client = chromadb.PersistentClient(path=os.path.join(_proj, "data", "embeddings"))
+            self.chroma_collection = client.get_or_create_collection(
+                name="jurisprudence",
+                metadata={"hnsw:space": "cosine"}
+            )
+        except Exception:
+            self.chroma_collection = None
 
     def chercher_precedents(self, ticket, lois, n_results=10):
         """
@@ -218,31 +221,33 @@ class AgentPrecedentsON(BaseAgent):
         return results
 
     def _recherche_semantique_on(self, infraction, n_results=10):
-        svc = self._get_embedding_service()
-        if not svc:
+        if not self.chroma_collection or self.chroma_collection.count() == 0:
             return []
 
         results = []
         try:
-            pgvec_results = svc.search(
-                f"{infraction} Ontario HTA Highway Traffic Act",
-                top_k=n_results,
-                juridiction="ON"
+            chroma_results = self.chroma_collection.query(
+                query_texts=[f"{infraction} Ontario HTA Highway Traffic Act"],
+                n_results=n_results,
+                where={"juridiction": "ON"}
             )
-            for r in pgvec_results:
-                similarity = max(0, r.get("similarity", 0)) * 100
-                results.append({
-                    "id": r.get("id"),
-                    "citation": r.get("citation", ""),
-                    "tribunal": r.get("tribunal", ""),
-                    "date": str(r.get("date_decision", "")) if r.get("date_decision") else "",
-                    "resume": (r.get("resume") or "")[:300],
-                    "juridiction": "ON",
-                    "resultat": r.get("resultat", "inconnu"),
-                    "source": "pgvector-ON", "score": round(similarity, 1)
-                })
+            if chroma_results and chroma_results["ids"][0]:
+                for i, doc_id in enumerate(chroma_results["ids"][0]):
+                    metadata = chroma_results["metadatas"][0][i] if chroma_results["metadatas"] else {}
+                    distance = chroma_results["distances"][0][i] if chroma_results["distances"] else 1.0
+                    similarity = max(0, (1 - distance / 2)) * 100
+                    results.append({
+                        "id": metadata.get("db_id", doc_id),
+                        "citation": metadata.get("citation", doc_id),
+                        "tribunal": metadata.get("tribunal", ""),
+                        "date": metadata.get("date", ""),
+                        "resume": (chroma_results["documents"][0][i] or "")[:300],
+                        "juridiction": "ON",
+                        "resultat": metadata.get("resultat", "inconnu"),
+                        "source": "Semantic-ON", "score": round(similarity, 1)
+                    })
         except Exception as e:
-            self.log(f"Erreur pgvector ON: {e}", "WARN")
+            self.log(f"Erreur semantique ON: {e}", "WARN")
 
         return results
 

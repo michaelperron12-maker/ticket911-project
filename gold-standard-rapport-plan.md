@@ -45,12 +45,12 @@ Quand le client soumet un ticket + preuves → le systeme genere un **rapport PD
 
 ### 4. Generation rapport PDF (~3h)
 - Installer WeasyPrint sur le serveur
-- Template HTML → PDF avec le style Ticket911
+- Template HTML → PDF avec le style AITicketInfo
 - Sections du rapport :
 
 ```
 PAGE 1 — COUVERTURE
-  - Logo Ticket911 par SeoAI
+  - Logo AITicketInfo par SeoAI
   - Numero de dossier
   - Date
   - Juridiction
@@ -151,4 +151,4 @@ Le client va sur seoparai.com/scanticket :
 
 ---
 
-*Gold Standard — SEO par AI | Ticket911*
+*Gold Standard — SEO par AI | AITicketInfo*

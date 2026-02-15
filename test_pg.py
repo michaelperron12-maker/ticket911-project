@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test PostgreSQL integration for AITicketInfo agents"""
 import sys
-sys.path.insert(0, "/var/www/aiticketinfo")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 print("=" * 50)
 print("TEST AGENTS AITICKETINFO - POSTGRESQL")

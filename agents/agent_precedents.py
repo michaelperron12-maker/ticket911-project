@@ -6,6 +6,7 @@ Ne retourne QUE des cas qui existent REELLEMENT dans la base
 
 import time
 import json
+import os
 from agents.base_agent import BaseAgent
 
 
@@ -20,7 +21,8 @@ class AgentPrecedents(BaseAgent):
         """Tente de charger ChromaDB si disponible"""
         try:
             import chromadb
-            client = chromadb.PersistentClient(path="/var/www/aiticketinfo/data/embeddings")
+            _proj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            client = chromadb.PersistentClient(path=os.path.join(_proj, "data", "embeddings"))
             self.chroma_collection = client.get_or_create_collection(
                 name="jurisprudence",
                 metadata={"hnsw:space": "cosine"}

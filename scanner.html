@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITicketInfo — Analyse AI de contraventions | Quebec &amp; Ontario</title>
+    <title>FightMyTicket — Analyse AI de contraventions | Quebec &amp; Ontario</title>
     <meta name="description" content="Analysez votre contravention en 45 secondes avec 26 agents IA. Jurisprudence, lois, arguments de defense — Quebec et Ontario. Outil d'information juridique.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -577,202 +577,6 @@
             .agents-grid { grid-template-columns:repeat(2,1fr); }
             .hero h1 { font-size:2rem; }
         }
-        /* === MOBILE OPTIMIZATION === */
-        @media (max-width:600px) {
-            /* Navbar */
-            .navbar { padding: 0.6rem 1rem; }
-            .nav-logo span { font-size: 1rem !important; }
-            .nav-logo svg { width: 28px; height: 28px; }
-            .nav-cta { padding: 6px 14px !important; font-size: 12px !important; }
-
-            /* Hero */
-            .hero { padding: 5rem 0 2.5rem; }
-            .hero h1 { font-size: 1.6rem; line-height: 1.3; }
-            .hero-sub { font-size: 0.9rem; line-height: 1.5; padding: 0 0.5rem; }
-            .hero-stats { flex-wrap: wrap; gap: 1rem; justify-content: center; }
-            .hero-stat { min-width: 45%; }
-            .hero-stat-num { font-size: 1.6rem; }
-            .hero-stat-label { font-size: 0.7rem; }
-            .hero-cta { font-size: 1rem; padding: 14px 28px; }
-
-            /* Container */
-            .container { padding: 0 1rem; }
-
-            /* Section titles */
-            .section-title { font-size: 1.5rem; }
-            .section-subtitle { font-size: 0.85rem; padding: 0 0.5rem; }
-            .section { padding: 3rem 0; }
-
-            /* Scanner / Camera zone */
-            .camera-zone { padding: 1.5rem 1rem; margin: 0 -0.5rem; }
-            .camera-icon { font-size: 2.5rem; }
-            .camera-title { font-size: 1rem; }
-            .camera-sub { font-size: 0.75rem; }
-            .btn-camera { font-size: 0.9rem; padding: 12px 24px; }
-            .btn-gallery { font-size: 0.8rem; padding: 10px 20px; }
-            .photo-tips { flex-wrap: wrap; gap: 0.4rem; }
-            .photo-tip { min-width: 45%; padding: 0.5rem; }
-            .photo-tip-icon { font-size: 1rem; }
-            .photo-tip-text { font-size: 0.6rem; }
-
-            /* Steps */
-            .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .step-card { padding: 1.2rem; }
-
-            /* Features */
-            .features-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .feature-card { padding: 1.2rem; }
-
-            /* Agents grid */
-            .agents-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-            .agent-item { padding: 0.6rem 0.4rem; font-size: 0.65rem; }
-
-            /* Pricing */
-            .pricing-grid { grid-template-columns: 1fr; max-width: 320px; }
-            .price-card { padding: 1.5rem 1rem; }
-
-            /* FAQ */
-            .faq-q { font-size: 0.9rem; padding: 14px 12px; }
-            .faq-a { padding: 0 12px 14px; font-size: 0.85rem; }
-
-            /* CTA */
-            .cta { padding: 3rem 1rem; }
-            .cta h2 { font-size: 1.5rem; }
-
-            /* Footer */
-            .footer-links { flex-direction: column; gap: 0.3rem; }
-            .footer { padding: 2rem 1rem; }
-            .footer-legal { font-size: 10px; line-height: 1.5; padding: 0 0.5rem; }
-            .footer-logo { font-size: 0.9rem; }
-
-            /* Legal banner */
-            #legalBanner { font-size: 9px; padding: 4px 8px; line-height: 1.4; }
-
-            /* Chatbot section */
-            #chatbot .container { padding: 0 0.5rem; }
-            #chatCard { border-radius: 12px !important; margin: 0 !important; }
-        }
-
-        /* === CHATBOT MOBILE === */
-        @media (max-width:600px) {
-            /* Chat card full width */
-            #chatCard { max-width: 100% !important; border-radius: 10px !important; }
-
-            /* Chat header compact */
-            #chatCard > div:first-child { padding: 10px 14px !important; }
-            #chatCard > div:first-child svg { width: 22px; height: 22px; }
-            #chatCard > div:first-child div div:first-child { font-size: 13px !important; }
-            #chatCard > div:first-child div div:last-child { font-size: 10px !important; }
-
-            /* Messages area - taller on mobile */
-            #chatMessages {
-                height: 320px !important;
-                padding: 10px 12px !important;
-                gap: 8px !important;
-            }
-
-            /* Messages - larger touch targets */
-            .chat-msg {
-                max-width: 88% !important;
-                padding: 10px 12px !important;
-                font-size: 13px !important;
-                line-height: 1.5 !important;
-            }
-            .chat-msg.bot { border-radius: 12px 12px 12px 4px !important; }
-            .chat-msg.user { border-radius: 12px 12px 4px 12px !important; }
-
-            /* Options buttons - full width */
-            .chat-opts {
-                max-width: 95% !important;
-                gap: 6px !important;
-            }
-            .chat-opt-btn {
-                padding: 10px 14px !important;
-                font-size: 13px !important;
-                border-radius: 20px !important;
-                flex: 1 1 auto !important;
-                text-align: center !important;
-                min-width: 45% !important;
-            }
-            .chat-multi {
-                padding: 10px 12px !important;
-                font-size: 13px !important;
-            }
-
-            /* Scan zone */
-            .chat-scan-zone {
-                max-width: 95% !important;
-                padding: 14px !important;
-            }
-            .chat-scan-btn {
-                padding: 12px 16px !important;
-                font-size: 13px !important;
-                border-radius: 10px !important;
-            }
-
-            /* OCR results */
-            .chat-ocr-result {
-                max-width: 95% !important;
-                padding: 12px !important;
-                font-size: 12px !important;
-            }
-            .chat-ocr-row {
-                padding: 5px 0 !important;
-                font-size: 12px !important;
-                flex-wrap: wrap !important;
-                gap: 2px !important;
-            }
-
-            /* Input area */
-            #chatInputArea {
-                padding: 10px 10px !important;
-                gap: 6px !important;
-            }
-            #chatInputArea button:first-child {
-                padding: 10px !important;
-                min-width: 42px;
-            }
-            #chatInput {
-                padding: 10px 12px !important;
-                font-size: 14px !important;
-                border-radius: 10px !important;
-                min-width: 0 !important;
-            }
-            #chatInputArea button:last-child {
-                padding: 10px 14px !important;
-                font-size: 13px !important;
-                border-radius: 10px !important;
-                white-space: nowrap;
-            }
-
-            /* Progress bar */
-            #chatCard > div:nth-child(2) { padding: 6px 14px !important; }
-        }
-
-        /* === VERY SMALL SCREENS === */
-        @media (max-width:380px) {
-            .hero h1 { font-size: 1.4rem; }
-            .hero-stats { gap: 0.8rem; }
-            .hero-stat-num { font-size: 1.3rem; }
-            .hero-cta { font-size: 0.9rem; padding: 12px 24px; }
-            .section-title { font-size: 1.3rem; }
-            #chatMessages { height: 280px !important; }
-            .chat-opt-btn { min-width: 100% !important; }
-        }
-
-        /* === TOUCH IMPROVEMENTS === */
-        @media (hover: none) and (pointer: coarse) {
-            /* Bigger touch targets */
-            .chat-opt-btn { min-height: 44px; }
-            .chat-multi { min-height: 44px; }
-            .chat-scan-btn { min-height: 44px; }
-            .faq-q { min-height: 48px; }
-            .nav-cta { min-height: 44px; display: flex; align-items: center; }
-
-            /* No hover effects on touch */
-            .chat-opt-btn:hover { background: white; color: var(--accent); }
-        }
-
 
         /* === SCROLL REVEAL === */
         .reveal { opacity:0; transform:translateY(30px); transition:opacity .6s ease, transform .6s ease; }
@@ -784,40 +588,16 @@
 <!-- === NAVBAR === -->
 <nav class="navbar">
     <div class="container">
-        <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
-                        <stop offset="0%" stop-color="#2563eb"/>
-                        <stop offset="100%" stop-color="#7c3aed"/>
-                    </linearGradient>
-                </defs>
-                <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
-                <path d="M7 11h22v2.2H7zm0 5.5h16v2.2H7zm0 5.5h19v2.2H7z" fill="white" opacity="0.9"/>
-                <circle cx="27" cy="25" r="5.5" fill="#16a34a"/>
-                <path d="M24.5 25l1.8 1.8 3.2-3.2" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 8.5l2.5-3h11l2.5 3" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
-            </svg>
-            <span style="font-size:1.2rem;font-weight:900;letter-spacing:0.5px;"><span style="color:#1a1a1a;">AI</span><span style="color:#2563eb;">TICKET</span><span style="color:#1a1a1a;">INFO</span></span>
-        </a>
+        <span class="nav-logo">FightMyTicket</span>
         <div class="nav-links">
             <a href="#comment">Comment</a>
             <a href="#features">Avantages</a>
             <a href="#prix">Prix</a>
-            <a href="#chatbot">Assistant</a>
             <a href="#faq">FAQ</a>
-            <a href="#scanner" class="nav-cta">Rechercher mes informations</a>
+            <a href="#scanner" class="nav-cta">Analyser mon ticket</a>
         </div>
     </div>
 </nav>
-
-<!-- === LEGAL BANNER === -->
-<div style="position:fixed;top:0;left:0;right:0;z-index:99;background:rgba(234,179,8,0.95);padding:6px 16px;text-align:center;font-size:11px;color:#1a1a1a;font-weight:500;" id="legalBanner">
-    <strong>AVIS IMPORTANT :</strong> AITicketInfo est un outil d'information statistique. Nous ne sommes <strong>PAS</strong> des avocats et ne fournissons <strong>AUCUN</strong> avis juridique.
-    <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#2563eb;font-weight:700;">Consultez un avocat</a>
-    <button onclick="document.getElementById('legalBanner').style.display='none';document.querySelector('.navbar').style.top='0';" style="background:none;border:none;color:#1a1a1a;cursor:pointer;font-size:14px;margin-left:10px;font-weight:700;">&#10005;</button>
-</div>
-<style>.navbar{top:30px!important;transition:top .3s;}</style>
 
 <!-- === HERO === -->
 <section class="hero">
@@ -826,17 +606,17 @@
             <span class="hero-badge-dot"></span>
             <span id="statusBadge">Connexion...</span>
         </div>
-        <h1>Analysez votre<br>contravention avec<br>l'<span class="highlight">intelligence artificielle</span></h1>
-        <p class="hero-sub">Outil de recherche d'information statistique base sur la jurisprudence publique. 26 agents IA analysent les donnees de CanLII, SOQUIJ et LegisQuebec &mdash; Quebec et Ontario.</p>
+        <h1>Contestez votre<br>contravention avec<br>l'<span class="highlight">intelligence artificielle</span></h1>
+        <p class="hero-sub">26 agents IA analysent votre ticket en 45 secondes. Jurisprudence, lois, arguments de defense &mdash; pour le Quebec et l'Ontario.</p>
         <div class="hero-cta-row">
-            <a href="#scanner" class="btn-primary">Rechercher mes informations</a>
+            <a href="#scanner" class="btn-primary">Analyser mon ticket</a>
             <button class="btn-outline" onclick="scrollToScanner();runDemo()">Voir la demo</button>
         </div>
         <div class="hero-stats">
-            <div class="hero-stat"><div class="hero-stat-num" id="statJuris">--</div><div class="hero-stat-label">Jurisprudences</div></div>
-            <div class="hero-stat"><div class="hero-stat-num" id="statLois">--</div><div class="hero-stat-label">Articles de loi</div></div>
-            <div class="hero-stat"><div class="hero-stat-num" id="statAgents">26</div><div class="hero-stat-label">Agents AI</div></div>
-            <div class="hero-stat"><div class="hero-stat-num">~8<span class="accent">s</span></div><div class="hero-stat-label">Scan OCR</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">30<span class="accent">,</span>447</div><div class="hero-stat-label">Jurisprudences</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">4<span class="accent">,</span>385</div><div class="hero-stat-label">Articles de loi</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">26</div><div class="hero-stat-label">Agents AI</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">45<span class="accent">s</span></div><div class="hero-stat-label">Analyse complete</div></div>
         </div>
     </div>
 </section>
@@ -872,16 +652,16 @@
 <!-- === FEATURES === -->
 <section class="section" id="features" style="padding-top:2rem;">
     <div class="container">
-        <h2 class="section-title reveal">Pourquoi <span class="highlight">AITicketInfo</span></h2>
+        <h2 class="section-title reveal">Pourquoi <span class="highlight">FightMyTicket</span></h2>
         <p class="section-sub reveal">La technologie la plus avancee au service de vos droits</p>
         <div class="features-grid">
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128218;</div>
-                <div><h3><span id="featJuris">31,162</span> decisions de jurisprudence</h3><p>Base de donnees QC et ON mise a jour &mdash; recherche semantique et full-text pour trouver les precedents pertinents.</p></div>
+                <div><h3>30,447 decisions de jurisprudence</h3><p>Base de donnees QC et ON mise a jour &mdash; recherche semantique et full-text pour trouver les precedents pertinents.</p></div>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128220;</div>
-                <div><h3><span id="featLois">4,588</span> articles de loi indexes</h3><p>Code de la securite routiere (QC), Highway Traffic Act (ON), reglements municipaux et lois federales.</p></div>
+                <div><h3>4,385 articles de loi indexes</h3><p>Code de la securite routiere (QC), Highway Traffic Act (ON), reglements municipaux et lois federales.</p></div>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128270;</div>
@@ -1042,7 +822,7 @@
                 <!-- Legal disclaimer checkbox -->
                 <div class="legal-checkbox">
                     <input type="checkbox" id="legalConsent">
-                    <label for="legalConsent">Je comprends que AITicketInfo fournit de l'<strong>information statistique</strong>, et non des conseils juridiques. AITicketInfo n'est pas un cabinet d'avocats, ne pratique pas le droit et ne remplace en aucun cas la consultation d'un avocat membre du <a href='https://www.barreau.qc.ca/fr/trouver-avocat/' target='_blank'>Barreau du Quebec</a> ou du <a href='https://lso.ca/public-resources/finding-a-lawyer-or-paralegal' target='_blank'>Barreau de l'Ontario (LSO)</a>.</label>
+                    <label for="legalConsent">Je comprends que FightMyTicket fournit de l'<strong>information juridique</strong>, et non des conseils juridiques. Cet outil n'est pas un cabinet d'avocats et ne remplace pas la consultation d'un avocat. Les resultats sont a titre informatif seulement.</label>
                 </div>
 
                 <form id="ticketForm" onsubmit="return submitAnalysis(event)">
@@ -1174,479 +954,6 @@
     </div>
 </section>
 
-
-<!-- === CHATBOT ASSISTANT === -->
-<section class="section" id="chatbot" style="background:var(--bg-secondary);">
-    <div class="container">
-        <h2 class="section-title reveal">Assistant <span class="highlight">informatif</span></h2>
-        <p class="section-sub reveal">Posez vos questions ou laissez notre assistant collecter les informations de votre ticket. Aucun conseil juridique — information seulement.</p>
-        <div class="divider"></div>
-
-        <!-- LEGAL MINI BANNER -->
-        <div style="background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.15);border-radius:10px;padding:10px 18px;text-align:center;font-size:12px;color:#92791c;margin-bottom:24px;" class="reveal">
-            <strong>AVIS :</strong> AITicketInfo n'est PAS un cabinet d'avocats. Aucun avis juridique n'est fourni. Pour un avis, consultez un avocat du <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:var(--accent);">Barreau</a>.
-        </div>
-
-        <!-- CHAT CARD -->
-        <div class="card reveal" id="chatCard" style="max-width:720px;margin:0 auto;padding:0;overflow:hidden;border-radius:16px;">
-            
-            <!-- Chat header -->
-            <div style="background:var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/>
-                        <path d="M8 10h16v2H8zm0 5h12v2H8zm0 5h14v2H8z" fill="white"/>
-                    </svg>
-                    <div>
-                        <div style="color:white;font-weight:700;font-size:14px;">Assistant AITicketInfo</div>
-                        <div style="color:rgba(255,255,255,0.7);font-size:11px;" id="chat-status-text">Pret a vous aider</div>
-                    </div>
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button onclick="toggleChatLangue()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;" id="chatLangBtn">EN/FR</button>
-                </div>
-            </div>
-
-            <!-- Progress bar -->
-            <div style="padding:8px 20px;background:var(--bg-card);border-bottom:1px solid var(--border);">
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:4px;">
-                    <span id="chat-progress-text">Etape 1 / 10</span>
-                    <span id="chat-progress-pct">0%</span>
-                </div>
-                <div style="width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
-                    <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width 0.5s;width:0%;" id="chat-progress-fill"></div>
-                </div>
-            </div>
-
-            <!-- Chat messages -->
-            <div id="chatMessages" style="height:380px;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;background:var(--bg-secondary);">
-                <div id="chatTyping" style="display:none;align-self:flex-start;padding:10px 14px;background:white;border-radius:14px;border-bottom-left-radius:4px;border:1px solid var(--border);">
-                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite;"></span>
-                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.2s;"></span>
-                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.4s;"></span>
-                </div>
-            </div>
-
-            <!-- Hidden file inputs for scanner -->
-            <input type="file" id="chatFileCamera" accept="image/*" capture="environment" style="display:none" onchange="chatOnFile(this)">
-            <input type="file" id="chatEvidenceInput" accept="image/*" multiple style="display:none" onchange="chatOnEvidence(this)">
-            <input type="file" id="chatFileGallery" accept="image/*,.pdf" style="display:none" onchange="chatOnFile(this)">
-
-            <!-- Input area -->
-            <div style="padding:12px 16px;background:var(--bg-card);border-top:1px solid var(--border);display:flex;gap:8px;" id="chatInputArea">
-                <button onclick="document.getElementById('chatFileGallery').click()" title="Scanner un ticket" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px;border-radius:10px;cursor:pointer;display:flex;align-items:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                </button>
-                <input type="text" id="chatInput" placeholder="Tapez votre reponse..." style="flex:1;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;" onkeypress="if(event.key==='Enter')chatEnvoyer()">
-                <button onclick="chatEnvoyer()" style="background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;">Envoyer</button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-@keyframes chatDot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-4px);opacity:1} }
-@keyframes chatFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.chat-msg { max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;animation:chatFadeIn .3s ease;white-space:pre-line; }
-.chat-msg.bot { align-self:flex-start;background:white;border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text); }
-.chat-msg.user { align-self:flex-end;background:var(--accent);color:white;border-bottom-right-radius:4px; }
-.chat-msg.system { align-self:center;background:var(--green-light);border:1px solid rgba(22,163,74,0.2);color:var(--green);font-size:12px;text-align:center;max-width:90%; }
-.chat-opts { display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:80%; }
-.chat-opt-btn { background:white;border:1px solid var(--accent);color:var(--accent);padding:7px 14px;border-radius:18px;cursor:pointer;font-size:12px;font-weight:500;transition:all .2s; }
-.chat-opt-btn:hover { background:var(--accent);color:white; }
-.chat-multi { display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px; }
-.chat-multi.checked { border-color:var(--accent);background:var(--accent-light); }
-.chat-scan-zone { background:white;border:2px dashed var(--accent);border-radius:14px;padding:20px;text-align:center;max-width:80%;align-self:flex-start;animation:chatFadeIn .3s; }
-.chat-scan-btn { display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin:4px; }
-.chat-scan-btn.sec { background:white;border:1px solid var(--border);color:var(--text); }
-.chat-ocr-result { background:var(--green-light);border:1px solid rgba(22,163,74,0.15);border-radius:12px;padding:14px;max-width:80%;align-self:flex-start;animation:chatFadeIn .3s;font-size:12px; }
-.chat-ocr-row { display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.04); }
-.chat-ocr-row:last-child { border:none; }
-</style>
-
-<script>
-// ─── CHATBOT ENGINE ──────────────────────────
-const CHAT_API = window.location.origin + '/scanticket';
-let chatSessionId = '';
-let chatLangue = 'fr';
-let chatEtape = 0;
-let chatTotal = 10;
-let chatTermine = false;
-let chatScanFile = null;
-let chatPhase = 'nom';
-
-document.addEventListener('DOMContentLoaded', () => {
-    chatSessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    chatDemarrer();
-});
-
-async function chatDemarrer() {
-    chatShowTyping(true);
-    try {
-        const r = await fetch(`${CHAT_API}/api/chat/start`, {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({session_id: chatSessionId, langue: chatLangue})
-        });
-        const d = await r.json();
-        chatShowTyping(false);
-        chatSessionId = d.session_id || chatSessionId;
-        chatTotal = d.total_etapes || 6;
-        chatPhase = d.phase || 'nom';
-        chatAddMsg('bot', d.message);
-        chatUpdateProgress(0);
-        // Phase nom: juste le champ texte, pas de scan zone
-        if (d.options && d.options.length > 0) chatShowOptions(d.options, d.type, d.upload_photo);
-        document.getElementById('chat-status-text').textContent = 'En ligne';
-    } catch(e) {
-        chatShowTyping(false);
-        chatAddMsg('system', 'Erreur de connexion. Rechargez la page.');
-    }
-}
-
-async function chatEnvoyer() {
-    if (chatTermine) return;
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
-    input.value = '';
-    chatAddMsg('user', msg);
-    chatClearOpts();
-    chatShowTyping(true);
-    try {
-        const r = await fetch(`${CHAT_API}/api/chat/reply`, {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({session_id: chatSessionId, message: msg, langue: chatLangue})
-        });
-        const d = await r.json();
-        chatShowTyping(false);
-        chatPhase = d.phase || '';
-        chatEtape = d.etape || 0;
-        chatTotal = d.total_etapes || chatTotal;
-        chatUpdateProgress(chatEtape);
-        chatAddMsg('bot', d.message);
-        if (d.termine) {
-            chatTermine = true;
-            document.getElementById('chatInputArea').style.display = 'none';
-            const sz = document.getElementById('chatScanZone');
-            if (sz) sz.remove();
-        } else if (d.phase === 'photo') {
-            chatShowScanZone();
-            document.getElementById('chatInputArea').style.display = 'none';
-        } else if (d.options && d.options.length > 0) {
-            chatShowOptions(d.options, d.type, d.upload_photo);
-        }
-        if (d.optionnel) chatShowSkip();
-    } catch(e) {
-        chatShowTyping(false);
-        chatAddMsg('system', 'Erreur. Reessayez.');
-    }
-}
-
-function chatAddMsg(role, text) {
-    const c = document.getElementById('chatMessages');
-    const d = document.createElement('div');
-    d.className = 'chat-msg ' + role;
-    d.textContent = text;
-    c.insertBefore(d, document.getElementById('chatTyping'));
-    c.scrollTop = c.scrollHeight;
-}
-
-function chatShowTyping(show) {
-    document.getElementById('chatTyping').style.display = show ? 'flex' : 'none';
-    const c = document.getElementById('chatMessages');
-    c.scrollTop = c.scrollHeight;
-}
-
-function chatUpdateProgress(etape) {
-    const pct = Math.min(Math.round((etape / chatTotal) * 100), 100);
-    document.getElementById('chat-progress-fill').style.width = pct + '%';
-    document.getElementById('chat-progress-text').textContent = `Etape ${Math.min(etape+1, chatTotal)} / ${chatTotal}`;
-    document.getElementById('chat-progress-pct').textContent = pct + '%';
-}
-
-function chatShowOptions(opts, type, uploadPhoto) {
-    const c = document.getElementById('chatMessages');
-    if (type === 'multi_choix') {
-        const container = document.createElement('div');
-        container.className = 'chat-opts'; container.id = 'chatOpts';
-        container.style.flexDirection = 'column';
-        opts.forEach(o => {
-            const lbl = document.createElement('label');
-            lbl.className = 'chat-multi';
-            lbl.innerHTML = `<input type="checkbox" value="${o}" style="accent-color:var(--accent);"> ${o}`;
-            lbl.onclick = () => lbl.classList.toggle('checked');
-            container.appendChild(lbl);
-        });
-        // Bouton upload photo si applicable
-        if (uploadPhoto) {
-            const uploadDiv = document.createElement('div');
-            uploadDiv.style.cssText = 'width:100%;margin-top:8px;padding:10px;background:#f0f7ff;border:1px dashed #2563eb;border-radius:10px;text-align:center;';
-            uploadDiv.innerHTML = '<div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:6px;">Ajouter des photos de preuves (optionnel)</div><div style="font-size:11px;color:#64748b;margin-bottom:8px;">Signalisation, lieu, dommages... GPS et date extraits automatiquement</div>';
-            const uploadBtn = document.createElement('button');
-            uploadBtn.className = 'chat-scan-btn';
-            uploadBtn.style.cssText = 'font-size:12px;padding:8px 16px;';
-            uploadBtn.innerHTML = '&#128247; Ajouter photos';
-            uploadBtn.onclick = (e) => { e.preventDefault(); document.getElementById('chatEvidenceInput').click(); };
-            uploadDiv.appendChild(uploadBtn);
-            const uploadStatus = document.createElement('div');
-            uploadStatus.id = 'chatEvidenceStatus';
-            uploadStatus.style.cssText = 'font-size:11px;color:#64748b;margin-top:6px;';
-            uploadDiv.appendChild(uploadStatus);
-            container.appendChild(uploadDiv);
-        }
-
-        const btn = document.createElement('button');
-        btn.className = 'chat-scan-btn'; btn.textContent = 'Confirmer';
-        btn.style.marginTop = '6px';
-        btn.onclick = () => {
-            const vals = Array.from(container.querySelectorAll('input:checked')).map(c=>c.value);
-            if (!vals.length) vals.push(opts[opts.length-1]);
-            document.getElementById('chatInput').value = vals.join(', ');
-            chatEnvoyer();
-        };
-        container.appendChild(btn);
-        c.insertBefore(container, document.getElementById('chatTyping'));
-        document.getElementById('chatInputArea').style.display = 'none';
-    } else {
-        const container = document.createElement('div');
-        container.className = 'chat-opts'; container.id = 'chatOpts';
-        opts.forEach(o => {
-            const btn = document.createElement('button');
-            btn.className = 'chat-opt-btn'; btn.textContent = o;
-            btn.onclick = () => { document.getElementById('chatInput').value = o; chatEnvoyer(); };
-            container.appendChild(btn);
-        });
-        c.insertBefore(container, document.getElementById('chatTyping'));
-    }
-    c.scrollTop = c.scrollHeight;
-}
-
-function chatClearOpts() {
-    const e = document.getElementById('chatOpts');
-    if (e) e.remove();
-    document.getElementById('chatInputArea').style.display = '';
-}
-
-function chatShowSkip() {
-    const area = document.getElementById('chatInputArea');
-    if (area.querySelector('.chat-skip')) return;
-    const btn = document.createElement('button');
-    btn.className = 'chat-skip';
-    btn.textContent = 'Passer';
-    btn.style.cssText = 'background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px 14px;border-radius:10px;cursor:pointer;font-size:12px;';
-    btn.onclick = () => { document.getElementById('chatInput').value = '-'; chatEnvoyer(); btn.remove(); };
-    area.appendChild(btn);
-}
-
-// ─── SCANNER DANS CHATBOT ────────────────────
-function chatShowScanZone() {
-    const c = document.getElementById('chatMessages');
-    if (document.getElementById('chatScanZone')) return;
-    const z = document.createElement('div');
-    z.className = 'chat-scan-zone'; z.id = 'chatScanZone';
-    z.innerHTML = `
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">Scanner votre ticket</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">Photo ou image — extraction automatique par IA</div>
-        <button class="chat-scan-btn" onclick="document.getElementById('chatFileCamera').click()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Photo
-        </button>
-        <button class="chat-scan-btn sec" onclick="document.getElementById('chatFileGallery').click()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            Galerie
-        </button>
-        <div id="chatScanPreview"></div>
-        <div id="chatScanProgress" style="display:none;margin-top:10px;">
-            <div style="width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
-                <div id="chatScanFill" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:3px;width:0%;transition:width .3s;"></div>
-            </div>
-            <div id="chatScanStatus" style="font-size:11px;color:var(--text-dim);margin-top:4px;">Analyse...</div>
-        </div>
-    `;
-    c.insertBefore(z, document.getElementById('chatTyping'));
-    c.scrollTop = c.scrollHeight;
-}
-
-function chatOnFile(input) {
-    if (input.files && input.files[0]) chatHandleFile(input.files[0]);
-    input.value = '';
-}
-
-function chatHandleFile(file) {
-    if (!file.type.match(/image|pdf/)) { chatAddMsg('system','Format non supporte.'); return; }
-    if (file.size > 20*1024*1024) { chatAddMsg('system','Fichier trop gros (max 20 Mo).'); return; }
-    chatScanFile = file;
-    const preview = document.getElementById('chatScanPreview');
-    if (preview && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;max-height:140px;border-radius:8px;margin-top:10px;border:1px solid var(--border);">
-            <div style="margin-top:8px;"><button class="chat-scan-btn" onclick="chatLancerScan()">Analyser ce ticket</button></div>`;
-        };
-        reader.readAsDataURL(file);
-    } else if (preview) {
-        preview.innerHTML = `<div style="margin-top:8px;font-size:12px;">PDF: ${file.name}</div>
-        <div style="margin-top:6px;"><button class="chat-scan-btn" onclick="chatLancerScan()">Analyser ce ticket</button></div>`;
-    }
-}
-
-async function chatLancerScan() {
-    if (!chatScanFile) return;
-    const prog = document.getElementById('chatScanProgress');
-    const fill = document.getElementById('chatScanFill');
-    const status = document.getElementById('chatScanStatus');
-    const preview = document.getElementById('chatScanPreview');
-    if (preview) { const btn = preview.querySelector('.chat-scan-btn'); if(btn) btn.style.display='none'; }
-    prog.style.display = 'block';
-    const steps = [{p:20,m:'Upload...'},{p:45,m:'OCR en cours...'},{p:70,m:'Analyse IA...'},{p:90,m:'Extraction...'}];
-    let si = 0;
-    const timer = setInterval(()=>{ if(si<steps.length){fill.style.width=steps[si].p+'%';status.textContent=steps[si].m;si++;} },1500);
-    try {
-        const fd = new FormData();
-        fd.append('ticket_photo', chatScanFile);
-        const r = await fetch(`${CHAT_API}/api/chat/scan`, {method:'POST', body:fd});
-        clearInterval(timer);
-        const d = await r.json();
-        if (!d.success) throw new Error(d.error||'OCR echoue');
-        fill.style.width = '100%'; status.textContent = `Termine en ${d.temps||'?'}s`;
-        setTimeout(()=>{
-            const sz = document.getElementById('chatScanZone');
-            if(sz) sz.remove();
-            chatAfficherOCR(d);
-            // Envoyer les donnees OCR au backend pour confirmation
-            document.getElementById('chatInputArea').style.display = '';
-            chatEnvoyerOCR(d.ticket || {});
-        }, 600);
-    } catch(e) {
-        clearInterval(timer);
-        status.textContent = 'Erreur: ' + e.message;
-        status.style.color = 'var(--red)';
-    }
-}
-
-async function chatEnvoyerOCR(ticketData) {
-    // Envoyer les donnees OCR au chatbot backend comme JSON
-    chatShowTyping(true);
-    try {
-        const r = await fetch(`${CHAT_API}/api/chat/reply`, {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({session_id: chatSessionId, message: JSON.stringify(ticketData), langue: chatLangue})
-        });
-        const d = await r.json();
-        chatShowTyping(false);
-        chatPhase = d.phase || '';
-        chatEtape = d.etape || 0;
-        chatTotal = d.total_etapes || chatTotal;
-        chatUpdateProgress(chatEtape);
-        chatAddMsg('bot', d.message);
-        if (d.options && d.options.length > 0) chatShowOptions(d.options, d.type, d.upload_photo);
-    } catch(e) {
-        chatShowTyping(false);
-        chatAddMsg('system', 'Erreur envoi donnees. Reessayez.');
-    }
-}
-
-function chatAfficherOCR(data) {
-    const c = document.getElementById('chatMessages');
-    const t = data.ticket || {};
-    const champs = {'Infraction':t.infraction,'Province':t.juridiction,'Date':t.date,'Amende':t.amende,'Lieu':t.lieu,'Article':t.loi,'Appareil':t.appareil,'Vitesse':t.vitesse_captee?t.vitesse_captee+'/'+t.vitesse_permise+' km/h':null,'No constat':t.numero_constat};
-    let rows = '';
-    for (const [k,v] of Object.entries(champs)) { if(v&&v!=='?'&&v!=='0') rows += `<div class="chat-ocr-row"><span style="color:var(--text-dim);">${k}</span><span style="font-weight:600;">${v}</span></div>`; }
-    const div = document.createElement('div');
-    div.className = 'chat-ocr-result';
-    div.innerHTML = `<div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px;">&#10003; Ticket analyse (${data.temps||'?'}s)</div>${rows||'<div style="color:var(--text-dim);">Aucun champ detecte.</div>'}
-    <button class="chat-scan-btn" onclick="chatUtiliserOCR(this)" style="width:100%;justify-content:center;margin-top:8px;font-size:12px;">Utiliser ces informations</button>`;
-    div.dataset.ticket = JSON.stringify(t);
-    c.insertBefore(div, document.getElementById('chatTyping'));
-    c.scrollTop = c.scrollHeight;
-}
-
-function chatUtiliserOCR(btn) {
-    // Les donnees sont deja envoyees automatiquement via chatEnvoyerOCR
-    btn.textContent = 'Deja applique';
-    btn.disabled = true;
-}
-
-
-
-// --- UPLOAD PREUVES PHOTO ---
-let chatEvidenceFiles = [];
-
-function chatOnEvidence(input) {
-    if (!input.files || !input.files.length) return;
-    chatEvidenceFiles = Array.from(input.files);
-    input.value = '';
-    chatUploadEvidence();
-}
-
-async function chatUploadEvidence() {
-    if (!chatEvidenceFiles.length) return;
-    const status = document.getElementById('chatEvidenceStatus');
-    if (status) status.innerHTML = '<span style="color:#2563eb;">Upload de ' + chatEvidenceFiles.length + ' photo(s)...</span>';
-
-    const fd = new FormData();
-    fd.append('session_id', chatSessionId);
-    chatEvidenceFiles.forEach(f => fd.append('evidence_photos', f));
-
-    try {
-        const r = await fetch(CHAT_API + '/api/chat/evidence', {method: 'POST', body: fd});
-        const d = await r.json();
-        if (!d.success) throw new Error(d.error || 'Upload echoue');
-        chatAfficherPreuves(d);
-        if (status) status.innerHTML = '<span style="color:#16a34a;">&#10003; ' + d.uploaded + ' photo(s) uploadee(s)</span>';
-    } catch(e) {
-        if (status) status.innerHTML = '<span style="color:#dc2626;">Erreur: ' + e.message + '</span>';
-    }
-    chatEvidenceFiles = [];
-}
-
-function chatAfficherPreuves(data) {
-    const c = document.getElementById('chatMessages');
-    const div = document.createElement('div');
-    div.className = 'chat-ocr-result';
-
-    let html = '<div style="font-weight:700;color:#16a34a;margin-bottom:8px;font-size:13px;">&#128247; ' + data.uploaded + ' photo(s) de preuve uploadee(s)</div>';
-
-    for (const photo of data.photos) {
-        if (photo.error) {
-            html += '<div class="chat-ocr-row"><span style="color:#dc2626;">' + photo.name + ': ' + photo.error + '</span></div>';
-            continue;
-        }
-        const exif = photo.exif || {};
-        html += '<div style="padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06);">';
-        html += '<div style="font-weight:600;font-size:12px;">' + (photo.original || photo.name) + '</div>';
-
-        if (exif.date_photo) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Date photo</span><span>' + exif.date_photo + '</span></div>';
-        if (exif.appareil_marque || exif.appareil_modele) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Appareil</span><span>' + (exif.appareil_marque||'') + ' ' + (exif.appareil_modele||'') + '</span></div>';
-        if (exif.gps_lat && exif.gps_lon) {
-            html += '<div class="chat-ocr-row"><span style="color:#64748b;">GPS</span><span>' + exif.gps_lat + ', ' + exif.gps_lon + '</span></div>';
-            html += '<div class="chat-ocr-row"><span style="color:#64748b;">Carte</span><a href="' + exif.gps_google_maps + '" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:11px;">Voir sur Google Maps</a></div>';
-        }
-        if (exif.gps_altitude) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Altitude</span><span>' + exif.gps_altitude + ' m</span></div>';
-        if (exif.largeur && exif.hauteur) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Resolution</span><span>' + exif.largeur + 'x' + exif.hauteur + '</span></div>';
-        if (!exif.date_photo && !exif.gps_lat && !exif.appareil_marque) html += '<div style="color:#64748b;font-size:11px;">Pas de donnees EXIF/GPS</div>';
-        html += '</div>';
-    }
-
-    html += '<div style="margin-top:8px;font-size:10px;color:#94a3b8;">Les donnees GPS et date sont extraites automatiquement des photos.</div>';
-
-    div.innerHTML = html;
-    c.insertBefore(div, document.getElementById('chatTyping'));
-    c.scrollTop = c.scrollHeight;
-}
-
-function toggleChatLangue() {
-    chatLangue = chatLangue==='fr'?'en':'fr';
-    document.getElementById('chatLangBtn').textContent = chatLangue==='fr'?'EN/FR':'FR/EN';
-    document.getElementById('chatMessages').innerHTML = '<div id="chatTyping" style="display:none;align-self:flex-start;padding:10px 14px;background:white;border-radius:14px;border-bottom-left-radius:4px;border:1px solid var(--border);"><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite;"></span><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.2s;"></span><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.4s;"></span></div>';
-    chatTermine = false;
-    document.getElementById('chatInputArea').style.display = '';
-    chatSessionId = 'chat_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-    chatDemarrer();
-}
-</script>
-
-
 <!-- === PRICING === -->
 <section class="section" id="prix">
     <div class="container">
@@ -1702,16 +1009,16 @@ function toggleChatLangue() {
         <div class="divider"></div>
         <div class="faq-list">
             <div class="faq-item reveal">
-                <div class="faq-q" onclick="toggleFaq(this)">Est-ce que AITicketInfo remplace un avocat?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Non. AITicketInfo est un outil d'information juridique qui vous aide a comprendre vos options. Notre rapport peut servir de base pour votre defense, mais pour les cas complexes, nous recommandons de consulter un avocat specialise en droit routier. Nous ne sommes pas un cabinet d'avocats et ne fournissons pas de conseils juridiques.</div>
+                <div class="faq-q" onclick="toggleFaq(this)">Est-ce que FightMyTicket remplace un avocat?<span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Non. FightMyTicket est un outil d'information juridique qui vous aide a comprendre vos options. Notre rapport peut servir de base pour votre defense, mais pour les cas complexes, nous recommandons de consulter un avocat specialise en droit routier. Nous ne sommes pas un cabinet d'avocats et ne fournissons pas de conseils juridiques.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Est-ce que ce service est legal?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Oui. AITicketInfo fournit de l'information juridique, et non des conseils juridiques. Nous analysons les lois, reglements et jurisprudence accessibles au public pour vous aider a comprendre votre situation. C'est similaire aux outils de recherche juridique disponibles au public. Nous ne vous representons pas en cour et ne fournissons pas de conseils juridiques personnalises.</div>
+                <div class="faq-a">Oui. FightMyTicket fournit de l'information juridique, et non des conseils juridiques. Nous analysons les lois, reglements et jurisprudence accessibles au public pour vous aider a comprendre votre situation. C'est similaire aux outils de recherche juridique disponibles au public. Nous ne vous representons pas en cour et ne fournissons pas de conseils juridiques personnalises.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Quelles provinces sont couvertes?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Actuellement le Quebec et l'Ontario, avec des agents specialises pour chaque province. Nous avons plus de 31 000 decisions de jurisprudence et 4 500 articles de loi indexes pour ces deux provinces.</div>
+                <div class="faq-a">Actuellement le Quebec et l'Ontario, avec des agents specialises pour chaque province. Nous avons plus de 30 447 decisions de jurisprudence et 4 385 articles de loi indexes pour ces deux provinces.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Combien de temps prend l'analyse?<span class="faq-arrow">&#9660;</span></div>
@@ -1736,23 +1043,16 @@ function toggleChatLangue() {
 <!-- === FOOTER === -->
 <footer class="footer">
     <div class="container">
-        <div class="footer-logo" style="display:flex;align-items:center;gap:8px;justify-content:center;">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="fLogo" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><rect width="36" height="36" rx="10" fill="url(#fLogo)"/><path d="M7 11h22v2.2H7zm0 5.5h16v2.2H7zm0 5.5h19v2.2H7z" fill="white" opacity="0.9"/><circle cx="27" cy="25" r="5.5" fill="#16a34a"/><path d="M24.5 25l1.8 1.8 3.2-3.2" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span style="font-weight:900;letter-spacing:0.5px;"><span style="color:#e2e8f0;">AI</span><span style="color:#60a5fa;">TICKET</span><span style="color:#e2e8f0;">INFO</span></span>
-        </div>
+        <div class="footer-logo">FightMyTicket</div>
         <p class="footer-text">
             Analyse de contraventions par IA | Quebec &amp; Ontario<br>
             Developpe par <a href="#">SeoAI</a>
         </p>
         <p class="footer-legal">
-            <strong>Avis juridique :</strong> AITicketInfo est un outil de recherche d'information statistique base sur des jugements et lois publics (CanLII, SOQUIJ, LegisQuebec). 
-            Ce service ne constitue <strong>PAS</strong> un avis juridique, une opinion juridique ou une recommandation. 
-            AITicketInfo n'est <strong>PAS</strong> un cabinet d'avocats, ne pratique pas le droit et ne remplace en aucun cas un avocat. 
-            Les informations presentees sont des <strong>statistiques</strong> tirees de decisions de justice accessibles au public. 
-            Pour un avis juridique personnalise, consultez un avocat membre du 
-            <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;">Barreau du Quebec</a> ou du 
-            <a href="https://lso.ca/public-resources/finding-a-lawyer-or-paralegal" target="_blank" style="color:#93c5fd;">Barreau de l'Ontario (LSO)</a>.<br>
-            &copy; 2026 AITicketInfo par SeoAI. Tous droits reserves. | Sources : <a href="https://www.canlii.org" target="_blank" style="color:#93c5fd;">CanLII</a>, <a href="https://soquij.qc.ca" target="_blank" style="color:#93c5fd;">SOQUIJ</a>, <a href="https://legisquebec.gouv.qc.ca" target="_blank" style="color:#93c5fd;">LegisQuebec</a>
+            <strong>Avis juridique:</strong> Ce service fournit de l'information juridique, et non des conseils juridiques.
+            FightMyTicket n'est pas un cabinet d'avocats et ne remplace pas la consultation d'un avocat.
+            Les resultats sont a titre informatif seulement. Consultez un avocat qualifie pour des conseils juridiques personnalises.<br>
+            &copy; 2026 FightMyTicket par SeoAI. Tous droits reserves.
         </p>
     </div>
 </footer>
@@ -1764,15 +1064,6 @@ let ticketFile = null;
 // === HEALTH CHECK ===
 fetch(API_BASE+'/health').then(r=>r.json()).then(d=>{
     const b=document.getElementById('statusBadge');
-// Live stats from DB
-fetch(window.location.origin+'/scanticket/api/health').then(r=>r.json()).then(h=>{
-    const fmt=n=>n?n.toLocaleString('fr-CA'):'--';
-    const sj=document.getElementById('statJuris'); if(sj) sj.innerHTML=fmt(h.jurisprudence);
-    const sl=document.getElementById('statLois'); if(sl) sl.innerHTML=fmt(h.lois);
-    const sa=document.getElementById('statAgents'); if(sa) sa.textContent=h.agents||26;
-    const fj=document.getElementById('featJuris'); if(fj) fj.textContent=fmt(h.jurisprudence);
-    const fl=document.getElementById('featLois'); if(fl) fl.textContent=fmt(h.lois);
-}).catch(()=>{});
     if(d.status==='ok'){b.textContent=d.agents+' agents en ligne';}
     else{b.textContent='Hors ligne';}
 }).catch(()=>{document.getElementById('statusBadge').textContent='Hors ligne';});

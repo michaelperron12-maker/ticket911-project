@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TEST PIPELINE 26 AGENTS — Ticket911
+TEST PIPELINE 26 AGENTS — AITicketInfo
 Lance une analyse complete avec un ticket QC de test
 Envoie le resultat par email
 
@@ -14,7 +14,7 @@ import json
 import os
 import time
 
-sys.path.insert(0, "/var/www/aiticketinfo")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # ─── TICKET DE TEST (Quebec — exces de vitesse) ─────
 TICKET_TEST_QC = {
@@ -39,7 +39,7 @@ CLIENT_TEST = {
 
 def main():
     print("=" * 60)
-    print("  TICKET911 — TEST PIPELINE 26 AGENTS")
+    print("  AITICKETINFO — TEST PIPELINE 26 AGENTS")
     print("=" * 60)
     print(f"\n  Ticket: {TICKET_TEST_QC['infraction']}")
     print(f"  Juridiction: {TICKET_TEST_QC['juridiction']}")
@@ -120,7 +120,8 @@ def main():
             print(f"    [X] {err}")
 
     # Sauver le rapport JSON complet
-    rapport_path = f"/var/www/aiticketinfo/data/test-{rapport.get('dossier_uuid', 'test')}.json"
+    _proj_dir = os.path.dirname(os.path.abspath(__file__))
+    rapport_path = os.path.join(_proj_dir, "data", f"test-{rapport.get('dossier_uuid', 'test')}.json")
     try:
         os.makedirs(os.path.dirname(rapport_path), exist_ok=True)
         with open(rapport_path, "w", encoding="utf-8") as f:

@@ -1,5 +1,5 @@
 # PLAN & RESUME — Session 8 fevrier 2026
-## Projet Ticket911 + NotaryWallet | Par: SeoAI (Michael Perron)
+## Projet AITicketInfo + NotaryWallet | Par: SeoAI (Michael Perron)
 
 ---
 
@@ -16,14 +16,14 @@
 | PDF | NotaryWallet-Presentation.pdf (local + GitHub) |
 | Completion | 92% — Phase 4 (Launch) en cours |
 
-## Ticket911.ca — Defense de contraventions
+## AITicketInfo.ca — Defense de contraventions
 | Element | Status |
 |---------|--------|
 | Demo site | https://911-virid.vercel.app (19 pages) |
 | Proposition client | proposition-client-aiticketinfo.pdf (envoyee le 7 fev) |
-| Email pitch | Envoye a info@aiticketinfo.com le 7 fev 2026 |
+| Email pitch | Envoye a info@aiticketinfo.ca le 7 fev 2026 |
 | Recherche API | RECHERCHE-COMPLETE-APIs-ET-COMPETITEURS.md (complet) |
-| Plan B | Lancer solo a 20$/mois si Ticket911 refuse |
+| Plan B | Lancer solo a 20$/mois si AITicketInfo refuse |
 
 ---
 
@@ -36,7 +36,7 @@
 - Prix: $225/utilisateur/mois
 - Couverture: USA seulement
 
-## Pour Quebec (Ticket911)
+## Pour Quebec (AITicketInfo)
 - **PAS un competiteur** — marche different, droit different
 - **PAS un outil utile** — Westlaw = droit americain, pas quebecois
 - Common law US vs Code civil du Quebec
@@ -44,11 +44,11 @@
 
 ## Pour New York (expansion future)
 - **OUTIL potentiel** pour les avocats qui travaillent sur nos dossiers NY
-- **PAS un competiteur direct** — CoCounsel = outil pour avocats, Ticket911 = service pour consommateurs
+- **PAS un competiteur direct** — CoCounsel = outil pour avocats, AITicketInfo = service pour consommateurs
 - Pourrait etre utilise par des avocats partenaires pour recherche juridique
 
 ### Difference de marche
-| | CoCounsel | Ticket911 (NY) |
+| | CoCounsel | AITicketInfo (NY) |
 |---|-----------|----------------|
 | Client | Avocat dans son bureau | Conducteur avec un ticket |
 | Prix | $225/mois/avocat | ~$20/mois ou pay-per-ticket |
@@ -133,11 +133,11 @@
 
 # 7. PROCHAINES ETAPES
 
-### Si Ticket911.ca accepte
+### Si AITicketInfo.ca accepte
 - Developper la plateforme complete ($40K + $3,950/mois)
 - 8 semaines de delivery
 
-### Si Ticket911.ca refuse (Plan B solo)
+### Si AITicketInfo.ca refuse (Plan B solo)
 1. Stripe integration (paiement $20/mois)
 2. Portail membre (login/inscription)
 3. Nom de domaine propre

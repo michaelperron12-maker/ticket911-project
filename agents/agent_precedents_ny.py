@@ -22,7 +22,8 @@ class AgentPrecedentsNY(BaseAgent):
     def _init_chroma(self):
         try:
             import chromadb
-            client = chromadb.PersistentClient(path="/var/www/aiticketinfo/data/embeddings")
+            _proj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            client = chromadb.PersistentClient(path=os.path.join(_proj, "data", "embeddings"))
             self.chroma_collection = client.get_or_create_collection(
                 name="jurisprudence",
                 metadata={"hnsw:space": "cosine"}

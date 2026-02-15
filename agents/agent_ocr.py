@@ -122,7 +122,7 @@ REGLES JURIDICTION:
 TEXTE OCR:
 {raw_text[:2500]}
 
-JSON: {{"infraction":"","juridiction":"QC ou ON ou NY","loi":"","amende":"","points_inaptitude":0,"lieu":"","date":"YYYY-MM-DD","appareil":"","vitesse_captee":0,"vitesse_permise":0,"numero_constat":"","agent":"","poste_police":"","plaque":"","vehicule":"","signalisation":"","nom_conducteur":"","permis":""}}"""
+JSON: {{"infraction":"","juridiction":"QC ou ON ou NY","loi":"","amende":"","points_inaptitude":0,"lieu":"","date":"YYYY-MM-DD","appareil":"","vitesse_captee":0,"vitesse_permise":0,"numero_constat":"","agent":"","poste_police":"","plaque":"","vehicule":"","signalisation":""}}"""
 
         response = self.call_ai(prompt,
                                 system_prompt="JSON uniquement. Pas de texte explicatif. N invente rien.",
@@ -167,9 +167,7 @@ Reponds UNIQUEMENT en JSON:
     "agent": "nom/matricule de l'agent",
     "poste_police": "poste de police",
     "plaque": "numero de plaque",
-    "vehicule": "marque/modele si visible",
-    "nom_conducteur": "nom du conducteur/contrevenant",
-    "permis": "numero de permis de conduire"
+    "vehicule": "marque/modele si visible"
 }"""
 
         response = self.call_ai_vision(prompt,
@@ -196,6 +194,5 @@ Reponds UNIQUEMENT en JSON:
             "infraction": "", "juridiction": "", "loi": "", "amende": "",
             "points_inaptitude": 0, "lieu": "", "date": "", "appareil": "",
             "vitesse_captee": 0, "vitesse_permise": 0, "numero_constat": "",
-            "agent": "", "poste_police": "",
-            "nom_conducteur": "", "permis": ""
+            "agent": "", "poste_police": ""
         }
