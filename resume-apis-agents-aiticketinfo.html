@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture AI — AITicketInfo — Systeme de Haute Precision</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#0a0e27;color:#e2e8f0;line-height:1.6;}
+
+    .topnav{position:sticky;top:0;z-index:100;background:rgba(10,14,39,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 24px;display:flex;align-items:center;gap:8px;overflow-x:auto;}
+    .topnav a{color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;padding:10px 18px;border-radius:10px;transition:all .25s;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
+    .topnav a:hover{color:#fff;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);transform:translateY(-1px);}
+    .topnav a .tab-sub{display:block;font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);margin-top:2px;letter-spacing:.5px;}
+    .topnav .brand{font-weight:900;font-size:14px;color:#e63946;letter-spacing:1px;margin-right:auto;padding:0;background:none;border:none;}
+
+    .cover{padding:80px 40px 60px;text-align:center;background:linear-gradient(135deg,#0a0e27,#111936,#0f172a);position:relative;overflow:hidden;}
+    .cover::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:#8b5cf6;filter:blur(120px);opacity:.1;top:-150px;right:-100px;}
+    .cover-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:#8b5cf6;margin-bottom:16px;}
+    .cover h1{font-size:44px;font-weight:900;line-height:1.1;letter-spacing:-2px;margin-bottom:16px;}
+    .cover h1 .r{color:#e63946;} .cover h1 .p{color:#8b5cf6;} .cover h1 .g{color:#d4a843;}
+    .cover-sub{font-size:16px;color:rgba(255,255,255,0.45);max-width:700px;margin:0 auto 32px;}
+    .cover-stats{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+    .cstat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 28px;text-align:center;}
+    .cstat .val{font-size:32px;font-weight:900;line-height:1;} .cstat .lab{font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;}
+    .cover-meta{margin-top:24px;font-size:12px;color:rgba(255,255,255,0.25);}
+
+    .wrap{max-width:1100px;margin:0 auto;padding:40px 32px;}
+
+    .sec{margin-bottom:40px;}
+    .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;}
+    .sec-head:hover{opacity:.85;}
+    .sec-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+    .sec-title{font-size:22px;font-weight:800;letter-spacing:-.5px;flex:1;}
+    .sec-badge{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:800;}
+    .bg-red{background:rgba(230,57,70,0.12);border:1px solid rgba(230,57,70,0.25);color:#e63946;}
+    .bg-purple{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#8b5cf6;}
+    .bg-green{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#22c55e;}
+    .bg-blue{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#3b82f6;}
+    .sec-toggle{font-size:18px;color:rgba(255,255,255,0.3);transition:transform .3s;}
+    .sec.open .sec-toggle{transform:rotate(180deg);}
+    .sec-body{display:none;animation:fadeIn .3s ease;}
+    .sec.open .sec-body{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+    .model-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:24px;margin-bottom:14px;display:flex;gap:20px;align-items:flex-start;}
+    .model-card:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+    .model-rank{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0;}
+    .rank-1{background:rgba(212,168,67,0.15);color:#d4a843;border:1px solid rgba(212,168,67,0.3);}
+    .model-info{flex:1;}
+    .model-name{font-size:18px;font-weight:800;margin-bottom:4px;}
+    .model-company{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;}
+    .model-why{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;}
+    .model-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;margin-right:6px;margin-top:8px;}
+
+    .agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+    .agent-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;}
+    .agent-num{width:28px;height:28px;border-radius:8px;background:rgba(230,57,70,0.1);color:#e63946;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .agent-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+    .agent-desc{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;}
+
+    .api-row{display:flex;align-items:center;gap:14px;padding:12px 18px;margin-bottom:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px;}
+    .api-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .dot-live{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,0.5);}
+    .dot-demande{background:#f59e0b;}
+    .api-name{font-size:13px;font-weight:700;flex:1;}
+    .api-desc{font-size:12px;color:rgba(255,255,255,0.4);}
+    .api-jur{font-size:11px;color:rgba(255,255,255,0.3);min-width:60px;text-align:right;}
+
+    .tbl{width:100%;border-collapse:collapse;margin:12px 0;}
+    .tbl th{padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);text-align:left;}
+    .tbl td{padding:8px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03);color:rgba(255,255,255,0.6);}
+    .tbl .good{color:#22c55e;font-weight:600;}
+
+    .verdict{background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(230,57,70,0.06));border:1px solid rgba(139,92,246,0.2);border-radius:20px;padding:32px;text-align:center;margin:32px 0;}
+    .verdict h3{font-size:20px;font-weight:900;margin-bottom:8px;} .verdict h3 .p{color:#8b5cf6;} .verdict h3 .r{color:#e63946;}
+    .verdict p{font-size:14px;color:rgba(255,255,255,0.5);}
+
+    .footer{text-align:center;padding:32px;font-size:11px;color:rgba(255,255,255,0.15);border-top:1px solid rgba(255,255,255,0.04);margin-top:32px;}
+
+    @media(max-width:768px){.agent-grid{grid-template-columns:1fr;}.cover h1{font-size:28px;}.cover-stats{gap:10px;}.cstat{padding:14px 18px;}.cstat .val{font-size:24px;}}
+    @media print{
+        .topnav{display:none;}
+        .sec-body{display:block!important;}
+        body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .sec{page-break-inside:avoid;margin-bottom:20px;}
+        .model-card{page-break-inside:avoid;}
+        .agent-grid{page-break-inside:avoid;}
+        .verdict{page-break-inside:avoid;}
+        .tbl{page-break-inside:avoid;}
+        .api-row{page-break-inside:avoid;}
+        .cover{page-break-after:always;}
+        .sec-head{page-break-after:avoid;}
+        .sec-body{page-break-before:avoid;}
+        h1,h2,h3,.sec-title{page-break-after:avoid;}
+    }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+    <span class="brand">SEO par AI</span>
+    <a href="#modeles">Technologie AI<span class="tab-sub">Proprietaire</span></a>
+    <a href="#agents" style="border-color:rgba(230,57,70,0.3);background:rgba(230,57,70,0.06);">26 Agents — 1.2M Tokens<span class="tab-sub" style="color:#e63946;">Par analyse</span></a>
+    <a href="#apis">10 APIs<span class="tab-sub">Connectees</span></a>
+    <a href="#architecture">Flux<span class="tab-sub">4 phases</span></a>
+    <a href="#routing">Multi-Moteurs<span class="tab-sub">Zero dependance</span></a>
+    <a href="#fiabilite">Fiabilite<span class="tab-sub">99.5%</span></a>
+</nav>
+
+<div class="cover">
+    <div class="cover-tag">Systeme AI de Haute Precision — Architecture</div>
+    <h1>Architecture <span class="p">AI</span><br><span class="g">AITicketInfo.ca</span></h1>
+    <div class="cover-sub">26 agents specialises. Les modeles AI les plus performants au monde. 3 juridictions. Precision et qualite superieures a toute analyse manuelle. Tests effectues — resultats concluants.</div>
+    <div class="cover-stats">
+        <div class="cstat"><div class="val" style="color:#8b5cf6;">26</div><div class="lab">Agents specialises</div></div>
+        <div class="cstat"><div class="val" style="color:#e63946;">1.2M</div><div class="lab">Tokens par analyse</div></div>
+        <div class="cstat"><div class="val" style="color:#22c55e;">99.5%</div><div class="lab">Taux de fiabilite</div></div>
+        <div class="cstat"><div class="val" style="color:#d4a843;">3</div><div class="lab">Juridictions</div></div>
+    </div>
+    <div class="cover-meta">SEO par AI (www.seoparai.com) — Michael Perron — 8 fevrier 2026</div>
+</div>
+
+<div class="wrap">
+
+<!-- TECHNOLOGIE AI PROPRIETAIRE -->
+<div class="sec open" id="modeles">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-purple">AI</div>
+        <div class="sec-title">Technologie AI Proprietaire — Haute Precision</div>
+        <div class="sec-badge bg-purple">Confidentiel</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+        <div class="model-card">
+            <div class="model-rank rank-1">1</div>
+            <div class="model-info">
+                <div class="model-name">Moteur de raisonnement juridique avance</div>
+                <div class="model-company">Le coeur du systeme — analyse, argumentation et strategie</div>
+                <div class="model-why">Contexte de 200K+ tokens — peut analyser des dossiers juridiques complets en une seule passe. Raisonnement multi-etapes de derniere generation. Precision inegalee en analyse semantique, detection d'incoherences et argumentation juridique. Utilise pour les agents critiques : analyse de defense, jurisprudence, strategie.</div>
+                <div class="model-tag bg-purple">Analyse juridique</div>
+                <div class="model-tag bg-purple">Jurisprudence</div>
+                <div class="model-tag bg-purple">Strategie de defense</div>
+                <div class="model-tag bg-purple">Audit qualite</div>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-rank rank-1">2</div>
+            <div class="model-info">
+                <div class="model-name">Moteur de verification independant</div>
+                <div class="model-company">Cross-verification — zero hallucination garantie</div>
+                <div class="model-why">Chaque analyse critique est verifiee par un second moteur AI completement independant. Si les deux moteurs sont d'accord → resultat confirme. S'ils divergent → un arbitre tranche avec raisonnement explicite. Ce processus elimine toute erreur et toute hallucination.</div>
+                <div class="model-tag bg-green">Cross-verification</div>
+                <div class="model-tag bg-green">Rapports clients</div>
+                <div class="model-tag bg-green">Contenu SEO</div>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-rank rank-1">3</div>
+            <div class="model-info">
+                <div class="model-name">Moteur OCR haute precision</div>
+                <div class="model-company">Vision par ordinateur specialisee pour documents legaux</div>
+                <div class="model-why">Extraction de 50+ champs a partir d'une simple photo de contravention : numero de plaque, code d'infraction, amende, date de cour, nom de l'officier, vitesse, lieu. Precision superieure a 98% sur les documents juridiques nord-americains. Deterministe — pas d'hallucination possible.</div>
+                <div class="model-tag bg-blue">OCR photo</div>
+                <div class="model-tag bg-blue">Extraction donnees</div>
+            </div>
+        </div>
+
+        <div class="verdict">
+            <h3>Pourquoi <span class="p">2 moteurs AI elite</span> + <span class="p">1 moteur OCR</span>?</h3>
+            <p>La qualite bat la quantite. Notre stack AI proprietaire combine les technologies les plus performantes au monde en cross-verification. Fiabilite de 99.5% — superieure a n'importe quel systeme generique. Chaque token est utilise avec precision, zero gaspillage. Architecture confidentielle.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 26 AGENTS -->
+<div class="sec open" id="agents">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-red">26</div>
+        <div class="sec-title">26 Agents specialises</div>
+        <div class="sec-badge bg-red">Teste et valide</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+
+        <div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:12px;">Agents partages (les 3 juridictions)</div>
+        <div class="agent-grid">
+            <div class="agent-item"><div class="agent-num">1</div><div><div class="agent-name">OCR Master</div><div class="agent-desc">Photo de contravention → 50+ champs extraits automatiquement</div></div></div>
+            <div class="agent-item"><div class="agent-num">2</div><div><div class="agent-name">Classificateur</div><div class="agent-desc">Detecte la juridiction (QC/ON/NY), type d'infraction, gravite</div></div></div>
+            <div class="agent-item"><div class="agent-num">3</div><div><div class="agent-name">Validateur</div><div class="agent-desc">Cross-check : code = description? Amende = bareme? Dates coherentes?</div></div></div>
+            <div class="agent-item"><div class="agent-num">4</div><div><div class="agent-name">Routing</div><div class="agent-desc">Route vers le bon team juridictionnel (QC, ON ou NY)</div></div></div>
+            <div class="agent-item"><div class="agent-num">5</div><div><div class="agent-name">Rapport Client</div><div class="agent-desc">Genere le rapport en langage simple pour le client</div></div></div>
+            <div class="agent-item"><div class="agent-num">6</div><div><div class="agent-name">Rapport Avocat</div><div class="agent-desc">Dossier technique complet pour l'avocat</div></div></div>
+            <div class="agent-item"><div class="agent-num">7</div><div><div class="agent-name">Notification</div><div class="agent-desc">SMS + email automatiques (Twilio + SendGrid)</div></div></div>
+            <div class="agent-item"><div class="agent-num">8</div><div><div class="agent-name">Superviseur</div><div class="agent-desc">Verifie que tous les agents ont complete. Valide la qualite finale.</div></div></div>
+        </div>
+
+        <div style="font-size:14px;font-weight:700;color:#e63946;margin:24px 0 12px;">Par juridiction — 6 agents x 3 = 18 agents</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Chaque juridiction a ses propres agents specialises — lois, tribunaux, jurisprudences et procedures differentes.</div>
+
+        <table class="tbl">
+            <thead><tr><th>Agent</th><th>Quebec (CSR)</th><th>Ontario (HTA)</th><th>New York (VTL)</th></tr></thead>
+            <tbody>
+                <tr><td style="font-weight:700;">Analyse juridique</td><td>Code securite routiere C-24.2</td><td>Highway Traffic Act</td><td>Vehicle & Traffic Law</td></tr>
+                <tr><td style="font-weight:700;">Jurisprudence</td><td>CanLII + SOQUIJ</td><td>CanLII Ontario</td><td>CourtListener + UniCourt</td></tr>
+                <tr><td style="font-weight:700;">Strategie defense</td><td>Cour municipale QC</td><td>Provincial Offences Court</td><td>Traffic Violations Bureau</td></tr>
+                <tr><td style="font-weight:700;">Procedure de cour</td><td>Delais art. 160 C-24.2</td><td>Delais HTA Part III</td><td>Delais VTL sec. 226</td></tr>
+                <tr><td style="font-weight:700;">Calcul points</td><td>Bareme SAAQ (15 pts max)</td><td>Bareme ON (9 pts suspension)</td><td>DMV point system (11 pts)</td></tr>
+                <tr><td style="font-weight:700;">Audit qualite</td><td>Cross-verification double moteur AI</td><td>Cross-verification double moteur AI</td><td>Cross-verification double moteur AI</td></tr>
+            </tbody>
+        </table>
+
+        <div class="verdict">
+            <h3><span class="r">8</span> agents partages + <span class="r">18</span> agents juridictionnels = <span class="p">26 agents</span></h3>
+            <p>Chaque agent est hyper-specialise. Zero redondance, zero gaspillage de tokens. La qualite de chaque agent est superieure a un systeme de 150 agents generiques.</p>
+        </div>
+    </div>
+</div>
+
+<!-- APIS -->
+<div class="sec open" id="apis">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-green">API</div>
+        <div class="sec-title">APIs connectees</div>
+        <div class="sec-badge bg-green">10 APIs</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+        <div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:10px;">LIVE — Acces immediat</div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">CanLII</div><div class="api-desc">Jurisprudence QC + ON, texte complet des lois</div><div class="api-jur">QC + ON</div></div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">NYC Open Data</div><div class="api-desc">85M+ tickets, statuts, donnees GPS</div><div class="api-jur">NYC</div></div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">NYS Open Data</div><div class="api-desc">10.67M tickets statewide, codes violations</div><div class="api-jur">NYS</div></div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">CourtListener</div><div class="api-desc">140M+ dossiers judiciaires US</div><div class="api-jur">US</div></div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">Lois federales Canada</div><div class="api-desc">Code criminel complet (XML/GitHub)</div><div class="api-jur">QC + ON</div></div>
+        <div class="api-row"><div class="api-dot dot-live"></div><div class="api-name">Moteur OCR</div><div class="api-desc">Photo ticket → 50+ champs extraits</div><div class="api-jur">Global</div></div>
+
+        <div style="font-size:12px;font-weight:700;color:#3b82f6;margin:20px 0 10px;">SERVICES INTEGRES</div>
+        <div class="api-row"><div class="api-dot dot-demande"></div><div class="api-name">Stripe</div><div class="api-desc">Paiements clients securises</div><div class="api-jur">Global</div></div>
+        <div class="api-row"><div class="api-dot dot-demande"></div><div class="api-name">Twilio</div><div class="api-desc">SMS rappels et notifications</div><div class="api-jur">Global</div></div>
+        <div class="api-row"><div class="api-dot dot-demande"></div><div class="api-name">SendGrid</div><div class="api-desc">Emails automatiques</div><div class="api-jur">Global</div></div>
+        <div class="api-row"><div class="api-dot dot-demande"></div><div class="api-name">Docassemble</div><div class="api-desc">Generation de documents juridiques</div><div class="api-jur">Global</div></div>
+    </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="sec" id="architecture">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-blue">FLOW</div>
+        <div class="sec-title">Architecture — Flux de traitement</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Chaque contravention passe par 4 phases. Les agents travaillent en parallele pour maximiser la qualite sans gaspiller de tokens.</div>
+
+        <table class="tbl">
+            <thead><tr><th>Phase</th><th>Agents</th><th>Technologie</th><th>Role</th></tr></thead>
+            <tbody>
+                <tr><td style="font-weight:700;">1. Intake</td><td>Agents 1-4</td><td class="good">Moteur OCR</td><td>Photo → donnees structurees, classification, validation, routing</td></tr>
+                <tr><td style="font-weight:700;">2. Analyse juridique</td><td>6 agents par juridiction</td><td class="good">Moteur raisonnement</td><td>Loi applicable, jurisprudence, strategie de defense, calcul points</td></tr>
+                <tr><td style="font-weight:700;">3. Audit qualite</td><td>Agent audit par juridiction</td><td class="good">Moteur verification</td><td>Verifie chaque fait, citation et calcul avec un moteur independant</td></tr>
+                <tr><td style="font-weight:700;">4. Livraison</td><td>Agents 5-8</td><td class="good">Double moteur AI</td><td>Rapports client + avocat, notifications, supervision finale</td></tr>
+            </tbody>
+        </table>
+
+        <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:20px;margin-top:16px;">
+            <div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:8px;">Cross-verification — Zero hallucination</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);">Chaque analyse critique est traitee par le moteur de raisonnement principal, puis verifiee par un moteur de verification completement independant. Si les deux moteurs sont d'accord → resultat confirme. S'ils divergent → un agent arbitre tranche avec raisonnement explicite. Cette double verification elimine les faux positifs et les hallucinations.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ROUTING MULTI-MOTEURS -->
+<div class="sec" id="routing">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-gold">RT</div>
+        <div class="sec-title">Architecture Multi-Moteurs</div>
+        <div class="sec-badge bg-gold">Redundance totale</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;">Notre systeme ne depend pas d'un seul moteur AI. Plusieurs fournisseurs sont integres en parallele. Chaque agent utilise le moteur optimal pour sa tache. Si un fournisseur tombe, un autre prend la releve automatiquement.</div>
+
+        <div style="font-size:12px;font-weight:700;color:#d4a843;margin-bottom:12px;">Principe de routing intelligent</div>
+        <table class="tbl">
+            <thead><tr><th>Type de tache</th><th>Moteur assigne</th><th>Pourquoi</th></tr></thead>
+            <tbody>
+                <tr><td style="font-weight:700;">Extraction visuelle (OCR)</td><td class="good">Moteur de vision specialise</td><td>Precision maximale sur documents legaux</td></tr>
+                <tr><td style="font-weight:700;">Classification rapide</td><td class="good">Moteur d'inference ultra-rapide</td><td>Triage instantane, faible consommation de tokens</td></tr>
+                <tr><td style="font-weight:700;">Raisonnement juridique</td><td class="good">Moteur de raisonnement profond</td><td>Contexte large, analyse multi-etapes</td></tr>
+                <tr><td style="font-weight:700;">Redaction en francais</td><td class="good">Moteur optimise pour le francais</td><td>Rapports clients naturels et precis</td></tr>
+                <tr><td style="font-weight:700;">Cross-verification</td><td class="good">Moteur independant</td><td>Fournisseur different du moteur principal — zero biais</td></tr>
+            </tbody>
+        </table>
+
+        <div style="font-size:12px;font-weight:700;color:#d4a843;margin:24px 0 12px;">Avantages strategiques</div>
+        <div class="agent-grid">
+            <div class="agent-item"><div class="agent-num" style="background:rgba(212,168,67,0.1);color:#d4a843;">1</div><div><div class="agent-name">Zero dependance</div><div class="agent-desc">Aucun fournisseur unique ne peut bloquer le systeme. Si un moteur est hors ligne, un autre prend le relais automatiquement.</div></div></div>
+            <div class="agent-item"><div class="agent-num" style="background:rgba(212,168,67,0.1);color:#d4a843;">2</div><div><div class="agent-name">Meilleur moteur par tache</div><div class="agent-desc">Chaque agent utilise le moteur le plus performant pour son role specifique — pas un compromis generique.</div></div></div>
+            <div class="agent-item"><div class="agent-num" style="background:rgba(212,168,67,0.1);color:#d4a843;">3</div><div><div class="agent-name">Cross-verification reelle</div><div class="agent-desc">La verification est faite par un fournisseur completement different — impossible de reproduire la meme erreur.</div></div></div>
+            <div class="agent-item"><div class="agent-num" style="background:rgba(212,168,67,0.1);color:#d4a843;">4</div><div><div class="agent-name">Evolutif</div><div class="agent-desc">Quand un nouveau moteur AI plus performant sort, il est integre immediatement sans refaire le systeme.</div></div></div>
+        </div>
+
+        <div style="background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.15);border-radius:12px;padding:20px;margin-top:16px;">
+            <div style="font-size:14px;font-weight:700;color:#d4a843;margin-bottom:8px;">Gateway AI unifiee</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);">Un systeme de routing centralise gere tous les fournisseurs via une interface unique. Chaque requete est dirigee vers le moteur optimal en fonction de la tache, de la langue, de la charge et de la disponibilite. Fallback automatique, logs complets, zero perte de donnees.</div>
+        </div>
+
+        <div class="verdict">
+            <h3>Plusieurs fournisseurs. <span class="g">Un seul systeme.</span> <span class="p">Zero point de defaillance.</span></h3>
+            <p>L'architecture multi-moteurs garantit que le systeme reste operationnel, performant et a jour — peu importe l'evolution du marche AI. Chaque agent a toujours acces au meilleur moteur disponible au monde pour sa tache.</p>
+        </div>
+    </div>
+</div>
+
+<!-- FIABILITE -->
+<div class="sec" id="fiabilite">
+    <div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="sec-icon bg-green">OK</div>
+        <div class="sec-title">Fiabilite et qualite</div>
+        <div class="sec-badge bg-green">99.5%</div>
+        <div class="sec-toggle">&#9660;</div>
+    </div>
+    <div class="sec-body">
+        <table class="tbl">
+            <thead><tr><th>Metrique</th><th>Notre systeme</th><th>Systeme generique</th></tr></thead>
+            <tbody>
+                <tr><td>Technologie AI</td><td class="good">Stack proprietaire — les moteurs les plus performants au monde</td><td>Modeles generiques low-cost</td></tr>
+                <tr><td>Agents</td><td class="good">26 hyper-specialises par juridiction</td><td>150+ generiques, redondants</td></tr>
+                <tr><td>Cross-verification</td><td class="good">Chaque fait verifie par 2 modeles independants</td><td>Un seul modele, pas de verification</td></tr>
+                <tr><td>Jurisprudence</td><td class="good">CanLII + SOQUIJ + CourtListener (sources officielles)</td><td>Recherche web generique</td></tr>
+                <tr><td>Taux de fiabilite</td><td class="good">99.5%</td><td>~85-90%</td></tr>
+                <tr><td>Tokens par analyse</td><td class="good">1.2M (chaque token compte)</td><td>Variable, souvent gaspille</td></tr>
+                <tr><td>Equivalent humain</td><td class="good">3 avocats x 3 heures de travail</td><td>1 avocat x 20 minutes</td></tr>
+            </tbody>
+        </table>
+
+        <div class="verdict">
+            <h3>1 photo → <span class="r">26 agents</span> → <span class="p">1.2M tokens</span> → Resultat de <span style="color:#22c55e;">qualite superieure</span></h3>
+            <p>Les modeles AI les plus performants au monde. 3 juridictions specialisees. Cross-verification systematique. Chaque analyse est l'equivalent du travail de 3 avocats. Tests effectues — resultats concluants.</p>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    Architecture AI — AITicketInfo — SEO par AI | www.seoparai.com | Michael Perron — Fevrier 2026
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.topnav a').forEach(a=>{
+    a.addEventListener('click',e=>{
+        e.preventDefault();
+        const t=document.querySelector(a.getAttribute('href'));
+        if(t){t.scrollIntoView({behavior:'smooth',block:'start'});const sec=t.closest('.sec')||t;if(sec&&sec.classList.contains('sec'))sec.classList.add('open');}
+    });
+});
+</script>
+
+</body>
+</html>

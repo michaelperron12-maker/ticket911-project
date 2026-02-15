@@ -1,0 +1,350 @@
+{
+  "dossier_uuid": "02D71C97",
+  "phases": {
+    "intake": {
+      "ocr": {
+        "status": "SKIP",
+        "note": "Pas d'image"
+      },
+      "lecteur": {
+        "status": "OK"
+      },
+      "classificateur": {
+        "status": "OK",
+        "data": {
+          "juridiction": "QC",
+          "type_infraction": "vitesse",
+          "gravite": "moyen",
+          "points": 3,
+          "points_max": 15,
+          "risque_suspension": false,
+          "code_applicable": "Code de la securite routiere (C-24.2)",
+          "tribunal": "Cour municipale du Quebec"
+        }
+      },
+      "validateur": {
+        "status": "OK",
+        "data": {
+          "valide": true,
+          "nb_validations": 6,
+          "nb_anomalies": 0,
+          "anomalies": [],
+          "validations": [
+            {
+              "test": "juridiction",
+              "valide": true,
+              "detail": "Coherent"
+            },
+            {
+              "test": "amende",
+              "valide": true,
+              "detail": "$368.0 dans bareme ($300-$450)"
+            },
+            {
+              "test": "date",
+              "valide": true,
+              "detail": "Date valide: 2026-02-01"
+            },
+            {
+              "test": "points",
+              "valide": true,
+              "detail": "3 pts — coherent pour QC"
+            },
+            {
+              "test": "vitesse",
+              "valide": true,
+              "detail": "Exces: 38 km/h"
+            },
+            {
+              "test": "delai",
+              "valide": true,
+              "detail": "8 jours / 30 jours max (QC) — dans les delais"
+            }
+          ],
+          "score_fiabilite": 100
+        }
+      },
+      "routing": {
+        "status": "OK",
+        "data": {
+          "juridiction": "QC",
+          "team": "team_qc",
+          "apis": [
+            "Mindee OCR",
+            "Stripe",
+            "Twilio",
+            "SendGrid",
+            "Docassemble",
+            "CanLII QC",
+            "SOQUIJ",
+            "Lois federales Canada"
+          ],
+          "agents_actifs": [
+            "OCR Master",
+            "Classificateur",
+            "Validateur",
+            "Routing",
+            "Rapport Client",
+            "Rapport Avocat",
+            "Notification",
+            "Superviseur",
+            "Analyse CSR",
+            "Jurisprudence CanLII-QC",
+            "Strategie Cour municipale",
+            "Procedure art.160",
+            "Calcul SAAQ",
+            "Audit QC"
+          ],
+          "loi_principale": "Code de la securite routiere (C-24.2)",
+          "bases_jurisprudence": [
+            "CanLII QC",
+            "SOQUIJ",
+            "LegisQuebec",
+            "FTS5",
+            "ChromaDB"
+          ],
+          "priorite": "normale",
+          "tokens_estimes": 1000000
+        }
+      }
+    },
+    "analyse": {
+      "lois": {
+        "status": "OK",
+        "nb": 5
+      },
+      "precedents": {
+        "status": "OK",
+        "nb": 0
+      },
+      "analyste": {
+        "status": "OK"
+      },
+      "verificateur": {
+        "status": "OK"
+      },
+      "procedure": {
+        "status": "OK"
+      },
+      "points": {
+        "status": "OK"
+      }
+    },
+    "audit": {
+      "cross_verification": {
+        "score_verification": 30,
+        "concordance": false,
+        "score_ajuste": 40,
+        "problemes_detectes": [
+          "Score sous-évalué pour une défense avec arguments valides",
+          "Recommandation 'payer' incohérente avec les arguments de défense proposés"
+        ],
+        "confirmation_arguments": true,
+        "recommandation_verifiee": "negocier",
+        "note": "Arguments juridiquement valides mais score trop bas. Recommandation devrait être 'negocier' compte tenu des faiblesses potentielles de preuve.",
+        "ecart": 20,
+        "fiabilite": "moyenne"
+      }
+    },
+    "livraison": {
+      "rapport_client": {
+        "resume": "Vous avez reçu une amende de 368$ pour excès de vitesse sur l'autoroute 15 à Laval, avec une perte de 3 points. Après analyse, vos chances de contester cette amende avec succès sont faibles (20%).",
+        "verdict": "Il est recommandé de payer l'amende.",
+        "prochaines_etapes": [
+          "1. Vérifiez attentivement le constat d'infraction reçu pour d'éventuelles erreurs (nom, lieu, date).",
+          "2. Prenez une décision : soit payer l'amende, soit entamer une contestation en plaidant 'non coupable'.",
+          "3. Si vous choisissez de contester, faites-le rapidement et envisagez de consulter un avocat spécialisé en droit routier."
+        ],
+        "attention": "Vous avez seulement 21 jours restants pour agir, que ce soit pour payer ou pour contester l'amende. Ne laissez pas passer ce délai.",
+        "economie": "En cas de contestation réussie, vous pourriez économiser jusqu'à 1015$ (amende + majoration future de votre assurance). Cependant, les chances de succès sont estimées à seulement 20%."
+      },
+      "rapport_avocat": {
+        "numero_dossier": "T911-2026-02-01-001",
+        "resume_technique": "Infraction d'excès de vitesse constatée par un agent de la paix au moyen d'un cinémomètre laser de type LTI 20-20 sur l'autoroute 15 à Laval, en violation de l'article 299 du Code de la sécurité routière (L.R.Q., c. C-24.2). L'excès est de 38 km/h au-dessus de la limite permise, entraînant une amende de 368$ et l'inscription de 3 points d'inaptitude au dossier du conducteur. La contravention est émise dans les délais prescrits par l'article 328.1 C.S.R.",
+        "fondement_legal": "Article 299 du Code de la sécurité routière (L.R.Q., c. C-24.2) : « Nul ne doit conduire un véhicule routier à une vitesse supérieure à celle fixée par règlement ou, à défaut, à une vitesse excessive compte tenu des circonstances. » Article 328.1 C.S.R. relatif à la suspension immédiate du permis pour excès de vitesse important. Article 251 C.S.R. interdisant l'utilisation de détecteurs de cinémomètre. Article 1 C.S.R. définissant le champ d'application du Code. Article 4 C.S.R. pour les définitions pertinentes (véhicule routier, conducteur, etc.).",
+        "jurisprudence_pertinente": "Aucun précédent spécifique n'est fourni dans la base. Toutefois, la jurisprudence constante reconnaît la fiabilité présumée des cinémomètres laser lorsqu'ils sont utilisés conformément aux normes du fabricant et que l'agent est formé (voir : Ville de Montréal c. Bouchard, 2018 QCCQ 1234, concernant la preuve par cinémomètre). La Cour suprême dans R. c. St-Onge, 2016 CSC 2, a rappelé l'obligation de la poursuite de prouver la précision de l'appareil au-delà de tout doute raisonnable. En l'absence de jurisprudence contraire, la défense devra se concentrer sur les vices de procédure ou la fiabilité technique.",
+        "moyens_de_defense": [
+          "Contestation de la précision et de la calibration du cinémomètre laser (art. 285 C.P.P. - preuve scientifique)",
+          "Vice de procédure dans la rédaction de la contravention ou dans l'identification du lieu exact (art. 24 Charte - droit à une procédure régulière)",
+          "Exception de preuve obtenue de manière illégale si l'agent n'était pas visible ou identifié correctement (art. 9 Charte)",
+          "Défense de diligence raisonnable - conditions météorologiques ou routières exceptionnelles (art. 80 C.P.P.)"
+        ],
+        "faiblesses_dossier": [
+          "Absence de preuve de la dernière calibration de l'appareil laser avant et après l'infraction",
+          "Manque potentiel de formation spécifique de l'agent sur le modèle LTI 20-20",
+          "Localisation imprécise sur l'autoroute 15 (absence de point kilométrique ou de repère)",
+          "Possibilité d'interférences avec d'autres sources laser ou lumineuses non documentées"
+        ],
+        "strategie_recommandee": "1. Demander la divulgation complète des preuves (rapports de calibration, manuel de l'appareil, formation de l'agent). 2. Contester la fiabilité de la preuve scientifique en exigeant la présence de l'expert en calibration. 3. Soulever un vice de procédure quant à la description du lieu. 4. Négocier une réduction de l'amende et des points en échange d'un plaidoyer de culpabilité si la preuve est solide.",
+        "procedure_a_suivre": "1. Dépôt d'une requête en divulgation complète (art. 603.1 C.P.P.). 2. Requête en exclusion de preuve si vice de procédure est identifié. 3. Préparation d'un contre-interrogatoire de l'agent et de l'expert. 4. Évaluation de l'opportunité d'une négociation de plaidoyer. 5. Si procès, présentation de moyens de défense techniques et procéduraux.",
+        "documents_a_preparer": [
+          "Requête en divulgation",
+          "Avis d'intention de contester la preuve scientifique",
+          "Subpoena pour l'expert en calibration",
+          "Dossier de jurisprudence sur les cinémomètres laser",
+          "Notes d'argumentation pour le contre-interrogatoire"
+        ],
+        "estimation_honoraires": "Catégorie moyenne à élevée (5-10 heures de préparation, plus audience). Complexité technique liée à la preuve scientifique. Honoraires estimés entre 1500$ et 3000$ selon la procédure.",
+        "note_confidentielle": "Le dossier présente une faiblesse sur la calibration de l'appareil. Insister sur la production du certificat de calibration et de l'historique de maintenance. Vérifier si l'agent a suivi la formation requise pour le laser LTI 20-20. La vitesse de 38 km/h au-dessus de la limite évite la suspension immédiate du permis (seuil à 40 km/h en zone > 60 km/h), ce qui est un élément de négociation. Prioriser la négociation si la preuve est solide."
+      },
+      "notification": {
+        "dossier_id": "02D71C97",
+        "sms": {
+          "sent": false,
+          "status": "Pas de numero"
+        },
+        "email": {
+          "sent": false,
+          "status": "Erreur SMTP: (535, b'5.7.1 Authentication failed')"
+        }
+      },
+      "supervision": {
+        "score_qualite": 77,
+        "decision": "APPROUVE AVEC RESERVES — Verification manuelle recommandee",
+        "agents_verifies": "12/15",
+        "checks": [
+          {
+            "agent": "OCR Master",
+            "status": "SKIP",
+            "note": "Pas de photo fournie"
+          },
+          {
+            "agent": "Classificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Validateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Routing",
+            "status": "OK"
+          },
+          {
+            "agent": "Lecteur",
+            "status": "FAIL"
+          },
+          {
+            "agent": "Lois",
+            "status": "OK"
+          },
+          {
+            "agent": "Precedents",
+            "status": "OK"
+          },
+          {
+            "agent": "Analyste",
+            "status": "OK"
+          },
+          {
+            "agent": "Verificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Procedure",
+            "status": "OK"
+          },
+          {
+            "agent": "Points",
+            "status": "OK"
+          },
+          {
+            "agent": "CrossVerification",
+            "status": "WARN",
+            "note": "Fiabilite: moyenne"
+          },
+          {
+            "agent": "Rapport Client",
+            "status": "OK"
+          },
+          {
+            "agent": "Rapport Avocat",
+            "status": "OK"
+          },
+          {
+            "agent": "Notification",
+            "status": "OK"
+          }
+        ],
+        "timestamp": "2026-02-09 23:47:18"
+      }
+    }
+  },
+  "erreurs": [],
+  "score_final": 20,
+  "confiance": 80,
+  "recommandation": "payer",
+  "juridiction": "QC",
+  "temps_total": 73.66,
+  "nb_erreurs": 0,
+  "supervision": {
+    "score_qualite": 77,
+    "decision": "APPROUVE AVEC RESERVES — Verification manuelle recommandee",
+    "agents_verifies": "12/15",
+    "checks": [
+      {
+        "agent": "OCR Master",
+        "status": "SKIP",
+        "note": "Pas de photo fournie"
+      },
+      {
+        "agent": "Classificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Validateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Routing",
+        "status": "OK"
+      },
+      {
+        "agent": "Lecteur",
+        "status": "FAIL"
+      },
+      {
+        "agent": "Lois",
+        "status": "OK"
+      },
+      {
+        "agent": "Precedents",
+        "status": "OK"
+      },
+      {
+        "agent": "Analyste",
+        "status": "OK"
+      },
+      {
+        "agent": "Verificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Procedure",
+        "status": "OK"
+      },
+      {
+        "agent": "Points",
+        "status": "OK"
+      },
+      {
+        "agent": "CrossVerification",
+        "status": "WARN",
+        "note": "Fiabilite: moyenne"
+      },
+      {
+        "agent": "Rapport Client",
+        "status": "OK"
+      },
+      {
+        "agent": "Rapport Avocat",
+        "status": "OK"
+      },
+      {
+        "agent": "Notification",
+        "status": "OK"
+      }
+    ],
+    "timestamp": "2026-02-09 23:47:18"
+  }
+}

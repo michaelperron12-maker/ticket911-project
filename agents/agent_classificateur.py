@@ -16,13 +16,14 @@ class AgentClassificateur(BaseAgent):
     # Mapping des types d'infraction
     TYPES = {
         "vitesse": ["vitesse", "speed", "excès", "exces", "km/h", "mph", "radar"],
-        "feu_rouge": ["feu rouge", "red light", "feu", "signal"],
-        "stop": ["stop", "arrêt", "arret", "panneau"],
+        "feu_rouge": ["feu rouge", "red light", "brule un feu", "brûlé un feu", "grille un feu", "feu de circulation"],
+        "signal": ["signalisation non respectee", "signal d'arret"],
+        "stop": ["stop", "arrêt", "arret", "panneau d'arret", "panneau d'arrêt"],
         "cellulaire": ["cellulaire", "cell", "phone", "handheld", "texting", "telephone"],
         "ceinture": ["ceinture", "seatbelt", "seat belt"],
         "alcool": ["alcool", "alcohol", "ivresse", "impaired", "dui", "dwi", "taux"],
         "conduite_dangereuse": ["dangereuse", "dangerous", "careless", "stunt", "racing", "course"],
-        "stationnement": ["stationnement", "parking", "parcometre"],
+        "stationnement": ["stationnement", "stationne", "stationné", "parking", "parcometre", "parcomètre", "interdit de stationner"],
         "permis": ["permis", "license", "licence", "suspendu", "suspended", "revoque"],
         "assurance": ["assurance", "insurance", "preuve"],
     }
@@ -31,6 +32,7 @@ class AgentClassificateur(BaseAgent):
     GRAVITE = {
         "vitesse": "moyen",
         "feu_rouge": "moyen",
+        "signal": "moyen",
         "stop": "faible",
         "cellulaire": "eleve",
         "ceinture": "faible",
@@ -81,25 +83,93 @@ class AgentClassificateur(BaseAgent):
         self.log_run("classifier", f"{infraction[:100]}", f"{juridiction}/{type_infraction}/{gravite}", duration=duration)
         return result
 
+    # Villes et indices QC (pour detection juridiction)
+    VILLES_QC = [
+        "montreal", "montréal", "quebec", "québec", "laval", "gatineau", "longueuil",
+        "sherbrooke", "levis", "lévis", "saguenay", "trois-rivieres", "trois-rivières",
+        "terrebonne", "repentigny", "brossard", "drummondville", "saint-jean",
+        "saint-jerome", "saint-jérôme", "granby", "blainville", "rimouski",
+        "victoriaville", "mascouche", "shawinigan", "chateauguay", "châteauguay",
+        "anjou", "rosemont", "verdun", "lachine", "lasalle", "outremont",
+        "villeray", "hochelaga", "ahuntsic", "mercier", "riviere-des-prairies",
+        "rivière-des-prairies", "pointe-aux-trembles", "saint-laurent", "saint-leonard",
+        "saint-léonard", "plateau", "mont-royal", "westmount", "cote-des-neiges",
+        "côte-des-neiges", "dorval", "pierrefonds", "beaconsfield",
+    ]
+
+    INDICES_QC = [
+        "saaq", "csr", "securite routiere", "sécurité routière", "cour municipale",
+        "district judiciaire", "code de la securite", "code de la sécurité",
+        "c-24.2", "art.", "constat d'infraction", "constat d infraction",
+        "ville de", "arrondissement", "municipalite", "municipalité",
+        "procureur general du quebec", "procureur général du québec",
+        "spvm", "sq ", "surete du quebec", "sûreté du québec",
+    ]
+
     def _detecter_juridiction(self, juridiction_raw, ticket):
+        """Detection robuste: TOUJOURS verifier les indices dans les champs du ticket,
+        meme si juridiction_raw a une valeur. L'adresse et le texte trumpent la valeur OCR."""
+
+        # ETAPE 1: Collecter TOUT le texte du ticket pour analyse
+        all_text = " ".join([str(v) for v in ticket.values()]).lower()
+        lieu = str(ticket.get("lieu", "")).lower()
+        infraction = str(ticket.get("infraction", "")).lower()
+
+        # ETAPE 2: Detection forte par adresse/lieu — PRIORITAIRE
+        # Si le lieu contient une ville du Quebec, c'est QC peu importe ce que l'OCR dit
+        if any(v in lieu for v in self.VILLES_QC):
+            self.log(f"Juridiction QC detectee par lieu: {lieu[:80]}", "OK")
+            return "QC"
+
+        # Texte en francais dans l'infraction → forte probabilite QC
+        mots_francais = ["stationné", "stationne", "véhicule", "vehicule", "routier",
+                         "signalisation", "prohibe", "interdit", "endroit", "ayant",
+                         "excès", "exces", "conduite", "circulation"]
+        nb_mots_fr = sum(1 for m in mots_francais if m in infraction)
+        if nb_mots_fr >= 2:
+            self.log(f"Juridiction QC detectee par langue francaise ({nb_mots_fr} mots)", "OK")
+            return "QC"
+
+        # Villes QC dans TOUS les champs
+        if any(v in all_text for v in self.VILLES_QC):
+            self.log("Juridiction QC detectee par ville dans les champs", "OK")
+            return "QC"
+
+        # Indices QC (institutions, lois, termes)
+        if any(w in all_text for w in self.INDICES_QC):
+            self.log("Juridiction QC detectee par indices institutionnels", "OK")
+            return "QC"
+
+        # ETAPE 3: Verifier la valeur brute du champ juridiction
         j = str(juridiction_raw).lower().strip()
+
         if any(w in j for w in ["qc", "quebec", "québec"]):
             return "QC"
-        elif any(w in j for w in ["on", "ontario"]):
-            return "ON"
-        elif any(w in j for w in ["ny", "new york"]):
-            return "NY"
-
-        # Detection par indices dans les champs
-        all_text = " ".join([str(v) for v in ticket.values()]).lower()
-        if any(w in all_text for w in ["saaq", "csr", "securite routiere", "cour municipale"]):
+        if any(v in j for v in self.VILLES_QC):
             return "QC"
-        elif any(w in all_text for w in ["hta", "highway traffic", "provincial offences"]):
+        if "district judiciaire" in j or "district" in j:
+            return "QC"
+
+        # ETAPE 4: Indices Ontario (seulement si aucun indice QC)
+        villes_on = ["toronto", "ottawa", "mississauga", "hamilton", "brampton",
+                     "markham", "vaughan", "london", "kitchener", "windsor"]
+        if any(v in lieu for v in villes_on):
             return "ON"
-        elif any(w in all_text for w in ["vtl", "vehicle traffic", "dmv", "tvb"]):
+        if any(w in j for w in ["on", "ontario"]):
+            # Verifier que c'est vraiment Ontario et pas un faux positif OCR
+            if not any(v in all_text for v in self.VILLES_QC):
+                return "ON"
+        if any(w in all_text for w in ["hta", "highway traffic", "provincial offences"]):
+            return "ON"
+
+        # ETAPE 5: Indices New York
+        if any(w in j for w in ["ny", "new york"]):
+            return "NY"
+        if any(w in all_text for w in ["vtl", "vehicle traffic", "dmv", "tvb",
+                                        "new york", "brooklyn", "manhattan", "bronx"]):
             return "NY"
 
-        return "QC"  # Default
+        return "QC"  # Default = Quebec
 
     def _detecter_type(self, infraction):
         for type_name, keywords in self.TYPES.items():

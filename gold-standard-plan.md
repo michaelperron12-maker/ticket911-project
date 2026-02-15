@@ -119,4 +119,4 @@ CLIENT UPLOAD
 
 ---
 
-*Gold Standard — SEO par AI | Ticket911*
+*Gold Standard — SEO par AI | AITicketInfo*

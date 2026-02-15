@@ -7,8 +7,10 @@ Run: python3 populate_chromadb.py
 import sqlite3
 import chromadb
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
-CHROMA_PATH = "/var/www/ticket911/data/embeddings"
+import os
+_PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(_PROJECT_DIR, "db", "aiticketinfo.db")
+CHROMA_PATH = os.path.join(_PROJECT_DIR, "data", "embeddings")
 
 
 def main():

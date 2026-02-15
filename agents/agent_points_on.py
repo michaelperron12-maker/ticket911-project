@@ -55,9 +55,9 @@ class AgentPointsON(BaseAgent):
     def __init__(self):
         super().__init__("Points_ON")
 
-    def calculer(self, ticket, analyse=None):
+    def calculer(self, ticket, analyse=None, contexte_enrichi=None):
         """
-        Input: ticket ON + analyse optionnelle
+        Input: ticket ON + analyse optionnelle + contexte enrichi (meteo/routes)
         Output: calcul points MTO, consequences, assurance ON
         """
         self.log("Calcul points MTO Ontario...", "STEP")
@@ -105,6 +105,20 @@ class AgentPointsON(BaseAgent):
             "total": amende + victim_surcharge + economie_assurance
         }
 
+        # Context notes from enrichment data
+        notes_contexte = []
+        if contexte_enrichi:
+            roads = contexte_enrichi.get("road_conditions", [])
+            for r in roads:
+                if r.get("type") in ("construction", "CONSTRUCTION", "constructionprojects"):
+                    notes_contexte.append(f"Active construction zone: {r.get('road', '')} — fines may be doubled (Community Safety Zone)")
+            w = contexte_enrichi.get("weather")
+            if w:
+                precip = w.get("precipitation_mm") or 0
+                snow = w.get("snow_cm") or 0
+                if precip > 5 or snow > 2:
+                    notes_contexte.append(f"Adverse weather: {precip}mm precip, {snow}cm snow — potential defense argument")
+
         result = {
             "juridiction": "ON",
             "points_mto": points,
@@ -116,6 +130,7 @@ class AgentPointsON(BaseAgent):
             "impact_assurance": assurance,
             "victim_fine_surcharge": victim_surcharge,
             "economie_si_acquitte": economie,
+            "notes_contexte": notes_contexte,
         }
 
         duration = time.time() - start

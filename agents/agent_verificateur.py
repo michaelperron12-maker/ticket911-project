@@ -1,11 +1,11 @@
 """
 Agent 5: VERIFICATEUR — Verifie que chaque citation existe dans la DB
 Donne un score de confiance global
+PostgreSQL backend
 """
 
 import re
 import time
-import sqlite3
 from agents.base_agent import BaseAgent
 
 
@@ -58,7 +58,7 @@ class AgentVerificateur(BaseAgent):
                         match_info = db_info
                         break
 
-            # Verifier aussi dans SQLite directement
+            # Verifier aussi dans PostgreSQL directement
             if not found:
                 found, match_info = self._verifier_dans_db(citation)
 
@@ -110,18 +110,13 @@ class AgentVerificateur(BaseAgent):
         return rapport
 
     def _verifier_dans_db(self, citation):
-        """Cherche la citation directement dans SQLite"""
+        """Cherche la citation directement dans PostgreSQL"""
         try:
             conn = self.get_db()
             c = conn.cursor()
 
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='jurisprudence'")
-            if not c.fetchone():
-                conn.close()
-                return False, None
-
             # Recherche par citation
-            c.execute("SELECT id, citation, tribunal, date_decision, resume, resultat FROM jurisprudence WHERE citation LIKE ?",
+            c.execute("SELECT id, citation, tribunal, date_decision, resume, resultat FROM jurisprudence WHERE citation ILIKE %s",
                       (f"%{citation}%",))
             row = c.fetchone()
             conn.close()

@@ -1,6 +1,7 @@
 """
-Agent Phase 1: OCR MASTER — Photo de contravention → 50+ champs extraits
-Moteur: Qwen3-VL-235B (vision) + Mindee API fallback
+Agent Phase 1: OCR MASTER — Photo de contravention → champs extraits
+Moteur: OCR.space (gratuit) → DeepSeek V3 (parsing structuré)
+Fallback: Qwen3-VL vision si disponible
 """
 
 import os
@@ -8,8 +9,6 @@ import json
 import time
 import base64
 from agents.base_agent import BaseAgent, QWEN_VL
-
-MINDEE_API_KEY = os.environ.get("MINDEE_API_KEY", "")
 
 
 class AgentOCR(BaseAgent):
@@ -27,11 +26,11 @@ class AgentOCR(BaseAgent):
 
         result = None
 
-        # Methode 1: Mindee API (si cle disponible)
-        if MINDEE_API_KEY and (image_path or image_base64):
-            result = self._ocr_mindee(image_path, image_base64)
+        # Methode 1: OCR.space (gratuit, toujours disponible)
+        if image_path or image_base64:
+            result = self._ocr_space(image_path, image_base64)
 
-        # Methode 2: AI vision fallback
+        # Methode 2: AI vision fallback (Qwen VL si disponible)
         if not result and (image_path or image_base64):
             result = self._ocr_ai_vision(image_path, image_base64)
 
@@ -46,53 +45,111 @@ class AgentOCR(BaseAgent):
         self.log(f"OCR complete en {duration:.1f}s — {len([v for v in result.values() if v])} champs", "OK")
         return result
 
-    def _ocr_mindee(self, image_path, image_base64):
-        """OCR via Mindee API — extraction structuree"""
+    def _ocr_space(self, image_path, image_base64):
+        """OCR via OCR.space API gratuite → texte brut → AI parsing"""
         try:
             import requests
 
-            url = "https://api.mindee.net/v1/products/mindee/expense_receipts/v5/predict"
-            headers = {"Authorization": f"Token {MINDEE_API_KEY}"}
+            self.log("OCR.space: extraction du texte...", "STEP")
 
+            # Preparer l'image en base64
             if image_path and os.path.exists(image_path):
                 with open(image_path, "rb") as f:
-                    resp = requests.post(url, headers=headers, files={"document": f})
+                    img_b64 = base64.b64encode(f.read()).decode()
             elif image_base64:
-                import tempfile
-                img_data = base64.b64decode(image_base64)
-                with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-                    tmp.write(img_data)
-                    tmp_path = tmp.name
-                with open(tmp_path, "rb") as f:
-                    resp = requests.post(url, headers=headers, files={"document": f})
-                os.unlink(tmp_path)
+                img_b64 = image_base64
             else:
                 return None
 
-            if resp.status_code == 201:
-                data = resp.json()
-                prediction = data.get("document", {}).get("inference", {}).get("prediction", {})
-                # Mapper les champs Mindee vers notre format
-                result = self._mapper_mindee(prediction)
-                self.log("Mindee OCR reussi", "OK")
-                return result
-            else:
-                self.log(f"Mindee erreur {resp.status_code}: {resp.text[:200]}", "FAIL")
+            # Detecter l'extension
+            ext = "jpg"
+            if image_path:
+                ext = image_path.rsplit(".", 1)[-1].lower() if "." in image_path else "jpg"
+            mime = "image/png" if ext == "png" else "image/jpeg"
+            if ext == "pdf":
+                mime = "application/pdf"
+
+            # Appel OCR.space (cle gratuite: helloworld)
+            resp = requests.post("https://api.ocr.space/parse/image",
+                data={
+                    "apikey": "helloworld",
+                    "base64Image": f"data:{mime};base64,{img_b64}",
+                    "language": "fre",
+                    "isOverlayRequired": False,
+                    "OCREngine": 2,
+                    "scale": True,
+                    "isTable": True,
+                },
+                timeout=30
+            )
+
+            if resp.status_code != 200:
+                self.log(f"OCR.space erreur HTTP {resp.status_code}", "FAIL")
                 return None
 
-        except ImportError:
-            self.log("Module requests non installe", "WARN")
-            return None
+            data = resp.json()
+            if not data.get("ParsedResults"):
+                self.log(f"OCR.space: aucun resultat — {data.get('ErrorMessage', '?')}", "FAIL")
+                return None
+
+            raw_text = data["ParsedResults"][0].get("ParsedText", "")
+            if not raw_text or len(raw_text.strip()) < 20:
+                self.log("OCR.space: texte trop court ou vide", "WARN")
+                return None
+
+            self.log(f"OCR.space: {len(raw_text)} caracteres extraits", "OK")
+
+            # Parser le texte brut avec DeepSeek V3
+            result = self._parse_raw_text(raw_text)
+            return result
+
         except Exception as e:
-            self.log(f"Erreur Mindee: {e}", "FAIL")
+            self.log(f"Erreur OCR.space: {e}", "FAIL")
+            return None
+
+    def _parse_raw_text(self, raw_text):
+        """Utilise DeepSeek V3 pour structurer le texte OCR brut en JSON"""
+        self.log("AI parsing du texte OCR...", "STEP")
+
+        prompt = f"""Texte OCR d une contravention routiere. Extrais les infos en JSON.
+
+REGLES JURIDICTION:
+- Si le texte est en francais ou mentionne Montreal, Quebec, Anjou, Laval, Longueuil, SAAQ, CSR, cour municipale, district judiciaire, arrondissement, ou toute ville du Quebec → juridiction = "QC"
+- Si le texte mentionne Ontario, HTA, Highway Traffic, Provincial Offences → juridiction = "ON"
+- Si le texte mentionne New York, VTL, DMV, TVB → juridiction = "NY"
+- En cas de doute, un ticket en francais = "QC"
+
+TEXTE OCR:
+{raw_text[:2500]}
+
+JSON: {{"infraction":"","juridiction":"QC ou ON ou NY","loi":"","amende":"","points_inaptitude":0,"lieu":"","date":"YYYY-MM-DD","appareil":"","vitesse_captee":0,"vitesse_permise":0,"numero_constat":"","agent":"","poste_police":"","plaque":"","vehicule":"","signalisation":""}}"""
+
+        response = self.call_ai(prompt,
+                                system_prompt="JSON uniquement. Pas de texte explicatif. N invente rien.",
+                                temperature=0.05, max_tokens=3000)
+
+        if response["success"]:
+            try:
+                result = self.parse_json_response(response["text"])
+                # Garder le texte brut pour reference
+                result["texte_brut_ocr"] = raw_text[:500]
+                filled = len([v for v in result.values() if v and v != 0])
+                self.log(f"AI parsing reussi — {filled} champs remplis", "OK")
+                return result
+            except Exception as e:
+                self.log(f"AI parsing erreur: {e}", "FAIL")
+                return None
+        else:
+            self.log(f"AI parsing erreur: {response.get('error', '?')}", "FAIL")
             return None
 
     def _ocr_ai_vision(self, image_path, image_base64):
-        """Vision AI: Qwen3-VL lit directement la photo du ticket"""
-        self.log("Vision AI: Qwen3-VL analyse la photo du ticket...", "STEP")
+        """Vision AI fallback: Qwen3-VL lit directement la photo du ticket"""
+        self.log("Vision AI fallback: Qwen3-VL analyse la photo...", "STEP")
 
         prompt = """Lis cette photo de contravention/ticket routier.
 Extrais TOUS les champs visibles sur le document.
+N'invente RIEN — seulement ce qui est visible.
 
 Reponds UNIQUEMENT en JSON:
 {
@@ -116,59 +173,21 @@ Reponds UNIQUEMENT en JSON:
         response = self.call_ai_vision(prompt,
                                        image_path=image_path,
                                        image_base64=image_base64,
-                                       system_prompt="OCR expert. Lis le ticket et extrais toutes les donnees. JSON uniquement.",
+                                       system_prompt="OCR expert. Lis le ticket et extrais toutes les donnees. N'invente rien. JSON uniquement.",
                                        temperature=0.05, max_tokens=1500)
 
         if response["success"]:
             try:
                 result = self.parse_json_response(response["text"])
-                self.log(f"Vision OCR reussi — {len([v for v in result.values() if v])} champs extraits", "OK")
+                filled = len([v for v in result.values() if v and v != 0])
+                self.log(f"Vision OCR reussi — {filled} champs extraits", "OK")
                 return result
             except Exception as e:
                 self.log(f"Vision OCR parsing error: {e}", "FAIL")
                 return None
         else:
-            self.log(f"Vision OCR error: {response.get('error', '?')}", "FAIL")
+            self.log(f"Vision OCR indisponible: {response.get('error', '?')}", "WARN")
             return None
-
-    def _mapper_mindee(self, prediction):
-        """Mappe les champs Mindee vers le format Ticket911"""
-        # Mindee expense receipt n'est pas ideal pour les tickets
-        # Quand on aura un modele custom Mindee, ce mapping sera plus precis
-        raw_text = ""
-        for page in prediction.get("pages", []):
-            raw_text += page.get("raw_text", "")
-
-        # Utiliser AI pour extraire les champs specifiques du texte brut
-        if raw_text:
-            prompt = f"""Extrais les informations de ce ticket de contravention.
-Le texte OCR brut est:
-{raw_text[:2000]}
-
-Reponds UNIQUEMENT en JSON:
-{{
-    "infraction": "",
-    "juridiction": "Quebec|Ontario|New York",
-    "loi": "article de loi",
-    "amende": "montant",
-    "points_inaptitude": 0,
-    "lieu": "",
-    "date": "YYYY-MM-DD",
-    "appareil": "",
-    "vitesse_captee": 0,
-    "vitesse_permise": 0,
-    "numero_constat": "",
-    "agent": "",
-    "poste_police": ""
-}}"""
-            response = self.call_ai(prompt, system_prompt="Extrais les donnees du ticket. JSON uniquement.")
-            if response["success"]:
-                try:
-                    return self.parse_json_response(response["text"])
-                except Exception:
-                    pass
-
-        return self._empty_ticket()
 
     def _empty_ticket(self):
         return {

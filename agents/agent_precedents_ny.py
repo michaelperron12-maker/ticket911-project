@@ -1,13 +1,13 @@
 """
 Agent NY: PRECEDENTS NEW YORK — CourtListener + local DB
 Recherche hybride pour jurisprudence NY (TVB, Supreme Court, Appellate)
+PostgreSQL tsvector backend
 """
 
-import sqlite3
 import time
 import json
 import os
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 COURTLISTENER_TOKEN = os.environ.get("COURTLISTENER_TOKEN", "")
 
@@ -22,7 +22,8 @@ class AgentPrecedentsNY(BaseAgent):
     def _init_chroma(self):
         try:
             import chromadb
-            client = chromadb.PersistentClient(path="/var/www/ticket911/data/embeddings")
+            _proj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            client = chromadb.PersistentClient(path=os.path.join(_proj, "data", "embeddings"))
             self.chroma_collection = client.get_or_create_collection(
                 name="jurisprudence",
                 metadata={"hnsw:space": "cosine"}
@@ -59,9 +60,26 @@ class AgentPrecedentsNY(BaseAgent):
         combined = self._combiner(fts_results, semantic_results, cl_results)
         top = combined[:n_results]
 
+        # 4. Enrichir avec jurisprudence_citations (716 liens entre cas)
+        jids = [p.get("id") for p in top if p.get("id") and isinstance(p.get("id"), int)]
+        if jids:
+            citations_links = self._fetch_jurisprudence_citations(jids)
+            if citations_links:
+                self.log(f"  Citations links: {len(citations_links)} liens entre cas", "OK")
+                links_by_parent = {}
+                for cl in citations_links:
+                    pid = cl["parent_id"]
+                    if pid not in links_by_parent:
+                        links_by_parent[pid] = []
+                    links_by_parent[pid].append(cl)
+                for p in top:
+                    pid = p.get("id")
+                    if pid in links_by_parent:
+                        p["cas_lies"] = links_by_parent[pid]
+
         duration = time.time() - start
         self.log_run("chercher_precedents_ny", f"NY {infraction[:100]}",
-                     f"{len(top)} precedents NY", duration=duration)
+                     f"{len(top)} precedents NY (+{len(jids)} enrichis)", duration=duration)
         self.log(f"{len(top)} precedents NY trouves en {duration:.1f}s", "OK")
         return top
 
@@ -71,21 +89,15 @@ class AgentPrecedentsNY(BaseAgent):
         c = conn.cursor()
 
         try:
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='jurisprudence_fts'")
-            if not c.fetchone():
-                conn.close()
-                return results
-
             queries = self._generer_requetes_ny(infraction)
             for query in queries:
                 try:
                     c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                        j.resume, j.juridiction, j.resultat
-                                 FROM jurisprudence_fts fts
-                                 JOIN jurisprudence j ON fts.rowid = j.id
-                                 WHERE jurisprudence_fts MATCH ?
-                                 AND j.juridiction = 'NY'
-                                 LIMIT ?""", (query, limit))
+                                        j.resume, j.province, j.resultat
+                                 FROM jurisprudence j
+                                 WHERE j.tsv_en @@ to_tsquery('english', %s)
+                                 AND j.province = 'NY'
+                                 LIMIT %s""", (query, limit))
                     for row in c.fetchall():
                         results.append({
                             "id": row[0], "citation": row[1], "tribunal": row[2],
@@ -93,7 +105,7 @@ class AgentPrecedentsNY(BaseAgent):
                             "juridiction": row[5], "resultat": row[6] or "inconnu",
                             "source": "FTS-NY", "score": 70
                         })
-                except sqlite3.OperationalError:
+                except Exception:
                     pass
         except Exception as e:
             self.log(f"Erreur FTS NY: {e}", "FAIL")
@@ -178,14 +190,14 @@ class AgentPrecedentsNY(BaseAgent):
         queries = []
         lower = infraction.lower()
         if any(w in lower for w in ["speed", "speeding", "mph", "vitesse"]):
-            queries.extend(["speeding OR speed limit", "VTL 1180", "radar OR lidar"])
+            queries.extend(["speeding | speed & limit", "VTL & 1180", "radar | lidar"])
         if any(w in lower for w in ["red light", "traffic signal", "feu rouge"]):
-            queries.extend(["red light OR traffic signal", "VTL 1111"])
+            queries.extend(["red & light | traffic & signal", "VTL & 1111"])
         if any(w in lower for w in ["cell phone", "texting", "handheld"]):
-            queries.extend(["cell phone OR texting", "VTL 1225"])
+            queries.extend(["cell & phone | texting", "VTL & 1225"])
         if any(w in lower for w in ["stop sign"]):
-            queries.extend(["stop sign", "VTL 1172"])
+            queries.extend(["stop & sign", "VTL & 1172"])
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]
-            queries = [" OR ".join(words)] if words else ["traffic violation NY"]
+            queries = [" | ".join(words)] if words else ["traffic & violation & NY"]
         return queries

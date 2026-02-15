@@ -24,7 +24,7 @@ Quand le client soumet un ticket + preuves → le systeme genere un **rapport PD
 - Ajouter au formulaire web : upload multi-fichiers
 - Types acceptes : JPG, PNG, PDF, MP4, MOV, TXT
 - Max 50 Mo par fichier, 5 fichiers max
-- Stockage : `/var/www/ticket911/uploads/{uuid}/`
+- Stockage : `/var/www/aiticketinfo/uploads/{uuid}/`
 - Chaque dossier a un ID unique (UUID)
 
 ### 2. OCR photo ticket (~3h)
@@ -45,12 +45,12 @@ Quand le client soumet un ticket + preuves → le systeme genere un **rapport PD
 
 ### 4. Generation rapport PDF (~3h)
 - Installer WeasyPrint sur le serveur
-- Template HTML → PDF avec le style Ticket911
+- Template HTML → PDF avec le style AITicketInfo
 - Sections du rapport :
 
 ```
 PAGE 1 — COUVERTURE
-  - Logo Ticket911 par SeoAI
+  - Logo AITicketInfo par SeoAI
   - Numero de dossier
   - Date
   - Juridiction
@@ -135,7 +135,7 @@ PAGE 9 — AVERTISSEMENTS
 - [ ] Creer compte Mindee (mindee.com) → cle API gratuite
 - [ ] Installer WeasyPrint sur serveur OVH : `pip install weasyprint`
 - [ ] Installer dependances systeme : `sudo apt install libpango1.0-dev libcairo2-dev`
-- [ ] Creer dossier uploads : `mkdir -p /var/www/ticket911/uploads`
+- [ ] Creer dossier uploads : `mkdir -p /var/www/aiticketinfo/uploads`
 
 ---
 
@@ -151,4 +151,4 @@ Le client va sur seoparai.com/scanticket :
 
 ---
 
-*Gold Standard — SEO par AI | Ticket911*
+*Gold Standard — SEO par AI | AITicketInfo*

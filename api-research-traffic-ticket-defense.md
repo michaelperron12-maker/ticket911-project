@@ -47,7 +47,7 @@
 
 **Limits**: Max 10MB response, max 10,000 results per query, HTTPS only
 
-**RELEVANCE TO TICKET911**: **CRITICAL** - Can search Quebec municipal court decisions, Ontario Court of Justice provincial offence cases, and all Canadian traffic-related case law. Can build citation networks to find winning precedents for traffic ticket defense.
+**RELEVANCE TO AITICKETINFO**: **CRITICAL** - Can search Quebec municipal court decisions, Ontario Court of Justice provincial offence cases, and all Canadian traffic-related case law. Can build citation networks to find winning precedents for traffic ticket defense.
 
 **Python Libraries**:
 - `canliicalls` (PyPI) - Simplified CanLII API wrapper
@@ -396,7 +396,7 @@
 - **Pricing**: 2.9% + $0.30 per transaction (standard)
 - **Canadian pricing**: 2.9% + $0.30 CAD
 
-**Key Features for Ticket911**:
+**Key Features for AITicketInfo**:
 - **Stripe Subscriptions**: Monthly membership billing ($20/month plan B)
 - **Stripe Connect**: Split payments between platform and attorneys
 - **Stripe Checkout**: Pre-built payment page
@@ -424,7 +424,7 @@
 - **Type**: REST API
 - **Features**: Case management, billing, payments, client portal
 - **Data**: 150,000+ law firms using Clio
-- **RELEVANCE**: MEDIUM - Could be integration partner if Ticket911 connects with law firms using Clio.
+- **RELEVANCE**: MEDIUM - Could be integration partner if AITicketInfo connects with law firms using Clio.
 
 ---
 
@@ -620,6 +620,6 @@
 
 5. **Regulatory caution required** - DoNotPay's $193K FTC fine shows the risk of overpromising AI legal capabilities. Must frame as "information tool" not "legal advice" unless working with licensed attorneys.
 
-6. **LegalNexus on GitHub** is the closest open-source project to what Ticket911 needs for the Canadian legal research component.
+6. **LegalNexus on GitHub** is the closest open-source project to what AITicketInfo needs for the Canadian legal research component.
 
 7. **Stripe Connect** is ideal for the marketplace model (platform fee + attorney payout), but trust accounting compliance needs additional tooling (LawPay).

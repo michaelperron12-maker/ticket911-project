@@ -13,9 +13,9 @@ class AgentCrossVerification(BaseAgent):
     def __init__(self):
         super().__init__("CrossVerification")
 
-    def verifier_analyse(self, ticket, analyse, lois, precedents):
+    def verifier_analyse(self, ticket, analyse, lois, precedents, contexte_texte=""):
         """
-        Input: ticket + analyse originale + lois + precedents
+        Input: ticket + analyse originale + lois + precedents + contexte enrichi
         Output: verification independante avec score de concordance
         """
         self.log("Cross-verification double moteur...", "STEP")
@@ -40,11 +40,16 @@ Tu dois VERIFIER si l'analyse est coherente et raisonnable.
 DONNEES:
 {ctx}
 
+CONTEXTE ENVIRONNEMENTAL (donnees officielles):
+{contexte_texte if contexte_texte else "Aucune donnee meteo/route disponible."}
+NOTE: Verifie si les arguments meteo/route de l'analyse sont coherents avec les donnees officielles ci-dessus.
+
 VERIFIE:
 1. Le score de contestation est-il realiste pour ce type d'infraction?
 2. La recommandation (contester/payer/negocier) est-elle coherente avec le score?
 3. Les arguments de defense sont-ils valides juridiquement?
 4. Les precedents cites existent-ils dans les donnees fournies?
+5. Les arguments meteo/conditions routieres sont-ils supportes par les donnees officielles?
 
 REPONDS EN JSON:
 {{

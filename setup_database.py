@@ -14,9 +14,10 @@ import sys
 import time
 from pathlib import Path
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
-DATA_DIR = Path("/var/www/ticket911/data")
-FEASIBILITY_DATA = Path("/var/www/ticket911/feasibility-test/data")
+PROJECT_DIR = Path(__file__).resolve().parent
+DB_PATH = str(PROJECT_DIR / "db" / "aiticketinfo.db")
+DATA_DIR = PROJECT_DIR / "data"
+FEASIBILITY_DATA = PROJECT_DIR / "feasibility-test" / "data"
 
 # Mots-cles pour filtrer les cas de trafic
 # Mots-cles STRICTS — seulement les termes specifiques au trafic routier
@@ -389,7 +390,7 @@ if __name__ == "__main__":
 
     print("""
 +===========================================================+
-|       TICKET911 — SETUP BASE DE DONNEES                   |
+|       AITICKETINFO — SETUP BASE DE DONNEES                   |
 |       Indexation jurisprudence + lois                      |
 +===========================================================+
 """)

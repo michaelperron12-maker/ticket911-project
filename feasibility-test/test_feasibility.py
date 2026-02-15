@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
 =============================================================
-  TICKET911 — TEST DE FAISABILITE
+  AITICKETINFO — TEST DE FAISABILITE
   Bases de donnees legales & Jurisprudence
 
   Prouve que le systeme d'analyse de tickets fonctionne
   avec de VRAIES donnees legales canadiennes.
 
-  100% isole dans /var/www/ticket911/
   SQLite pour stockage local des resultats
 =============================================================
 """
@@ -24,11 +23,11 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-# ─── Paths (tout dans /var/www/ticket911/) ────────────────
+# ─── Paths (relatifs au script) ────────────────
 
-BASE_DIR = Path("/var/www/ticket911/feasibility-test")
+BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-DB_PATH = BASE_DIR / "ticket911_feasibility.db"
+DB_PATH = BASE_DIR / "aiticketinfo_feasibility.db"
 REPORT_PATH = BASE_DIR / "rapport_faisabilite.json"
 
 # Creer les dossiers si necessaire
@@ -75,11 +74,11 @@ def separator(title):
 
 
 # ═══════════════════════════════════════════════════════════
-#  SQLITE — Base isolee pour Ticket911
+#  SQLITE — Base isolee pour AITicketInfo
 # ═══════════════════════════════════════════════════════════
 
 def init_db():
-    """Cree la base SQLite isolee pour le projet 911"""
+    """Cree la base SQLite isolee pour AITicketInfo"""
     conn = sqlite3.connect(str(DB_PATH))
     c = conn.cursor()
 
@@ -545,7 +544,7 @@ def rapport_final(conn):
 
     print(f"""
 +-----------------------------------------------------------+
-|           TICKET911 — TEST DE FAISABILITE                 |
+|           AITICKETINFO — TEST DE FAISABILITE|
 |           {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}                          |
 +-----------------------------------------------------------+
 |  Ticket: {TICKET_TEST['infraction'][:47]}  |
@@ -633,7 +632,7 @@ def rapport_final(conn):
 |  - Lois QC/ON: accessibles et telechargees                |
 |  - Jurisprudence: CanLII + A2AJ (175K+ decisions)         |
 |  - IA DeepSeek: analyse, score, strategie OK              |
-|  - SQLite: base isolee ticket911 fonctionnelle            |
+|  - SQLite: base isolee aiticketinfo fonctionnelle            |
 |  - Pipeline: ticket -> lois -> precedents -> score -> OK  |
 +===========================================================+
 """)
@@ -646,7 +645,7 @@ def rapport_final(conn):
 if __name__ == "__main__":
     print(f"""
 +===========================================================+
-|       TICKET911 — TEST DE FAISABILITE EN DIRECT           |
+|       AITICKETINFO — TEST DE FAISABILITE EN DIRECT           |
 |       Serveur OVH: {os.uname().nodename:<37}|
 |       Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}                                |
 +===========================================================+
@@ -654,7 +653,7 @@ if __name__ == "__main__":
 
     results["start_time"] = time.time()
 
-    # Init SQLite (isole dans /var/www/ticket911/)
+    # Init SQLite
     conn = init_db()
     log(f"SQLite initialisee: {DB_PATH}", "OK")
 

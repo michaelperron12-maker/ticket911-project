@@ -14,8 +14,9 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
-DATA_DIR = "/var/www/ticket911/data"
+_PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(_PROJECT_DIR, "db", "aiticketinfo.db")
+DATA_DIR = os.path.join(_PROJECT_DIR, "data")
 
 
 def init_db():
@@ -156,7 +157,7 @@ def scrape_qc_csr(conn):
     print("\n[+] Scraping QC — Code de la securite routiere (C-24.2)...")
 
     base_url = "https://www.legisquebec.gouv.qc.ca/fr/document/lc/C-24.2"
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; Ticket911-Research/1.0)"}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; AITicketInfo-Research/1.0)"}
 
     try:
         print("  Telechargement de la page principale...")
@@ -252,7 +253,7 @@ def scrape_on_hta(conn):
 
     # Ontario e-Laws a une version texte accessible
     base_url = "https://www.ontario.ca/laws/statute/90h08"
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; Ticket911-Research/1.0)"}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; AITicketInfo-Research/1.0)"}
 
     try:
         print("  Telechargement...")
@@ -379,7 +380,7 @@ def print_stats(conn):
 if __name__ == "__main__":
     print("""
 +===========================================================+
-|       TICKET911 — SCRAPE LOIS COMPLETES                   |
+|       AITICKETINFO — SCRAPE LOIS COMPLETES                   |
 |       QC Code securite routiere + ON Highway Traffic Act   |
 +===========================================================+
 """)

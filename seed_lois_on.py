@@ -8,7 +8,8 @@ Run: python3 seed_lois_on.py
 import sqlite3
 from datetime import datetime
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
+from pathlib import Path
+DB_PATH = str(Path(__file__).resolve().parent / "db" / "aiticketinfo.db")
 
 # ═══════════════════════════════════════════════════════════
 # HIGHWAY TRAFFIC ACT (R.S.O. 1990, c. H.8) — Articles clés

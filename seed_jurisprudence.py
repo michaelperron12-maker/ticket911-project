@@ -9,7 +9,8 @@ import sqlite3
 import os
 from datetime import datetime
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
+from pathlib import Path
+DB_PATH = str(Path(__file__).resolve().parent / "db" / "aiticketinfo.db")
 
 # ═══════════════════════════════════════════════════════════
 # JURISPRUDENCE QUEBEC — Cour municipale, Cour du Quebec, CS, CA

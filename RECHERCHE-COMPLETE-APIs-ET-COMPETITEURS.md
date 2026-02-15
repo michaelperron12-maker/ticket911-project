@@ -1,5 +1,5 @@
 # RECHERCHE COMPLETE — APIs, Bases de Donnees & Competiteurs
-## Projet Ticket911 — Plateforme de defense de contraventions
+## Projet AITicketInfo — Plateforme de defense de contraventions
 ### Quebec | Ontario | New York
 ### Date: 8 fevrier 2026 | Par: SeoAI (Michael Perron)
 
@@ -676,7 +676,7 @@ Tous les datasets NYC Open Data et NYS Open Data utilisent Socrata:
 - **Fonde:** 2011 par Avi Levy et Jamie Benizri (ex-procureur)
 - **Claim:** "Le plus abordable au Quebec"
 - **Couverture:** Quebec + Ontario + New York (prix varient)
-- **NOTE:** Meme fondateur (Avi Levy) que Ticket911.ca!
+- **NOTE:** Meme fondateur (Avi Levy) que AITicketInfo.ca!
 - **Forces:** Abordable, ex-procureurs
 - **Faiblesses:** N'inclut pas la representation au proces
 
@@ -691,10 +691,10 @@ Tous les datasets NYC Open Data et NYS Open Data utilisent Socrata:
 - **Modele:** Forfait fixe, portail client virtuel
 - **Note:** Le SEUL competiteur techno-forward au Quebec, mais generaliste (pas specialise tickets)
 
-### Ticket911.ca (LE CLIENT)
-- **URL:** https://ticket911.ca/
+### AITicketInfo.ca (LE CLIENT)
+- **URL:** https://aiticketinfo.ca/
 - **Tel:** (514)700-0303 / 1(855)444-4911
-- **Email:** info@ticket911.ca
+- **Email:** info@aiticketinfo.ca
 - **Equipe:** Avi Levy et Bernard Levy-Soussan (17 ans comme procureurs)
 - **Experience:** 60 ans combines, 100,000+ cas resolus
 - **Couverture:** Quebec, Ontario, Alberta, New York State
@@ -848,7 +848,7 @@ FLOW CLIENT:
 
 | Risque | Mitigation |
 |---|---|
-| Pratique illegale du droit | Toujours operer SOUS Ticket911 (cabinet licencie) |
+| Pratique illegale du droit | Toujours operer SOUS AITicketInfo (cabinet licencie) |
 | Fausses promesses AI | Disclaimer clair: "AI assiste, avocat decide" |
 | Vie privee (Loi 25 QC) | Consentement explicite, donnees au Canada |
 | IOLTA/trust compliance | Utiliser Confido Legal ou LawPay |
@@ -918,7 +918,7 @@ Ajouter:
 - GetDismissed: https://getdismissed.com
 - SOS Ticket: https://www.sosticket.ca
 - SolutionTicket: https://www.solutionticket.com
-- Ticket911: https://ticket911.ca
+- AITicketInfo: https://aiticketinfo.ca
 - X-Copper: https://www.xcopper.com
 - POINTTS: https://pointts.com
 - The Ticket Clinic: https://www.theticketclinic.com
@@ -932,4 +932,4 @@ Ajouter:
 
 ---
 
-*Rapport genere le 8 fevrier 2026 par SeoAI pour le projet Ticket911*
+*Rapport genere le 8 fevrier 2026 par SeoAI pour le projet AITicketInfo*

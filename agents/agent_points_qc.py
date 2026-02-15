@@ -44,9 +44,9 @@ class AgentPointsQC(BaseAgent):
     def __init__(self):
         super().__init__("Points_QC")
 
-    def calculer(self, ticket, analyse=None):
+    def calculer(self, ticket, analyse=None, contexte_enrichi=None):
         """
-        Input: ticket QC + analyse optionnelle
+        Input: ticket QC + analyse optionnelle + contexte enrichi (meteo/routes)
         Output: calcul points SAAQ, impact assurance QC
         """
         self.log("Calcul points SAAQ Quebec...", "STEP")
@@ -95,6 +95,20 @@ class AgentPointsQC(BaseAgent):
             "total": amende + contribution_favr + economie_assurance
         }
 
+        # Ajouter contexte conditions routieres si disponible
+        notes_contexte = []
+        if contexte_enrichi:
+            roads = contexte_enrichi.get("road_conditions", [])
+            for r in roads:
+                if r.get("type") in ("construction", "travaux", "chantier", "chantiers"):
+                    notes_contexte.append(f"Zone travaux active: {r.get('road', '')} — amende potentiellement doublee (art. 329.2 CSR)")
+            w = contexte_enrichi.get("weather")
+            if w:
+                precip = w.get("precipitation_mm") or 0
+                snow = w.get("snow_cm") or 0
+                if precip > 5 or snow > 2:
+                    notes_contexte.append(f"Conditions meteo defavorables: precip {precip}mm, neige {snow}cm — argument de defense possible")
+
         result = {
             "juridiction": "QC",
             "points_saaq": points,
@@ -107,6 +121,7 @@ class AgentPointsQC(BaseAgent):
             "contribution_favr": contribution_favr,
             "impact_assurance": assurance,
             "economie_si_acquitte": economie,
+            "notes_contexte": notes_contexte,
         }
 
         duration = time.time() - start

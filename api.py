@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TICKET911 — API Flask v2
+FightMyTicket — API Flask v2
 Pipeline 26 agents / 4 phases / upload fichiers / PDF rapport
 Port: 8912 (nginx proxy sur 8911)
 """
@@ -9,24 +9,24 @@ import json
 import time
 import os
 import uuid
-import sqlite3
 import hashlib
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory, send_file, abort, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+import psycopg2
 
 # Load .env
 try:
     from dotenv import load_dotenv
-    load_dotenv("/var/www/ticket911/.env")
+    load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 except ImportError:
     pass
 
 import sys
-sys.path.insert(0, "/var/www/ticket911")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from agents.orchestrateur import Orchestrateur
-from agents.base_agent import DB_PATH, DATA_DIR
+from agents.base_agent import PG_CONFIG, DATA_DIR
 
 app = Flask(__name__, static_folder="web", static_url_path="")
 CORS(app)
@@ -165,8 +165,8 @@ def analyze():
         temoignage = data.get("temoignage", "")
         temoins = data.get("temoins", [])
 
-    if not ticket.get("infraction"):
-        return jsonify({"error": "Champ 'infraction' requis"}), 400
+    if not ticket.get("infraction") and not image_path:
+        return jsonify({"error": "Photo du ticket ou champ 'infraction' requis"}), 400
 
     try:
         orch = get_orchestrateur()
@@ -181,13 +181,13 @@ def analyze():
         # Extraire l'analyse complete depuis le rapport sauvegardé en DB
         analyse_data = None
         try:
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            c.execute("SELECT analyse_json FROM analyses_completes WHERE dossier_uuid = ?",
+            conn = psycopg2.connect(**PG_CONFIG)
+            cur = conn.cursor()
+            cur.execute("SELECT analyse_json FROM analyses_completes WHERE dossier_uuid = %s",
                       (dossier_uuid,))
-            row = c.fetchone()
+            row = cur.fetchone()
             if row and row[0]:
-                analyse_data = json.loads(row[0])
+                analyse_data = row[0] if isinstance(row[0], dict) else json.loads(row[0])
             conn.close()
         except Exception:
             pass
@@ -227,15 +227,15 @@ def get_rapport_pdf(dossier_uuid):
     """Genere et retourne le rapport PDF 9 pages"""
     # Chercher l'analyse en DB
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""SELECT ticket_json, analyse_json, rapport_client_json,
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("""SELECT ticket_json, analyse_json, rapport_client_json,
                             rapport_avocat_json, procedure_json, points_json,
                             lois_json, precedents_json, cross_verification_json,
                             supervision_json, score_final, confiance, recommandation,
                             juridiction, temps_total, created_at
-                     FROM analyses_completes WHERE dossier_uuid = ?""", (dossier_uuid,))
-        row = c.fetchone()
+                     FROM analyses_completes WHERE dossier_uuid = %s""", (dossier_uuid,))
+        row = cur.fetchone()
         conn.close()
 
         if not row:
@@ -267,7 +267,7 @@ def get_rapport_pdf(dossier_uuid):
         if pdf_path and os.path.exists(pdf_path):
             return send_file(pdf_path, mimetype="application/pdf",
                              as_attachment=True,
-                             download_name=f"Ticket911-{dossier_uuid}.pdf")
+                             download_name=f"FightMyTicket-{dossier_uuid}.pdf")
         else:
             # Fallback: retourner le HTML
             html = _generer_html_rapport(data)
@@ -282,7 +282,7 @@ def _generer_pdf(data):
     try:
         from weasyprint import HTML
         html_content = _generer_html_rapport(data)
-        pdf_path = os.path.join(RAPPORT_DIR, f"Ticket911-{data['dossier_uuid']}.pdf")
+        pdf_path = os.path.join(RAPPORT_DIR, f"FightMyTicket-{data['dossier_uuid']}.pdf")
         HTML(string=html_content).write_pdf(pdf_path)
         return pdf_path
     except ImportError:
@@ -372,50 +372,52 @@ def _generer_html_rapport(data):
 <head>
 <meta charset="UTF-8">
 <style>
-    @page {{ size: A4; margin: 2cm; }}
-    body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e3a5f; font-size: 11pt; line-height: 1.5; }}
-    h1 {{ color: #1e3a5f; font-size: 22pt; border-bottom: 3px solid #e63946; padding-bottom: 8px; }}
-    h2 {{ color: #1e3a5f; font-size: 14pt; border-bottom: 2px solid #d4a843; padding-bottom: 4px; margin-top: 20px; }}
-    h3 {{ color: #e63946; font-size: 12pt; }}
-    .header {{ text-align: center; margin-bottom: 30px; }}
-    .header img {{ max-width: 200px; }}
-    .score-box {{ background: {score_color}; color: white; padding: 15px 25px; border-radius: 10px;
-                   display: inline-block; font-size: 24pt; font-weight: bold; }}
-    .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }}
-    .info-item {{ background: #f8f9fa; padding: 8px 12px; border-radius: 5px; }}
-    .info-label {{ font-weight: bold; color: #666; font-size: 9pt; text-transform: uppercase; }}
-    table {{ width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }}
-    th {{ background: #1e3a5f; color: white; padding: 8px; text-align: left; }}
-    td {{ padding: 6px 8px; border-bottom: 1px solid #eee; }}
+    @page {{ size: A4; margin: 1.5cm 1.5cm 1.2cm 1.5cm; }}
+    body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e3a5f; font-size: 9.5pt; line-height: 1.4; }}
+    h1 {{ color: #1e3a5f; font-size: 16pt; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin: 14px 0 8px; }}
+    h2 {{ color: #1e3a5f; font-size: 12pt; border-bottom: 1px solid #d4a843; padding-bottom: 3px; margin: 12px 0 6px; }}
+    h3 {{ color: #2563eb; font-size: 10pt; margin: 8px 0 4px; }}
+    .header {{ text-align: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #2563eb; }}
+    .score-box {{ background: {score_color}; color: white; padding: 10px 20px; border-radius: 8px;
+                   display: inline-block; font-size: 20pt; font-weight: bold; }}
+    .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }}
+    .info-grid-4 {{ display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin: 8px 0; }}
+    .info-item {{ background: #f8f9fa; padding: 5px 8px; border-radius: 4px; font-size: 8.5pt; }}
+    .info-label {{ font-weight: bold; color: #666; font-size: 7.5pt; text-transform: uppercase; }}
+    table {{ width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 8.5pt; }}
+    th {{ background: #1e3a5f; color: white; padding: 5px 6px; text-align: left; font-size: 8pt; }}
+    td {{ padding: 4px 6px; border-bottom: 1px solid #eee; }}
     tr:nth-child(even) {{ background: #f8f9fa; }}
-    .reco-box {{ background: #e8f5e9; border-left: 4px solid #27ae60; padding: 12px; margin: 15px 0; }}
-    .warn-box {{ background: #fff3e0; border-left: 4px solid #f39c12; padding: 12px; margin: 15px 0; }}
+    .reco-box {{ background: #e8f5e9; border-left: 3px solid #27ae60; padding: 8px 10px; margin: 8px 0; }}
+    .warn-box {{ background: #fff3e0; border-left: 3px solid #f39c12; padding: 8px 10px; margin: 8px 0; }}
+    .section {{ page-break-inside: avoid; }}
     .page-break {{ page-break-before: always; }}
-    .footer {{ text-align: center; color: #999; font-size: 8pt; margin-top: 30px;
-               border-top: 1px solid #ddd; padding-top: 8px; }}
-    ul {{ padding-left: 20px; }}
-    li {{ margin-bottom: 5px; }}
-    .eco-total {{ font-size: 18pt; color: #27ae60; font-weight: bold; }}
+    .footer {{ text-align: center; color: #999; font-size: 7pt; margin-top: 15px;
+               border-top: 1px solid #ddd; padding-top: 5px; }}
+    ul, ol {{ padding-left: 18px; margin: 4px 0; }}
+    li {{ margin-bottom: 3px; }}
+    .eco-total {{ font-size: 14pt; color: #27ae60; font-weight: bold; }}
+    .disclaimer {{ font-size: 7.5pt; color: #999; text-align: center; margin-top: 10px; }}
 </style>
 </head>
 <body>
 
-<!-- PAGE 1: Couverture -->
+<!-- COUVERTURE + RESUME -->
 <div class="header">
-    <h1>TICKET911</h1>
-    <p style="font-size: 14pt; color: #666;">Rapport d'analyse juridique par intelligence artificielle</p>
-    <p style="font-size: 11pt;">Dossier <strong>#{uuid_str}</strong> | {date_str} | {juridiction}</p>
-    <div style="margin: 20px 0;">
+    <h1 style="border:none;font-size:20pt;margin:0;">FIGHTMYTICKET</h1>
+    <p style="font-size: 10pt; color: #666; margin: 2px 0;">Rapport d'analyse juridique par intelligence artificielle</p>
+    <p style="font-size: 9pt; margin: 2px 0;">Dossier <strong>#{uuid_str}</strong> | {date_str} | {juridiction}</p>
+    <div style="margin: 10px 0 5px;">
         <div class="score-box">{score}%</div>
-        <p style="font-size: 10pt; color: #666;">Score de contestation</p>
+        <span style="font-size: 9pt; color: #666; margin-left: 10px;">Score de contestation</span>
     </div>
 </div>
 
-<div class="info-grid">
+<div class="info-grid-4">
     <div class="info-item"><span class="info-label">Infraction</span><br>{ticket.get('infraction', '?')}</div>
-    <div class="info-item"><span class="info-label">Juridiction</span><br>{juridiction}</div>
     <div class="info-item"><span class="info-label">Amende</span><br>{ticket.get('amende', '?')}</div>
     <div class="info-item"><span class="info-label">Points</span><br>{ticket.get('points_inaptitude', 0)}</div>
+    <div class="info-item"><span class="info-label">Juridiction</span><br>{juridiction}</div>
     <div class="info-item"><span class="info-label">Lieu</span><br>{ticket.get('lieu', '?')}</div>
     <div class="info-item"><span class="info-label">Date</span><br>{ticket.get('date', '?')}</div>
     <div class="info-item"><span class="info-label">Recommandation</span><br><strong>{reco.upper()}</strong></div>
@@ -423,104 +425,110 @@ def _generer_html_rapport(data):
 </div>
 
 <div class="reco-box">
-    <h3>Verdict</h3>
-    <p>{rapport_client.get('verdict', reco)}</p>
+    <h3 style="margin:0 0 3px;">Verdict</h3>
+    <p style="margin:0;">{rapport_client.get('verdict', reco)}</p>
 </div>
 
-<!-- PAGE 2: Resume client -->
-<div class="page-break"></div>
-<h1>Resume pour le client</h1>
-<p>{rapport_client.get('resume', 'Analyse en cours...')}</p>
+<div class="section">
+    <h2>Resume</h2>
+    <p>{rapport_client.get('resume', 'Analyse en cours...')}</p>
+</div>
 
-<h2>Prochaines etapes</h2>
-<ol>{etapes_client_html}</ol>
+<div class="section">
+    <h2>Prochaines etapes</h2>
+    <ol>{etapes_client_html}</ol>
+</div>
 
 {f'<div class="warn-box"><strong>Attention:</strong> {rapport_client.get("attention", "")}</div>' if rapport_client.get("attention") else ""}
 
-<h2>Economie potentielle</h2>
-<p class="eco-total">${eco.get('total', 0):,}</p>
 <div class="info-grid">
-    <div class="info-item"><span class="info-label">Amende</span><br>${eco.get('amende', 0)}</div>
-    <div class="info-item"><span class="info-label">Assurance (3 ans)</span><br>${eco.get('assurance_3ans', eco.get('cout_supplementaire_3ans', 0)):,}</div>
+    <div class="info-item"><span class="info-label">Economie potentielle</span><br><span class="eco-total">${eco.get('total', 0):,}</span></div>
+    <div class="info-item"><span class="info-label">Amende: ${eco.get('amende', 0)}</span><br>Assurance (3 ans): ${eco.get('assurance_3ans', eco.get('cout_supplementaire_3ans', 0)):,}</div>
 </div>
 
-<!-- PAGE 3: Arguments de defense -->
+<!-- PAGE 2: Defense + Lois + Jurisprudence -->
 <div class="page-break"></div>
-<h1>Arguments de defense</h1>
-<ol>{args_html}</ol>
 
-<h2>Strategie recommandee</h2>
-<p>{analyse.get('strategie', analyse.get('explication', ''))}</p>
-
-<!-- PAGE 4: Lois applicables -->
-<div class="page-break"></div>
-<h1>Lois applicables</h1>
-<table>
-    <tr><th>Article</th><th>Juridiction</th><th>Texte</th></tr>
-    {lois_html}
-</table>
-
-<!-- PAGE 5: Jurisprudence -->
-<div class="page-break"></div>
-<h1>Jurisprudence pertinente</h1>
-<p>{len(precedents)} decisions analysees</p>
-<table>
-    <tr><th>Citation</th><th>Tribunal</th><th>Date</th><th>Resultat</th><th>Pertinence</th></tr>
-    {prec_html}
-</table>
-
-<!-- PAGE 6: Procedure -->
-<div class="page-break"></div>
-<h1>Procedure judiciaire</h1>
-<div class="info-grid">
-    <div class="info-item"><span class="info-label">Tribunal</span><br>{procedure.get('tribunal', '?') if procedure else '?'}</div>
-    <div class="info-item"><span class="info-label">Jours restants</span><br>{procedure.get('jours_restants', '?') if procedure else '?'}</div>
-</div>
-<h2>Etapes</h2>
-<ol>{etapes_html}</ol>
-
-<!-- PAGE 7: Points et assurance -->
-<div class="page-break"></div>
-<h1>Impact points et assurance</h1>
-<div class="info-grid">
-    <div class="info-item"><span class="info-label">Points</span><br>{points.get('points_demerite', points.get('points_dmv', '?')) if points else '?'}</div>
-    <div class="info-item"><span class="info-label">Augmentation assurance</span><br>{points.get('impact_assurance', {}).get('note', '?') if points else '?'}</div>
+<div class="section">
+    <h1>Arguments de defense</h1>
+    <ol>{args_html}</ol>
 </div>
 
-<!-- PAGE 8: Rapport technique avocat -->
-<div class="page-break"></div>
-<h1>Rapport technique (avocat)</h1>
-<p><em>{rapport_avocat.get('resume_technique', '')}</em></p>
-
-<h2>Moyens de defense</h2>
-<ol>{moyens_html}</ol>
-
-<h2>Faiblesses du dossier</h2>
-<ul>{faiblesses_html}</ul>
-
-<h2>Fondement legal</h2>
-<p>{rapport_avocat.get('fondement_legal', '')}</p>
-
-<!-- PAGE 9: Certification -->
-<div class="page-break"></div>
-<h1>Certification du rapport</h1>
-<div class="info-grid">
-    <div class="info-item"><span class="info-label">Dossier</span><br>#{uuid_str}</div>
-    <div class="info-item"><span class="info-label">Date</span><br>{date_str}</div>
-    <div class="info-item"><span class="info-label">Score qualite</span><br>{supervision.get('score_qualite', '?')}%</div>
-    <div class="info-item"><span class="info-label">Decision</span><br>{supervision.get('decision', '?')}</div>
-    <div class="info-item"><span class="info-label">Agents verifies</span><br>{supervision.get('agents_verifies', '?')}</div>
-    <div class="info-item"><span class="info-label">Cross-verification</span><br>{cross_verif.get('fiabilite', '?')}</div>
+<div class="section">
+    <h2>Strategie recommandee</h2>
+    <p>{analyse.get('strategie', analyse.get('explication', ''))}</p>
 </div>
 
-<div style="margin-top: 40px; text-align: center;">
-    <p><strong>Ce rapport a ete genere automatiquement par le systeme Ticket911</strong></p>
-    <p>Analyse par 26 agents IA specialises | {len(lois)} articles de loi | {len(precedents)} precedents</p>
-    <p style="font-size: 9pt; color: #999;">Ce rapport ne constitue pas un avis juridique. Consultez un avocat pour des conseils personnalises.</p>
+<div class="section">
+    <h2>Lois applicables</h2>
+    <table>
+        <tr><th>Article</th><th>Juridiction</th><th>Texte</th></tr>
+        {lois_html}
+    </table>
+</div>
+
+<div class="section">
+    <h2>Jurisprudence pertinente ({len(precedents)} decisions)</h2>
+    <table>
+        <tr><th>Citation</th><th>Tribunal</th><th>Date</th><th>Resultat</th><th>%</th></tr>
+        {prec_html}
+    </table>
+</div>
+
+<!-- PAGE 3: Procedure + Points + Rapport avocat -->
+<div class="page-break"></div>
+
+<div class="section">
+    <h1>Procedure judiciaire</h1>
+    <div class="info-grid">
+        <div class="info-item"><span class="info-label">Tribunal</span><br>{procedure.get('tribunal', '?') if procedure else '?'}</div>
+        <div class="info-item"><span class="info-label">Jours restants</span><br>{procedure.get('jours_restants', '?') if procedure else '?'}</div>
+    </div>
+    <h3>Etapes</h3>
+    <ol>{etapes_html}</ol>
+</div>
+
+<div class="section">
+    <h2>Impact points et assurance</h2>
+    <div class="info-grid">
+        <div class="info-item"><span class="info-label">Points</span><br>{points.get('points_demerite', points.get('points_dmv', '?')) if points else '?'}</div>
+        <div class="info-item"><span class="info-label">Augmentation assurance</span><br>{points.get('impact_assurance', {{}}).get('note', '?') if points else '?'}</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Rapport technique (avocat)</h2>
+    <p><em>{rapport_avocat.get('resume_technique', '')}</em></p>
+
+    <h3>Moyens de defense</h3>
+    <ol>{moyens_html}</ol>
+
+    <h3>Faiblesses du dossier</h3>
+    <ul>{faiblesses_html}</ul>
+
+    <h3>Fondement legal</h3>
+    <p>{rapport_avocat.get('fondement_legal', '')}</p>
+</div>
+
+<!-- Certification -->
+<div style="margin-top: 15px; padding-top: 10px; border-top: 2px solid #2563eb;">
+    <h2 style="border:none;">Certification</h2>
+    <div class="info-grid-4">
+        <div class="info-item"><span class="info-label">Dossier</span><br>#{uuid_str}</div>
+        <div class="info-item"><span class="info-label">Qualite</span><br>{supervision.get('score_qualite', '?')}%</div>
+        <div class="info-item"><span class="info-label">Decision</span><br>{supervision.get('decision', '?')}</div>
+        <div class="info-item"><span class="info-label">Agents</span><br>{supervision.get('agents_verifies', '?')}</div>
+    </div>
+</div>
+
+<div class="disclaimer">
+    <p><strong>Ce rapport a ete genere automatiquement par FightMyTicket</strong><br>
+    Analyse par 26 agents IA specialises | {len(lois)} articles de loi | {len(precedents)} precedents<br>
+    Ce rapport ne constitue pas un avis juridique. Consultez un avocat pour des conseils personnalises.</p>
 </div>
 
 <div class="footer">
-    <p>Ticket911 par SeoAI | ticket911.ca | {datetime.now().year}</p>
+    <p>FightMyTicket par SeoAI | fightmyticket.ca | {datetime.now().year}</p>
 </div>
 
 </body>
@@ -531,16 +539,16 @@ def _generer_html_rapport(data):
 @app.route("/api/health")
 def health():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM jurisprudence")
-        nb_juris = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM lois")
-        nb_lois = c.fetchone()[0]
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM jurisprudence")
+        nb_juris = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM lois_articles")
+        nb_lois = cur.fetchone()[0]
         conn.close()
         return jsonify({
             "status": "ok",
-            "version": "2.0",
+            "version": "2.0-pg",
             "agents": 26,
             "jurisprudence": nb_juris,
             "lois": nb_lois,
@@ -553,18 +561,18 @@ def health():
 @app.route("/api/stats")
 def stats():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM jurisprudence")
-        total = c.fetchone()[0]
-        c.execute("SELECT juridiction, COUNT(*) FROM jurisprudence GROUP BY juridiction")
-        par_juridiction = {row[0] or "N/A": row[1] for row in c.fetchall()}
-        c.execute("SELECT resultat, COUNT(*) FROM jurisprudence GROUP BY resultat")
-        par_resultat = {row[0] or "N/A": row[1] for row in c.fetchall()}
-        c.execute("SELECT COUNT(*) FROM lois")
-        nb_lois = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM analyses_completes")
-        nb_analyses = c.fetchone()[0]
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM jurisprudence")
+        total = cur.fetchone()[0]
+        cur.execute("SELECT province, COUNT(*) FROM jurisprudence GROUP BY province")
+        par_juridiction = {row[0] or "N/A": row[1] for row in cur.fetchall()}
+        cur.execute("SELECT resultat, COUNT(*) FROM jurisprudence GROUP BY resultat")
+        par_resultat = {row[0] or "N/A": row[1] for row in cur.fetchall()}
+        cur.execute("SELECT COUNT(*) FROM lois_articles")
+        nb_lois = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM analyses_completes")
+        nb_analyses = cur.fetchone()[0]
         conn.close()
         return jsonify({
             "jurisprudence_total": total,
@@ -581,12 +589,12 @@ def stats():
 @app.route("/api/results")
 def results():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""SELECT id, dossier_uuid, score_final, confiance, recommandation,
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("""SELECT id, dossier_uuid, score_final, confiance, recommandation,
                             juridiction, temps_total, created_at
                      FROM analyses_completes ORDER BY id DESC LIMIT 20""")
-        rows = c.fetchall()
+        rows = cur.fetchall()
         conn.close()
         return jsonify([{
             "id": r[0], "dossier_uuid": r[1], "score": r[2], "confiance": r[3],
@@ -600,15 +608,15 @@ def results():
 def get_dossier(dossier_uuid):
     """Retourne les donnees completes d'un dossier"""
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""SELECT ticket_json, analyse_json, rapport_client_json,
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("""SELECT ticket_json, analyse_json, rapport_client_json,
                             rapport_avocat_json, procedure_json, points_json,
                             lois_json, precedents_json, cross_verification_json,
                             supervision_json, score_final, confiance, recommandation,
                             juridiction, temps_total, created_at
-                     FROM analyses_completes WHERE dossier_uuid = ?""", (dossier_uuid,))
-        row = c.fetchone()
+                     FROM analyses_completes WHERE dossier_uuid = %s""", (dossier_uuid,))
+        row = cur.fetchone()
         conn.close()
 
         if not row:
@@ -652,17 +660,17 @@ def send_report():
         return jsonify({"error": "email et dossier_uuid requis"}), 400
 
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""SELECT rapport_client_json, score_final, recommandation
-                     FROM analyses_completes WHERE dossier_uuid = ?""", (dossier_uuid,))
-        row = c.fetchone()
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+        cur.execute("""SELECT rapport_client_json, score_final, recommandation
+                     FROM analyses_completes WHERE dossier_uuid = %s""", (dossier_uuid,))
+        row = cur.fetchone()
         conn.close()
 
         if not row:
             return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
 
-        rapport_client = json.loads(row[0] or "{}")
+        rapport_client = row[0] if isinstance(row[0], dict) else json.loads(row[0] or "{}")
         rapport_client["score"] = row[1]
 
         from agents.agent_notification import AgentNotification
@@ -735,6 +743,132 @@ def demo_analyze():
     })
 
 
+# ─── MONITORING / ADMIN DASHBOARD ─────────────
+@app.route("/api/monitor")
+def monitor():
+    """Endpoint monitoring complet — DB, quota, pipeline, alertes"""
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        # DB Stats
+        tables_stats = {}
+        for table in ['jurisprudence', 'lois_articles', 'analyses_completes',
+                      'ref_jurisprudence_cle', 'jurisprudence_citations',
+                      'jurisprudence_legislation', 'qc_radar_photo_lieux',
+                      'mtl_collisions', 'qc_constats_infraction', 'qc_radar_photo_stats']:
+            try:
+                cur.execute(f"SELECT COUNT(*) FROM {table}")
+                tables_stats[table] = cur.fetchone()[0]
+            except Exception:
+                conn.rollback()
+                tables_stats[table] = -1
+
+        # Jurisprudence breakdown
+        cur.execute("SELECT database_id, COUNT(*) FROM jurisprudence GROUP BY database_id ORDER BY COUNT(*) DESC")
+        par_tribunal = {row[0] or "N/A": row[1] for row in cur.fetchall()}
+
+        cur.execute("SELECT resultat, COUNT(*) FROM jurisprudence GROUP BY resultat ORDER BY COUNT(*) DESC")
+        par_resultat = {row[0] or "inconnu": row[1] for row in cur.fetchall()}
+
+        cur.execute("SELECT province, COUNT(*) FROM jurisprudence GROUP BY province ORDER BY COUNT(*) DESC")
+        par_province = {row[0] or "N/A": row[1] for row in cur.fetchall()}
+
+        # Recent imports
+        cur.execute("""SELECT date_decision, COUNT(*)
+                      FROM jurisprudence
+                      WHERE imported_at IS NOT NULL
+                      GROUP BY date_decision ORDER BY date_decision DESC LIMIT 10""")
+        recent_dates = {str(row[0]): row[1] for row in cur.fetchall()}
+
+        # Analyses stats
+        cur.execute("""SELECT COUNT(*), AVG(score_final), AVG(confiance), AVG(temps_total)
+                      FROM analyses_completes""")
+        a_row = cur.fetchone()
+        analyses_stats = {
+            "total": a_row[0] or 0,
+            "score_moyen": round(float(a_row[1] or 0), 1),
+            "confiance_moyenne": round(float(a_row[2] or 0), 1),
+            "temps_moyen": round(float(a_row[3] or 0), 1)
+        }
+
+        cur.execute("""SELECT recommandation, COUNT(*)
+                      FROM analyses_completes GROUP BY recommandation""")
+        analyses_par_reco = {row[0] or "?": row[1] for row in cur.fetchall()}
+
+        conn.close()
+
+        # CanLII quota
+        canlii_quota = {"remaining": "unknown", "daily_max": 4800}
+        try:
+            usage_file = "/var/www/ticket911/logs/canlii_usage.json"
+            if os.path.exists(usage_file):
+                with open(usage_file) as f:
+                    usage = json.load(f)
+                canlii_quota = {
+                    "used_today": usage.get("count", 0),
+                    "remaining": 4800 - usage.get("count", 0),
+                    "daily_max": 4800,
+                    "last_reset": usage.get("date", "?")
+                }
+        except Exception:
+            pass
+
+        # Last import log
+        last_import = "unknown"
+        try:
+            log_path = "/var/www/ticket911/logs/canlii_import.log"
+            if os.path.exists(log_path):
+                with open(log_path) as f:
+                    lines = f.readlines()
+                    last_lines = [l.strip() for l in lines[-20:] if l.strip()]
+                    last_import = "\n".join(last_lines)
+        except Exception:
+            pass
+
+        # Alertes
+        alertes = []
+        if tables_stats.get('jurisprudence', 0) < 500:
+            alertes.append({"level": "warning", "msg": f"Jurisprudence faible: {tables_stats.get('jurisprudence', 0)} dossiers (objectif: 20,000)"})
+        if tables_stats.get('jurisprudence', 0) == 0:
+            alertes.append({"level": "critical", "msg": "AUCUNE jurisprudence en DB!"})
+        remaining = canlii_quota.get("remaining", 5000)
+        if isinstance(remaining, int) and remaining <= 0:
+            alertes.append({"level": "warning", "msg": "Quota CanLII epuise pour aujourd'hui"})
+        if analyses_stats["total"] == 0:
+            alertes.append({"level": "info", "msg": "Aucune analyse effectuee encore"})
+
+        return jsonify({
+            "status": "ok",
+            "timestamp": datetime.now().isoformat(),
+            "db": {
+                "tables": tables_stats,
+                "jurisprudence": {
+                    "par_tribunal": par_tribunal,
+                    "par_resultat": par_resultat,
+                    "par_province": par_province,
+                    "recent_dates": recent_dates
+                }
+            },
+            "analyses": {
+                "stats": analyses_stats,
+                "par_recommandation": analyses_par_reco
+            },
+            "canlii": canlii_quota,
+            "last_import_log": last_import[-500:] if isinstance(last_import, str) else last_import,
+            "alertes": alertes,
+            "cron": "0 1 * * * import_canlii_traffic.py --max-requests 4800"
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route("/admin")
+def admin_dashboard():
+    """Dashboard admin — monitoring visuel"""
+    return send_from_directory(".", "admin.html")
+
+
 if __name__ == "__main__":
-    print("TICKET911 API v2 — 26 agents — http://0.0.0.0:8912")
+    print("FightMyTicket API v2 — 26 agents — http://0.0.0.0:8912")
     app.run(host="0.0.0.0", port=8912, debug=False)

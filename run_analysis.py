@@ -8,7 +8,7 @@ import sys
 import os
 
 # Ajouter le dossier parent au path
-sys.path.insert(0, "/var/www/ticket911")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from agents.orchestrateur import Orchestrateur
 
@@ -62,7 +62,7 @@ SCENARIOS = [
 def main():
     print("""
 +===========================================================+
-|       TICKET911 — TEST MULTI-AGENT COMPLET                |
+|       AITICKETINFO — TEST MULTI-AGENT COMPLET                |
 |       Pipeline: Lecteur -> Lois -> Precedents ->          |
 |                 Analyste -> Verificateur                   |
 +===========================================================+

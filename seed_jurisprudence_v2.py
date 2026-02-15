@@ -8,7 +8,8 @@ Run: python3 seed_jurisprudence_v2.py
 import sqlite3
 from datetime import datetime
 
-DB_PATH = "/var/www/ticket911/db/ticket911.db"
+from pathlib import Path
+DB_PATH = str(Path(__file__).resolve().parent / "db" / "aiticketinfo.db")
 
 # ═══════════════════════════════════════════════════════════
 # JURISPRUDENCE QUEBEC V2 — 75+ nouveaux cas
