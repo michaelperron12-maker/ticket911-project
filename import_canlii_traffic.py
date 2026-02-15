@@ -50,6 +50,9 @@ TRIBUNAUX = [
     # QC — Cour d'appel
     {"db": "qcca", "province": "QC", "lang": "fr", "priority": 3,
      "name": "Cour d'appel QC"},
+    # QC — Tribunal administratif du Québec (~130K dossiers, ~49% SAAQ)
+    {"db": "qctaq", "province": "QC", "lang": "fr", "priority": 2,
+     "name": "Tribunal administratif QC (SAAQ)"},
     # ON — Ontario Court of Justice (traffic tickets)
     {"db": "oncj", "province": "ON", "lang": "en", "priority": 1,
      "name": "Ontario Court of Justice"},
@@ -87,6 +90,14 @@ KEYWORDS_FR = [
     # Code de la sécurité routière
     "sécurité routière", "securite routiere", "C.S.R.", "CSR",
     "code de la route",
+    # SAAQ / TAQ (Tribunal administratif du Québec)
+    "SAAQ", "société de l'assurance automobile",
+    "points d'inaptitude", "points de démérite", "demerit",
+    "révocation", "revocation", "permis de conduire",
+    "sanction administrative", "contribution d'assurance",
+    "alcool au volant", "conduite avec capacité affaiblie",
+    "interlock", "antidémarreur", "éthylomètre",
+    "excès de vitesse", "grand excès",
 ]
 
 KEYWORDS_EN = [

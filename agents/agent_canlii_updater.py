@@ -14,6 +14,13 @@ from datetime import datetime, date
 
 # Chemin du projet
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Charger .env du projet
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(PROJECT_DIR, ".env"))
+except ImportError:
+    pass
 LOGS_DIR = os.path.join(PROJECT_DIR, "logs")
 USAGE_FILE = os.path.join(LOGS_DIR, "canlii_usage.json")
 STATE_FILE = os.path.join(PROJECT_DIR, "db", "canlii_updater_state.json")
