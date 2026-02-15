@@ -627,6 +627,100 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             vecteurs.append({"nom": "exces_zone_travaux", "boost": -10,
                             "raison": f"Exces de {exces} km/h en zone travaux = infraction grave, difficile a contester"})
 
+        # === V6: 14 nouveaux vecteurs (100 cas audit) ===
+
+        # Preuve insuffisante / doute raisonnable
+        if any(w in contexte for w in ["preuve insuffisante"]):
+            v = self.VECTEURS_ACQUITTEMENT["preuve_insuffisante"]
+            score += v["boost"]
+            vecteurs.append({"nom": "preuve_insuffisante", "boost": v["boost"], "raison": v["raison"]})
+
+        # Policier mal positionne
+        if any(w in contexte for w in ["policier mal positionne"]):
+            v = self.VECTEURS_ACQUITTEMENT["policier_mal_positionne"]
+            score += v["boost"]
+            vecteurs.append({"nom": "policier_mal_positionne", "boost": v["boost"], "raison": v["raison"]})
+
+        # Cellulaire mains libres
+        if any(w in contexte for w in ["cellulaire mains libres"]):
+            v = self.VECTEURS_ACQUITTEMENT["cellulaire_mains_libres"]
+            score += v["boost"]
+            vecteurs.append({"nom": "cellulaire_mains_libres", "boost": v["boost"], "raison": v["raison"]})
+
+        # Virage droite feu rouge
+        if any(w in contexte for w in ["virage droite feu rouge"]):
+            v = self.VECTEURS_ACQUITTEMENT["virage_droite_feu_rouge"]
+            score += v["boost"]
+            vecteurs.append({"nom": "virage_droite_feu_rouge", "boost": v["boost"], "raison": v["raison"]})
+
+        # Ceinture contestee
+        if any(w in contexte for w in ["ceinture contestee"]):
+            v = self.VECTEURS_ACQUITTEMENT["ceinture_contestee"]
+            score += v["boost"]
+            vecteurs.append({"nom": "ceinture_contestee", "boost": v["boost"], "raison": v["raison"]})
+
+        # Signalisation non conforme
+        if any(w in contexte for w in ["signalisation non conforme"]):
+            v = self.VECTEURS_ACQUITTEMENT["signalisation_non_conforme"]
+            score += v["boost"]
+            vecteurs.append({"nom": "signalisation_non_conforme", "boost": v["boost"], "raison": v["raison"]})
+
+        # Prescription
+        if any(w in contexte for w in ["prescription"]):
+            v = self.VECTEURS_ACQUITTEMENT["prescription"]
+            score += v["boost"]
+            vecteurs.append({"nom": "prescription", "boost": v["boost"], "raison": v["raison"]})
+
+        # Conditions routieres
+        if any(w in contexte for w in ["conditions routieres"]):
+            v = self.VECTEURS_ACQUITTEMENT["conditions_routieres"]
+            score += v["boost"]
+            vecteurs.append({"nom": "conditions_routieres", "boost": v["boost"], "raison": v["raison"]})
+
+        # Estoppel autorite
+        if any(w in contexte for w in ["estoppel autorite"]):
+            v = self.VECTEURS_ACQUITTEMENT["estoppel_autorite"]
+            score += v["boost"]
+            vecteurs.append({"nom": "estoppel_autorite", "boost": v["boost"], "raison": v["raison"]})
+
+        # Declaration exclue
+        if any(w in contexte for w in ["declaration exclue"]):
+            v = self.VECTEURS_ACQUITTEMENT["declaration_exclue"]
+            score += v["boost"]
+            vecteurs.append({"nom": "declaration_exclue", "boost": v["boost"], "raison": v["raison"]})
+
+        # Interpretation juridique
+        if any(w in contexte for w in ["interpretation juridique"]):
+            v = self.VECTEURS_ACQUITTEMENT["interpretation_juridique"]
+            score += v["boost"]
+            vecteurs.append({"nom": "interpretation_juridique", "boost": v["boost"], "raison": v["raison"]})
+
+        # Impossibilite conformite
+        if any(w in contexte for w in ["impossibilite conformite"]):
+            v = self.VECTEURS_ACQUITTEMENT["impossibilite_conformite"]
+            score += v["boost"]
+            vecteurs.append({"nom": "impossibilite_conformite", "boost": v["boost"], "raison": v["raison"]})
+
+        # Delai transmission constat
+        if any(w in contexte for w in ["delai transmission constat"]):
+            v = self.VECTEURS_ACQUITTEMENT["delai_transmission_constat"]
+            score += v["boost"]
+            vecteurs.append({"nom": "delai_transmission_constat", "boost": v["boost"], "raison": v["raison"]})
+
+        # Radar preuve faible
+        if any(w in contexte for w in ["radar preuve faible"]):
+            v = self.VECTEURS_ACQUITTEMENT["radar_preuve_faible"]
+            score += v["boost"]
+            vecteurs.append({"nom": "radar_preuve_faible", "boost": v["boost"], "raison": v["raison"]})
+
+        # === FIX FAUX POSITIFS V6 ===
+        # Cas #58: cinematometre + policier = preuve solide si pas de contexte defense
+        # Cas #98: delai Jordan rejete (53 mois mais renonciation defense)
+        if "requête en arrêt" in contexte.lower() or "requete en arret" in contexte.lower():
+            if any(w in contexte.lower() for w in ["rejetée", "rejetee", "rejete", "refused"]):
+                score -= 20
+                vecteurs.append({"nom": "arret_rejete", "boost": -20, "raison": "Requete en arret des procedures rejetee par le tribunal"})
+
         # Borner entre 5 et 90
         score = max(5, min(90, score))
 
