@@ -1,12 +1,12 @@
 """
 Agent 4: ANALYSTE — Analyse juridique avec les vrais cas
 temperature=0.1, cite SEULEMENT les precedents fournis
-Moteur: GLM-4p7 (multilingue fallback)
+Moteur: GLM-5 (744B, low hallucination, 202K ctx)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, GLM4
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentAnalyste(BaseAgent):
@@ -81,7 +81,7 @@ Si aucun precedent n'est fourni, dis-le honnêtement.
         system = ("Tu es un avocat specialise. REGLE: cite UNIQUEMENT les cas de la section PRECEDENTS REELS. "
                   "N'invente aucune citation. Reponds en JSON valide uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, model=GLM4, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=GLM5, temperature=0.1, max_tokens=4000)
         duration = time.time() - start
 
         if response["success"]:

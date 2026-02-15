@@ -1,12 +1,12 @@
 """
 Agent NY: ANALYSTE NEW YORK — Strategie TVB/court specifique NY
 Vehicle and Traffic Law, Traffic Violations Bureau, plea bargaining rules
-Moteur: Kimi K2p5 (agentic EN)
+Moteur: GLM-4.7 (430 t/s, multilingue, fort en EN)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, KIMI_K2
+from agents.base_agent import BaseAgent, GLM4
 
 
 class AgentAnalysteNY(BaseAgent):
@@ -14,9 +14,9 @@ class AgentAnalysteNY(BaseAgent):
     def __init__(self):
         super().__init__("Analyste_NY")
 
-    def analyser(self, ticket, lois, precedents):
+    def analyser(self, ticket, lois, precedents, contexte_texte=""):
         """
-        Input: ticket NY + lois VTL + precedents NY
+        Input: ticket NY + lois VTL + precedents NY + contexte enrichi
         Output: analyse juridique specifique au systeme NY
         """
         self.log("Analyse juridique NY (VTL/TVB)...", "STEP")
@@ -59,6 +59,9 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
 ## PRECEDENTS NY (DE NOTRE BASE)
 {ctx_precedents if ctx_precedents else "AUCUN precedent NY dans la base. Analyse sur principes generaux."}
 
+## ENVIRONMENTAL CONTEXT (official data)
+{contexte_texte if contexte_texte else "No weather/road data available."}
+
 ## REPONDS EN JSON:
 {{
     "score_contestation": 0-100,
@@ -82,7 +85,7 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
         system = ("Avocat NY specialise VTL/TVB. Cite UNIQUEMENT les precedents fournis. "
                   "Connais les regles TVB (pas de plea bargain dans NYC). JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, model=KIMI_K2, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=GLM4, temperature=0.1, max_tokens=4000)
         duration = time.time() - start
 
         if response["success"]:

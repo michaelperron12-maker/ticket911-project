@@ -1,12 +1,12 @@
 """
 Agent ON: ANALYSTE ONTARIO — Strategie HTA, Provincial Offences Court
 Highway Traffic Act, stunt driving, disclosure rights, early resolution
-Moteur: Qwen3-235B (meilleur knowledge/classification EN)
+Moteur: GLM-5 (744B, low hallucination, 202K ctx)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, QWEN3
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentAnalysteON(BaseAgent):
@@ -14,9 +14,9 @@ class AgentAnalysteON(BaseAgent):
     def __init__(self):
         super().__init__("Analyste_ON")
 
-    def analyser(self, ticket, lois, precedents):
+    def analyser(self, ticket, lois, precedents, contexte_texte=""):
         """
-        Input: ticket ON + lois HTA + precedents ON
+        Input: ticket ON + lois HTA + precedents ON + contexte enrichi (meteo/routes/vitesse)
         Output: analyse juridique specifique Ontario
         """
         self.log("Analyse juridique ON (HTA/POA)...", "STEP")
@@ -67,6 +67,12 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
 ## PRECEDENTS ON (DE NOTRE BASE)
 {ctx_precedents if ctx_precedents else "AUCUN precedent ON dans la base. Analyse sur principes generaux."}
 
+## ENVIRONMENTAL CONTEXT (official data)
+{contexte_texte if contexte_texte else "No weather/road data available."}
+NOTE: If weather conditions were adverse (rain, snow, ice, strong wind), consider as potential defense argument.
+If construction zone was active, verify if temporary signage can be challenged.
+If OSM speed limit differs from ticket, flag the discrepancy.
+
 ## REPONDS EN JSON:
 {{
     "score_contestation": 0-100,
@@ -86,13 +92,15 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
     "recommandation": "contester|payer|negocier",
     "explication": "2-3 phrases",
     "early_resolution_note": "ce qu'on peut obtenir en negociation",
+    "weather_context": "weather conditions if relevant",
+    "road_context": "road conditions if relevant",
     "avertissement": "note importante"
 }}"""
 
         system = ("Avocat ON specialise HTA/POA. Cite UNIQUEMENT les precedents fournis. "
                   "Connais le Highway Traffic Act et la procedure POA. JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, model=QWEN3, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=GLM5, temperature=0.1, max_tokens=4000)
         duration = time.time() - start
 
         if response["success"]:

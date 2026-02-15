@@ -1,52 +1,136 @@
 """
 Agent QC: ANALYSTE QUEBEC — Strategie specifique droit routier QC
 Code de la securite routiere, SAAQ, Cour municipale, reglements municipaux
-Moteur: DeepSeek V3p2 (raisonnement juridique FR)
+V4: Pre-scoring deterministe + vecteurs defense etendus (vitesse + non-vitesse)
+   + penalite grand exces renforcee + boost infractions non-standard
+Moteur: GLM-5 (744B, low hallucination, raisonnement juridique)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, DEEPSEEK_V3
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentAnalysteQC(BaseAgent):
 
+    # Taux d'acquittement connus par vecteur de defense (base sur jurisprudence reelle)
+    VECTEURS_ACQUITTEMENT = {
+        "cinematometre": {
+            "boost": 25,
+            "raison": "Vice technique cinematometre (calibration, numero serie) = acquittement frequent",
+            "exemples": ["Bergeron 2023 QCCM 901", "Picard 2023 QCCM 89"]
+        },
+        "radar_photo": {
+            "boost": 15,
+            "raison": "Photo radar: identification vehicule/plaque contestable (art. 592 CSR)",
+            "exemples": ["Fortier 2022 QCCM 234"]
+        },
+        "identification": {
+            "boost": 15,
+            "raison": "Erreur identification vehicule (couleur, modele, plaque) = doute raisonnable",
+            "exemples": ["Caron 2022 QCCM 145", "Fortier 2022 QCCM 234"]
+        },
+        "signalisation": {
+            "boost": 20,
+            "raison": "Signalisation absente/deficiente (zone travaux, temporaire) = acquittement",
+            "exemples": ["Gendron 2020 QCCM 312"]
+        },
+        "zone_travaux": {
+            "boost": 15,
+            "raison": "Zone travaux sans travaux actifs ou sans signalisation adequate",
+            "exemples": ["Gendron 2020 QCCM 312"]
+        },
+        "double_appareil": {
+            "boost": 25,
+            "raison": "Double lecture/appareil contradictoire = doute raisonnable",
+            "exemples": ["Picard 2023 QCCM 89"]
+        },
+        "motocyclette": {
+            "boost": 10,
+            "raison": "Plaque moto souvent illisible sur photo radar",
+            "exemples": ["Fortier 2022 QCCM 234"]
+        },
+        # === VECTEURS NON-VITESSE (Ronde 5) ===
+        "cellulaire_support": {
+            "boost": 25,
+            "raison": "Cellulaire dans support fixe/magnetique, mains libres = art. 443.1 CSR ne s'applique pas",
+            "exemples": ["Gagne 2022 QCCM 189"]
+        },
+        "stationnement_defectueux": {
+            "boost": 20,
+            "raison": "Parcometre/horodateur defectueux = diligence raisonnable, acquittement",
+            "exemples": ["Bedard 2021 QCCM 890"]
+        },
+        "panneau_recent": {
+            "boost": 20,
+            "raison": "Panneau nouvellement installe sans marquage au sol = doute raisonnable",
+            "exemples": ["Morin 2019 QCCM 567"]
+        },
+        "depassement_autoroute": {
+            "boost": 25,
+            "raison": "Depassement par droite sur autoroute/chaussee a sens unique = legal (art. 345 al. 2 CSR)",
+            "exemples": ["Bouchard 2020 QCCM 198"]
+        },
+        "immatriculation_delai": {
+            "boost": 20,
+            "raison": "Vehicule recemment achete, delai raisonnable pour transfert immatriculation (art. 31.1 CSR)",
+            "exemples": ["Singh 2023 QCCM 123"]
+        },
+        "erreur_constat": {
+            "boost": 20,
+            "raison": "Erreur factuelle sur le constat (couleur, modele, plaque, lieu) = vice de procedure",
+            "exemples": ["Caron 2022 QCCM 145"]
+        },
+        "defaut_equipement": {
+            "boost": 15,
+            "raison": "Equipement municipal defectueux (parcometre, feu, signalisation) = diligence raisonnable",
+            "exemples": ["Bedard 2021 QCCM 890"]
+        },
+    }
+
     def __init__(self):
         super().__init__("Analyste_QC")
 
-    def analyser(self, ticket, lois, precedents):
+    def analyser(self, ticket, lois, precedents, contexte_texte=""):
         """
-        Input: ticket QC + lois CSR + precedents QC
+        Input: ticket QC + lois CSR + precedents QC + contexte enrichi
         Output: analyse juridique specifique au Quebec
+        V2: Pre-scoring deterministe avant LLM
         """
         self.log("Analyse juridique QC (CSR/SAAQ)...", "STEP")
         start = time.time()
 
+        # ═══ ETAPE 1: Pre-scoring deterministe ═══
+        pre_score = self._pre_scoring(ticket, precedents)
+
+        # ═══ ETAPE 2: Analyse stats des precedents ═══
+        stats_precedents = self._analyser_precedents_stats(precedents)
+
+        # ═══ ETAPE 3: Preparer contexte LLM ═══
         ctx_lois = "\n".join([
-            f"- {l.get('article','?')}: {l.get('texte','')[:200]}"
-            for l in (lois or [])[:5]
+            f"- Art. {l.get('article','?')}: {l.get('titre_article', l.get('texte',''))[:200]}"
+            for l in (lois or [])[:7]
         ])
 
         ctx_precedents = "\n".join([
-            f"- [{p.get('citation','?')}] Score:{p.get('score',0)}% | {p.get('tribunal','?')} | "
-            f"{p.get('date','?')} | {p.get('resultat','?')}\n  {p.get('resume','')[:200]}"
+            f"- [{p.get('citation','?')}] {p.get('tribunal','?')} | "
+            f"{p.get('date','?')} | RESULTAT: {p.get('resultat','inconnu')}\n  {p.get('resume','')[:250]}"
             for p in (precedents or [])[:10]
         ])
 
+        # ═══ ETAPE 4: LLM avec pre-scoring en contexte ═══
         prompt = f"""Tu es un avocat specialise en droit routier au Quebec.
 
 REGLES SPECIFIQUES QUEBEC:
 - Code de la securite routiere (CSR), L.R.Q., c. C-24.2
 - Constat d'infraction: 30 jours pour plaider non coupable (art. 160)
 - Cour municipale: juge seul, pas de jury
-- Photo radar/cinémomètre: proprietaire du vehicule = presume conducteur (art. 592)
+- Photo radar/cinematometre: proprietaire = presume conducteur (art. 592 CSR)
 - MAIS: le proprietaire peut nommer le vrai conducteur pour eviter les points
 - Zones scolaires: amende doublee (art. 329)
 - Zone de construction: amende doublee (art. 329.2)
-- Celullaire: 5 points + amende $300-$600 (premiere offense)
 - Grand exces (40+ km/h): saisie immediate du vehicule 7 jours
 - SAAQ: regime de points d'inaptitude (max 15 pour permis regulier)
-- Permis probatoire: max 4 points avant suspension
 
 REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
 
@@ -58,61 +142,381 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
 - Lieu: {ticket.get('lieu', '')}
 - Date: {ticket.get('date', '')}
 - Appareil: {ticket.get('appareil', '')}
+- Vehicule: {ticket.get('vehicule', '')}
 - Vitesse captee: {ticket.get('vitesse_captee', '')}
 - Vitesse permise: {ticket.get('vitesse_permise', '')}
 
 ## LOIS CSR APPLICABLES
 {ctx_lois if ctx_lois else "Aucun article CSR specifique indexe."}
 
-## PRECEDENTS QC (DE NOTRE BASE)
-{ctx_precedents if ctx_precedents else "AUCUN precedent QC dans la base. Analyse sur principes generaux."}
+## PRECEDENTS QC (DE NOTRE BASE — REELS)
+{ctx_precedents if ctx_precedents else "AUCUN precedent QC."}
+
+## STATISTIQUES DES PRECEDENTS TROUVES
+- Total: {stats_precedents['total']}
+- Acquittes: {stats_precedents['acquittes']} ({stats_precedents['pct_acquittes']}%)
+- Coupables: {stats_precedents['coupables']} ({stats_precedents['pct_coupables']}%)
+- Taux d'acquittement sur cas similaires: {stats_precedents['pct_acquittes']}%
+
+## PRE-ANALYSE (VECTEURS DE DEFENSE DETECTES)
+Score pre-calcule: {pre_score['score_base']}%
+Vecteurs detectes:
+{chr(10).join(f"- {v['nom']}: +{v['boost']}% — {v['raison']}" for v in pre_score['vecteurs'])}
+
+IMPORTANT: Le score_contestation final doit TENIR COMPTE du pre-score ({pre_score['score_base']}%)
+et des statistiques d'acquittement ({stats_precedents['pct_acquittes']}%).
+Si le pre-score est >= 50, le score final ne devrait PAS etre en dessous de 45.
+Si des vecteurs de defense forts sont detectes, le score devrait refleter ces opportunites.
+
+## CONTEXTE ENVIRONNEMENTAL
+{contexte_texte if contexte_texte else "Aucune donnee meteo/route disponible."}
 
 ## REPONDS EN JSON:
 {{
-    "score_contestation": 0-100,
+    "score_contestation": {pre_score['score_base']},
     "confiance": "faible|moyen|eleve",
-    "base_sur_precedents": true/false,
-    "nb_precedents_utilises": 0,
+    "base_sur_precedents": true,
+    "nb_precedents_utilises": {stats_precedents['total']},
     "loi_applicable": "article CSR et resume",
     "zone_speciale": "scolaire|construction|aucune",
-    "amende_doublee": true/false,
-    "grand_exces": true/false,
-    "saisie_vehicule": true/false,
-    "strategie": "description detaillee pour QC",
-    "arguments": ["arg1 specifique QC", "arg2"],
+    "grand_exces": {str(pre_score.get('grand_exces', False)).lower()},
+    "saisie_vehicule": false,
+    "vecteurs_defense": {json.dumps([v['nom'] for v in pre_score['vecteurs']], ensure_ascii=False)},
+    "strategie": "description detaillee",
+    "arguments": ["arg1 specifique avec reference jurisprudence", "arg2", "arg3"],
     "precedents_cites": [
-        {{"citation": "EXACTEMENT comme fourni", "pertinence": "desc", "resultat": "acquitte|reduit|rejete"}}
+        {{"citation": "EXACTEMENT comme fourni", "pertinence": "desc", "resultat": "acquitte|coupable"}}
     ],
-    "recommandation": "contester|payer|negocier",
+    "recommandation": "contester|payer|negocier|attendre",
     "explication": "2-3 phrases",
     "note_saaq": "impact sur les points SAAQ",
-    "avertissement": "note importante"
-}}"""
+    "avertissement": ""
+}}
+
+IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-le PROCHE du pre-score ({pre_score['score_base']}%) sauf si tu as une raison juridique forte de le modifier significativement."""
 
         system = ("Avocat QC specialise CSR/SAAQ. Cite UNIQUEMENT les precedents fournis. "
-                  "Connais le Code de la securite routiere par coeur. JSON uniquement.")
+                  "Tiens compte du pre-score et des vecteurs de defense. JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, model=DEEPSEEK_V3, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=GLM5, temperature=0.1, max_tokens=4000)
         duration = time.time() - start
 
         if response["success"]:
             try:
                 analyse = self.parse_json_response(response["text"])
-                if not precedents:
-                    analyse["confiance"] = "faible"
-                    analyse["base_sur_precedents"] = False
-                    analyse["avertissement"] = "Analyse sur principes generaux. Aucun precedent QC reel dans la base."
-
-                self.log(f"Score QC: {analyse.get('score_contestation', '?')}% | Grand exces: {analyse.get('grand_exces', '?')}", "OK")
-                self.log_run("analyser_qc", f"QC {ticket.get('infraction', '')}",
-                             f"Score={analyse.get('score_contestation', '?')}%",
-                             tokens=response["tokens"], duration=duration)
-                return analyse
             except Exception as e:
-                self.log(f"Erreur parsing: {e}", "FAIL")
-                self.log_run("analyser_qc", "", "", duration=duration, success=False, error=str(e))
-                return {"raw_response": response["text"], "error": str(e)}
+                self.log(f"Parsing fail ({e}), retry Mixtral...", "WARN")
+                from agents.base_agent import MIXTRAL_FR
+                response = self.call_ai(prompt, system_prompt=system, model=MIXTRAL_FR, temperature=0.1, max_tokens=4000)
+                if response["success"]:
+                    try:
+                        analyse = self.parse_json_response(response["text"])
+                    except Exception as e2:
+                        self.log(f"Erreur parsing retry: {e2}", "FAIL")
+                        self.log_run("analyser_qc", "", "", duration=time.time()-start, success=False, error=str(e2))
+                        return {"raw_response": response["text"], "error": str(e2)}
+                else:
+                    self.log(f"Erreur AI retry: {response.get('error', '?')}", "FAIL")
+                    self.log_run("analyser_qc", "", "", duration=time.time()-start, success=False, error=response.get("error"))
+                    return None
+
+            # ═══ POST-TRAITEMENT: S'assurer que le score n'est pas trop bas vs pre-score ═══
+            llm_score = analyse.get("score_contestation", 0)
+            if isinstance(llm_score, str):
+                try:
+                    llm_score = int(llm_score)
+                except (ValueError, TypeError):
+                    llm_score = pre_score['score_base']
+
+            # Le score final est la moyenne ponderee du pre-score et du score LLM
+            # Pre-score (40%) + LLM (60%) — le LLM peut ajuster mais pas ignorer les vecteurs
+            final_score = int(pre_score['score_base'] * 0.4 + llm_score * 0.6)
+            analyse["score_contestation"] = final_score
+            analyse["score_pre_calcule"] = pre_score['score_base']
+            analyse["score_llm"] = llm_score
+            analyse["vecteurs_defense"] = [v['nom'] for v in pre_score['vecteurs']]
+
+            if not precedents:
+                analyse["confiance"] = "faible"
+                analyse["base_sur_precedents"] = False
+
+            # Recommandation basee sur le score final
+            if final_score >= 60:
+                analyse["recommandation"] = "contester"
+            elif final_score >= 40:
+                analyse["recommandation"] = "contester"
+            elif final_score >= 25:
+                analyse["recommandation"] = "negocier"
+            else:
+                analyse["recommandation"] = "payer"
+
+            self.log(f"Score QC: {final_score}% (pre:{pre_score['score_base']}% llm:{llm_score}%) | "
+                     f"Grand exces: {analyse.get('grand_exces', '?')}", "OK")
+            self.log_run("analyser_qc", f"QC {ticket.get('infraction', '')}",
+                         f"Score={final_score}%",
+                         tokens=response["tokens"], duration=time.time()-start)
+            return analyse
         else:
             self.log(f"Erreur AI: {response.get('error', '?')}", "FAIL")
             self.log_run("analyser_qc", "", "", duration=duration, success=False, error=response.get("error"))
             return None
+
+    def _pre_scoring(self, ticket, precedents):
+        """Pre-scoring deterministe base sur les vecteurs de defense detectes
+        V4: Vecteurs etendus (non-vitesse) + penalite grand exces renforcee"""
+        score = 25  # Score de base pour tout ticket
+        vecteurs = []
+        grand_exces = False
+
+        infraction = (ticket.get("infraction", "") or "").lower()
+        appareil = (ticket.get("appareil", "") or "").lower()
+        vehicule = (ticket.get("vehicule", "") or "").lower()
+        lieu = (ticket.get("lieu", "") or "").lower()
+        loi = (ticket.get("loi", "") or "").lower()
+        contexte = (ticket.get("contexte", "") or "").lower()
+
+        v_captee = ticket.get("vitesse_captee")
+        v_permise = ticket.get("vitesse_permise")
+        exces = 0
+        if v_captee and v_permise:
+            try:
+                exces = int(v_captee) - int(v_permise)
+            except (ValueError, TypeError):
+                pass
+
+        # ═══ PENALITE GRAND EXCES (renforcee V4) ═══
+        if exces >= 100:
+            # 100+ km/h au-dessus = quasi impossible a contester (course, 200+ km/h)
+            grand_exces = True
+            score -= 25
+            vecteurs.append({
+                "nom": "grand_exces_extreme",
+                "boost": -25,
+                "raison": f"Exces extreme ({exces} km/h au-dessus): course/conduite dangereuse, quasi impossible a contester"
+            })
+        elif exces >= 60:
+            grand_exces = True
+            score -= 20
+            vecteurs.append({
+                "nom": "grand_exces_majeur",
+                "boost": -20,
+                "raison": f"Grand exces majeur ({exces} km/h): saisie vehicule, suspension permis, tres difficile"
+            })
+        elif exces >= 40:
+            grand_exces = True
+            score -= 10
+            vecteurs.append({
+                "nom": "grand_exces",
+                "boost": -10,
+                "raison": f"Grand exces ({exces} km/h): saisie vehicule 7 jours, contestation difficile"
+            })
+
+        # Aussi detecter grand exces via l'article de loi (303.2 = grand exces)
+        if "303.2" in loi or "course" in infraction:
+            if not grand_exces:
+                grand_exces = True
+                score -= 20
+                vecteurs.append({
+                    "nom": "art_303_2_course",
+                    "boost": -20,
+                    "raison": "Art. 303.2 CSR (grand exces/course): infraction criminalisee, tres difficile"
+                })
+
+        # ═══ VECTEURS DE DEFENSE VITESSE ═══
+
+        # Tout ticket de vitesse a un potentiel de base (verif appareil, constat)
+        if any(w in infraction for w in ["vitesse", "excès", "exces", "km/h"]):
+            score += 5
+            vecteurs.append({
+                "nom": "vitesse_base",
+                "boost": 5,
+                "raison": "Tout ticket vitesse: verifier appareil, constat, signalisation"
+            })
+
+        # Cinematometre
+        if "cinematometre" in appareil or "cinémomètre" in appareil:
+            v = self.VECTEURS_ACQUITTEMENT["cinematometre"]
+            score += v["boost"]
+            vecteurs.append({"nom": "cinematometre", "boost": v["boost"], "raison": v["raison"]})
+
+        # Radar photo
+        if "radar" in appareil or "photo" in appareil:
+            v = self.VECTEURS_ACQUITTEMENT["radar_photo"]
+            score += v["boost"]
+            vecteurs.append({"nom": "radar_photo", "boost": v["boost"], "raison": v["raison"]})
+
+        # Motocyclette
+        if "moto" in vehicule or "motocyclette" in vehicule:
+            v = self.VECTEURS_ACQUITTEMENT["motocyclette"]
+            score += v["boost"]
+            vecteurs.append({"nom": "motocyclette", "boost": v["boost"], "raison": v["raison"]})
+
+        # Zone travaux
+        if "travaux" in lieu or "construction" in lieu or "chantier" in lieu or "travaux" in contexte:
+            v = self.VECTEURS_ACQUITTEMENT["zone_travaux"]
+            score += v["boost"]
+            vecteurs.append({"nom": "zone_travaux", "boost": v["boost"], "raison": v["raison"]})
+
+        # Signalisation
+        if "signalisation" in contexte or "panneau" in contexte or "temporaire" in lieu:
+            v = self.VECTEURS_ACQUITTEMENT["signalisation"]
+            score += v["boost"]
+            vecteurs.append({"nom": "signalisation", "boost": v["boost"], "raison": v["raison"]})
+
+        # Double appareil
+        if "double" in contexte or "deux" in contexte:
+            v = self.VECTEURS_ACQUITTEMENT["double_appareil"]
+            score += v["boost"]
+            vecteurs.append({"nom": "double_appareil", "boost": v["boost"], "raison": v["raison"]})
+
+        # ═══ VECTEURS DE DEFENSE NON-VITESSE (V4) ═══
+
+        # Cellulaire dans support / mains libres
+        if any(w in infraction for w in ["cellulaire", "telephone", "téléphone", "443.1"]):
+            # Base: cellulaire est contestable si support mains-libres
+            score += 10
+            vecteurs.append({
+                "nom": "cellulaire_base",
+                "boost": 10,
+                "raison": "Infraction cellulaire: verifier si support fixe/mains libres (art. 443.1 CSR)"
+            })
+            # Si contexte mentionne support
+            if any(w in contexte for w in ["support", "mains libres", "main libre", "bluetooth"]):
+                v = self.VECTEURS_ACQUITTEMENT["cellulaire_support"]
+                score += v["boost"]
+                vecteurs.append({"nom": "cellulaire_support", "boost": v["boost"], "raison": v["raison"]})
+
+        # Stationnement
+        if any(w in infraction for w in ["stationnement", "parcage", "parking"]):
+            score += 10
+            vecteurs.append({
+                "nom": "stationnement_base",
+                "boost": 10,
+                "raison": "Stationnement: verifier parcometre, signalisation, reglementation municipale"
+            })
+            if any(w in contexte for w in ["defectueux", "brise", "hors service", "erreur", "panne"]):
+                v = self.VECTEURS_ACQUITTEMENT["stationnement_defectueux"]
+                score += v["boost"]
+                vecteurs.append({"nom": "stationnement_defectueux", "boost": v["boost"], "raison": v["raison"]})
+
+        # Panneau d'arret / stop
+        if any(w in infraction for w in ["arret", "arrêt", "stop", "panneau"]):
+            score += 5
+            vecteurs.append({
+                "nom": "panneau_base",
+                "boost": 5,
+                "raison": "Panneau arret: verifier installation, visibilite, marquage au sol"
+            })
+            if any(w in contexte for w in ["nouveau", "recent", "installe", "pas de ligne", "marquage"]):
+                v = self.VECTEURS_ACQUITTEMENT["panneau_recent"]
+                score += v["boost"]
+                vecteurs.append({"nom": "panneau_recent", "boost": v["boost"], "raison": v["raison"]})
+
+        # Depassement
+        if any(w in infraction for w in ["depassement", "dépassement"]):
+            # Depassement par la droite sur autoroute = legal
+            if any(w in lieu for w in ["autoroute", "a-", "a15", "a20", "a40", "a10"]):
+                v = self.VECTEURS_ACQUITTEMENT["depassement_autoroute"]
+                score += v["boost"]
+                vecteurs.append({"nom": "depassement_autoroute", "boost": v["boost"], "raison": v["raison"]})
+            else:
+                score += 5
+                vecteurs.append({
+                    "nom": "depassement_base",
+                    "boost": 5,
+                    "raison": "Depassement: verifier conditions (art. 345 CSR), signalisation"
+                })
+
+        # Immatriculation / permis
+        if any(w in infraction for w in ["immatriculation", "permis", "enregistrement"]):
+            score += 10
+            vecteurs.append({
+                "nom": "immatriculation_base",
+                "boost": 10,
+                "raison": "Defaut immatriculation/permis: verifier delai raisonnable, transfert recent"
+            })
+            if "31.1" in loi or any(w in contexte for w in ["achat", "transfert", "recent", "nouveau"]):
+                v = self.VECTEURS_ACQUITTEMENT["immatriculation_delai"]
+                score += v["boost"]
+                vecteurs.append({"nom": "immatriculation_delai", "boost": v["boost"], "raison": v["raison"]})
+
+        # Feu rouge
+        if any(w in infraction for w in ["feu rouge", "feu", "rouge"]):
+            score += 5
+            vecteurs.append({
+                "nom": "feu_rouge_base",
+                "boost": 5,
+                "raison": "Feu rouge: verifier duree jaune, fonctionnement du feu, camera"
+            })
+
+        # Pieton
+        if any(w in infraction for w in ["pieton", "piéton", "passage"]):
+            score += 5
+            vecteurs.append({
+                "nom": "pieton_base",
+                "boost": 5,
+                "raison": "Pieton: verifier passage pour pietons, signalisation"
+            })
+
+        # Erreur sur le constat (via contexte)
+        if any(w in contexte for w in ["erreur", "couleur", "modele", "plaque erronee", "erron", "constat"]):
+            v = self.VECTEURS_ACQUITTEMENT["erreur_constat"]
+            score += v["boost"]
+            vecteurs.append({"nom": "erreur_constat", "boost": v["boost"], "raison": v["raison"]})
+
+        # Equipement municipal defectueux (via contexte)
+        if any(w in contexte for w in ["defectueux", "brise", "hors service", "panne"]):
+            already_has = any(v["nom"] == "stationnement_defectueux" for v in vecteurs)
+            if not already_has:
+                v = self.VECTEURS_ACQUITTEMENT["defaut_equipement"]
+                score += v["boost"]
+                vecteurs.append({"nom": "defaut_equipement", "boost": v["boost"], "raison": v["raison"]})
+
+        # ═══ BOOST PAR PRECEDENTS ACQUITTES ═══
+        if precedents:
+            nb_acquittes = sum(1 for p in precedents
+                             if (p.get("resultat", "") or "").lower() in ("acquitte", "accueilli", "annule"))
+            nb_total = len([p for p in precedents if (p.get("resultat", "") or "").lower() != "inconnu"])
+            if nb_total > 0:
+                pct_acquittes = nb_acquittes * 100 // nb_total
+                if pct_acquittes >= 50:
+                    boost = min(15, pct_acquittes // 5)
+                    score += boost
+                    vecteurs.append({
+                        "nom": "precedents_favorables",
+                        "boost": boost,
+                        "raison": f"{pct_acquittes}% des precedents similaires sont des acquittements"
+                    })
+
+        # Borner entre 5 et 90
+        score = max(5, min(90, score))
+
+        return {
+            "score_base": score,
+            "vecteurs": vecteurs,
+            "grand_exces": grand_exces,
+            "exces_kmh": exces
+        }
+
+    def _analyser_precedents_stats(self, precedents):
+        """Calculer les statistiques des precedents trouves"""
+        if not precedents:
+            return {"total": 0, "acquittes": 0, "coupables": 0, "pct_acquittes": 0, "pct_coupables": 0}
+
+        acquittes = sum(1 for p in precedents
+                       if (p.get("resultat", "") or "").lower() in ("acquitte", "accueilli", "annule"))
+        coupables = sum(1 for p in precedents
+                       if (p.get("resultat", "") or "").lower() in ("coupable", "condamne"))
+        total = len(precedents)
+        total_avec_resultat = acquittes + coupables
+
+        pct_a = round(acquittes * 100 / total_avec_resultat) if total_avec_resultat > 0 else 0
+        pct_c = round(coupables * 100 / total_avec_resultat) if total_avec_resultat > 0 else 0
+
+        return {
+            "total": total,
+            "acquittes": acquittes,
+            "coupables": coupables,
+            "pct_acquittes": pct_a,
+            "pct_coupables": pct_c
+        }
