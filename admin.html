@@ -3,208 +3,313 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AITicketInfo Admin — Monitoring</title>
+<title>Ticket911 Admin — Dashboard</title>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;--purple:#a78bfa;--text:#e2e8f0;--dim:#94a3b8;--border:#334155;}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;--purple:#a78bfa;--cyan:#22d3ee;--text:#e2e8f0;--dim:#94a3b8;--border:#334155;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.header{background:rgba(15,23,42,.95);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;}
+.header{background:rgba(15,23,42,.95);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
 .header h1{font-size:20px;font-weight:800;}.header h1 span{color:var(--accent);}
 .status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .refresh-btn{background:var(--accent);color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;}
 .refresh-btn:hover{opacity:.85;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding:20px 24px;max-width:1400px;margin:0 auto;}
-.card{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border);}
-.card h2{font-size:14px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.big-num{font-size:36px;font-weight:900;color:white;line-height:1;}
-.big-label{font-size:12px;color:var(--dim);margin-top:4px;}
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:18px 24px;max-width:1500px;margin:0 auto;}
+.card{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--border);}
+.card h2{font-size:13px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.big-num{font-size:32px;font-weight:900;color:white;line-height:1;}
+.big-label{font-size:11px;color:var(--dim);margin-top:4px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .stat-row:last-child{border:none;}
-.stat-key{font-size:13px;color:var(--dim);}
-.stat-val{font-size:14px;font-weight:700;color:white;}
-.bar-container{display:flex;align-items:center;gap:8px;margin:4px 0;}
-.bar{height:6px;border-radius:3px;transition:width .5s;}
-.bar-label{font-size:11px;color:var(--dim);min-width:40px;text-align:right;}
-.bar-name{font-size:12px;color:var(--text);min-width:100px;}
-.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;display:flex;align-items:center;gap:8px;}
-.alert.critical{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.stat-key{font-size:12px;color:var(--dim);}
+.stat-val{font-size:13px;font-weight:700;color:white;}
+.stat-desc{font-size:10px;color:var(--dim);font-weight:400;}
+.bar-container{display:flex;align-items:center;gap:6px;margin:3px 0;}
+.bar{height:5px;border-radius:3px;transition:width .5s;}
+.bar-label{font-size:11px;color:var(--dim);min-width:45px;text-align:right;}
+.bar-name{font-size:11px;color:var(--text);min-width:80px;}
+.alert{padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:6px;}
 .alert.warning{background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:#fde047;}
 .alert.info{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93c5fd;}
-.quota-bar{width:100%;height:12px;background:var(--card2);border-radius:6px;overflow:hidden;margin:10px 0;}
-.quota-fill{height:100%;border-radius:6px;transition:width .5s;}
-.loading{text-align:center;padding:40px;color:var(--dim);font-size:15px;}
-.wide{grid-column:span 2;}
-@media(max-width:768px){.wide{grid-column:span 1;}.grid{grid-template-columns:1fr;}}
-.log-box{background:#0a0e1a;border-radius:8px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;color:#86efac;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
-.timestamp{font-size:11px;color:var(--dim);margin-top:8px;}
+.quota-bar{width:100%;height:10px;background:var(--card2);border-radius:5px;overflow:hidden;margin:8px 0;}
+.quota-fill{height:100%;border-radius:5px;transition:width .5s;}
+.loading{text-align:center;padding:40px;color:var(--dim);font-size:15px;grid-column:span 4;}
+.span2{grid-column:span 2;}.span3{grid-column:span 3;}.span4{grid-column:span 4;}
+.log-box{background:#0a0e1a;border-radius:6px;padding:10px;font-family:'Fira Code',monospace;font-size:10px;color:#86efac;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+.tag{display:inline-block;background:var(--card2);padding:2px 8px;border-radius:4px;font-size:11px;margin:2px 3px 2px 0;}
+.svc-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.svc-row:last-child{border:none;}
+.svc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.svc-name{font-size:12px;font-weight:600;color:var(--text);min-width:120px;}
+.svc-desc{font-size:11px;color:var(--dim);flex:1;}
+.svc-status{font-size:11px;font-weight:600;}
+.quality-row{display:flex;align-items:center;gap:8px;padding:5px 0;}
+.quality-label{font-size:12px;color:var(--dim);min-width:100px;}
+.quality-bar{flex:1;height:8px;background:var(--card2);border-radius:4px;overflow:hidden;}
+.quality-fill{height:100%;border-radius:4px;transition:width .5s;}
+.quality-pct{font-size:12px;font-weight:700;min-width:50px;text-align:right;}
+.agent-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.agent-row:last-child{border:none;}
+.agent-name{font-size:11px;color:var(--text);min-width:130px;font-weight:600;}
+.agent-bar{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden;}
+.agent-fill{height:100%;border-radius:2px;}
+.agent-stat{font-size:10px;color:var(--dim);min-width:40px;text-align:right;}
+@media(max-width:1200px){.grid{grid-template-columns:repeat(2,1fr);}.span3,.span4{grid-column:span 2;}}
+@media(max-width:768px){.grid{grid-template-columns:1fr;}.span2,.span3,.span4{grid-column:span 1;}}
 </style>
 </head>
 <body>
-
 <div class="header">
-    <h1><span>AITicketInfo</span> Admin</h1>
+    <h1>Ticket<span>911</span> Admin Dashboard</h1>
     <div style="display:flex;align-items:center;gap:16px;">
-        <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Chargement...</span></div>
+        <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Connexion...</span></div>
         <button class="refresh-btn" onclick="loadData()">Rafraichir</button>
     </div>
 </div>
+<div id="content" class="grid"><div class="loading">Chargement des donnees...</div></div>
+<script>
+const API=window.location.origin+'/scanticket/api/monitor';
+async function loadData(){
+try{const r=await fetch(API);const d=await r.json();if(d.status==='error')throw new Error(d.error);render(d);document.getElementById('statusDot').style.background='#22c55e';document.getElementById('statusText').textContent='En ligne — '+new Date(d.timestamp).toLocaleTimeString('fr-CA');}catch(e){document.getElementById('statusDot').style.background='#ef4444';document.getElementById('statusText').textContent='Erreur: '+e.message;}}
+function fmt(n){return(n||0).toLocaleString('fr-CA');}
+function pc(p){return p>=95?'#22c55e':p>=80?'#eab308':p>=50?'#f97316':'#ef4444';}
+const TN={qccm:'Cour municipale QC',qccq:'Cour du Quebec',qccs:'Cour superieure QC',qcca:'Cour d\'appel QC',qcctq:'Commission transports QC',qctaq:'Tribunal admin QC',oncj:'Cour de justice ON',onscdc:'Cour divisionnaire ON',onca:'Cour d\'appel ON',onsc:'Cour superieure ON',fc:'Cour federale',fca:'Cour d\'appel federale',fct:'Cour federale - Tribunal',scc:'Cour supreme Canada',csc:'Cour supreme Canada',bcca:'Cour d\'appel BC',bcsc:'Cour superieure BC',bcscf:'Cour BC famille',chrt:'Tribunal droits personne',cmac:'Cour martiale',caf:'Cour d\'appel federale',cfpi:'Cour fed. PI',tcpd:'Tribunal concurrence','N/A':'Non classe'};
+function render(d){
+const db=d.db||{},tables=db.tables||{},desc=db.tables_desc||{},juris=db.jurisprudence||{},emb=d.embeddings||{},analyses=d.analyses||{},stats=analyses.stats||{},canlii=d.canlii||{},alertes=d.alertes||[],services=d.services||[],dq=d.data_quality||{},dqF=dq.fields||{},ag=d.agents_stats||{},rag=d.rag_metrics||{},sources=d.sources||{},cron_data=d.cron||{},saaq_data=d.saaq||{},bgAgents=d.background_agents||[],sys_info=d.system||{},robots=d.robots||[],audit=d.audit||{};
+// Services
+let sH='';services.forEach(s=>{const ok=s.status==='active'||s.status==='running';sH+=`<div class="svc-row"><div class="svc-dot" style="background:${ok?'#22c55e':'#ef4444'}"></div><span class="svc-name">${s.name}</span><span class="svc-desc">${s.desc}</span><span class="svc-status" style="color:${ok?'#86efac':'#fca5a5'}">${ok?'ACTIF':s.status.toUpperCase()}</span></div>`;});
+// Data Quality
+let dH='';const dL={database_id:'Tribunal',resume:'Resume',titre:'Titre',resultat:'Resultat',embedding:'Embedding',date_decision:'Date'};
+Object.entries(dqF).forEach(([k,v])=>{const p=v.pct||0;dH+=`<div class="quality-row"><span class="quality-label">${dL[k]||k}</span><div class="quality-bar"><div class="quality-fill" style="width:${p}%;background:${pc(p)}"></div></div><span class="quality-pct" style="color:${pc(p)}">${p}%</span></div>`;});
+// Agents
+const agents=ag.agents||[];const mR=Math.max(...agents.map(a=>a.runs),1);let aH='';const aC=['#3b82f6','#22c55e','#a78bfa','#f97316','#22d3ee','#ec4899','#eab308','#84cc16'];
+agents.slice(0,10).forEach((a,i)=>{aH+=`<div class="agent-row"><span class="agent-name">${a.name}</span><div class="agent-bar"><div class="agent-fill" style="width:${(a.runs/mR*100).toFixed(0)}%;background:${aC[i%aC.length]}"></div></div><span class="agent-stat">${a.runs}x</span><span class="agent-stat" style="color:${a.success_pct>=90?'#86efac':'#fca5a5'}">${a.success_pct}%</span><span class="agent-stat">${a.avg_time}s</span></div>`;});
+// Quota/Embed
+const qU=canlii.used_today||0,qM=canlii.daily_max||4800,qP=Math.min(100,qU/qM*100),qC=qP>90?'#ef4444':qP>70?'#eab308':'#22c55e';
+const eP=emb.pct||0,eC=eP>=100?'#22c55e':eP>50?'#eab308':'#ef4444';
+// Tables
+let tH='';Object.entries(tables).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{tH+=`<div class="stat-row"><span class="stat-key">${k} <span class="stat-desc">${desc[k]||''}</span></span><span class="stat-val">${v>=0?fmt(v):'N/A'}</span></div>`;});
+// Tribunaux
+const trib=juris.par_tribunal||{},mT=Math.max(...Object.values(trib),1);let trH='';const tC=['#3b82f6','#22c55e','#eab308','#f97316','#a78bfa','#22d3ee','#ec4899','#84cc16'];
+Object.entries(trib).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{trH+=`<div class="bar-container"><span class="bar-name" title="${TN[k]||k}">${k.toUpperCase()}</span><div style="flex:1;background:#334155;border-radius:3px;height:5px;"><div class="bar" style="width:${(v/mT*100).toFixed(0)}%;background:${tC[i%tC.length]};"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
+// Resultats
+const res=juris.par_resultat||{},mRs=Math.max(...Object.values(res),1);const rC={acquitte:'#22c55e',coupable:'#ef4444',rejete:'#f97316',reduit:'#eab308',inconnu:'#64748b',reference:'#a78bfa',negociation:'#22d3ee'};let rH='';
+Object.entries(res).forEach(([k,v])=>{rH+=`<div class="bar-container"><span class="bar-name">${k}</span><div style="flex:1;background:#334155;border-radius:3px;height:5px;"><div class="bar" style="width:${(v/mRs*100).toFixed(0)}%;background:${rC[k]||'#3b82f6'};"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
+// Province tags
+const pT=Object.entries(juris.par_province||{}).map(([k,v])=>`<span class="tag"><strong>${fmt(v)}</strong> ${k}</span>`).join('');
+// Alertes
+let alH=alertes.length===0?'<div class="alert info">Aucune alerte</div>':'';alertes.forEach(a=>{alH+=`<div class="alert ${a.level}">${a.level==='warning'?'!':'i'} ${a.msg}</div>`;});
+// Imports
+let iH='';Object.entries(juris.imports_par_jour||{}).slice(0,7).forEach(([k,v])=>{iH+=`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">+${fmt(v)}</span></div>`;});
+// Repair
+const rep=dq.last_repair||{},rr=rep.results||{},rTime=rep.last_run?new Date(rep.last_run).toLocaleString('fr-CA'):'Jamais';
 
-<div id="content" class="grid">
-    <div class="loading">Chargement des donnees...</div>
+document.getElementById('content').innerHTML=`
+<div class="card"><h2>DB TOTALE</h2><div class="big-num">${fmt(db.total_rows||0)}</div><div class="big-label">lignes (${Object.keys(tables).length} tables)</div><div style="margin-top:10px;"><div class="stat-row"><span class="stat-key">Score Qualite</span><span class="stat-val" style="color:${pc(dq.score||0)}">${dq.score||0}%</span></div></div></div>
+<div class="card"><h2>JURISPRUDENCE</h2><div class="big-num">${fmt(tables.jurisprudence||0)}</div><div class="big-label">decisions de cour</div><div style="margin-top:8px;">${pT}</div></div>
+<div class="card"><h2>EMBEDDINGS RAG</h2><div class="big-num" style="color:${eC}">${eP}%</div><div class="big-label">${fmt(emb.embedded)} / ${fmt(emb.total)} dossiers</div><div class="quota-bar"><div class="quota-fill" style="width:${eP}%;background:${eC};"></div></div><div class="stat-row"><span class="stat-key">Manquants</span><span class="stat-val">${fmt(emb.missing)}</span></div><div class="stat-row"><span class="stat-key">Store</span><span class="stat-val">${emb.store||'?'} (${emb.dims||'?'}d)</span></div><div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px;">${emb.model||'?'}</span></div><div class="stat-row"><span class="stat-key">HNSW Index</span><span class="stat-val" style="color:${rag.hnsw_index?'#86efac':'#fca5a5'}">${rag.hnsw_index?'ACTIF':'ABSENT'}</span></div></div>
+<div class="card"><h2>QUOTA CANLII</h2><div class="big-num" style="color:${qC}">${fmt(canlii.remaining)}</div><div class="big-label">requetes restantes</div><div class="quota-bar"><div class="quota-fill" style="width:${qP}%;background:${qC};"></div></div><div class="stat-row"><span class="stat-key">Utilisees</span><span class="stat-val">${fmt(qU)} / ${fmt(qM)}</span></div><div class="stat-row"><span class="stat-key">Derniere MaJ</span><span class="stat-val" style="font-size:10px;">${canlii.last_update?new Date(canlii.last_update).toLocaleTimeString('fr-CA'):'—'}</span></div></div>
+<div class="card span4"><h2>SERVICES</h2>${sH}</div>
+<div class="card span2"><h2>SOURCES DE DONNEES</h2>${Object.entries(sources).filter(([k])=>k!="error").map(([k,v])=>`<div class="stat-row"><span class="stat-key" style="font-weight:600">${k==="canlii"?"CanLII (principal)":k==="a2aj"?"A2AJ (York U.)":k}</span><span class="stat-val">${(v||0).toLocaleString("fr-CA")}</span></div>`).join("")}<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;"><div class="stat-row"><span class="stat-key">Total combine</span><span class="stat-val" style="color:#86efac">${Object.values(sources).filter(v=>typeof v==="number").reduce((a,b)=>a+b,0).toLocaleString("fr-CA")}</span></div></div></div>
+<div class="card span2"><h2>SAAQ INFRACTIONS (${fmt(saaq_data.total_constats||0)} constats reels)</h2>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+<div><span style="font-size:24px;font-weight:900;color:white;">${saaq_data.nb_articles_distincts||0}</span><div class="big-label">articles distincts</div></div>
+<div><span style="font-size:24px;font-weight:900;color:white;">${fmt(saaq_data.total_constats||0)}</span><div class="big-label">constats QC</div></div>
+</div>
+<div style="font-size:10px;color:#3b82f6;font-weight:700;margin:6px 0 4px;">ARTICLES AVEC POINTS D'INAPTITUDE</div>
+${(saaq_data.articles||[]).map(a=>'<div class="stat-row"><span class="stat-key">Art. '+a.article+' <span class="stat-desc">'+(a.titre||'')+'</span></span><span class="stat-val" style="font-size:11px;"><span style="color:#f97316">'+a.points_min+(a.points_max>a.points_min?'-'+a.points_max:'')+' pts</span> <span style="color:#94a3b8">|</span> <span style="color:#eab308">'+(a.amende_min||'?')+'-'+(a.amende_max||'?')+'$</span></span></div>').join('')}
+${(saaq_data.bareme_vitesse||[]).length>0?'<div style="font-size:10px;color:#22c55e;font-weight:700;margin:10px 0 4px;">BAREME VITESSE (constats reels)</div>':''}
+${(saaq_data.bareme_vitesse||[]).map(b=>'<div class="stat-row"><span class="stat-key">'+b.tranche+'</span><span class="stat-val" style="font-size:11px;">'+fmt(b.nb_constats)+' constats</span></div>').join('')}
+${(saaq_data.top_infractions||[]).length>0?'<div style="font-size:10px;color:#a78bfa;font-weight:700;margin:10px 0 4px;">TOP INFRACTIONS</div>':''}
+${(saaq_data.top_infractions||[]).slice(0,8).map(t=>'<div class="stat-row"><span class="stat-key">Art. '+t.article+' <span class="stat-desc">'+(t.titre||'')+'</span></span><span class="stat-val" style="font-size:11px;">'+fmt(t.nb_constats)+'</span></div>').join('')}
+<div style="margin-top:6px;font-size:10px;color:#64748b;">Source: PostgreSQL qc_constats_infraction + lois_articles (real data)</div>
+</div>
+<div class="card" style="grid-column:span 4"><h2>AGENTS AUTONOMES 24/7</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${bgAgents.map(a=>{const icons={"brain":"\u{1F9E0}","download":"\u{2B07}","vector":"\u{1F50D}","wrench":"\u{1F527}","tag":"\u{1F3F7}","search":"\u{1F50E}","database":"\u{1F4BE}","pipeline":"\u{2699}"};const statusColor=a.status==="active"||a.status==="running"?"#22c55e":a.status==="complete"?"#3b82f6":a.status==="idle"?"#6b7280":"#f59e0b";const typeLabel={"ai":"IA","cron":"CRON","service":"SERVICE","integrated":"INTEGRE","manual":"MANUEL","pipeline":"PIPELINE"};return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:18px">${icons[a.icon]||"\u{2699}"}</span><span style="font-weight:600;font-size:13px;flex:1">${a.name}</span><span style="background:${statusColor};color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600">${(a.status||"?").toUpperCase()}</span></div><div style="font-size:11px;color:#94a3b8;margin-bottom:4px">${a.detail}</div>${a.last_run?`<div style="font-size:10px;color:#64748b">Dernier: ${a.last_run}</div>`:""}<div style="font-size:9px;color:#475569;margin-top:3px">${typeLabel[a.type]||a.type}</div></div>`}).join("")}</div></div>
+<div class="card span2"><h2>QUALITE DONNEES</h2>${dH}</div>
+<div class="card span2"><h2>AUTO-CORRECTEUR</h2><div class="stat-row"><span class="stat-key">Dernier run</span><span class="stat-val" style="font-size:11px;">${rTime}</span></div><div class="stat-row"><span class="stat-key">database_id corriges</span><span class="stat-val">${rr.database_id?rr.database_id.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">resultat corriges</span><span class="stat-val">${rr.resultat?rr.resultat.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">ticket_related corriges</span><span class="stat-val">${rr.ticket_related?rr.ticket_related.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">Duree</span><span class="stat-val">${rr.duration||'—'}s</span></div></div>
+<div class="card span2"><h2>RECHERCHE RAG</h2><div class="stat-row"><span class="stat-key">Temps moyen recherche</span><span class="stat-val">${rag.avg_search_time||0}s</span></div><div class="stat-row"><span class="stat-key">Recherches (7j)</span><span class="stat-val">${rag.searches_7d||0}</span></div><div class="stat-row"><span class="stat-key">Index GIN</span><span class="stat-val">${rag.gin_indexes||0}</span></div><div class="stat-row"><span class="stat-key">Index HNSW</span><span class="stat-val" style="color:${rag.hnsw_index?'#86efac':'#fca5a5'}">${rag.hnsw_index?'OK':'MANQUANT'}</span></div><div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px;">${rag.model||'?'}</span></div><div class="stat-row"><span class="stat-key">Dimensions</span><span class="stat-val">${rag.dims||'?'}</span></div><div class="stat-row"><span class="stat-key">Note</span><span class="stat-val" style="font-size:10px;color:#94a3b8">${rag.vector_note||'—'}</span></div></div>
+<div class="card span2"><h2>AGENTS PIPELINE (${ag.total_runs||0} runs)</h2>${aH||'<div class="stat-row"><span class="stat-key">Aucun agent execute</span></div>'}<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;"><div class="stat-row"><span class="stat-key">Temps moyen global</span><span class="stat-val">${ag.avg_duration||0}s</span></div></div></div>
+<div class="card span2"><h2>TABLES (${Object.keys(tables).length})</h2>${tH}</div>
+<div class="card span2"><h2>PAR TRIBUNAL (${Object.keys(trib).length})</h2>${trH}</div>
+<div class="card"><h2>PAR RESULTAT</h2>${rH}</div>
+<div class="card"><h2>ALERTES</h2>${alH}</div>
+<div class="card"><h2>IMPORTS 7 JOURS</h2>${iH||'<div class="stat-row"><span class="stat-key">Aucun import recent</span></div>'}</div>
+<div class="card"><h2>ANALYSES</h2><div class="stat-row"><span class="stat-key">Total</span><span class="stat-val">${stats.total||0}</span></div><div class="stat-row"><span class="stat-key">Score moyen</span><span class="stat-val">${stats.score_moyen||0}%</span></div><div class="stat-row"><span class="stat-key">Confiance</span><span class="stat-val">${stats.confiance_moyenne||0}%</span></div><div class="stat-row"><span class="stat-key">Temps moyen</span><span class="stat-val">${stats.temps_moyen||0}s</span></div><div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;"><div class="stat-row"><span class="stat-key" style="font-weight:700;color:#e2e8f0">Recommandations</span><span class="stat-val"></span></div>${Object.entries(analyses.par_recommandation||{}).map(([k,v])=>`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`).join("")}</div></div>
+<div class="card"><h2>CRON SCHEDULE (${(cron_data.total||0)} jobs)</h2>
+${(cron_data.ticket911||[]).length>0?'<div style="font-size:10px;color:#3b82f6;font-weight:700;margin-bottom:4px;">TICKET911</div>':''}
+${(cron_data.ticket911||[]).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
+${(cron_data.seo||[]).length>0?'<div style="font-size:10px;color:#22c55e;font-weight:700;margin:6px 0 4px;">SEO</div>':''}
+${(cron_data.seo||[]).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
+${(cron_data.system||[]).length>0?'<div style="font-size:10px;color:#f97316;font-weight:700;margin:6px 0 4px;">SYSTEME</div>':''}
+${(cron_data.system||[]).slice(0,5).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
+</div>
+<div class="card span4"><h2>TEST RECHERCHE RAG</h2>
+<div style="display:flex;gap:8px;margin-bottom:12px;">
+<input id="searchQ" type="text" placeholder="Recherche: mot-cle, article (328), ou description..." style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;" onkeydown="if(event.key==='Enter')testSearch()">
+<select id="searchMode" style="padding:8px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:12px;">
+<option value="all">Toutes (text+vector+article)</option>
+<option value="text">Texte seul (tsvector)</option>
+<option value="vector">Vectoriel (pgvector)</option>
+<option value="article">Article CSR</option>
+</select>
+<button onclick="testSearch()" style="background:#3b82f6;color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">Chercher</button>
+</div>
+<div id="searchStatus" style="font-size:11px;color:#94a3b8;margin-bottom:8px;"></div>
+<div id="searchLoi" style="margin-bottom:8px;"></div>
+<div id="searchResults" style="max-height:400px;overflow-y:auto;"></div>
 </div>
 
-<script>
-const API = window.location.origin + '/api/monitor';
-let refreshInterval;
+<div class="card span2"><h2>LOG IMPORT CANLII</h2><div class="log-box">${(d.last_import_log||'Aucun').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>
+<div class="card"><h2>ESPACE SYSTEME</h2>
+<div class="stat-row"><span class="stat-key">CPU</span><span class="stat-val" style="color:${sys_info.cpu_pct>80?'#ef4444':sys_info.cpu_pct>50?'#eab308':'#22c55e'}">${sys_info.cpu_pct||0}%</span></div>
+<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.cpu_pct||0}%;background:${sys_info.cpu_pct>80?'#ef4444':sys_info.cpu_pct>50?'#eab308':'#22c55e'}"></div></div>
+<div class="stat-row"><span class="stat-key">RAM</span><span class="stat-val" style="color:${sys_info.ram_pct>85?'#ef4444':sys_info.ram_pct>70?'#eab308':'#22c55e'}">${sys_info.ram_used_gb||0} / ${sys_info.ram_total_gb||0} GB (${sys_info.ram_pct||0}%)</span></div>
+<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.ram_pct||0}%;background:${sys_info.ram_pct>85?'#ef4444':sys_info.ram_pct>70?'#eab308':'#22c55e'}"></div></div>
+<div class="stat-row"><span class="stat-key">Disque</span><span class="stat-val" style="color:${sys_info.disk_pct>90?'#ef4444':sys_info.disk_pct>75?'#eab308':'#22c55e'}">${sys_info.disk_used_gb||0} / ${sys_info.disk_total_gb||0} GB (${sys_info.disk_pct||0}%)</span></div>
+<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.disk_pct||0}%;background:${sys_info.disk_pct>90?'#ef4444':sys_info.disk_pct>75?'#eab308':'#22c55e'}"></div></div>
+<div class="stat-row"><span class="stat-key">Uptime</span><span class="stat-val">${sys_info.uptime||'?'}</span></div>
+<div class="stat-row"><span class="stat-key">CPU Cores</span><span class="stat-val">${sys_info.cpu_cores||'?'}</span></div>
+<div class="stat-row"><span class="stat-key">Load 1/5/15m</span><span class="stat-val" style="font-size:11px">${sys_info.cpu_load_1m||0} / ${sys_info.cpu_load_5m||0} / ${sys_info.cpu_load_15m||0}</span></div>
+</div>
 
-async function loadData() {
-    try {
-        const r = await fetch(API);
-        const d = await r.json();
-        if (d.status === 'error') throw new Error(d.error);
-        render(d);
-        document.getElementById('statusDot').style.background = '#22c55e';
-        document.getElementById('statusText').textContent = 'En ligne';
-    } catch(e) {
-        document.getElementById('statusDot').style.background = '#ef4444';
-        document.getElementById('statusText').textContent = 'Erreur: ' + e.message;
-    }
+<div class="card"><h2>ROBOTS DEPLOYES</h2>
+${robots.filter(r=>r.status==='running').length===0?'<div class="alert info">Aucun robot actif</div>':''}
+${robots.filter(r=>r.status==='running').map(r=>'<div class="svc-row"><div class="svc-dot" style="background:#22c55e;animation:pulse 2s infinite"></div><span class="svc-name">'+r.name+'</span><span class="svc-desc">PID:'+r.pid+' CPU:'+r.cpu+'% MEM:'+r.mem+'%</span><span class="svc-status" style="color:#86efac">ACTIF</span></div>').join('')}
+${robots.filter(r=>r.status==='scheduled').length>0?'<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.05);padding-top:6px;font-size:11px;color:#94a3b8;font-weight:600;">CRONS PLANIFIES</div>':''}
+${robots.filter(r=>r.status==='scheduled').map(r=>'<div class="svc-row"><div class="svc-dot" style="background:#eab308"></div><span class="svc-desc" style="font-size:10px;font-family:monospace">'+r.pattern+'</span></div>').join('')}
+</div>
+
+<div class="card span2"><h2>AUDIT CLASSIFICATION</h2>
+<div style="display:flex;gap:16px;flex-wrap:wrap;">
+<div><div class="big-num" style="font-size:24px;color:#ef4444">${fmt(audit.inconnus_restants||0)}</div><div class="big-label">inconnus restants</div></div>
+<div><div class="big-num" style="font-size:24px;color:#22c55e">${fmt(audit.ticket_related||0)}</div><div class="big-label">ticket-related</div></div>
+<div><div class="big-num" style="font-size:24px;color:#64748b">${fmt(audit.hors_sujet_total||0)}</div><div class="big-label">hors sujet</div></div>
+</div>
+${audit.classify_progress?'<div style="margin-top:10px;"><div class="stat-row"><span class="stat-key">Classification en cours</span><span class="stat-val" style="color:#22d3ee">'+audit.classify_progress+'</span></div></div>':''}
+<div style="margin-top:8px;"><div class="log-box" style="max-height:80px;font-size:9px;">${(audit.derniere_classification||'Aucune classification recente').replace(/</g,'&lt;')}</div></div>
+</div>
+
+<div class="card span2"><h2>LOG EMBEDDINGS</h2><div class="log-box">${(d.last_embed_log||'Pas encore execute').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>
+`;}
+
+function testSearch(){
+const q=document.getElementById('searchQ').value.trim();
+if(!q){document.getElementById('searchStatus').textContent='Entrez un terme de recherche';return;}
+const mode=document.getElementById('searchMode').value;
+document.getElementById('searchStatus').innerHTML='<span style="color:#22d3ee">Recherche en cours...</span>';
+document.getElementById('searchResults').innerHTML='';
+document.getElementById('searchLoi').innerHTML='';
+const url=window.location.origin+'/scanticket/api/test-search?q='+encodeURIComponent(q)+'&mode='+mode+'&limit=15';
+fetch(url).then(r=>r.json()).then(d=>{
+if(d.error){document.getElementById('searchStatus').innerHTML='<span style="color:#ef4444">Erreur: '+d.error+'</span>';return;}
+const st=d.stats||{};
+document.getElementById('searchStatus').innerHTML=`<span style="color:#22c55e">${d.count} resultats en ${d.time_ms}ms</span> | tsvector: ${st.tsvector||0} | pgvector: ${st.pgvector||0} | article: ${st.article||0}`;
+if(d.loi){const l=d.loi;document.getElementById('searchLoi').innerHTML=`<div style="background:#1a2744;border:1px solid #3b82f6;border-radius:6px;padding:10px;margin-bottom:8px;font-size:12px;"><strong style="color:#93c5fd;">Art. ${l.article}</strong> — ${l.titre||''}<br><span style="color:#94a3b8;">${(l.texte||'').substring(0,200)}...</span><br><span style="color:#eab308;">Amende: ${l.amende_min||'?'} - ${l.amende_max||'?'}$</span> | <span style="color:#f97316;">Points: ${l.points_min||'?'} - ${l.points_max||'?'}</span></div>`;}
+let h='';(d.results||[]).forEach((r,i)=>{const rc={acquitte:'#22c55e',coupable:'#ef4444',reduit:'#eab308',rejete:'#f97316',inconnu:'#64748b'};const mc={tsvector:'#3b82f6',pgvector:'#a78bfa',article:'#22d3ee'};h+=`<div style="padding:8px;border-bottom:1px solid #1e293b;font-size:12px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background=''" onclick="openJurisModal(${r.id})"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;color:#e2e8f0;">${r.citation||r.titre||'?'} <span style="color:#3b82f6;font-size:10px;">&#128269;</span></span><span style="display:flex;gap:6px;"><span style="background:${mc[r.methode]||'#64748b'};padding:1px 6px;border-radius:3px;font-size:10px;color:white;">${r.methode}</span><span style="color:${rc[r.resultat]||'#94a3b8'};font-weight:700;">${r.resultat||'?'}</span><span style="color:#94a3b8;">score:${r.score}</span></span></div>${r.resume?'<div style="color:#94a3b8;font-size:11px;margin-top:3px;">'+r.resume.substring(0,150)+'...</div>':''}<div style="font-size:10px;color:#64748b;margin-top:2px;">${r.database_id||''} | ${r.date||''} | ${r.tribunal||''}</div></div>`;});
+document.getElementById('searchResults').innerHTML=h||'<div style="color:#94a3b8;padding:10px;">Aucun resultat</div>';
+}).catch(e=>{document.getElementById('searchStatus').innerHTML='<span style="color:#ef4444">Erreur: '+e.message+'</span>';});
 }
 
-function render(d) {
-    const db = d.db || {};
-    const tables = db.tables || {};
-    const juris = db.jurisprudence || {};
-    const analyses = d.analyses || {};
-    const stats = analyses.stats || {};
-    const canlii = d.canlii || {};
-    const alertes = d.alertes || [];
 
-    const quotaUsed = canlii.used_today || 0;
-    const quotaMax = canlii.daily_max || 4800;
-    const quotaPct = Math.min(100, (quotaUsed / quotaMax * 100));
-    const quotaColor = quotaPct > 90 ? '#ef4444' : quotaPct > 70 ? '#eab308' : '#22c55e';
-
-    // Build tribunal bars
-    const tribunaux = juris.par_tribunal || {};
-    const maxTrib = Math.max(...Object.values(tribunaux), 1);
-    let tribBars = '';
-    for (const [k,v] of Object.entries(tribunaux).slice(0,10)) {
-        const pct = (v / maxTrib * 100).toFixed(0);
-        tribBars += `<div class="bar-container">
-            <span class="bar-name">${k}</span>
-            <div style="flex:1;background:#334155;border-radius:3px;height:6px;"><div class="bar" style="width:${pct}%;background:var(--accent);"></div></div>
-            <span class="bar-label">${v}</span>
-        </div>`;
-    }
-
-    // Resultat bars
-    const resultats = juris.par_resultat || {};
-    const maxRes = Math.max(...Object.values(resultats), 1);
-    const resColors = {acquitte:'#22c55e', coupable:'#ef4444', rejete:'#f97316', reduit:'#eab308', inconnu:'#94a3b8'};
-    let resBars = '';
-    for (const [k,v] of Object.entries(resultats)) {
-        const pct = (v / maxRes * 100).toFixed(0);
-        const col = resColors[k] || '#3b82f6';
-        resBars += `<div class="bar-container">
-            <span class="bar-name">${k}</span>
-            <div style="flex:1;background:#334155;border-radius:3px;height:6px;"><div class="bar" style="width:${pct}%;background:${col};"></div></div>
-            <span class="bar-label">${v}</span>
-        </div>`;
-    }
-
-    // Alertes
-    let alertHtml = '';
-    if (alertes.length === 0) alertHtml = '<div class="alert info">Aucune alerte</div>';
-    for (const a of alertes) {
-        alertHtml += `<div class="alert ${a.level}">${a.level === 'critical' ? '!!!' : a.level === 'warning' ? '!!' : 'i'} ${a.msg}</div>`;
-    }
-
-    // Analyses par recommandation
-    const parReco = analyses.par_recommandation || {};
-    let recoHtml = '';
-    for (const [k,v] of Object.entries(parReco)) {
-        recoHtml += `<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`;
-    }
-
-    // Tables
-    let tablesHtml = '';
-    for (const [k,v] of Object.entries(tables)) {
-        const displayName = k.replace(/_/g, ' ');
-        tablesHtml += `<div class="stat-row"><span class="stat-key">${displayName}</span><span class="stat-val">${v >= 0 ? v.toLocaleString() : 'N/A'}</span></div>`;
-    }
-
-    document.getElementById('content').innerHTML = `
-        <!-- Row 1: Big numbers -->
-        <div class="card">
-            <h2>Jurisprudence</h2>
-            <div class="big-num">${(tables.jurisprudence || 0).toLocaleString()}</div>
-            <div class="big-label">dossiers en base</div>
-            <div style="margin-top:12px;">
-                ${Object.entries(juris.par_province || {}).map(([k,v]) =>
-                    `<span style="display:inline-block;background:var(--card2);padding:3px 10px;border-radius:4px;font-size:12px;margin:2px 4px 2px 0;"><strong>${v}</strong> ${k}</span>`
-                ).join('')}
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Analyses</h2>
-            <div class="big-num">${stats.total || 0}</div>
-            <div class="big-label">analyses effectuees</div>
-            <div style="margin-top:12px;">
-                <div class="stat-row"><span class="stat-key">Score moyen</span><span class="stat-val">${stats.score_moyen || 0}%</span></div>
-                <div class="stat-row"><span class="stat-key">Confiance moyenne</span><span class="stat-val">${stats.confiance_moyenne || 0}%</span></div>
-                <div class="stat-row"><span class="stat-key">Temps moyen</span><span class="stat-val">${stats.temps_moyen || 0}s</span></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Quota CanLII</h2>
-            <div class="big-num" style="color:${quotaColor}">${canlii.remaining !== undefined ? canlii.remaining : '?'}</div>
-            <div class="big-label">requetes restantes aujourd'hui</div>
-            <div class="quota-bar"><div class="quota-fill" style="width:${quotaPct}%;background:${quotaColor};"></div></div>
-            <div class="stat-row"><span class="stat-key">Utilisees</span><span class="stat-val">${quotaUsed} / ${quotaMax}</span></div>
-            <div class="stat-row"><span class="stat-key">Cron</span><span class="stat-val">1h00 AM</span></div>
-        </div>
-
-        <!-- Row 2: Alertes + Tribunaux -->
-        <div class="card">
-            <h2>Alertes</h2>
-            ${alertHtml}
-        </div>
-
-        <div class="card">
-            <h2>Par tribunal</h2>
-            ${tribBars}
-        </div>
-
-        <div class="card">
-            <h2>Par resultat</h2>
-            ${resBars}
-        </div>
-
-        <!-- Row 3: Tables + Analyses + Log -->
-        <div class="card">
-            <h2>Tables DB</h2>
-            ${tablesHtml}
-        </div>
-
-        <div class="card">
-            <h2>Par recommandation</h2>
-            ${recoHtml || '<div class="stat-row"><span class="stat-key">Aucune analyse</span></div>'}
-        </div>
-
-        <div class="card wide">
-            <h2>Dernier import CanLII</h2>
-            <div class="log-box">${(d.last_import_log || 'Aucun log disponible').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-        </div>
-    `;
+function openJurisModal(id){
+const m=document.getElementById('jurisModal');
+m.style.display='block';
+document.getElementById('jurisModalTitle').textContent='Chargement...';
+document.getElementById('jurisModalBody').innerHTML='<div style="text-align:center;padding:40px;color:#94a3b8;">Chargement du dossier #'+id+'...</div>';
+fetch(window.location.origin+'/scanticket/api/jurisprudence/'+id)
+.then(r=>r.json()).then(d=>{
+if(d.error){document.getElementById('jurisModalBody').innerHTML='<div style="color:#ef4444;padding:20px;">Erreur: '+d.error+'</div>';return;}
+const rc={acquitte:'#22c55e',coupable:'#ef4444',reduit:'#eab308',rejete:'#f97316',inconnu:'#64748b'};
+document.getElementById('jurisModalTitle').innerHTML=`${d.citation||d.titre||'Dossier #'+d.id} <span style="color:${rc[d.resultat]||'#94a3b8'};font-size:14px;margin-left:8px;">${(d.resultat||'inconnu').toUpperCase()}</span>`;
+let h='';
+// Meta
+h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
+h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+( d.tribunal||'?')+'</span>';
+h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+( d.date_decision||'?')+'</span>';
+h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+( d.database_id||'?')+'</span>';
+h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+( d.province||'?')+'</span>';
+if(d.langue)h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+d.langue+'</span>';
+if(d.numero_dossier)h+='<span style="background:#1e293b;padding:4px 10px;border-radius:4px;font-size:11px;color:#94a3b8;">'+d.numero_dossier+'</span>';
+h+='</div>';
+// CanLII link
+if(d.url_canlii)h+='<div style="margin-bottom:12px;"><a href="'+d.url_canlii+'" target="_blank" style="color:#3b82f6;text-decoration:underline;font-size:12px;">Voir sur CanLII &rarr;</a></div>';
+// Lois pertinentes
+if(d.lois_pertinentes&&d.lois_pertinentes.length>0){
+h+='<div style="background:#1a2744;border:1px solid #1e3a5f;border-radius:8px;padding:12px;margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#3b82f6;font-weight:700;margin-bottom:8px;">LOIS PERTINENTES ('+d.lois_pertinentes.length+')</div>';
+d.lois_pertinentes.forEach(l=>{h+='<span style="background:#0f172a;padding:2px 8px;border-radius:3px;font-size:11px;color:#93c5fd;margin:2px 4px 2px 0;display:inline-block;">'+l+'</span>';});
+h+='</div>';
 }
+// Lois details
+if(d.lois_details&&d.lois_details.length>0){
+h+='<div style="background:#1a2744;border:1px solid #1e3a5f;border-radius:8px;padding:12px;margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#22c55e;font-weight:700;margin-bottom:8px;">DETAIL DES ARTICLES</div>';
+d.lois_details.forEach(l=>{
+h+='<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #1e293b;">';
+h+='<div style="font-weight:700;color:#e2e8f0;">Art. '+l.article+' <span style="color:#94a3b8;font-weight:400;">— '+(l.titre||'')+'</span></div>';
+if(l.amende_min||l.amende_max)h+='<div style="font-size:11px;color:#eab308;margin-top:3px;">Amende: '+(l.amende_min||'?')+' - '+(l.amende_max||'?')+'$</div>';
+if(l.points_min||l.points_max)h+='<div style="font-size:11px;color:#f97316;">Points: '+(l.points_min||'?')+' - '+(l.points_max||'?')+'</div>';
+if(l.texte)h+='<div style="font-size:11px;color:#94a3b8;margin-top:4px;">'+l.texte.substring(0,300)+(l.texte.length>300?'...':'')+'</div>';
+h+='</div>';});
+h+='</div>';
+}
+// Stats similaires
+if(d.stats_similaires&&Object.keys(d.stats_similaires).length>0){
+h+='<div style="background:#1a2744;border:1px solid #1e3a5f;border-radius:8px;padding:12px;margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#a78bfa;font-weight:700;margin-bottom:8px;">STATS CAS SIMILAIRES</div>';
+Object.entries(d.stats_similaires).forEach(([art,stats])=>{
+h+='<div style="margin-bottom:6px;"><strong style="color:#e2e8f0;">Art. '+art+'</strong>: ';
+const total=Object.values(stats).reduce((a,b)=>a+b,0);
+Object.entries(stats).forEach(([res,cnt])=>{
+h+='<span style="color:'+(rc[res]||'#94a3b8')+';">'+res+': '+cnt+'</span> ';});
+const wins=(stats.acquitte||0)+(stats.reduit||0);
+const pct=total>0?Math.round(wins*100/total):0;
+h+='<span style="color:#22d3ee;margin-left:6px;">('+ pct+'% succes sur '+total+' cas)</span>';
+h+='</div>';});
+h+='</div>';
+}
+// Mots cles
+if(d.mots_cles&&d.mots_cles.length>0){
+h+='<div style="margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px;">MOTS-CLES</div>';
+d.mots_cles.forEach(k=>{h+='<span style="background:#1e293b;padding:2px 6px;border-radius:3px;font-size:10px;color:#94a3b8;margin:2px;">'+k+'</span>';});
+h+='</div>';
+}
+// Resume
+if(d.resume){
+h+='<div style="background:#0c1629;border:1px solid #1e293b;border-radius:8px;padding:14px;margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#22d3ee;font-weight:700;margin-bottom:6px;">RESUME</div>';
+h+='<div style="font-size:12px;line-height:1.6;color:#cbd5e1;white-space:pre-wrap;">'+d.resume.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
+h+='</div>';
+}
+// Texte complet
+if(d.texte_complet){
+h+='<div style="background:#0c1629;border:1px solid #1e293b;border-radius:8px;padding:14px;margin-bottom:14px;">';
+h+='<div style="font-size:11px;color:#f97316;font-weight:700;margin-bottom:6px;">TEXTE COMPLET ('+d.texte_length+' chars'+(d.texte_length>15000?' — tronque a 15000':'')+')</div>';
+h+='<div style="font-size:11px;line-height:1.5;color:#94a3b8;white-space:pre-wrap;max-height:500px;overflow-y:auto;">'+d.texte_complet.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
+h+='</div>';
+}
+// Footer
+h+='<div style="font-size:10px;color:#475569;padding-top:10px;border-top:1px solid #1e293b;">ID: '+d.id+' | CanLII: '+(d.canlii_id||'?')+' | Source: '+(d.source||'?')+' | Import: '+(d.imported_at||'?')+'</div>';
+document.getElementById('jurisModalBody').innerHTML=h;
+}).catch(e=>{document.getElementById('jurisModalBody').innerHTML='<div style="color:#ef4444;padding:20px;">Erreur: '+e.message+'</div>';});
+}
+function closeJurisModal(){document.getElementById('jurisModal').style.display='none';}
+document.getElementById('jurisModal').addEventListener('click',function(e){if(e.target===this)closeJurisModal();});
 
-loadData();
-refreshInterval = setInterval(loadData, 30000);
+loadData();setInterval(loadData,30000);
 </script>
+
+<!-- Modal detail jurisprudence -->
+<div id="jurisModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px;">
+<div style="max-width:900px;margin:20px auto;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:0;">
+<div id="jurisModalHeader" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #1e293b;position:sticky;top:0;background:#0f172a;border-radius:12px 12px 0 0;z-index:1;">
+<span id="jurisModalTitle" style="font-weight:900;font-size:16px;color:#e2e8f0;"></span>
+<button onclick="closeJurisModal()" style="background:#ef4444;color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Fermer</button>
+</div>
+<div id="jurisModalBody" style="padding:20px;font-size:13px;color:#cbd5e1;">Chargement...</div>
+</div>
+</div>
 </body>
 </html>

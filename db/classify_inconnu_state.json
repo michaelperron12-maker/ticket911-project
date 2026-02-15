@@ -1,0 +1,14 @@
+{
+  "last_run": "2026-02-15T14:49:10.405595",
+  "classified": 7203,
+  "still_inconnu": 10118,
+  "errors": 0,
+  "results": {
+    "acquitte": 195,
+    "coupable": 276,
+    "rejete": 6680,
+    "reduit": 52,
+    "inconnu": 0
+  },
+  "status": "interrupted"
+}
