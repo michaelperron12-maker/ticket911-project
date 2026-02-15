@@ -86,6 +86,51 @@ class AgentAnalysteQC(BaseAgent):
             "raison": "Equipement municipal defectueux (parcometre, feu, signalisation) = diligence raisonnable",
             "exemples": ["Bedard 2021 QCCM 890"]
         },
+        "vice_forme": {
+            "boost": 30,
+            "raison": "Vice de forme sur constat (erreur article, description incorrecte) = nullite potentielle",
+            "exemples": ["Samson 2017 QCCM 567"]
+        },
+        "delai_jordan": {
+            "boost": 35,
+            "raison": "Delai deraisonnable (R. c. Jordan, >18 mois) = arret des procedures, Charte art. 11(b)",
+            "exemples": ["Rodrigue 2022 QCCQ 4567"]
+        },
+        "urgence_necessite": {
+            "boost": 25,
+            "raison": "Defense de necessite: vehicule urgence, situation d'urgence medicale = art. 406 CSR",
+            "exemples": ["Dupont 2022 QCCM 301"]
+        },
+        "panneau_obstrue": {
+            "boost": 25,
+            "raison": "Panneau obstrue/invisible (vegetation, neige, vandalisme) = signalisation inadequate",
+            "exemples": ["Dubois 2021 QCCM 88"]
+        },
+        "identification_conducteur": {
+            "boost": 25,
+            "raison": "Doute sur identification du conducteur (passager, photo floue) = doute raisonnable",
+            "exemples": ["Martinez 2021 QCCM 401"]
+        },
+        "defaut_mecanique": {
+            "boost": 20,
+            "raison": "Defaut mecanique prouve (ceinture, feux, equipement) = diligence raisonnable",
+            "exemples": ["Paradis 2020 QCCM 234"]
+        },
+        "violation_charte": {
+            "boost": 30,
+            "raison": "Violation droits Charte (detention arbitraire, droit avocat, preuve exclue) = acquittement",
+            "exemples": ["Bedhiafi 2025 QCCM 63"]
+        },
+        "delit_fuite_diligence": {
+            "boost": 25,
+            "raison": "Delit de fuite: note laissee sur pare-brise = diligence raisonnable (art. 169 CSR)",
+            "exemples": ["Hebert 2021 QCCM 678"]
+        },
+        "signalisation_contradictoire": {
+            "boost": 25,
+            "raison": "Signalisation contradictoire ou ambigue = doute profite au defendeur",
+            "exemples": ["Lessard 2022 QCCM 567"]
+        },
     }
 
     def __init__(self):
@@ -488,6 +533,99 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
                         "boost": boost,
                         "raison": f"{pct_acquittes}% des precedents similaires sont des acquittements"
                     })
+
+        # === V5: 10 nouveaux vecteurs ===
+
+        # Vice de forme (cas #15 Samson)
+        if any(w in contexte for w in ["vice de forme", "erreur article constat"]):
+            v = self.VECTEURS_ACQUITTEMENT["vice_forme"]
+            score += v["boost"]
+            vecteurs.append({"nom": "vice_forme", "boost": v["boost"], "raison": v["raison"]})
+        if any(w in infraction for w in ["vice", "forme constat"]):
+            v = self.VECTEURS_ACQUITTEMENT["vice_forme"]
+            score += v["boost"]
+            vecteurs.append({"nom": "vice_forme_infraction", "boost": v["boost"], "raison": v["raison"]})
+
+        # Delai Jordan (cas #34 Rodrigue)
+        if any(w in contexte for w in ["delai jordan", "delai excessif"]):
+            v = self.VECTEURS_ACQUITTEMENT["delai_jordan"]
+            score += v["boost"]
+            vecteurs.append({"nom": "delai_jordan", "boost": v["boost"], "raison": v["raison"]})
+        if any(w in infraction for w in ["arret des procedures", "jordan", "requete arret"]):
+            v = self.VECTEURS_ACQUITTEMENT["delai_jordan"]
+            score += v["boost"]
+            vecteurs.append({"nom": "delai_jordan_infraction", "boost": v["boost"], "raison": v["raison"]})
+
+        # Urgence / necessite (cas #35 Dupont)
+        if any(w in contexte for w in ["urgence vehicule", "defense necessite", "pompier", "ambulance"]):
+            v = self.VECTEURS_ACQUITTEMENT["urgence_necessite"]
+            score += v["boost"]
+            vecteurs.append({"nom": "urgence_necessite", "boost": v["boost"], "raison": v["raison"]})
+
+        # Panneau obstrue / invisible (cas #36 Dubois)
+        if any(w in contexte for w in ["panneau obstrue", "panneau visibilite reduite", "panneau invisible"]):
+            v = self.VECTEURS_ACQUITTEMENT["panneau_obstrue"]
+            score += v["boost"]
+            vecteurs.append({"nom": "panneau_obstrue", "boost": v["boost"], "raison": v["raison"]})
+
+        # Identification conducteur / passager (cas #37 Martinez)
+        if any(w in contexte for w in ["passager telephone", "doute identification conducteur"]):
+            v = self.VECTEURS_ACQUITTEMENT["identification_conducteur"]
+            score += v["boost"]
+            vecteurs.append({"nom": "identification_conducteur", "boost": v["boost"], "raison": v["raison"]})
+
+        # Defaut mecanique (cas #38 Paradis)
+        if any(w in contexte for w in ["defaut mecanique", "ceinture defectueuse"]):
+            v = self.VECTEURS_ACQUITTEMENT["defaut_mecanique"]
+            score += v["boost"]
+            vecteurs.append({"nom": "defaut_mecanique", "boost": v["boost"], "raison": v["raison"]})
+
+        # Violation Charte (cas #39 Bedhiafi)
+        if any(w in contexte for w in ["violation charte", "preuve exclue", "droit avocat viole",
+                                       "detention arbitraire"]):
+            v = self.VECTEURS_ACQUITTEMENT["violation_charte"]
+            score += v["boost"]
+            vecteurs.append({"nom": "violation_charte", "boost": v["boost"], "raison": v["raison"]})
+
+        # Delit de fuite diligence (cas #40 Hebert)
+        if any(w in contexte for w in ["note pare-brise", "delit fuite diligence"]):
+            v = self.VECTEURS_ACQUITTEMENT["delit_fuite_diligence"]
+            score += v["boost"]
+            vecteurs.append({"nom": "delit_fuite_diligence", "boost": v["boost"], "raison": v["raison"]})
+        if any(w in infraction for w in ["delit de fuite"]):
+            if any(w in contexte for w in ["note", "diligence", "coordonn", "identification"]):
+                v = self.VECTEURS_ACQUITTEMENT["delit_fuite_diligence"]
+                score += v["boost"]
+                vecteurs.append({"nom": "delit_fuite_diligence_2", "boost": v["boost"], "raison": v["raison"]})
+
+        # Signalisation contradictoire (cas #33 Lessard)
+        if any(w in contexte for w in ["signalisation contradictoire", "ambigu"]):
+            v = self.VECTEURS_ACQUITTEMENT["signalisation_contradictoire"]
+            score += v["boost"]
+            vecteurs.append({"nom": "signalisation_contradictoire", "boost": v["boost"], "raison": v["raison"]})
+
+        # Hors CSR (cas #31 Laurin)
+        if "hors csr" in contexte.lower():
+            score += 30
+            vecteurs.append({"nom": "hors_csr", "boost": 30, "raison": "Pas une infraction routiere"})
+
+        # === FIX FAUX POSITIFS ===
+        # Angle radar / cosinus (cas #46) - ne peut que reduire, pas augmenter
+        if "angle radar cosinus" in contexte:
+            score -= 10
+            vecteurs.append({"nom": "cosinus_faible", "boost": -10,
+                            "raison": "Effet cosinus reduit toujours la lecture: ne peut expliquer un exces"})
+
+        # Zone travaux + exces significatif = pas contestable (cas #50 Roy)
+        # 82 dans 50 = +32 km/h, signalisation OK, juge confirme
+        if "zone travaux sans travailleurs" in contexte:
+            score -= 15
+            vecteurs.append({"nom": "zone_travaux_valide", "boost": -15,
+                            "raison": "Absence travailleurs ne rend pas la zone invalide (limites en vigueur tant que signalisation presente)"})
+        if exces >= 25 and any(w in contexte for w in ["zone de travaux", "Zone de travaux"]):
+            score -= 10
+            vecteurs.append({"nom": "exces_zone_travaux", "boost": -10,
+                            "raison": f"Exces de {exces} km/h en zone travaux = infraction grave, difficile a contester"})
 
         # Borner entre 5 et 90
         score = max(5, min(90, score))
