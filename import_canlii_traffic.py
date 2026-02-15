@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Import massif CanLII — Focus tickets traffic (vitesse, cellulaire, alcool, contestés)
-Rate-limited: 2 req/sec, 4500/jour max (marge sous 5000)
-Usage: python3 import_canlii_traffic.py [--dry-run] [--max-requests 4000]
+Rate-limited: 2 req/sec, 4700/jour max (marge 300 sous quota 5000)
+Usage: python3 import_canlii_traffic.py [--dry-run] [--max-requests 4700] [--qc-only]
 """
 
 import os
@@ -50,6 +50,9 @@ TRIBUNAUX = [
     # QC — Cour d'appel
     {"db": "qcca", "province": "QC", "lang": "fr", "priority": 3,
      "name": "Cour d'appel QC"},
+    # QC — Tribunal administratif du Québec (~130K dossiers, ~49% SAAQ)
+    {"db": "qctaq", "province": "QC", "lang": "fr", "priority": 2,
+     "name": "Tribunal administratif QC (SAAQ)"},
     # ON — Ontario Court of Justice (traffic tickets)
     {"db": "oncj", "province": "ON", "lang": "en", "priority": 1,
      "name": "Ontario Court of Justice"},
@@ -87,6 +90,14 @@ KEYWORDS_FR = [
     # Code de la sécurité routière
     "sécurité routière", "securite routiere", "C.S.R.", "CSR",
     "code de la route",
+    # SAAQ / TAQ (Tribunal administratif du Québec)
+    "SAAQ", "société de l'assurance automobile",
+    "points d'inaptitude", "points de démérite", "demerit",
+    "révocation", "revocation", "permis de conduire",
+    "sanction administrative", "contribution d'assurance",
+    "alcool au volant", "conduite avec capacité affaiblie",
+    "interlock", "antidémarreur", "éthylomètre",
+    "excès de vitesse", "grand excès",
 ]
 
 KEYWORDS_EN = [
@@ -119,11 +130,12 @@ KEYWORDS_EN = [
 # RATE LIMITER
 # ═══════════════════════════════════════════════════════════
 class RateLimiter:
-    def __init__(self, max_per_day=4800, delay=1.7):
+    def __init__(self, max_per_day=4700, delay=1.7):
         self.max_per_day = max_per_day
         self.delay = delay  # 1.7 sec entre requetes, 1 a la fois
         self.count = 0
         self.last_time = 0
+        self.consecutive_429 = 0
 
     def wait(self):
         if self.count >= self.max_per_day:
@@ -324,12 +336,14 @@ def insert_case(conn, case_data, tribunal_info):
 def main():
     parser = argparse.ArgumentParser(description="Import CanLII traffic cases")
     parser.add_argument("--dry-run", action="store_true", help="Ne pas insérer en DB")
-    parser.add_argument("--max-requests", type=int, default=4800,
-                        help="Max requêtes API (default: 4800, marge 200 sous 5000)")
+    parser.add_argument("--max-requests", type=int, default=4700,
+                        help="Max requêtes API (default: 4700, marge 300 sous 5000)")
     parser.add_argument("--page-size", type=int, default=100,
                         help="Résultats par page (default: 100, max: 100)")
     parser.add_argument("--tribunaux", type=str, default="",
                         help="Filtrer tribunaux (ex: qccm,qccq)")
+    parser.add_argument("--qc-only", action="store_true",
+                        help="Importer seulement les tribunaux QC (qccm,qccq,qccs,qcca)")
     args = parser.parse_args()
 
     if not API_KEY:
@@ -351,7 +365,10 @@ def main():
 
     # Filtrer tribunaux si demandé
     tribunaux = TRIBUNAUX
-    if args.tribunaux:
+    if args.qc_only:
+        tribunaux = [t for t in TRIBUNAUX if t["province"] == "QC"]
+        print(f"  Mode QC-ONLY: {', '.join(t['db'] for t in tribunaux)}")
+    elif args.tribunaux:
         filter_dbs = [t.strip() for t in args.tribunaux.split(",")]
         tribunaux = [t for t in TRIBUNAUX if t["db"] in filter_dbs]
 
@@ -468,6 +485,21 @@ def main():
     for inftype, count in sorted(stats.items(), key=lambda x: -x[1]):
         print(f"    {inftype:25s} {count:>6}")
     print(f"{'='*60}")
+
+    # Sauvegarder usage quota
+    usage_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "canlii_usage.json")
+    os.makedirs(os.path.dirname(usage_file), exist_ok=True)
+    usage_data = {
+        "day": date.today().timetuple().tm_yday,
+        "count": limiter.count,
+        "last_update": datetime.now().isoformat(),
+        "total_in_db": len(existing_ids),
+        "new_imported": total_imported,
+        "filtered": total_filtered,
+        "stats": stats,
+    }
+    with open(usage_file, "w") as f:
+        json.dump(usage_data, f)
 
 
 if __name__ == "__main__":
