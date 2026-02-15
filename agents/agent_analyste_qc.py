@@ -427,8 +427,9 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
                     "raison": "Depassement: verifier conditions (art. 345 CSR), signalisation"
                 })
 
-        # Immatriculation / permis
-        if any(w in infraction for w in ["immatriculation", "permis", "enregistrement"]):
+        # Immatriculation / permis (SAUF permis expire/invalide = non-contestable)
+        permis_expire = any(w in infraction for w in ["expire", "expiré", "invalide", "sans permis"])
+        if any(w in infraction for w in ["immatriculation", "permis", "enregistrement"]) and not permis_expire:
             score += 10
             vecteurs.append({
                 "nom": "immatriculation_base",
