@@ -1,5 +1,5 @@
 """
-ORCHESTRATEUR v2 — Pipeline 26 agents / 4 phases / ~1.2M tokens
+ORCHESTRATEUR v2 — Pipeline 27 agents / 4 phases / ~1.2M tokens
 Phase 1: Intake (~50K tokens) — OCR, Classificateur, Validateur, Routing
 Phase 2: Analyse juridique (~650K tokens) — Lois, Precedents, Analyste, Verificateur, Procedure, Points
 Phase 3: Audit qualite (~150K tokens) — Cross-verification double moteur
@@ -9,15 +9,15 @@ Phase 4: Livraison (~350K tokens) — Rapport Client, Rapport Avocat, Notificati
 import json
 import time
 import uuid
-import sqlite3
 from datetime import datetime
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 # Phase 1: Intake
 from agents.agent_ocr import AgentOCR
 from agents.agent_classificateur import AgentClassificateur
 from agents.agent_validateur import AgentValidateur
 from agents.agent_routing import AgentRouting
+from agents.agent_erreurs_admin import AgentErreursAdmin
 
 # Phase 2: Analyse — Lecteur (partage)
 from agents.agent_lecteur import AgentLecteur
@@ -71,6 +71,7 @@ class Orchestrateur(BaseAgent):
         self.classificateur = AgentClassificateur()
         self.validateur = AgentValidateur()
         self.routing = AgentRouting()
+        self.erreurs_admin = AgentErreursAdmin()
 
         # Phase 2: QC
         self.lecteur = AgentLecteur()
@@ -111,32 +112,8 @@ class Orchestrateur(BaseAgent):
         self.superviseur = AgentSuperviseur()
 
     def _init_results_table(self):
-        conn = self.get_db()
-        c = conn.cursor()
-        c.execute("""CREATE TABLE IF NOT EXISTS analyses_completes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dossier_uuid TEXT,
-            ticket_json TEXT,
-            lois_json TEXT,
-            precedents_json TEXT,
-            analyse_json TEXT,
-            verification_json TEXT,
-            cross_verification_json TEXT,
-            rapport_client_json TEXT,
-            rapport_avocat_json TEXT,
-            procedure_json TEXT,
-            points_json TEXT,
-            supervision_json TEXT,
-            score_final INTEGER,
-            confiance INTEGER,
-            recommandation TEXT,
-            juridiction TEXT,
-            temps_total REAL,
-            tokens_total INTEGER,
-            created_at TEXT
-        )""")
-        conn.commit()
-        conn.close()
+        # Table analyses_completes existe deja dans PostgreSQL (schema.sql)
+        pass
 
     def analyser_ticket(self, ticket_input, image_path=None, client_info=None,
                         evidence_photos=None, temoignage=None, temoins=None):
@@ -209,7 +186,7 @@ class Orchestrateur(BaseAgent):
             rapport["phases"]["intake"]["classificateur"] = {"status": "FAIL", "error": str(e)}
             rapport["erreurs"].append(f"Classificateur: {e}")
 
-        # Agent Validateur
+        # Agent Validateur (contexte enrichi sera ajoute apres Phase 1)
         try:
             validation_ticket = self.validateur.valider(ticket, classification)
             rapport["phases"]["intake"]["validateur"] = {"status": "OK", "data": validation_ticket}
@@ -217,6 +194,25 @@ class Orchestrateur(BaseAgent):
             validation_ticket = {}
             rapport["phases"]["intake"]["validateur"] = {"status": "FAIL", "error": str(e)}
             rapport["erreurs"].append(f"Validateur: {e}")
+
+        # Agent Erreurs Administratives + Statistiques Sociales
+        erreurs_admin_result = {}
+        try:
+            erreurs_admin_result = self.erreurs_admin.analyser_erreurs(
+                ticket, classification,
+                ocr_data=rapport["phases"]["intake"].get("ocr", {}).get("data"),
+                client_data=client_info
+            )
+            rapport["phases"]["intake"]["erreurs_admin"] = {"status": "OK", "data": erreurs_admin_result}
+            nb_err = erreurs_admin_result.get("erreurs_admin", {}).get("nb_erreurs", 0)
+            nb_cont = erreurs_admin_result.get("nb_contestable", 0)
+            print(f"  >>> Erreurs admin: {nb_err} | Contestable: {nb_cont}")
+            if erreurs_admin_result.get("analyse_statistique", {}).get("blitz", {}).get("detecte"):
+                print(f"  >>> BLITZ DETECTE!")
+        except Exception as e:
+            erreurs_admin_result = {}
+            rapport["phases"]["intake"]["erreurs_admin"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"ErreursAdmin: {e}")
 
         # Agent Routing
         try:
@@ -230,6 +226,47 @@ class Orchestrateur(BaseAgent):
         juridiction = ticket.get("juridiction", "QC")
         team = route.get("team", "team_qc")
         print(f"\n  >>> Juridiction: {juridiction} | Team: {team}")
+
+        # ═══════════════════════════════════════════════════════
+        # ENRICHISSEMENT CONTEXTE (weather, road, speed limits)
+        # ═══════════════════════════════════════════════════════
+        print(f"\n{'─'*50}")
+        print("  ENRICHISSEMENT CONTEXTE (meteo, routes, vitesse)")
+        print(f"{'─'*50}")
+        contexte_enrichi = {}
+        try:
+            contexte_enrichi = self.fetch_context_enrichi(ticket)
+            w = contexte_enrichi.get("weather")
+            rc = contexte_enrichi.get("road_conditions", [])
+            sl = contexte_enrichi.get("speed_limits", [])
+            cs = contexte_enrichi.get("constats_similaires", [])
+            rs = contexte_enrichi.get("radar_stats", [])
+            rl = contexte_enrichi.get("radar_lieux", [])
+            mc = contexte_enrichi.get("mtl_collisions", [])
+            pk = contexte_enrichi.get("principes_cles", [])
+            jl = contexte_enrichi.get("jurisprudence_legislation", [])
+            print(f"  >>> Meteo: {'OK' if w else 'N/A'} | Routes: {len(rc)} | Vitesse: {len(sl)} | "
+                  f"Constats: {len(cs)} | Radar stats: {len(rs)} | Radar lieux: {len(rl)}")
+            print(f"  >>> Collisions MTL: {len(mc)} | Principes cles: {len(pk)} | Juris-legislation: {len(jl)}")
+            rapport["phases"]["enrichissement"] = {
+                "status": "OK",
+                "weather": bool(w),
+                "road_conditions": len(rc),
+                "speed_limits": len(sl),
+                "constats_similaires": len(cs),
+                "radar_stats": len(rs),
+                "radar_lieux": len(rl),
+                "mtl_collisions": len(mc),
+                "principes_cles": len(pk),
+                "jurisprudence_legislation": len(jl)
+            }
+        except Exception as e:
+            contexte_enrichi = {}
+            rapport["phases"]["enrichissement"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"Enrichissement: {e}")
+
+        # Formater le contexte pour les prompts AI
+        contexte_texte = self.format_contexte_pour_prompt(contexte_enrichi)
 
         # ═══════════════════════════════════════════════════════
         # PHASE 2: ANALYSE JURIDIQUE (~650K tokens)
@@ -287,7 +324,7 @@ class Orchestrateur(BaseAgent):
             rapport["erreurs"].append(f"Precedents {tag}: {e}")
 
         try:
-            analyse = ag_anal.analyser(ticket, lois_trouvees, precedents_trouves)
+            analyse = ag_anal.analyser(ticket, lois_trouvees, precedents_trouves, contexte_texte=contexte_texte)
             rapport["phases"]["analyse"]["analyste"] = {"status": "OK"}
         except Exception as e:
             rapport["phases"]["analyse"]["analyste"] = {"status": "FAIL", "error": str(e)}
@@ -309,7 +346,7 @@ class Orchestrateur(BaseAgent):
             rapport["erreurs"].append(f"Procedure {tag}: {e}")
 
         try:
-            points_result = ag_pts.calculer(ticket, analyse)
+            points_result = ag_pts.calculer(ticket, analyse, contexte_enrichi=contexte_enrichi)
             rapport["phases"]["analyse"]["points"] = {"status": "OK"}
         except Exception as e:
             rapport["phases"]["analyse"]["points"] = {"status": "FAIL", "error": str(e)}
@@ -370,7 +407,7 @@ class Orchestrateur(BaseAgent):
         cross_verif_result = {}
         try:
             cross_verif_result = self.cross_verif.verifier_analyse(
-                ticket, analyse or {}, lois_trouvees, precedents_trouves)
+                ticket, analyse or {}, lois_trouvees, precedents_trouves, contexte_texte=contexte_texte)
             rapport["phases"]["audit"]["cross_verification"] = cross_verif_result
         except Exception as e:
             rapport["phases"]["audit"]["cross_verification"] = {}
@@ -387,7 +424,8 @@ class Orchestrateur(BaseAgent):
         rapport_client_data = {}
         try:
             rapport_client_data = self.rapport_client.generer(
-                ticket, analyse or {}, procedure_result, points_result, cross_verif_result)
+                ticket, analyse or {}, procedure_result, points_result, cross_verif_result,
+                contexte_enrichi=contexte_enrichi, erreurs_admin=erreurs_admin_result)
             rapport["phases"]["livraison"]["rapport_client"] = rapport_client_data
         except Exception as e:
             rapport["phases"]["livraison"]["rapport_client"] = {}
@@ -398,7 +436,8 @@ class Orchestrateur(BaseAgent):
         try:
             rapport_avocat_data = self.rapport_avocat.generer(
                 ticket, analyse or {}, lois_trouvees, precedents_trouves,
-                procedure_result, points_result, validation_ticket, cross_verif_result)
+                procedure_result, points_result, validation_ticket, cross_verif_result,
+                contexte_enrichi=contexte_enrichi)
             rapport["phases"]["livraison"]["rapport_avocat"] = rapport_avocat_data
         except Exception as e:
             rapport["phases"]["livraison"]["rapport_avocat"] = {}
@@ -437,39 +476,40 @@ class Orchestrateur(BaseAgent):
         rapport["confiance"] = confiance
         rapport["recommandation"] = recommandation
         rapport["juridiction"] = juridiction
+        rapport["contexte_enrichi"] = contexte_enrichi
         rapport["temps_total"] = round(total_time, 2)
         rapport["nb_erreurs"] = len(rapport["erreurs"])
         rapport["supervision"] = supervision
 
-        # Sauver en SQLite
+        # Sauver en PostgreSQL
         try:
             conn = self.get_db()
-            c = conn.cursor()
-            c.execute("""INSERT INTO analyses_completes
-                (dossier_uuid, ticket_json, lois_json, precedents_json, analyse_json,
-                 verification_json, cross_verification_json, rapport_client_json,
-                 rapport_avocat_json, procedure_json, points_json, supervision_json,
-                 score_final, confiance, recommandation, juridiction, temps_total,
-                 tokens_total, created_at)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (dossier_uuid,
-                 json.dumps(ticket, ensure_ascii=False, default=str),
-                 json.dumps(lois_trouvees, ensure_ascii=False, default=str),
-                 json.dumps(precedents_trouves, ensure_ascii=False, default=str),
-                 json.dumps(analyse, ensure_ascii=False, default=str),
-                 json.dumps(verification, ensure_ascii=False, default=str),
-                 json.dumps(cross_verif_result, ensure_ascii=False, default=str),
-                 json.dumps(rapport_client_data, ensure_ascii=False, default=str),
-                 json.dumps(rapport_avocat_data, ensure_ascii=False, default=str),
-                 json.dumps(procedure_result, ensure_ascii=False, default=str),
-                 json.dumps(points_result, ensure_ascii=False, default=str),
-                 json.dumps(supervision, ensure_ascii=False, default=str),
-                 score_final, confiance, recommandation, juridiction,
-                 round(total_time, 2), total_tokens, datetime.now().isoformat()))
-            conn.commit()
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute("""INSERT INTO analyses_completes
+                        (dossier_uuid, ticket_json, lois_json, precedents_json, analyse_json,
+                         verification_json, cross_verification_json, rapport_client_json,
+                         rapport_avocat_json, procedure_json, points_json, supervision_json,
+                         score_final, confiance, recommandation, juridiction, temps_total,
+                         tokens_total)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        (dossier_uuid,
+                         json.dumps(ticket, ensure_ascii=False, default=str),
+                         json.dumps(lois_trouvees, ensure_ascii=False, default=str),
+                         json.dumps(precedents_trouves, ensure_ascii=False, default=str),
+                         json.dumps(analyse, ensure_ascii=False, default=str),
+                         json.dumps(verification, ensure_ascii=False, default=str),
+                         json.dumps(cross_verif_result, ensure_ascii=False, default=str),
+                         json.dumps(rapport_client_data, ensure_ascii=False, default=str),
+                         json.dumps(rapport_avocat_data, ensure_ascii=False, default=str),
+                         json.dumps(procedure_result, ensure_ascii=False, default=str),
+                         json.dumps(points_result, ensure_ascii=False, default=str),
+                         json.dumps(supervision, ensure_ascii=False, default=str),
+                         score_final, confiance, recommandation, juridiction,
+                         round(total_time, 2), total_tokens))
             conn.close()
         except Exception as e:
-            rapport["erreurs"].append(f"SQLite save: {e}")
+            rapport["erreurs"].append(f"PostgreSQL save: {e}")
 
         self._afficher_rapport(rapport, ticket, analyse, verification, supervision)
         return rapport

@@ -81,7 +81,7 @@ class AgentNotification(BaseAgent):
             from twilio.rest import Client
             client = Client(TWILIO_SID, TWILIO_TOKEN)
             sms = client.messages.create(
-                body=f"[Ticket911] Dossier #{dossier_id}: {message[:140]}",
+                body=f"[FightMyTicket] Dossier #{dossier_id}: {message[:140]}",
                 from_=TWILIO_FROM,
                 to=phone
             )
@@ -100,9 +100,9 @@ class AgentNotification(BaseAgent):
 
             sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_KEY)
             message = Mail(
-                from_email="noreply@ticket911.ca",
+                from_email="noreply@fightmyticket.ca",
                 to_emails=email,
-                subject=f"[Ticket911] Votre analyse #{dossier_id} est prete",
+                subject=f"[FightMyTicket] Votre analyse #{dossier_id} est prete",
                 html_content=self._build_email_html(dossier_id, resume, verdict, rapport_client)
             )
             response = sg.send(message)
@@ -118,7 +118,7 @@ class AgentNotification(BaseAgent):
         """SMTP OVH — necessite SMTP_PASS"""
         try:
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"[Ticket911] Votre analyse #{dossier_id} est prete"
+            msg["Subject"] = f"[FightMyTicket] Votre analyse #{dossier_id} est prete"
             msg["From"] = SMTP_FROM or SMTP_USER
             msg["To"] = email
 
@@ -143,8 +143,8 @@ class AgentNotification(BaseAgent):
         """Localhost SMTP — fonctionne sur OVH VPS sans auth"""
         try:
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"[Ticket911] Votre analyse #{dossier_id} est prete"
-            msg["From"] = "Ticket911 <noreply@seoparai.com>"
+            msg["Subject"] = f"[FightMyTicket] Votre analyse #{dossier_id} est prete"
+            msg["From"] = "FightMyTicket <noreply@seoparai.com>"
             msg["To"] = email
             msg["Reply-To"] = "info@seoparai.com"
 
@@ -198,7 +198,7 @@ class AgentNotification(BaseAgent):
 
     <div style="background:linear-gradient(135deg,#1e3a5f 0%,#2c5282 100%);color:white;
                 padding:30px;text-align:center;">
-        <h1 style="margin:0;font-size:28px;letter-spacing:2px;">TICKET911</h1>
+        <h1 style="margin:0;font-size:28px;letter-spacing:2px;">FIGHTMYTICKET</h1>
         <p style="margin:8px 0 0;font-size:14px;opacity:0.9;">Analyse par intelligence artificielle</p>
         <p style="margin:4px 0 0;font-size:12px;opacity:0.7;">Dossier #{dossier_id}</p>
     </div>
@@ -235,7 +235,7 @@ class AgentNotification(BaseAgent):
 
     <div style="background:#f8f9fa;padding:20px;text-align:center;border-top:1px solid #eee;">
         <p style="color:#999;font-size:11px;margin:0;">
-            Ticket911 par SeoAI | Analyse par 26 agents IA specialises<br>
+            FightMyTicket par SeoAI | Analyse par 26 agents IA specialises<br>
             Ce courriel a ete genere automatiquement.<br>
             Ce rapport ne constitue pas un avis juridique.
         </p>

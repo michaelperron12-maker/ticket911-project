@@ -692,9 +692,9 @@ Tous les datasets NYC Open Data et NYS Open Data utilisent Socrata:
 - **Note:** Le SEUL competiteur techno-forward au Quebec, mais generaliste (pas specialise tickets)
 
 ### Ticket911.ca (LE CLIENT)
-- **URL:** https://ticket911.ca/
+- **URL:** https://aiticketinfo.com/
 - **Tel:** (514)700-0303 / 1(855)444-4911
-- **Email:** info@ticket911.ca
+- **Email:** info@aiticketinfo.com
 - **Equipe:** Avi Levy et Bernard Levy-Soussan (17 ans comme procureurs)
 - **Experience:** 60 ans combines, 100,000+ cas resolus
 - **Couverture:** Quebec, Ontario, Alberta, New York State
@@ -918,7 +918,7 @@ Ajouter:
 - GetDismissed: https://getdismissed.com
 - SOS Ticket: https://www.sosticket.ca
 - SolutionTicket: https://www.solutionticket.com
-- Ticket911: https://ticket911.ca
+- Ticket911: https://aiticketinfo.com
 - X-Copper: https://www.xcopper.com
 - POINTTS: https://pointts.com
 - The Ticket Clinic: https://www.theticketclinic.com

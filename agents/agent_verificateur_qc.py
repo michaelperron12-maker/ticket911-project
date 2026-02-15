@@ -4,8 +4,7 @@ Valide citations, regles SAAQ, articles CSR, coherence
 """
 
 import time
-import sqlite3
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentVerificateurQC(BaseAgent):
@@ -161,11 +160,11 @@ class AgentVerificateurQC(BaseAgent):
 
     def _chercher_en_db(self, citation):
         try:
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            c.execute("SELECT id FROM jurisprudence WHERE citation LIKE ? AND juridiction = 'QC' LIMIT 1",
+            conn = self.get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM jurisprudence WHERE citation ILIKE %s AND province = 'QC' LIMIT 1",
                       (f"%{citation[:50]}%",))
-            found = c.fetchone()
+            found = cur.fetchone()
             conn.close()
             return found is not None
         except Exception:

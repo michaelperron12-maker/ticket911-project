@@ -1,13 +1,12 @@
 """
 Agent 3: CHERCHEUR DE PRECEDENTS — LE COEUR du systeme
-Recherche hybride: SQLite FTS5 (mots-cles) + ChromaDB (semantique)
+Recherche hybride: PostgreSQL tsvector (mots-cles) + ChromaDB (semantique)
 Ne retourne QUE des cas qui existent REELLEMENT dans la base
 """
 
-import sqlite3
 import time
 import json
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentPrecedents(BaseAgent):
@@ -21,7 +20,7 @@ class AgentPrecedents(BaseAgent):
         """Tente de charger ChromaDB si disponible"""
         try:
             import chromadb
-            client = chromadb.PersistentClient(path="/var/www/ticket911/data/embeddings")
+            client = chromadb.PersistentClient(path="/var/www/aiticketinfo/data/embeddings")
             self.chroma_collection = client.get_or_create_collection(
                 name="jurisprudence",
                 metadata={"hnsw:space": "cosine"}
@@ -43,7 +42,7 @@ class AgentPrecedents(BaseAgent):
         self.log(f"Recherche precedents: {infraction[:50]}... ({juridiction})", "STEP")
         start = time.time()
 
-        # --- 1. Recherche par mots-cles (SQLite FTS5) ---
+        # --- 1. Recherche par mots-cles (PostgreSQL tsvector) ---
         fts_results = self._recherche_fts(infraction, juridiction)
         self.log(f"  FTS: {len(fts_results)} cas trouves", "OK" if fts_results else "WARN")
 
@@ -69,29 +68,31 @@ class AgentPrecedents(BaseAgent):
         return top_results
 
     def _recherche_fts(self, infraction, juridiction, limit=20):
-        """Recherche FTS5 dans SQLite"""
+        """Recherche tsvector dans PostgreSQL"""
         results = []
         conn = self.get_db()
         c = conn.cursor()
 
         try:
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='jurisprudence_fts'")
-            if not c.fetchone():
-                conn.close()
-                return results
+            # Choisir la colonne tsvector et la config selon la juridiction
+            if juridiction == "QC":
+                tsv_col = "j.tsv_fr"
+                ts_config = "french"
+            else:
+                tsv_col = "j.tsv_en"
+                ts_config = "english"
 
             # Generer des requetes FTS
             queries = self._generer_requetes_fts(infraction, juridiction)
 
             for query in queries:
                 try:
-                    c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                        j.resume, j.texte_complet, j.juridiction, j.resultat
-                                 FROM jurisprudence_fts fts
-                                 JOIN jurisprudence j ON fts.rowid = j.id
-                                 WHERE jurisprudence_fts MATCH ?
-                                 AND j.juridiction = ?
-                                 LIMIT ?""", (query, juridiction, limit))
+                    c.execute(f"""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                        j.resume, j.texte_complet, j.province, j.resultat
+                                 FROM jurisprudence j
+                                 WHERE {tsv_col} @@ to_tsquery(%s, %s)
+                                 AND j.province = %s
+                                 LIMIT %s""", (ts_config, query, juridiction, limit))
 
                     for row in c.fetchall():
                         results.append({
@@ -100,19 +101,18 @@ class AgentPrecedents(BaseAgent):
                             "juridiction": row[6], "resultat": row[7] or "inconnu",
                             "source": "FTS", "query": query, "score": 70
                         })
-                except sqlite3.OperationalError:
+                except Exception:
                     pass
 
             # Fallback: recherche sans filtre juridiction
             if not results:
                 for query in queries[:2]:
                     try:
-                        c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                            j.resume, j.texte_complet, j.juridiction, j.resultat
-                                     FROM jurisprudence_fts fts
-                                     JOIN jurisprudence j ON fts.rowid = j.id
-                                     WHERE jurisprudence_fts MATCH ?
-                                     LIMIT ?""", (query, limit))
+                        c.execute(f"""SELECT j.id, j.citation, j.tribunal, j.date_decision,
+                                            j.resume, j.texte_complet, j.province, j.resultat
+                                     FROM jurisprudence j
+                                     WHERE {tsv_col} @@ to_tsquery(%s, %s)
+                                     LIMIT %s""", (ts_config, query, limit))
                         for row in c.fetchall():
                             results.append({
                                 "id": row[0], "citation": row[1], "tribunal": row[2],
@@ -120,7 +120,7 @@ class AgentPrecedents(BaseAgent):
                                 "juridiction": row[6], "resultat": row[7] or "inconnu",
                                 "source": "FTS-all", "query": query, "score": 50
                             })
-                    except sqlite3.OperationalError:
+                    except Exception:
                         pass
         except Exception as e:
             self.log(f"Erreur FTS: {e}", "FAIL")
@@ -197,17 +197,17 @@ class AgentPrecedents(BaseAgent):
         lower = infraction.lower()
 
         if any(w in lower for w in ["vitesse", "speed", "excès", "exces", "km/h"]):
-            queries.extend(["vitesse OR speeding OR speed", "radar OR cinémomètre",
-                           "excès vitesse", "limite vitesse"])
+            queries.extend(["vitesse | speeding | speed", "radar | cinémomètre",
+                           "excès & vitesse", "limite & vitesse"])
         if any(w in lower for w in ["feu rouge", "red light"]):
-            queries.extend(["feu rouge OR red light", "signalisation OR signal"])
+            queries.extend(["feu & rouge | red & light", "signalisation | signal"])
         if any(w in lower for w in ["cellulaire", "phone", "handheld"]):
-            queries.extend(["cellulaire OR téléphone OR handheld", "appareil OR device"])
+            queries.extend(["cellulaire | téléphone | handheld", "appareil | device"])
         if any(w in lower for w in ["stop", "arrêt"]):
-            queries.extend(["arrêt OR stop", "panneau arrêt OR stop sign"])
+            queries.extend(["arrêt | stop", "panneau & arrêt | stop & sign"])
 
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]
-            queries = [" OR ".join(words)] if words else ["contravention"]
+            queries = [" | ".join(words)] if words else ["contravention"]
 
         return queries

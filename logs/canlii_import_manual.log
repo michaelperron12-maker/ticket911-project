@@ -1,0 +1,69 @@
+============================================================
+  CANLII IMPORT — TRAFFIC TICKETS (vitesse/cell/alcool)
+  Date: 2026-02-14 19:09
+  Max requêtes: 4700
+  Mode: PRODUCTION
+============================================================
+
+  Dossiers déjà importés: 5610
+
+──────────────────────────────────────────────────
+  Cours municipales QC (qccm) — Priority 1
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 3s (x1)
+  [STOP] Quota atteint
+  >>> qccm: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Cour du Québec (qccq) — Priority 2
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 7s (x2)
+  [STOP] Quota atteint
+  >>> qccq: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Cour supérieure QC (qccs) — Priority 3
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 14s (x3)
+  [STOP] Quota atteint
+  >>> qccs: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Cour d'appel QC (qcca) — Priority 3
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 27s (x4)
+  [STOP] Quota atteint
+  >>> qcca: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Ontario Court of Justice (oncj) — Priority 1
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 54s (x5)
+  [STOP] Quota atteint
+  >>> oncj: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Divisional Court ON (onscdc) — Priority 2
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 109s (x6)
+  [STOP] Quota atteint
+  >>> onscdc: +0 importés | 0 filtrés | 0 existants
+
+──────────────────────────────────────────────────
+  Court of Appeal ON (onca) — Priority 3
+──────────────────────────────────────────────────
+    [THROTTLE] HTTP 429 — backoff 120s (x7)
+  [STOP] Quota atteint
+  >>> onca: +0 importés | 0 filtrés | 0 existants
+
+============================================================
+  RÉSUMÉ IMPORT CANLII
+============================================================
+  Nouveaux dossiers:  0
+  Filtrés (hors-sujet): 0
+  Déjà existants:    0
+  Requêtes utilisées: 7/4700
+  Total en DB:       5610
+
+  Par type d'infraction:
+============================================================

@@ -1,11 +1,10 @@
 """
 Agent ON: LOIS ONTARIO — Highway Traffic Act (HTA) + Provincial Offences Act
-Recherche FTS specifique Ontario
+Recherche PostgreSQL tsvector specifique Ontario
 """
 
-import sqlite3
 import time
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentLoisON(BaseAgent):
@@ -22,46 +21,58 @@ class AgentLoisON(BaseAgent):
         start = time.time()
         resultats = []
 
-        conn = self.get_db()
-        c = conn.cursor()
-
         infraction = ticket.get("infraction", "")
         mots_cles = self._extraire_mots_cles_on(infraction)
 
         try:
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lois_fts'")
-            if c.fetchone():
-                for query in mots_cles:
-                    try:
-                        c.execute("""SELECT l.id, l.juridiction, l.article, l.texte, l.source
-                                     FROM lois_fts fts
-                                     JOIN lois l ON fts.rowid = l.id
-                                     WHERE lois_fts MATCH ?
-                                     AND l.juridiction = 'ON'
-                                     LIMIT 5""", (query,))
-                        for row in c.fetchall():
-                            resultats.append({
-                                "id": row[0], "juridiction": row[1],
-                                "article": row[2], "texte": row[3][:500],
-                                "source": row[4], "recherche": query
-                            })
-                            self.log(f"  HTA s.{row[2]} trouve", "OK")
-                    except sqlite3.OperationalError:
-                        pass
-            else:
-                self.log("Table lois_fts non trouvee — recherche directe", "WARN")
-                c.execute("""SELECT id, juridiction, article, texte, source FROM lois
-                             WHERE juridiction = 'ON' LIMIT 10""")
-                for row in c.fetchall():
+            conn = self.get_db()
+            cur = conn.cursor()
+
+            for query in mots_cles:
+                try:
+                    tsquery = " | ".join(query.split())
+                    cur.execute("""
+                        SELECT id, province, article, titre_article,
+                               texte_complet, loi, code_loi,
+                               ts_rank(tsv, to_tsquery('english', %s)) AS rank
+                        FROM lois_articles
+                        WHERE province = 'ON'
+                          AND tsv @@ to_tsquery('english', %s)
+                        ORDER BY rank DESC
+                        LIMIT 5
+                    """, (tsquery, tsquery))
+                    for row in cur.fetchall():
+                        resultats.append({
+                            "id": row[0], "juridiction": row[1],
+                            "article": row[2],
+                            "texte": (row[4] or row[3] or "")[:500],
+                            "source": row[5] or row[6] or "HTA",
+                            "recherche": query
+                        })
+                        self.log(f"  HTA s.{row[2]} trouve", "OK")
+                except Exception:
+                    pass
+
+            # Fallback
+            if not resultats:
+                self.log("Pas de resultats tsvector — recherche directe", "WARN")
+                cur.execute("""
+                    SELECT id, province, article, titre_article, texte_complet, loi
+                    FROM lois_articles
+                    WHERE province = 'ON'
+                    LIMIT 10
+                """)
+                for row in cur.fetchall():
                     resultats.append({
                         "id": row[0], "juridiction": row[1],
-                        "article": row[2], "texte": row[3][:500],
-                        "source": row[4]
+                        "article": row[2],
+                        "texte": (row[4] or row[3] or "")[:500],
+                        "source": row[5] or "HTA"
                     })
+
+            conn.close()
         except Exception as e:
             self.log(f"Erreur recherche lois ON: {e}", "FAIL")
-
-        conn.close()
 
         seen = set()
         unique = []
@@ -82,28 +93,28 @@ class AgentLoisON(BaseAgent):
         lower = infraction.lower()
 
         if any(w in lower for w in ["speed", "vitesse", "km/h", "speeding", "radar"]):
-            queries.extend(["speed", "s 128", "speeding", "radar", "HTA 128"])
+            queries.extend(["speed", "speeding", "radar"])
         if any(w in lower for w in ["red light", "feu rouge", "traffic signal"]):
-            queries.extend(["red light", "s 144", "traffic signal", "HTA 144"])
+            queries.extend(["red & light", "traffic & signal"])
         if any(w in lower for w in ["cell", "phone", "handheld", "cellulaire", "texting"]):
-            queries.extend(["handheld", "s 78.1", "distracted", "HTA 78.1"])
+            queries.extend(["handheld", "distracted"])
         if any(w in lower for w in ["stop", "arrêt", "arret"]):
-            queries.extend(["stop sign", "s 136", "HTA 136"])
+            queries.extend(["stop & sign"])
         if any(w in lower for w in ["seatbelt", "ceinture", "belt"]):
-            queries.extend(["seatbelt", "s 106", "HTA 106"])
+            queries.extend(["seatbelt"])
         if any(w in lower for w in ["careless", "dangereuse", "dangerous"]):
-            queries.extend(["careless driving", "s 130", "HTA 130"])
+            queries.extend(["careless & driving"])
         if any(w in lower for w in ["stunt", "racing", "course", "street racing"]):
-            queries.extend(["stunt driving", "s 172", "racing", "HTA 172"])
+            queries.extend(["stunt & driving", "racing"])
         if any(w in lower for w in ["follow", "tailgating", "trop pres"]):
-            queries.extend(["following too closely", "s 158", "HTA 158"])
+            queries.extend(["following & closely"])
         if any(w in lower for w in ["insurance", "assurance", "no insurance"]):
-            queries.extend(["compulsory automobile insurance", "CAIA", "no insurance"])
+            queries.extend(["insurance"])
         if any(w in lower for w in ["licence", "license", "permis", "suspended"]):
-            queries.extend(["licence", "s 32", "s 53", "driving while suspended"])
+            queries.extend(["licence", "suspended"])
 
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]
-            queries = words if words else ["highway traffic act"]
+            queries = [" & ".join(words)] if words else ["highway & traffic"]
 
         return queries

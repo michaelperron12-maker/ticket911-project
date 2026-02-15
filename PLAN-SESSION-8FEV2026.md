@@ -20,8 +20,8 @@
 | Element | Status |
 |---------|--------|
 | Demo site | https://911-virid.vercel.app (19 pages) |
-| Proposition client | proposition-client-ticket911.pdf (envoyee le 7 fev) |
-| Email pitch | Envoye a info@ticket911.ca le 7 fev 2026 |
+| Proposition client | proposition-client-aiticketinfo.pdf (envoyee le 7 fev) |
+| Email pitch | Envoye a info@aiticketinfo.com le 7 fev 2026 |
 | Recherche API | RECHERCHE-COMPLETE-APIs-ET-COMPETITEURS.md (complet) |
 | Plan B | Lancer solo a 20$/mois si Ticket911 refuse |
 

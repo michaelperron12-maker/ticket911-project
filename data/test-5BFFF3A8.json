@@ -1,0 +1,344 @@
+{
+  "dossier_uuid": "5BFFF3A8",
+  "phases": {
+    "intake": {
+      "ocr": {
+        "status": "SKIP",
+        "note": "Pas d'image"
+      },
+      "lecteur": {
+        "status": "OK"
+      },
+      "classificateur": {
+        "status": "OK",
+        "data": {
+          "juridiction": "QC",
+          "type_infraction": "vitesse",
+          "gravite": "moyen",
+          "points": 3,
+          "points_max": 15,
+          "risque_suspension": false,
+          "code_applicable": "Code de la securite routiere (C-24.2)",
+          "tribunal": "Cour municipale du Quebec"
+        }
+      },
+      "validateur": {
+        "status": "OK",
+        "data": {
+          "valide": true,
+          "nb_validations": 6,
+          "nb_anomalies": 0,
+          "anomalies": [],
+          "validations": [
+            {
+              "test": "juridiction",
+              "valide": true,
+              "detail": "Coherent"
+            },
+            {
+              "test": "amende",
+              "valide": true,
+              "detail": "$368.0 dans bareme ($300-$450)"
+            },
+            {
+              "test": "date",
+              "valide": true,
+              "detail": "Date valide: 2026-02-01"
+            },
+            {
+              "test": "points",
+              "valide": true,
+              "detail": "3 pts — coherent pour QC"
+            },
+            {
+              "test": "vitesse",
+              "valide": true,
+              "detail": "Exces: 38 km/h"
+            },
+            {
+              "test": "delai",
+              "valide": true,
+              "detail": "9 jours / 30 jours max (QC) — dans les delais"
+            }
+          ],
+          "score_fiabilite": 100
+        }
+      },
+      "routing": {
+        "status": "OK",
+        "data": {
+          "juridiction": "QC",
+          "team": "team_qc",
+          "apis": [
+            "Mindee OCR",
+            "Stripe",
+            "Twilio",
+            "SendGrid",
+            "Docassemble",
+            "CanLII QC",
+            "SOQUIJ",
+            "Lois federales Canada"
+          ],
+          "agents_actifs": [
+            "OCR Master",
+            "Classificateur",
+            "Validateur",
+            "Routing",
+            "Rapport Client",
+            "Rapport Avocat",
+            "Notification",
+            "Superviseur",
+            "Analyse CSR",
+            "Jurisprudence CanLII-QC",
+            "Strategie Cour municipale",
+            "Procedure art.160",
+            "Calcul SAAQ",
+            "Audit QC"
+          ],
+          "loi_principale": "Code de la securite routiere (C-24.2)",
+          "bases_jurisprudence": [
+            "CanLII QC",
+            "SOQUIJ",
+            "LegisQuebec",
+            "FTS5",
+            "ChromaDB"
+          ],
+          "priorite": "normale",
+          "tokens_estimes": 1000000
+        }
+      }
+    },
+    "analyse": {
+      "lois": {
+        "status": "OK",
+        "nb": 5
+      },
+      "precedents": {
+        "status": "OK",
+        "nb": 0
+      },
+      "analyste": {
+        "status": "OK"
+      },
+      "verificateur": {
+        "status": "OK"
+      },
+      "procedure": {
+        "status": "OK"
+      },
+      "points": {
+        "status": "OK"
+      }
+    },
+    "audit": {
+      "cross_verification": {
+        "score_verification": 20,
+        "concordance": true,
+        "score_ajuste": 20,
+        "problemes_detectes": [],
+        "confirmation_arguments": true,
+        "recommandation_verifiee": "payer",
+        "note": "Score réaliste pour excès de vitesse avec défenses techniques génériques. Arguments valides mais peu probants sans preuve d'irrégularité. Recommandation cohérente avec faible probabilité de succès.",
+        "ecart": 0,
+        "fiabilite": "haute"
+      }
+    },
+    "livraison": {
+      "rapport_client": {
+        "resume": "Vous avez été accusé d'un excès de vitesse sur l'autoroute 15 à Laval, avec une amende de 368$ et 3 points d'inaptitude. Notre analyse suggère un faible taux de succès pour contester cette infraction.",
+        "verdict": "Nous vous recommandons de payer l'amende.",
+        "prochaines_etapes": [
+          "Vérifier le constat d'infraction pour des erreurs qui pourraient constituer un motif de contestation.",
+          "Plaider non coupable dans les 30 jours en envoyant le formulaire de plaidoyer au greffe de la Cour municipale de Laval ou en vous présentant en personne.",
+          "Préparer les arguments de contestation, y compris la demande de preuve de la calibration récente du cinémomètre laser et la vérification de l'identification correcte du véhicule et de la plaque sur la photo/lecture radar."
+        ],
+        "attention": "Assurez-vous de respecter le délai de 30 jours pour plaider non coupable.",
+        "economie": "En payant l'amende, vous évitez une augmentation potentielle de 20% de votre assurance automobile, soit 180$ par an pendant 3 ans, pour un total de 1015$."
+      },
+      "rapport_avocat": {
+        "numero_dossier": "T911-0001",
+        "resume_technique": "Le présent dossier concerne une infraction d'excès de vitesse commise par un conducteur sur l'autoroute 15 à Laval, QC, le 1er février 2026. L'infraction a été constatée à l'aide d'un cinémomètre laser, et le conducteur a été sanctionné d'une amende de 368$ et de 3 points d'inaptitude.",
+        "fondement_legal": "Art. 299 CSR, Art. 1 (QC), Art. 4 (QC), Art. 328 (QC), Art. 209 (QC), Art. 251 (QC)",
+        "jurisprudence_pertinente": "Aucun précédent pertinent trouvé dans la base de données.",
+        "moyens_de_defense": [
+          "Contester la validité de l'appareil de mesure de vitesse (Art. 251 CSR)",
+          "Contester la validité de la suspension du permis (Art. 328 CSR)"
+        ],
+        "faiblesses_dossier": [
+          "Absence de précédent jurisprudentiel",
+          "Amende et points d'inaptitude conformes aux barèmes"
+        ],
+        "strategie_recommandee": "Contester la validité de l'appareil de mesure de vitesse et demander une réduction de l'amende et des points d'inaptitude en cas de condamnation.",
+        "procedure_a_suivre": [
+          "Analyser les données de l'appareil de mesure de vitesse",
+          "Préparer une requête en contestation de l'infraction",
+          "Assister à l'audience de contestation"
+        ],
+        "documents_a_preparer": [
+          "Requête en contestation de l'infraction",
+          "Preuve de la validité de l'appareil de mesure de vitesse"
+        ],
+        "estimation_honoraires": "Honoraires moyens pour une contestation d'infraction routière",
+        "note_confidentielle": "Le dossier présente des faiblesses en raison de l'absence de précédent jurisprudentiel et de la conformité de l'amende et des points d'inaptitude aux barèmes. Il est recommandé de contester la validité de l'appareil de mesure de vitesse pour tenter de réduire l'amende et les points d'inaptitude."
+      },
+      "notification": {
+        "dossier_id": "5BFFF3A8",
+        "sms": {
+          "sent": false,
+          "status": "Pas de numero"
+        },
+        "email": {
+          "sent": false,
+          "status": "Erreur SMTP: (535, b'5.7.1 Authentication failed')"
+        }
+      },
+      "supervision": {
+        "score_qualite": 92,
+        "decision": "APPROUVE — Dossier pret pour livraison",
+        "agents_verifies": "13/15",
+        "checks": [
+          {
+            "agent": "OCR Master",
+            "status": "SKIP",
+            "note": "Pas de photo fournie"
+          },
+          {
+            "agent": "Classificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Validateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Routing",
+            "status": "OK"
+          },
+          {
+            "agent": "Lecteur",
+            "status": "FAIL"
+          },
+          {
+            "agent": "Lois",
+            "status": "OK"
+          },
+          {
+            "agent": "Precedents",
+            "status": "OK"
+          },
+          {
+            "agent": "Analyste",
+            "status": "OK"
+          },
+          {
+            "agent": "Verificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Procedure",
+            "status": "OK"
+          },
+          {
+            "agent": "Points",
+            "status": "OK"
+          },
+          {
+            "agent": "CrossVerification",
+            "status": "OK",
+            "note": "Fiabilite: haute"
+          },
+          {
+            "agent": "Rapport Client",
+            "status": "OK"
+          },
+          {
+            "agent": "Rapport Avocat",
+            "status": "OK"
+          },
+          {
+            "agent": "Notification",
+            "status": "OK"
+          }
+        ],
+        "timestamp": "2026-02-10 00:57:32"
+      }
+    }
+  },
+  "erreurs": [],
+  "score_final": 20,
+  "confiance": 80,
+  "recommandation": "payer",
+  "juridiction": "QC",
+  "temps_total": 46.35,
+  "nb_erreurs": 0,
+  "supervision": {
+    "score_qualite": 92,
+    "decision": "APPROUVE — Dossier pret pour livraison",
+    "agents_verifies": "13/15",
+    "checks": [
+      {
+        "agent": "OCR Master",
+        "status": "SKIP",
+        "note": "Pas de photo fournie"
+      },
+      {
+        "agent": "Classificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Validateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Routing",
+        "status": "OK"
+      },
+      {
+        "agent": "Lecteur",
+        "status": "FAIL"
+      },
+      {
+        "agent": "Lois",
+        "status": "OK"
+      },
+      {
+        "agent": "Precedents",
+        "status": "OK"
+      },
+      {
+        "agent": "Analyste",
+        "status": "OK"
+      },
+      {
+        "agent": "Verificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Procedure",
+        "status": "OK"
+      },
+      {
+        "agent": "Points",
+        "status": "OK"
+      },
+      {
+        "agent": "CrossVerification",
+        "status": "OK",
+        "note": "Fiabilite: haute"
+      },
+      {
+        "agent": "Rapport Client",
+        "status": "OK"
+      },
+      {
+        "agent": "Rapport Avocat",
+        "status": "OK"
+      },
+      {
+        "agent": "Notification",
+        "status": "OK"
+      }
+    ],
+    "timestamp": "2026-02-10 00:57:32"
+  }
+}

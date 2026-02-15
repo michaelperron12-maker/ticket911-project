@@ -14,7 +14,7 @@ import json
 import os
 import time
 
-sys.path.insert(0, "/var/www/ticket911")
+sys.path.insert(0, "/var/www/aiticketinfo")
 
 # ─── TICKET DE TEST (Quebec — exces de vitesse) ─────
 TICKET_TEST_QC = {
@@ -120,7 +120,7 @@ def main():
             print(f"    [X] {err}")
 
     # Sauver le rapport JSON complet
-    rapport_path = f"/var/www/ticket911/data/test-{rapport.get('dossier_uuid', 'test')}.json"
+    rapport_path = f"/var/www/aiticketinfo/data/test-{rapport.get('dossier_uuid', 'test')}.json"
     try:
         os.makedirs(os.path.dirname(rapport_path), exist_ok=True)
         with open(rapport_path, "w", encoding="utf-8") as f:

@@ -1,0 +1,274 @@
+{
+  "dossier_uuid": "135AFFA1",
+  "phases": {
+    "intake": {
+      "ocr": {
+        "status": "SKIP",
+        "note": "Pas d'image"
+      },
+      "lecteur": {
+        "status": "OK"
+      },
+      "classificateur": {
+        "status": "OK",
+        "data": {
+          "juridiction": "QC",
+          "type_infraction": "vitesse",
+          "gravite": "moyen",
+          "points": 3,
+          "points_max": 15,
+          "risque_suspension": false,
+          "code_applicable": "Code de la securite routiere (C-24.2)",
+          "tribunal": "Cour municipale du Quebec"
+        }
+      },
+      "validateur": {
+        "status": "FAIL",
+        "error": "AgentValidateur.valider() missing 1 required positional argument: 'classification'"
+      },
+      "routing": {
+        "status": "FAIL",
+        "error": "AgentRouting.router() missing 1 required positional argument: 'classification'"
+      }
+    },
+    "analyse": {
+      "lois": {
+        "status": "OK",
+        "nb": 5
+      },
+      "precedents": {
+        "status": "OK",
+        "nb": 0
+      },
+      "analyste": {
+        "status": "OK"
+      },
+      "verificateur": {
+        "status": "OK"
+      },
+      "procedure": {
+        "status": "OK"
+      },
+      "points": {
+        "status": "OK"
+      }
+    },
+    "audit": {
+      "cross_verification": {
+        "concordance": true,
+        "score_verification": 50,
+        "note": "Cross-verification non disponible"
+      }
+    },
+    "livraison": {
+      "rapport_client": {
+        "resume": "Votre contravention pour Excès de vitesse a ete analysee. Score: 20%.",
+        "verdict": "Recommandation: payer",
+        "prochaines_etapes": [
+          "1. Verifier le constat d'infraction (erreurs = motif de contestation)",
+          "2. Plaider non coupable dans les 30 jours (art. 160 CSR)",
+          "   - Par courrier: envoyer le formulaire de plaidoyer au greffe"
+        ],
+        "attention": "Delai de contestation: 30 jours",
+        "economie": "Economie potentielle: $1015"
+      },
+      "rapport_avocat": {
+        "numero_dossier": "T911-2026-02-01-15",
+        "resume_technique": "Contravention pour infraction à l'article 299 du Code de la sécurité routière (CSR) pour excès de vitesse, constatée par cinémomètre laser sur l'autoroute 15 à Laval. L'amende de 368$ est accompagnée d'une inscription de 3 points d'inaptitude au dossier du contrevenant. La preuve repose sur la lecture électronique d'un appareil de contrôle de vitesse de type laser, soumis aux exigences de l'article 251 CSR concernant les dispositifs interdits.",
+        "fondement_legal": "Article 299 CSR (vitesse excessive), Article 251 CSR (interdiction des détecteurs de cinémomètre et protection du fonctionnement des systèmes de contrôle), Article 328 CSR (suspension administrative du permis pour excès de vitesse important). L'article 1 CSR établit le champ d'application du code sur les chemins publics, et l'article 4 CSR fournit les définitions interprétatives. L'article 209 CSR, bien que traitant de la saisie de véhicule, est cité pour son référencement aux détecteurs de cinémomètre, mais sa pertinence directe est limitée dans ce dossier.",
+        "jurisprudence_pertinente": "Aucune jurisprudence spécifique n'a été identifiée dans la base fournie. En droit routier québécois, la preuve par cinémomètre est généralement admise sous réserve de la démonstration de son bon fonctionnement et de son utilisation conforme par un agent qualifié (voir par analogie les principes énoncés dans des arrêts concernant les radars, ex: Ville de Montréal c. Bérubé). L'absence de jurisprudence ciblée sur le laser spécifiquement dans ce dossier constitue un angle à explorer.",
+        "moyens_de_defense": [
+          "Vérification du certificat de calibration du cinémomètre laser conformément aux normes du ministère des Transports et exigence de sa production (défaut possible de preuve).",
+          "Contestation de la formation et de la qualification de l'agent ayant procédé au contrôle (art. 328 CSR exige une constatation par un 'agent de la paix').",
+          "Recherche d'irrégularités procédurales dans la rédaction du procès-verbal (délai, mentions obligatoires).",
+          "Exception fondée sur un vice de procédure si la preuve de l'étalonnage de l'appareil n'est pas fournie en divulgation préalable."
+        ],
+        "faiblesses_dossier": [
+          "Absence de validation des données techniques (calibration, conditions atmosphériques lors du contrôle).",
+          "Score d'analyse AI faible (20%) suggérant des lacunes potentielles dans la documentation ou des incohérences.",
+          "Aucune jurisprudence directement applicable au mode opératoire laser n'a été relevée, laissant place à l'argumentation sur la fiabilité.",
+          "Le lieu 'Autoroute 15, Laval' est vague; absence de précision sur le point kilométrique ou la direction, pouvant nuire à la préparation de la défense."
+        ],
+        "strategie_recommandee": "Adopter une stratégie de défense technique axée sur l'exigence de preuve scientifique complète. Exiger la divulgation complète du manuel d'utilisation de l'appareil, des certificats de calibration avant/après, et des relevés d'entretien. Croiser l'analyse avec les conditions météorologiques du jour pour contester la fiabilité de la lecture. Préparer une requête en nullité de la preuve en cas de défaut de divulgation.",
+        "procedure_a_suivre": [
+          "1. Demande de divulgation complète auprès du poursuivant (certificats de calibration, manuel de l'appareil, preuve de formation de l'agent, rapport d'entretien).",
+          "2. Analyse technique des documents divulgués par un expert-conseil en métrologie.",
+          "3. Dépôt d'un avis d'intention de contester la preuve technique si les documents sont lacunaires.",
+          "4. Préparation d'un mémoire technique mettant en cause la fiabilité de la preuve électronique au vu des faiblesses identifiées.",
+          "5. Négociation en vue d'une réduction des points ou du montant si la preuve est fragile, sinon plaider la nullité."
+        ],
+        "documents_a_preparer": [
+          "Requête en divulgation complète et spécifique.",
+          "Avis d'intention de contester la preuve technique.",
+          "Consultation d'un expert en métrologie ou en techniques de contrôle laser (rapport d'expertise).",
+          "Mémoire technique détaillant les vices de preuve.",
+          "Déclaration préparatoire du client sur les circonstances du déplacement."
+        ],
+        "estimation_honoraires": "Catégorie moyenne à élevée (5 à 10 heures de travail technique, plus expertise si nécessaire). Honoraires estimés entre 2 500$ et 5 000$ selon la complexité développée et le recours à un expert.",
+        "note_confidentielle": "Le dossier présente des faiblesses techniques exploitables, notamment l'absence de validation des données et le faible score d'analyse. Le client doit être informé que la stratégie repose sur une bataille technique coûteuse et incertaine. Une négociation préalable avec le poursuivant pourrait être envisagée pour éviter les frais d'expertise. Surveiller la jurisprudence récente sur les cinémomètres laser au Québec."
+      },
+      "notification": {
+        "dossier_id": "135AFFA1",
+        "sms": {
+          "sent": false,
+          "status": "Pas de numero"
+        },
+        "email": {
+          "sent": false,
+          "status": "Erreur SMTP: (535, b'5.7.1 Authentication failed')"
+        }
+      },
+      "supervision": {
+        "score_qualite": 92,
+        "decision": "APPROUVE — Dossier pret pour livraison",
+        "agents_verifies": "13/15",
+        "checks": [
+          {
+            "agent": "OCR Master",
+            "status": "SKIP",
+            "note": "Pas de photo fournie"
+          },
+          {
+            "agent": "Classificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Validateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Routing",
+            "status": "OK"
+          },
+          {
+            "agent": "Lecteur",
+            "status": "FAIL"
+          },
+          {
+            "agent": "Lois",
+            "status": "OK"
+          },
+          {
+            "agent": "Precedents",
+            "status": "OK"
+          },
+          {
+            "agent": "Analyste",
+            "status": "OK"
+          },
+          {
+            "agent": "Verificateur",
+            "status": "OK"
+          },
+          {
+            "agent": "Procedure",
+            "status": "OK"
+          },
+          {
+            "agent": "Points",
+            "status": "OK"
+          },
+          {
+            "agent": "CrossVerification",
+            "status": "OK",
+            "note": "Fiabilite: ?"
+          },
+          {
+            "agent": "Rapport Client",
+            "status": "OK"
+          },
+          {
+            "agent": "Rapport Avocat",
+            "status": "OK"
+          },
+          {
+            "agent": "Notification",
+            "status": "OK"
+          }
+        ],
+        "timestamp": "2026-02-09 23:41:43"
+      }
+    }
+  },
+  "erreurs": [
+    "Validateur: AgentValidateur.valider() missing 1 required positional argument: 'classification'",
+    "Routing: AgentRouting.router() missing 1 required positional argument: 'classification'",
+    "SQLite save: table analyses_completes has no column named dossier_uuid"
+  ],
+  "score_final": 20,
+  "confiance": 80,
+  "recommandation": "payer",
+  "juridiction": "QC",
+  "temps_total": 58.84,
+  "nb_erreurs": 2,
+  "supervision": {
+    "score_qualite": 92,
+    "decision": "APPROUVE — Dossier pret pour livraison",
+    "agents_verifies": "13/15",
+    "checks": [
+      {
+        "agent": "OCR Master",
+        "status": "SKIP",
+        "note": "Pas de photo fournie"
+      },
+      {
+        "agent": "Classificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Validateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Routing",
+        "status": "OK"
+      },
+      {
+        "agent": "Lecteur",
+        "status": "FAIL"
+      },
+      {
+        "agent": "Lois",
+        "status": "OK"
+      },
+      {
+        "agent": "Precedents",
+        "status": "OK"
+      },
+      {
+        "agent": "Analyste",
+        "status": "OK"
+      },
+      {
+        "agent": "Verificateur",
+        "status": "OK"
+      },
+      {
+        "agent": "Procedure",
+        "status": "OK"
+      },
+      {
+        "agent": "Points",
+        "status": "OK"
+      },
+      {
+        "agent": "CrossVerification",
+        "status": "OK",
+        "note": "Fiabilite: ?"
+      },
+      {
+        "agent": "Rapport Client",
+        "status": "OK"
+      },
+      {
+        "agent": "Rapport Avocat",
+        "status": "OK"
+      },
+      {
+        "agent": "Notification",
+        "status": "OK"
+      }
+    ],
+    "timestamp": "2026-02-09 23:41:43"
+  }
+}

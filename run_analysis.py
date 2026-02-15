@@ -8,7 +8,7 @@ import sys
 import os
 
 # Ajouter le dossier parent au path
-sys.path.insert(0, "/var/www/ticket911")
+sys.path.insert(0, "/var/www/aiticketinfo")
 
 from agents.orchestrateur import Orchestrateur
 

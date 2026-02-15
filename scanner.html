@@ -3,286 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket911 — Analyse AI de contraventions | Quebec & Ontario</title>
-    <meta name="description" content="Analysez votre contravention en 45 secondes avec 26 agents IA. Jurisprudence, lois, arguments de defense — Quebec et Ontario.">
+    <title>AITicketInfo — Analyse AI de contraventions | Quebec &amp; Ontario</title>
+    <meta name="description" content="Analysez votre contravention en 45 secondes avec 26 agents IA. Jurisprudence, lois, arguments de defense — Quebec et Ontario. Outil d'information juridique.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #060a18;
-            --bg-secondary: #0a1128;
-            --bg-card: rgba(255,255,255,0.03);
-            --border: rgba(255,255,255,0.07);
-            --navy: #1e3a5f;
-            --red: #e63946;
-            --red-dark: #c62828;
-            --gold: #d4a843;
-            --green: #22c55e;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --accent: #2563eb;
+            --accent-dark: #1d4ed8;
+            --accent-light: #dbeafe;
+            --green: #16a34a;
+            --green-light: #dcfce7;
+            --red: #dc2626;
+            --red-light: #fee2e2;
+            --orange: #ea580c;
+            --orange-light: #fff7ed;
             --purple: #7c3aed;
-            --cyan: #06b6d4;
-            --text: #e2e8f0;
-            --text-dim: rgba(255,255,255,0.45);
-            --text-muted: rgba(255,255,255,0.3);
-            --glow-red: rgba(230,57,70,0.3);
-            --glow-gold: rgba(212,168,67,0.3);
-            --glow-green: rgba(34,197,94,0.3);
-            --glow-purple: rgba(124,58,237,0.25);
-            --glow-cyan: rgba(6,182,212,0.25);
+            --cyan: #0891b2;
+            --text: #1a1a1a;
+            --text-dim: #64748b;
+            --text-muted: #94a3b8;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         html { scroll-behavior:smooth; }
         body {
-            min-height:100vh; font-family:'Inter',system-ui,sans-serif; color:var(--text);
-            background: var(--bg-primary); overflow-x:hidden;
+            min-height:100vh; font-family:'Inter',system-ui,sans-serif;
+            color:var(--text); background:var(--bg-primary); overflow-x:hidden;
         }
-        a { color:var(--gold); text-decoration:none; }
+        a { color:var(--accent); text-decoration:none; }
         a:hover { text-decoration:underline; }
 
-        /* ═══ PARTICLE BACKGROUND ═══ */
-        #particles-bg {
-            position:fixed; inset:0; z-index:0; pointer-events:none;
-            background: radial-gradient(ellipse at 20% 50%, rgba(30,58,95,0.15) 0%, transparent 60%),
-                        radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
-                        radial-gradient(ellipse at 50% 90%, rgba(230,57,70,0.06) 0%, transparent 50%);
-        }
-        .particle {
-            position:absolute; border-radius:50%; pointer-events:none;
-            animation: floatParticle linear infinite;
-        }
-        @keyframes floatParticle {
-            0% { transform:translateY(0) translateX(0) scale(1); opacity:0; }
-            10% { opacity:1; } 90% { opacity:1; }
-            100% { transform:translateY(-100vh) translateX(50px) scale(0.3); opacity:0; }
-        }
-
-        /* ═══ LAYOUT ═══ */
-        .container { max-width:1000px; margin:0 auto; padding:0 1.5rem; position:relative; z-index:1; }
+        /* === LAYOUT === */
+        .container { max-width:960px; margin:0 auto; padding:0 1.5rem; }
         .section { padding:5rem 0; }
         .section-title {
             font-size:2rem; font-weight:900; text-align:center; margin-bottom:.6rem;
-            background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+            color:var(--text);
+        }
+        .section-title .highlight {
+            background:linear-gradient(135deg, var(--accent), var(--purple));
             -webkit-background-clip:text; -webkit-text-fill-color:transparent;
         }
-        .section-sub { text-align:center; color:var(--text-dim); font-size:1rem; margin-bottom:3rem; max-width:600px; margin-left:auto; margin-right:auto; line-height:1.6; }
+        .section-sub {
+            text-align:center; color:var(--text-dim); font-size:1rem;
+            margin-bottom:3rem; max-width:600px; margin-left:auto; margin-right:auto; line-height:1.6;
+        }
         .divider {
             width:60px; height:3px; margin:0 auto 3rem;
-            background: linear-gradient(90deg, var(--red), var(--gold));
+            background:linear-gradient(90deg, var(--accent), var(--purple));
             border-radius:2px;
         }
 
-        /* ═══ NAVBAR ═══ */
+        /* === NAVBAR === */
         .navbar {
             position:fixed; top:0; left:0; right:0; z-index:100;
             padding:1rem 0;
-            background: rgba(6,10,24,0.85);
-            backdrop-filter: blur(16px);
+            background:rgba(255,255,255,0.92);
+            backdrop-filter:blur(12px);
             border-bottom:1px solid var(--border);
-            transition: background .3s;
+            transition:box-shadow .3s;
         }
+        .navbar.scrolled { box-shadow:var(--shadow-sm); }
         .navbar .container { display:flex; justify-content:space-between; align-items:center; }
         .nav-logo {
-            font-size:1.3rem; font-weight:900; letter-spacing:2px;
-            background: linear-gradient(135deg, var(--red), var(--gold));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            font-size:1.2rem; font-weight:900; letter-spacing:1px;
+            color:var(--accent);
         }
         .nav-links { display:flex; gap:1.5rem; align-items:center; }
         .nav-links a { color:var(--text-dim); font-size:.82rem; font-weight:600; text-decoration:none; transition:color .2s; }
-        .nav-links a:hover { color:#fff; text-decoration:none; }
+        .nav-links a:hover { color:var(--text); text-decoration:none; }
         .nav-cta {
             padding:8px 20px; border-radius:10px; font-size:.82rem; font-weight:700;
-            background: linear-gradient(135deg, var(--red), var(--red-dark));
-            color:#fff !important; border:none; cursor:pointer; transition:all .3s;
+            background:var(--accent); color:#fff !important; border:none; cursor:pointer; transition:all .3s;
         }
-        .nav-cta:hover { transform:translateY(-1px); box-shadow:0 6px 20px var(--glow-red); }
+        .nav-cta:hover { background:var(--accent-dark); transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
 
-        /* ═══ HERO ═══ */
+        /* === HERO === */
         .hero {
             min-height:100vh; display:flex; align-items:center; justify-content:center;
-            text-align:center; padding:8rem 1.5rem 4rem; position:relative;
+            text-align:center; padding:8rem 1.5rem 4rem;
+            background:linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
         .hero-content { max-width:700px; }
         .hero-badge {
             display:inline-flex; align-items:center; gap:.5rem;
             padding:6px 18px; border-radius:20px; font-size:.75rem; font-weight:600;
-            background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); color:var(--green);
+            background:var(--green-light); border:1px solid rgba(22,163,74,0.2); color:var(--green);
             margin-bottom:1.5rem;
         }
         .hero-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
         .hero h1 {
-            font-size:3.5rem; font-weight:900; line-height:1.1; margin-bottom:1.2rem;
-            letter-spacing:-1px;
+            font-size:3.2rem; font-weight:900; line-height:1.1; margin-bottom:1.2rem;
+            letter-spacing:-1px; color:var(--text);
         }
         .hero h1 .highlight {
-            background: linear-gradient(135deg, var(--red) 0%, var(--gold) 100%);
+            background:linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
             -webkit-background-clip:text; -webkit-text-fill-color:transparent;
         }
-        .hero-sub { font-size:1.15rem; color:var(--text-dim); line-height:1.7; margin-bottom:2rem; max-width:550px; margin-left:auto; margin-right:auto; }
+        .hero-sub { font-size:1.1rem; color:var(--text-dim); line-height:1.7; margin-bottom:2rem; max-width:550px; margin-left:auto; margin-right:auto; }
         .hero-cta-row { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-bottom:2.5rem; }
         .btn-primary {
             padding:16px 36px; border:none; border-radius:14px; cursor:pointer;
             font-size:1.05rem; font-weight:800; font-family:'Inter',sans-serif;
-            color:#fff; transition:all .3s; position:relative; overflow:hidden;
-            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 50%, var(--red) 100%);
-            background-size:200% 200%; animation:btnGradient 3s ease infinite;
+            color:#fff; transition:all .3s;
+            background:var(--accent);
         }
-        @keyframes btnGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        .btn-primary:hover { transform:translateY(-3px); box-shadow:0 12px 40px var(--glow-red); text-decoration:none; }
+        .btn-primary:hover { background:var(--accent-dark); transform:translateY(-3px); box-shadow:0 8px 25px rgba(37,99,235,0.3); text-decoration:none; }
         .btn-outline {
             padding:16px 36px; border:1px solid var(--border); border-radius:14px;
-            background:rgba(255,255,255,0.04); color:var(--text); font-size:1.05rem;
+            background:#fff; color:var(--text); font-size:1.05rem;
             font-weight:700; cursor:pointer; transition:all .3s; font-family:'Inter',sans-serif;
         }
-        .btn-outline:hover { border-color:var(--gold); background:rgba(212,168,67,0.06); transform:translateY(-2px); text-decoration:none; }
+        .btn-outline:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-2px); box-shadow:var(--shadow-md); text-decoration:none; }
 
         .hero-stats { display:flex; gap:3rem; justify-content:center; flex-wrap:wrap; }
         .hero-stat { text-align:center; }
-        .hero-stat-num { font-size:1.8rem; font-weight:900; color:#fff; }
-        .hero-stat-num .accent { color:var(--gold); }
+        .hero-stat-num { font-size:1.8rem; font-weight:900; color:var(--text); }
+        .hero-stat-num .accent { color:var(--accent); }
         .hero-stat-label { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-top:.2rem; }
 
-        /* ═══ HOW IT WORKS ═══ */
+        /* === HOW IT WORKS === */
         .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
         .step-card {
             background:var(--bg-card); border:1px solid var(--border);
             border-radius:20px; padding:2rem 1.5rem; text-align:center;
-            backdrop-filter:blur(12px); transition:all .3s; position:relative; overflow:hidden;
+            transition:all .3s; position:relative; overflow:hidden;
         }
         .step-card::before {
             content:''; position:absolute; top:0; left:0; right:0; height:3px;
-            background: linear-gradient(90deg, var(--red), var(--gold));
+            background:linear-gradient(90deg, var(--accent), var(--purple));
             opacity:0; transition:opacity .3s;
         }
-        .step-card:hover { border-color:rgba(255,255,255,0.12); box-shadow:0 8px 32px rgba(0,0,0,0.3); transform:translateY(-4px); }
+        .step-card:hover { border-color:var(--border-hover); box-shadow:var(--shadow-lg); transform:translateY(-4px); }
         .step-card:hover::before { opacity:1; }
         .step-num {
             width:44px; height:44px; border-radius:12px; margin:0 auto 1rem;
             display:flex; align-items:center; justify-content:center;
             font-size:1.1rem; font-weight:900;
-            background: linear-gradient(135deg, var(--red), var(--gold));
-            color:#fff;
+            background:var(--accent); color:#fff;
         }
-        .step-icon { font-size:2.5rem; margin-bottom:.8rem; display:block; filter:drop-shadow(0 0 10px var(--glow-cyan)); }
-        .step-card h3 { font-size:1rem; font-weight:800; margin-bottom:.5rem; }
+        .step-icon { font-size:2.5rem; margin-bottom:.8rem; display:block; }
+        .step-card h3 { font-size:1rem; font-weight:800; margin-bottom:.5rem; color:var(--text); }
         .step-card p { font-size:.82rem; color:var(--text-dim); line-height:1.6; }
 
-        /* ═══ FEATURES ═══ */
+        /* === FEATURES === */
         .features-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem; }
         .feature-card {
             background:var(--bg-card); border:1px solid var(--border);
             border-radius:16px; padding:1.5rem; display:flex; gap:1rem; align-items:flex-start;
-            backdrop-filter:blur(12px); transition:all .3s;
+            transition:all .3s;
         }
-        .feature-card:hover { border-color:rgba(255,255,255,0.12); box-shadow:0 6px 24px rgba(0,0,0,0.2); }
+        .feature-card:hover { border-color:var(--border-hover); box-shadow:var(--shadow-md); }
         .feature-icon {
             flex-shrink:0; width:48px; height:48px; border-radius:12px;
             display:flex; align-items:center; justify-content:center; font-size:1.4rem;
-            background:rgba(255,255,255,0.04); border:1px solid var(--border);
+            background:var(--accent-light); border:1px solid rgba(37,99,235,0.1);
         }
-        .feature-card h3 { font-size:.9rem; font-weight:700; margin-bottom:.3rem; }
+        .feature-card h3 { font-size:.9rem; font-weight:700; margin-bottom:.3rem; color:var(--text); }
         .feature-card p { font-size:.78rem; color:var(--text-dim); line-height:1.5; }
 
-        /* ═══ SCANNER SECTION ═══ */
+        /* === SCANNER SECTION === */
         #scanner { padding-top:2rem; }
 
-        /* ═══ GLASS CARDS ═══ */
+        /* === CARDS === */
         .card {
             background:var(--bg-card); border:1px solid var(--border);
             border-radius:20px; padding:2rem; margin-bottom:1.5rem;
-            backdrop-filter:blur(12px); transition:border-color .3s, box-shadow .3s;
+            box-shadow:var(--shadow-sm); transition:border-color .3s, box-shadow .3s;
         }
-        .card:hover { border-color:rgba(255,255,255,0.12); box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+        .card:hover { border-color:var(--border-hover); box-shadow:var(--shadow-md); }
         .card h2 {
             font-size:1.1rem; font-weight:700; margin-bottom:1.2rem;
-            display:flex; align-items:center; gap:.5rem;
+            display:flex; align-items:center; gap:.5rem; color:var(--text);
         }
         .card h2 .step-num-sm {
             width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
             font-size:.75rem; font-weight:800;
-            background: linear-gradient(135deg, var(--red), var(--gold));
-            color:#fff;
+            background:var(--accent); color:#fff;
         }
 
-        /* ═══ TYPE SELECTOR ═══ */
-        .type-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; margin-bottom:1rem; }
-        .type-btn {
-            padding:14px 6px; border:1px solid var(--border); border-radius:14px;
-            background:var(--bg-card); color:var(--text-dim); text-align:center;
-            cursor:pointer; transition:all .25s; font-size:.72rem; font-weight:500;
-            position:relative; overflow:hidden;
+        /* === SCAN WIZARD STEPS === */
+        .scan-steps { display:flex; gap:6px; margin-bottom:2rem; }
+        .scan-step-dot {
+            flex:1; height:5px; border-radius:3px;
+            background:var(--border); transition:background .4s;
         }
-        .type-btn::before {
-            content:''; position:absolute; inset:0; opacity:0;
-            background: radial-gradient(circle at center, var(--glow-red), transparent 70%);
-            transition:opacity .3s;
+        .scan-step-dot.active { background:var(--accent); }
+        .scan-step-dot.done { background:var(--green); }
+        .scan-step-label {
+            text-align:center; font-size:.85rem; font-weight:700;
+            color:var(--text-dim); margin-bottom:1.5rem;
         }
-        .type-btn:hover::before { opacity:.5; }
-        .type-btn:hover { border-color:var(--gold); color:#fff; transform:translateY(-2px); }
-        .type-btn.selected {
-            border-color:var(--red); color:#fff;
-            background: linear-gradient(135deg, rgba(230,57,70,0.12), rgba(212,168,67,0.08));
-            box-shadow:0 0 20px var(--glow-red);
-        }
-        .type-btn.selected::before { opacity:.6; }
-        .type-icon { font-size:1.6rem; display:block; margin-bottom:4px; position:relative; }
+        .scan-step-label span { color:var(--accent); }
 
-        /* ═══ FORM ═══ */
-        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-        .form-group { display:flex; flex-direction:column; gap:.3rem; }
-        .form-group.full { grid-column:1/-1; }
-        .form-group.hidden { display:none; }
+        .scan-panel { display:none; }
+        .scan-panel.active { display:block; animation:fadeInUp .4s ease; }
+
+        /* === CAMERA ZONE === */
+        .camera-zone {
+            border:2px dashed rgba(37,99,235,0.3); border-radius:20px; padding:2.5rem 1.5rem;
+            text-align:center; transition:all .3s; background:rgba(37,99,235,0.02);
+        }
+        .camera-zone:hover { border-color:var(--accent); background:rgba(37,99,235,0.04); }
+        .camera-icon { font-size:4rem; display:block; margin-bottom:.8rem; }
+        .camera-title { font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:.4rem; }
+        .camera-sub { font-size:.85rem; color:var(--text-dim); margin-bottom:1.5rem; }
+
+        .btn-camera {
+            display:block; width:100%; padding:18px; border:none; border-radius:16px;
+            font-size:1.1rem; font-weight:800; font-family:'Inter',sans-serif;
+            color:#fff; cursor:pointer; transition:all .3s; position:relative; overflow:hidden;
+            background:var(--accent); margin-bottom:.8rem; min-height:56px;
+        }
+        .btn-camera:hover { background:var(--accent-dark); transform:translateY(-2px); box-shadow:0 8px 25px rgba(37,99,235,0.3); }
+        .btn-camera:active { transform:scale(0.98); }
+        .btn-camera input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+        .btn-gallery {
+            display:block; width:100%; padding:14px; border:1px solid var(--border);
+            border-radius:14px; background:#fff; color:var(--text-dim);
+            font-size:.9rem; font-weight:600; font-family:'Inter',sans-serif;
+            cursor:pointer; transition:all .3s; position:relative; overflow:hidden;
+            min-height:48px;
+        }
+        .btn-gallery:hover { border-color:var(--accent); color:var(--accent); }
+        .btn-gallery input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+        /* === PHOTO TIPS === */
+        .photo-tips {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem;
+            margin-top:1.5rem;
+        }
+        .photo-tip {
+            text-align:center; padding:.8rem .5rem; border-radius:12px;
+            background:var(--bg-secondary); border:1px solid var(--border);
+        }
+        .photo-tip-icon { font-size:1.5rem; display:block; margin-bottom:.3rem; }
+        .photo-tip-text { font-size:.68rem; font-weight:600; color:var(--text-dim); line-height:1.3; }
+
+        /* === PHOTO PREVIEW === */
+        .photo-preview-zone {
+            display:none; border-radius:16px; overflow:hidden;
+            border:2px solid var(--green); position:relative;
+            margin-bottom:1rem;
+        }
+        .photo-preview-zone.visible { display:block; animation:fadeInUp .4s ease; }
+        .photo-preview-zone img {
+            width:100%; max-height:400px; object-fit:contain;
+            background:var(--bg-secondary); display:block;
+        }
+        .photo-preview-badge {
+            position:absolute; top:12px; right:12px;
+            background:var(--green); color:#fff; padding:6px 14px;
+            border-radius:8px; font-size:.75rem; font-weight:700;
+        }
+        .btn-retake {
+            display:block; width:100%; padding:12px; margin-top:.5rem;
+            border:1px solid var(--border); border-radius:12px;
+            background:#fff; color:var(--text-dim);
+            font-size:.85rem; font-weight:600; cursor:pointer;
+            font-family:'Inter',sans-serif; transition:all .3s;
+        }
+        .btn-retake:hover { border-color:var(--red); color:var(--red); }
+
+        /* === PHOTO QUALITY FEEDBACK === */
+        .quality-feedback {
+            display:none; margin-top:1rem; padding:12px 16px;
+            border-radius:12px; font-size:.82rem; font-weight:600; line-height:1.5;
+        }
+        .quality-feedback.visible { display:flex; align-items:flex-start; gap:10px; animation:fadeInUp .3s ease; }
+        .quality-feedback.good { background:var(--green-light); border:1px solid rgba(22,163,74,0.2); color:var(--green); }
+        .quality-feedback.warning { background:var(--orange-light); border:1px solid rgba(234,88,12,0.2); color:var(--orange); }
+        .quality-feedback.bad { background:var(--red-light); border:1px solid rgba(220,38,38,0.2); color:var(--red); }
+        .quality-icon { font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+
+        /* === PHOTO GUIDE (do/don't) === */
+        .photo-guide {
+            display:grid; grid-template-columns:1fr 1fr; gap:.8rem;
+            margin-top:1.2rem; margin-bottom:.5rem;
+        }
+        .guide-card {
+            padding:12px; border-radius:12px; text-align:center;
+            border:1px solid var(--border);
+        }
+        .guide-card.guide-do { background:rgba(22,163,74,0.04); border-color:rgba(22,163,74,0.2); }
+        .guide-card.guide-dont { background:rgba(220,38,38,0.04); border-color:rgba(220,38,38,0.2); }
+        .guide-label { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+        .guide-do .guide-label { color:var(--green); }
+        .guide-dont .guide-label { color:var(--red); }
+        .guide-visual {
+            width:100%; aspect-ratio:4/3; border-radius:8px;
+            display:flex; align-items:center; justify-content:center;
+            margin-bottom:6px; position:relative; overflow:hidden;
+        }
+        .guide-do .guide-visual { background:rgba(22,163,74,0.06); border:2px solid rgba(22,163,74,0.12); }
+        .guide-dont .guide-visual { background:rgba(220,38,38,0.06); border:2px solid rgba(220,38,38,0.12); }
+        .guide-ticket-shape { width:70%; height:55%; border-radius:4px; position:relative; }
+        .guide-do .guide-ticket-shape { border:2px solid rgba(22,163,74,0.4); background:rgba(22,163,74,0.05); }
+        .guide-dont .guide-ticket-shape { border:2px solid rgba(220,38,38,0.3); background:rgba(220,38,38,0.05); transform:rotate(15deg) scale(1.3); }
+        .guide-ticket-lines { position:absolute; top:20%; left:12%; right:12%; }
+        .guide-ticket-lines span { display:block; height:2px; margin-bottom:4px; border-radius:1px; }
+        .guide-do .guide-ticket-lines span { background:rgba(22,163,74,0.2); }
+        .guide-dont .guide-ticket-lines span { background:rgba(220,38,38,0.15); }
+        .guide-ticket-lines span:nth-child(2) { width:60%; }
+        .guide-ticket-lines span:nth-child(3) { width:80%; }
+        .guide-desc { font-size:.68rem; color:var(--text-dim); line-height:1.4; }
+
+        /* === CONTACT FORM === */
         label { font-size:.75rem; color:var(--text-dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
-        input, select, textarea {
-            padding:11px 14px; border:1px solid var(--border); border-radius:12px;
-            background:rgba(255,255,255,0.04); color:#fff; font-size:.9rem;
+        .contact-fields { display:flex; flex-direction:column; gap:1rem; }
+        .contact-fields input {
+            width:100%; padding:14px 16px; border:1px solid var(--border); border-radius:14px;
+            background:#fff; color:var(--text); font-size:1rem;
             font-family:'Inter',sans-serif; outline:none; transition:all .25s;
         }
-        input:focus, select:focus, textarea:focus { border-color:var(--gold); box-shadow:0 0 16px var(--glow-gold); }
-        select { cursor:pointer; }
-        select option { background:#0f172a; }
-        textarea { resize:vertical; min-height:80px; }
+        .contact-fields input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+        .contact-fields input::placeholder { color:var(--text-muted); }
 
-        /* ═══ UPLOAD ═══ */
-        .upload-zone {
-            border:2px dashed rgba(255,255,255,0.1); border-radius:16px; padding:2rem;
-            text-align:center; cursor:pointer; transition:all .3s; position:relative;
-            background:rgba(255,255,255,0.02);
-        }
-        .upload-zone:hover { border-color:var(--cyan); background:rgba(6,182,212,0.04); box-shadow:0 0 30px var(--glow-cyan); }
-        .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
-        .upload-icon { font-size:2.5rem; margin-bottom:.5rem; filter:drop-shadow(0 0 8px var(--glow-cyan)); }
-        .upload-text { color:var(--text-dim); font-size:.8rem; }
-        .file-name { color:var(--green); font-size:.85rem; margin-top:.5rem; font-weight:600; }
-        .or-divider {
-            text-align:center; margin:1.5rem 0; color:rgba(255,255,255,0.2); font-size:.8rem;
-            display:flex; align-items:center; gap:1rem;
-        }
-        .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+        /* === SUMMARY (Step 3) === */
+        .summary-grid { display:grid; grid-template-columns:auto 1fr; gap:.5rem .8rem; font-size:.88rem; margin-bottom:1.5rem; }
+        .summary-label { color:var(--text-dim); font-weight:600; }
+        .summary-value { color:var(--text); font-weight:700; }
 
-        /* ═══ ANALYZE BUTTON ═══ */
+        .legal-checkbox {
+            display:flex; align-items:flex-start; gap:.8rem;
+            padding:1rem; border-radius:12px; background:var(--bg-secondary);
+            border:1px solid var(--border); margin-bottom:1.5rem;
+        }
+        .legal-checkbox input[type="checkbox"] {
+            width:20px; height:20px; flex-shrink:0; margin-top:2px;
+            accent-color:var(--accent); cursor:pointer;
+        }
+        .legal-checkbox label {
+            font-size:.82rem; color:var(--text-dim); line-height:1.5;
+            text-transform:none; letter-spacing:0; font-weight:500; cursor:pointer;
+        }
+
+        /* === ANALYZE BUTTON === */
         .btn-analyze {
-            width:100%; padding:16px; border:none; border-radius:14px; cursor:pointer;
+            width:100%; padding:18px; border:none; border-radius:16px; cursor:pointer;
             font-size:1.1rem; font-weight:800; font-family:'Inter',sans-serif;
             color:#fff; position:relative; overflow:hidden; transition:all .3s;
-            background: linear-gradient(135deg, #e63946 0%, #c62828 50%, #e63946 100%);
-            background-size:200% 200%; animation:btnGradient 3s ease infinite;
+            background:var(--accent); min-height:56px;
         }
-        .btn-analyze::before {
-            content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 60%);
-            transform:rotate(45deg); transition:all .5s;
-        }
-        .btn-analyze:hover { transform:translateY(-3px); box-shadow:0 12px 40px var(--glow-red); }
-        .btn-analyze:hover::before { left:100%; }
-        .btn-analyze:disabled { opacity:.4; cursor:not-allowed; transform:none; animation:none; }
+        .btn-analyze:hover { background:var(--accent-dark); transform:translateY(-3px); box-shadow:0 8px 25px rgba(37,99,235,0.3); }
+        .btn-analyze:disabled { opacity:.4; cursor:not-allowed; transform:none; }
 
-        /* ═══ PIPELINE VISUALIZATION ═══ */
+        .btn-skip {
+            display:block; width:100%; margin-top:.8rem; padding:12px;
+            background:none; border:1px solid var(--border); border-radius:12px;
+            color:var(--text-dim); font-size:.85rem; font-weight:600;
+            cursor:pointer; font-family:'Inter',sans-serif; transition:all .3s;
+        }
+        .btn-skip:hover { border-color:var(--accent); color:var(--accent); }
+
+        /* === PIPELINE VISUALIZATION === */
         .pipeline-section { display:none; }
         .pipeline-header { text-align:center; margin-bottom:2rem; }
         .pipeline-header h2 {
             font-size:1.5rem; font-weight:900; justify-content:center;
-            background: linear-gradient(135deg, var(--red), var(--gold));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            color:var(--text);
         }
         .pipeline-timer { font-size:.85rem; color:var(--text-dim); margin-top:.5rem; font-variant-numeric:tabular-nums; }
 
@@ -291,52 +380,48 @@
             border:1px solid var(--border); background:var(--bg-card);
             transition:border-color .5s, box-shadow .5s;
         }
-        .phase-block.active { border-color:var(--gold); box-shadow:0 0 30px var(--glow-gold); }
-        .phase-block.done { border-color:var(--green); box-shadow:0 0 20px var(--glow-green); }
+        .phase-block.active { border-color:var(--accent); box-shadow:0 0 20px rgba(37,99,235,0.15); }
+        .phase-block.done { border-color:var(--green); box-shadow:0 0 15px rgba(22,163,74,0.1); }
         .phase-label {
             padding:12px 20px; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
             display:flex; align-items:center; gap:.7rem;
-            background:rgba(255,255,255,0.02);
+            background:var(--bg-secondary); color:var(--text-dim);
         }
-        .phase-indicator { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.1); transition:all .5s; }
-        .phase-block.active .phase-indicator { background:var(--gold); box-shadow:0 0 12px var(--glow-gold); animation:pulse 1.2s infinite; }
-        .phase-block.done .phase-indicator { background:var(--green); box-shadow:0 0 10px var(--glow-green); }
-        .phase-progress { height:3px; background:rgba(255,255,255,0.05); }
-        .phase-progress-bar { height:100%; width:0%; transition:width .5s; background:linear-gradient(90deg, var(--gold), var(--green)); }
+        .phase-indicator { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all .5s; }
+        .phase-block.active .phase-indicator { background:var(--accent); box-shadow:0 0 8px rgba(37,99,235,0.4); animation:pulse 1.2s infinite; }
+        .phase-block.done .phase-indicator { background:var(--green); box-shadow:0 0 8px rgba(22,163,74,0.3); }
+        .phase-progress { height:3px; background:var(--border); }
+        .phase-progress-bar { height:100%; width:0%; transition:width .5s; background:linear-gradient(90deg, var(--accent), var(--green)); }
         .phase-block.done .phase-progress-bar { width:100%; background:var(--green); }
 
         .agents-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:8px; padding:14px; }
         .agent-node {
             padding:10px 8px; border-radius:12px; text-align:center;
-            border:1px solid transparent; background:rgba(255,255,255,0.02);
+            border:1px solid transparent; background:var(--bg-secondary);
             transition:all .4s; position:relative; overflow:hidden;
         }
-        .agent-node::before {
-            content:''; position:absolute; inset:0; opacity:0; transition:opacity .4s;
-            background: radial-gradient(circle at 50% 50%, var(--glow-purple), transparent 70%);
-        }
         .agent-node.waiting { opacity:.4; }
-        .agent-node.running { border-color:var(--cyan); background:rgba(6,182,212,0.06); animation:nodeGlow 1.5s ease-in-out infinite; }
-        .agent-node.running::before { opacity:.8; background:radial-gradient(circle, var(--glow-cyan), transparent 70%); }
-        @keyframes nodeGlow { 0%,100%{box-shadow:0 0 8px var(--glow-cyan)} 50%{box-shadow:0 0 25px var(--glow-cyan)} }
-        .agent-node.done { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
-        .agent-node.error { border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); }
+        .agent-node.running { border-color:var(--accent); background:var(--accent-light); }
+        @keyframes nodeGlow { 0%,100%{box-shadow:0 0 5px rgba(37,99,235,0.15)} 50%{box-shadow:0 0 15px rgba(37,99,235,0.25)} }
+        .agent-node.running { animation:nodeGlow 1.5s ease-in-out infinite; }
+        .agent-node.done { border-color:rgba(22,163,74,0.3); background:var(--green-light); }
+        .agent-node.error { border-color:rgba(220,38,38,0.3); background:var(--red-light); }
         .agent-icon { font-size:1.4rem; display:block; margin-bottom:3px; position:relative; }
         .agent-name { font-size:.65rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; }
         .agent-model { display:none; }
         .agent-status { font-size:.55rem; font-weight:600; margin-top:3px; display:flex; align-items:center; justify-content:center; gap:3px; }
-        .agent-node.running .agent-status { color:var(--cyan); }
+        .agent-node.running .agent-status { color:var(--accent); }
         .agent-node.done .agent-status { color:var(--green); }
-        .agent-node.error .agent-status { color:#ef4444; }
-        .spinner-dot { width:4px; height:4px; border-radius:50%; background:var(--cyan); animation:spinDot .8s ease-in-out infinite; }
+        .agent-node.error .agent-status { color:var(--red); }
+        .spinner-dot { width:4px; height:4px; border-radius:50%; background:var(--accent); animation:spinDot .8s ease-in-out infinite; }
         @keyframes spinDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.5)} }
         .check-mark { color:var(--green); font-weight:800; }
 
         .flow-connector { display:flex; align-items:center; justify-content:center; padding:6px 0; position:relative; }
-        .flow-line { width:2px; height:24px; position:relative; overflow:hidden; background:rgba(255,255,255,0.06); }
+        .flow-line { width:2px; height:24px; position:relative; overflow:hidden; background:var(--border); }
         .flow-line.active::after {
             content:''; position:absolute; top:-100%; left:0; width:100%; height:50%;
-            background: linear-gradient(180deg, transparent, var(--cyan), transparent);
+            background:linear-gradient(180deg, transparent, var(--accent), transparent);
             animation:flowDown 1s linear infinite;
         }
         @keyframes flowDown { 0%{top:-50%} 100%{top:150%} }
@@ -344,87 +429,82 @@
         .brain-core { width:100px; height:100px; margin:0 auto 1rem; position:relative; display:flex; align-items:center; justify-content:center; }
         .brain-ring {
             position:absolute; inset:0; border-radius:50%; border:2px solid transparent;
-            border-top-color:var(--red); border-right-color:var(--gold);
+            border-top-color:var(--accent); border-right-color:var(--purple);
             animation:spinRing 2s linear infinite;
         }
-        .brain-ring.inner { inset:12px; border-top-color:var(--cyan); border-right-color:var(--purple); animation-direction:reverse; animation-duration:1.5s; }
-        .brain-ring.outer { inset:-8px; border-top-color:var(--gold); border-right-color:var(--green); animation-duration:3s; opacity:.4; }
+        .brain-ring.inner { inset:12px; border-top-color:var(--cyan); border-right-color:var(--green); animation-direction:reverse; animation-duration:1.5s; }
+        .brain-ring.outer { inset:-8px; border-top-color:var(--purple); border-right-color:var(--accent); animation-duration:3s; opacity:.4; }
         @keyframes spinRing { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
-        .brain-icon { font-size:2.2rem; position:relative; z-index:1; filter:drop-shadow(0 0 12px var(--glow-purple)); }
+        .brain-icon { font-size:2.2rem; position:relative; z-index:1; }
 
-        /* ═══ RESULTS ═══ */
+        /* === RESULTS === */
         .results-section { display:none; }
         .score-display { text-align:center; padding:2rem 0; }
         .score-ring { width:160px; height:160px; margin:0 auto 1rem; position:relative; }
         .score-ring svg { width:100%; height:100%; transform:rotate(-90deg); }
-        .score-ring-bg { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:8; }
+        .score-ring-bg { fill:none; stroke:var(--border); stroke-width:8; }
         .score-ring-fill { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:440; stroke-dashoffset:440; transition:stroke-dashoffset 2s ease-out, stroke 1s; }
         .score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .score-num { font-size:2.8rem; font-weight:900; line-height:1; }
+        .score-num { font-size:2.8rem; font-weight:900; line-height:1; color:var(--text); }
         .score-label { font-size:.7rem; color:var(--text-dim); margin-top:2px; }
         .reco-box { margin:1rem auto; padding:14px 28px; border-radius:14px; text-align:center; font-weight:800; font-size:1.15rem; display:inline-block; animation:fadeInUp .6s ease; }
-        .reco-contester { background:rgba(34,197,94,0.12); color:var(--green); border:1px solid rgba(34,197,94,0.2); box-shadow:0 0 30px var(--glow-green); }
-        .reco-negocier { background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid rgba(245,158,11,0.2); box-shadow:0 0 30px rgba(245,158,11,0.2); }
-        .reco-payer { background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.2); box-shadow:0 0 30px rgba(239,68,68,0.2); }
+        .reco-contester { background:var(--green-light); color:var(--green); border:1px solid rgba(22,163,74,0.2); }
+        .reco-negocier { background:var(--orange-light); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
+        .reco-payer { background:var(--red-light); color:var(--red); border:1px solid rgba(220,38,38,0.2); }
         @keyframes fadeInUp { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
         .fade-in { animation:fadeInUp .5s ease forwards; }
         .result-row { display:flex; justify-content:space-between; padding:.7rem 0; border-bottom:1px solid var(--border); font-size:.88rem; }
         .result-label { color:var(--text-dim); }
-        .result-value { font-weight:700; }
+        .result-value { font-weight:700; color:var(--text); }
         .args-list { list-style:none; }
         .args-list li {
             padding:.6rem .8rem; margin-bottom:.4rem; border-radius:10px;
-            background:rgba(255,255,255,0.03); border-left:3px solid var(--gold);
-            font-size:.85rem; color:#ccd; line-height:1.5;
+            background:var(--bg-secondary); border-left:3px solid var(--accent);
+            font-size:.85rem; color:var(--text-dim); line-height:1.5;
             animation:fadeInUp .4s ease forwards; opacity:0;
         }
         .etapes-list { list-style:none; counter-reset:etape; }
         .etapes-list li {
             padding:.6rem .8rem .6rem 2.5rem; margin-bottom:.4rem; border-radius:10px;
-            background:rgba(255,255,255,0.03); font-size:.85rem; color:#ccd; line-height:1.5;
+            background:var(--bg-secondary); font-size:.85rem; color:var(--text-dim); line-height:1.5;
             position:relative; animation:fadeInUp .4s ease forwards; opacity:0;
         }
         .etapes-list li::before {
             counter-increment:etape; content:counter(etape);
             position:absolute; left:8px; top:8px; width:22px; height:22px; border-radius:6px;
-            background:linear-gradient(135deg, var(--navy), var(--purple));
-            color:#fff; font-size:.7rem; font-weight:800;
+            background:var(--accent); color:#fff; font-size:.7rem; font-weight:800;
             display:flex; align-items:center; justify-content:center;
         }
         .btn-secondary {
             width:100%; padding:14px; border:1px solid var(--border); border-radius:14px;
-            background:rgba(255,255,255,0.04); color:var(--text); font-size:1rem;
+            background:#fff; color:var(--text); font-size:1rem;
             font-weight:700; cursor:pointer; transition:all .3s; font-family:'Inter',sans-serif;
         }
-        .btn-secondary:hover { border-color:var(--gold); background:rgba(212,168,67,0.08); }
+        .btn-secondary:hover { border-color:var(--accent); color:var(--accent); box-shadow:var(--shadow-sm); }
         .btn-pdf {
             display:inline-block; padding:12px 28px; border-radius:12px; text-decoration:none;
-            background:linear-gradient(135deg, var(--red), #c62828); color:#fff;
+            background:var(--accent); color:#fff;
             font-weight:700; font-size:.9rem; transition:all .3s; margin-top:.5rem;
         }
-        .btn-pdf:hover { transform:translateY(-2px); box-shadow:0 8px 25px var(--glow-red); text-decoration:none; }
+        .btn-pdf:hover { background:var(--accent-dark); transform:translateY(-2px); box-shadow:0 6px 20px rgba(37,99,235,0.3); text-decoration:none; }
         .desc-note { font-size:.7rem; color:var(--text-muted); margin-top:.5rem; font-style:italic; }
 
-        /* ═══ PRICING ═══ */
+        /* === PRICING === */
         .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
         .price-card {
             background:var(--bg-card); border:1px solid var(--border);
             border-radius:20px; padding:2rem 1.5rem; text-align:center;
-            backdrop-filter:blur(12px); transition:all .3s; position:relative;
+            transition:all .3s; position:relative;
         }
-        .price-card.featured {
-            border-color:var(--gold);
-            box-shadow:0 0 40px var(--glow-gold);
-        }
+        .price-card.featured { border-color:var(--accent); box-shadow:0 0 30px rgba(37,99,235,0.1); }
         .price-card.featured::before {
             content:'POPULAIRE'; position:absolute; top:-12px; left:50%; transform:translateX(-50%);
             padding:4px 16px; border-radius:8px; font-size:.65rem; font-weight:800;
-            background:linear-gradient(135deg, var(--gold), var(--red));
-            color:#fff; letter-spacing:1px;
+            background:var(--accent); color:#fff; letter-spacing:1px;
         }
-        .price-card:hover { transform:translateY(-4px); box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+        .price-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
         .price-name { font-size:.85rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; }
-        .price-amount { font-size:2.5rem; font-weight:900; margin-bottom:.3rem; }
+        .price-amount { font-size:2.5rem; font-weight:900; margin-bottom:.3rem; color:var(--text); }
         .price-amount .currency { font-size:1.2rem; vertical-align:top; color:var(--text-dim); }
         .price-period { font-size:.75rem; color:var(--text-dim); margin-bottom:1.5rem; }
         .price-features { list-style:none; text-align:left; margin-bottom:1.5rem; }
@@ -432,30 +512,29 @@
         .price-features li::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--green); flex-shrink:0; }
         .price-btn {
             width:100%; padding:12px; border:1px solid var(--border); border-radius:12px;
-            background:rgba(255,255,255,0.04); color:var(--text); font-size:.88rem;
+            background:#fff; color:var(--text); font-size:.88rem;
             font-weight:700; cursor:pointer; transition:all .3s; font-family:'Inter',sans-serif;
         }
-        .price-btn:hover { border-color:var(--gold); background:rgba(212,168,67,0.08); }
+        .price-btn:hover { border-color:var(--accent); color:var(--accent); }
         .price-card.featured .price-btn {
-            background:linear-gradient(135deg, var(--red), var(--red-dark));
-            border:none; color:#fff;
+            background:var(--accent); border:none; color:#fff;
         }
-        .price-card.featured .price-btn:hover { box-shadow:0 6px 20px var(--glow-red); transform:translateY(-2px); }
+        .price-card.featured .price-btn:hover { background:var(--accent-dark); box-shadow:0 4px 15px rgba(37,99,235,0.3); transform:translateY(-2px); }
 
-        /* ═══ FAQ ═══ */
+        /* === FAQ === */
         .faq-list { max-width:700px; margin:0 auto; }
         .faq-item {
             border:1px solid var(--border); border-radius:14px;
             margin-bottom:.8rem; overflow:hidden; background:var(--bg-card);
             transition:border-color .3s;
         }
-        .faq-item:hover { border-color:rgba(255,255,255,0.12); }
+        .faq-item:hover { border-color:var(--border-hover); }
         .faq-q {
             padding:1.1rem 1.3rem; cursor:pointer; font-weight:700; font-size:.92rem;
             display:flex; justify-content:space-between; align-items:center;
-            user-select:none; transition:color .2s;
+            user-select:none; transition:color .2s; color:var(--text);
         }
-        .faq-q:hover { color:var(--gold); }
+        .faq-q:hover { color:var(--accent); }
         .faq-arrow { font-size:.7rem; transition:transform .3s; color:var(--text-dim); }
         .faq-item.open .faq-arrow { transform:rotate(180deg); }
         .faq-a {
@@ -464,21 +543,20 @@
         }
         .faq-item.open .faq-a { max-height:300px; padding:0 1.3rem 1.1rem; }
 
-        /* ═══ FOOTER ═══ */
+        /* === FOOTER === */
         .footer {
             padding:3rem 0; border-top:1px solid var(--border);
-            text-align:center;
+            text-align:center; background:var(--bg-secondary);
         }
         .footer-logo {
-            font-size:1.5rem; font-weight:900; letter-spacing:3px; margin-bottom:.5rem;
-            background:linear-gradient(135deg, var(--red), var(--gold));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            font-size:1.3rem; font-weight:900; letter-spacing:2px; margin-bottom:.5rem;
+            color:var(--accent);
         }
         .footer-text { font-size:.78rem; color:var(--text-dim); line-height:1.8; }
-        .footer-text a { color:var(--gold); }
+        .footer-text a { color:var(--accent); }
         .footer-legal { font-size:.68rem; color:var(--text-muted); margin-top:1rem; line-height:1.6; }
 
-        /* ═══ RESPONSIVE ═══ */
+        /* === RESPONSIVE === */
         @media (max-width:800px) {
             .hero h1 { font-size:2.4rem; }
             .hero-stats { gap:1.5rem; }
@@ -489,62 +567,281 @@
             .nav-links a:not(.nav-cta) { display:none; }
         }
         @media (max-width:700px) {
-            .type-grid { grid-template-columns:repeat(3,1fr); }
-            .form-grid { grid-template-columns:1fr; }
             .agents-grid { grid-template-columns:repeat(3,1fr); }
+            .photo-tips { gap:.4rem; }
+            .photo-tip { padding:.6rem .3rem; }
+            .photo-tip-icon { font-size:1.2rem; }
+            .photo-tip-text { font-size:.62rem; }
         }
         @media (max-width:400px) {
-            .type-grid { grid-template-columns:repeat(2,1fr); }
             .agents-grid { grid-template-columns:repeat(2,1fr); }
             .hero h1 { font-size:2rem; }
         }
+        /* === MOBILE OPTIMIZATION === */
+        @media (max-width:600px) {
+            /* Navbar */
+            .navbar { padding: 0.6rem 1rem; }
+            .nav-logo span { font-size: 1rem !important; }
+            .nav-logo svg { width: 28px; height: 28px; }
+            .nav-cta { padding: 6px 14px !important; font-size: 12px !important; }
 
-        /* ═══ SCROLL REVEAL ═══ */
+            /* Hero */
+            .hero { padding: 5rem 0 2.5rem; }
+            .hero h1 { font-size: 1.6rem; line-height: 1.3; }
+            .hero-sub { font-size: 0.9rem; line-height: 1.5; padding: 0 0.5rem; }
+            .hero-stats { flex-wrap: wrap; gap: 1rem; justify-content: center; }
+            .hero-stat { min-width: 45%; }
+            .hero-stat-num { font-size: 1.6rem; }
+            .hero-stat-label { font-size: 0.7rem; }
+            .hero-cta { font-size: 1rem; padding: 14px 28px; }
+
+            /* Container */
+            .container { padding: 0 1rem; }
+
+            /* Section titles */
+            .section-title { font-size: 1.5rem; }
+            .section-subtitle { font-size: 0.85rem; padding: 0 0.5rem; }
+            .section { padding: 3rem 0; }
+
+            /* Scanner / Camera zone */
+            .camera-zone { padding: 1.5rem 1rem; margin: 0 -0.5rem; }
+            .camera-icon { font-size: 2.5rem; }
+            .camera-title { font-size: 1rem; }
+            .camera-sub { font-size: 0.75rem; }
+            .btn-camera { font-size: 0.9rem; padding: 12px 24px; }
+            .btn-gallery { font-size: 0.8rem; padding: 10px 20px; }
+            .photo-tips { flex-wrap: wrap; gap: 0.4rem; }
+            .photo-tip { min-width: 45%; padding: 0.5rem; }
+            .photo-tip-icon { font-size: 1rem; }
+            .photo-tip-text { font-size: 0.6rem; }
+
+            /* Steps */
+            .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .step-card { padding: 1.2rem; }
+
+            /* Features */
+            .features-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .feature-card { padding: 1.2rem; }
+
+            /* Agents grid */
+            .agents-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .agent-item { padding: 0.6rem 0.4rem; font-size: 0.65rem; }
+
+            /* Pricing */
+            .pricing-grid { grid-template-columns: 1fr; max-width: 320px; }
+            .price-card { padding: 1.5rem 1rem; }
+
+            /* FAQ */
+            .faq-q { font-size: 0.9rem; padding: 14px 12px; }
+            .faq-a { padding: 0 12px 14px; font-size: 0.85rem; }
+
+            /* CTA */
+            .cta { padding: 3rem 1rem; }
+            .cta h2 { font-size: 1.5rem; }
+
+            /* Footer */
+            .footer-links { flex-direction: column; gap: 0.3rem; }
+            .footer { padding: 2rem 1rem; }
+            .footer-legal { font-size: 10px; line-height: 1.5; padding: 0 0.5rem; }
+            .footer-logo { font-size: 0.9rem; }
+
+            /* Legal banner */
+            #legalBanner { font-size: 9px; padding: 4px 8px; line-height: 1.4; }
+
+            /* Chatbot section */
+            #chatbot .container { padding: 0 0.5rem; }
+            #chatCard { border-radius: 12px !important; margin: 0 !important; }
+        }
+
+        /* === CHATBOT MOBILE === */
+        @media (max-width:600px) {
+            /* Chat card full width */
+            #chatCard { max-width: 100% !important; border-radius: 10px !important; }
+
+            /* Chat header compact */
+            #chatCard > div:first-child { padding: 10px 14px !important; }
+            #chatCard > div:first-child svg { width: 22px; height: 22px; }
+            #chatCard > div:first-child div div:first-child { font-size: 13px !important; }
+            #chatCard > div:first-child div div:last-child { font-size: 10px !important; }
+
+            /* Messages area - taller on mobile */
+            #chatMessages {
+                height: 320px !important;
+                padding: 10px 12px !important;
+                gap: 8px !important;
+            }
+
+            /* Messages - larger touch targets */
+            .chat-msg {
+                max-width: 88% !important;
+                padding: 10px 12px !important;
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+            .chat-msg.bot { border-radius: 12px 12px 12px 4px !important; }
+            .chat-msg.user { border-radius: 12px 12px 4px 12px !important; }
+
+            /* Options buttons - full width */
+            .chat-opts {
+                max-width: 95% !important;
+                gap: 6px !important;
+            }
+            .chat-opt-btn {
+                padding: 10px 14px !important;
+                font-size: 13px !important;
+                border-radius: 20px !important;
+                flex: 1 1 auto !important;
+                text-align: center !important;
+                min-width: 45% !important;
+            }
+            .chat-multi {
+                padding: 10px 12px !important;
+                font-size: 13px !important;
+            }
+
+            /* Scan zone */
+            .chat-scan-zone {
+                max-width: 95% !important;
+                padding: 14px !important;
+            }
+            .chat-scan-btn {
+                padding: 12px 16px !important;
+                font-size: 13px !important;
+                border-radius: 10px !important;
+            }
+
+            /* OCR results */
+            .chat-ocr-result {
+                max-width: 95% !important;
+                padding: 12px !important;
+                font-size: 12px !important;
+            }
+            .chat-ocr-row {
+                padding: 5px 0 !important;
+                font-size: 12px !important;
+                flex-wrap: wrap !important;
+                gap: 2px !important;
+            }
+
+            /* Input area */
+            #chatInputArea {
+                padding: 10px 10px !important;
+                gap: 6px !important;
+            }
+            #chatInputArea button:first-child {
+                padding: 10px !important;
+                min-width: 42px;
+            }
+            #chatInput {
+                padding: 10px 12px !important;
+                font-size: 14px !important;
+                border-radius: 10px !important;
+                min-width: 0 !important;
+            }
+            #chatInputArea button:last-child {
+                padding: 10px 14px !important;
+                font-size: 13px !important;
+                border-radius: 10px !important;
+                white-space: nowrap;
+            }
+
+            /* Progress bar */
+            #chatCard > div:nth-child(2) { padding: 6px 14px !important; }
+        }
+
+        /* === VERY SMALL SCREENS === */
+        @media (max-width:380px) {
+            .hero h1 { font-size: 1.4rem; }
+            .hero-stats { gap: 0.8rem; }
+            .hero-stat-num { font-size: 1.3rem; }
+            .hero-cta { font-size: 0.9rem; padding: 12px 24px; }
+            .section-title { font-size: 1.3rem; }
+            #chatMessages { height: 280px !important; }
+            .chat-opt-btn { min-width: 100% !important; }
+        }
+
+        /* === TOUCH IMPROVEMENTS === */
+        @media (hover: none) and (pointer: coarse) {
+            /* Bigger touch targets */
+            .chat-opt-btn { min-height: 44px; }
+            .chat-multi { min-height: 44px; }
+            .chat-scan-btn { min-height: 44px; }
+            .faq-q { min-height: 48px; }
+            .nav-cta { min-height: 44px; display: flex; align-items: center; }
+
+            /* No hover effects on touch */
+            .chat-opt-btn:hover { background: white; color: var(--accent); }
+        }
+
+
+        /* === SCROLL REVEAL === */
         .reveal { opacity:0; transform:translateY(30px); transition:opacity .6s ease, transform .6s ease; }
         .reveal.visible { opacity:1; transform:translateY(0); }
     </style>
 </head>
 <body>
 
-<div id="particles-bg"></div>
-
-<!-- ═══ NAVBAR ═══ -->
+<!-- === NAVBAR === -->
 <nav class="navbar">
     <div class="container">
-        <span class="nav-logo">TICKET911</span>
+        <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+                        <stop offset="0%" stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#7c3aed"/>
+                    </linearGradient>
+                </defs>
+                <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+                <path d="M7 11h22v2.2H7zm0 5.5h16v2.2H7zm0 5.5h19v2.2H7z" fill="white" opacity="0.9"/>
+                <circle cx="27" cy="25" r="5.5" fill="#16a34a"/>
+                <path d="M24.5 25l1.8 1.8 3.2-3.2" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10 8.5l2.5-3h11l2.5 3" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
+            </svg>
+            <span style="font-size:1.2rem;font-weight:900;letter-spacing:0.5px;"><span style="color:#1a1a1a;">AI</span><span style="color:#2563eb;">TICKET</span><span style="color:#1a1a1a;">INFO</span></span>
+        </a>
         <div class="nav-links">
             <a href="#comment">Comment</a>
             <a href="#features">Avantages</a>
             <a href="#prix">Prix</a>
+            <a href="#chatbot">Assistant</a>
             <a href="#faq">FAQ</a>
-            <a href="#scanner" class="nav-cta">Analyser mon ticket</a>
+            <a href="#scanner" class="nav-cta">Rechercher mes informations</a>
         </div>
     </div>
 </nav>
 
-<!-- ═══ HERO ═══ -->
+<!-- === LEGAL BANNER === -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:99;background:rgba(234,179,8,0.95);padding:6px 16px;text-align:center;font-size:11px;color:#1a1a1a;font-weight:500;" id="legalBanner">
+    <strong>AVIS IMPORTANT :</strong> AITicketInfo est un outil d'information statistique. Nous ne sommes <strong>PAS</strong> des avocats et ne fournissons <strong>AUCUN</strong> avis juridique.
+    <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#2563eb;font-weight:700;">Consultez un avocat</a>
+    <button onclick="document.getElementById('legalBanner').style.display='none';document.querySelector('.navbar').style.top='0';" style="background:none;border:none;color:#1a1a1a;cursor:pointer;font-size:14px;margin-left:10px;font-weight:700;">&#10005;</button>
+</div>
+<style>.navbar{top:30px!important;transition:top .3s;}</style>
+
+<!-- === HERO === -->
 <section class="hero">
     <div class="hero-content">
         <div class="hero-badge">
             <span class="hero-badge-dot"></span>
             <span id="statusBadge">Connexion...</span>
         </div>
-        <h1>Contestez votre<br>contravention avec<br>l'<span class="highlight">intelligence artificielle</span></h1>
-        <p class="hero-sub">26 agents IA analysent votre ticket en 45 secondes. Jurisprudence, lois, arguments de defense — pour le Quebec et l'Ontario.</p>
+        <h1>Analysez votre<br>contravention avec<br>l'<span class="highlight">intelligence artificielle</span></h1>
+        <p class="hero-sub">Outil de recherche d'information statistique base sur la jurisprudence publique. 26 agents IA analysent les donnees de CanLII, SOQUIJ et LegisQuebec &mdash; Quebec et Ontario.</p>
         <div class="hero-cta-row">
-            <a href="#scanner" class="btn-primary">Analyser mon ticket</a>
+            <a href="#scanner" class="btn-primary">Rechercher mes informations</a>
             <button class="btn-outline" onclick="scrollToScanner();runDemo()">Voir la demo</button>
         </div>
         <div class="hero-stats">
-            <div class="hero-stat"><div class="hero-stat-num">24<span class="accent">,</span>770</div><div class="hero-stat-label">Jurisprudences</div></div>
-            <div class="hero-stat"><div class="hero-stat-num">4<span class="accent">,</span>280</div><div class="hero-stat-label">Articles de loi</div></div>
-            <div class="hero-stat"><div class="hero-stat-num">26</div><div class="hero-stat-label">Agents AI</div></div>
-            <div class="hero-stat"><div class="hero-stat-num">45<span class="accent">s</span></div><div class="hero-stat-label">Analyse complete</div></div>
+            <div class="hero-stat"><div class="hero-stat-num" id="statJuris">--</div><div class="hero-stat-label">Jurisprudences</div></div>
+            <div class="hero-stat"><div class="hero-stat-num" id="statLois">--</div><div class="hero-stat-label">Articles de loi</div></div>
+            <div class="hero-stat"><div class="hero-stat-num" id="statAgents">26</div><div class="hero-stat-label">Agents AI</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">~8<span class="accent">s</span></div><div class="hero-stat-label">Scan OCR</div></div>
         </div>
     </div>
 </section>
 
-<!-- ═══ HOW IT WORKS ═══ -->
+<!-- === HOW IT WORKS === -->
 <section class="section" id="comment">
     <div class="container">
         <h2 class="section-title reveal">Comment ca marche</h2>
@@ -554,13 +851,13 @@
                 <span class="step-icon">&#128247;</span>
                 <div class="step-num">1</div>
                 <h3>Photographiez votre ticket</h3>
-                <p>Prenez une photo de votre contravention ou entrez les details manuellement. Notre IA Vision extraira automatiquement les informations.</p>
+                <p>Prenez une photo de votre contravention. Notre IA Vision extraira automatiquement toutes les informations.</p>
             </div>
             <div class="step-card reveal">
                 <span class="step-icon">&#129504;</span>
                 <div class="step-num">2</div>
                 <h3>26 agents analysent</h3>
-                <p>Pipeline de 4 phases: intake, analyse juridique, audit independant et livraison. Lois, precedents, arguments — tout est verifie.</p>
+                <p>Pipeline de 4 phases: intake, analyse juridique, audit independant et livraison. Lois, precedents, arguments &mdash; tout est verifie.</p>
             </div>
             <div class="step-card reveal">
                 <span class="step-icon">&#128200;</span>
@@ -572,19 +869,19 @@
     </div>
 </section>
 
-<!-- ═══ FEATURES ═══ -->
+<!-- === FEATURES === -->
 <section class="section" id="features" style="padding-top:2rem;">
     <div class="container">
-        <h2 class="section-title reveal">Pourquoi Ticket911</h2>
+        <h2 class="section-title reveal">Pourquoi <span class="highlight">AITicketInfo</span></h2>
         <p class="section-sub reveal">La technologie la plus avancee au service de vos droits</p>
         <div class="features-grid">
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128218;</div>
-                <div><h3>24,770 decisions de jurisprudence</h3><p>Base de donnees QC et ON mise a jour — recherche semantique et full-text pour trouver les precedents pertinents a votre cas.</p></div>
+                <div><h3><span id="featJuris">31,162</span> decisions de jurisprudence</h3><p>Base de donnees QC et ON mise a jour &mdash; recherche semantique et full-text pour trouver les precedents pertinents.</p></div>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128220;</div>
-                <div><h3>4,280 articles de loi indexes</h3><p>Code de la securite routiere (QC), Highway Traffic Act (ON), reglements municipaux et lois federales.</p></div>
+                <div><h3><span id="featLois">4,588</span> articles de loi indexes</h3><p>Code de la securite routiere (QC), Highway Traffic Act (ON), reglements municipaux et lois federales.</p></div>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128270;</div>
@@ -596,76 +893,170 @@
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#9878;&#65039;</div>
-                <div><h3>Quebec + Ontario</h3><p>Agents specialises par juridiction — lois en francais pour le QC, en anglais pour l'ON. Procedures adaptees a chaque province.</p></div>
+                <div><h3>Quebec + Ontario</h3><p>Agents specialises par juridiction &mdash; lois en francais pour le QC, en anglais pour l'ON. Procedures adaptees.</p></div>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon">&#128247;</div>
-                <div><h3>Vision AI OCR</h3><p>Photographiez votre ticket — l'IA Vision extrait automatiquement l'infraction, l'amende, les points et toutes les informations.</p></div>
+                <div><h3>Vision AI OCR</h3><p>Photographiez votre ticket &mdash; l'IA Vision extrait automatiquement l'infraction, l'amende, les points et toutes les informations.</p></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ═══ SCANNER ═══ -->
+<!-- === SCANNER === -->
 <section class="section" id="scanner">
     <div class="container">
-        <h2 class="section-title reveal">Analysez votre contravention</h2>
-        <p class="section-sub reveal">Gratuit — aucune carte de credit requise</p>
+        <h2 class="section-title reveal">Analysez votre <span class="highlight">contravention</span></h2>
+        <p class="section-sub reveal">Gratuit &mdash; aucune carte de credit requise</p>
 
-        <!-- FORM CARD -->
+        <!-- SCAN CARD -->
         <div class="card" id="formCard">
-            <h2><span class="step-num-sm">1</span> Type de contravention</h2>
-            <div class="type-grid" id="typeGrid">
-                <div class="type-btn" data-type="vitesse" onclick="selectType(this)"><span class="type-icon">&#9889;</span>Vitesse</div>
-                <div class="type-btn" data-type="feu_rouge" onclick="selectType(this)"><span class="type-icon">&#128308;</span>Feu rouge</div>
-                <div class="type-btn" data-type="stop" onclick="selectType(this)"><span class="type-icon">&#9940;</span>Stop</div>
-                <div class="type-btn" data-type="cellulaire" onclick="selectType(this)"><span class="type-icon">&#128241;</span>Cellulaire</div>
-                <div class="type-btn" data-type="ceinture" onclick="selectType(this)"><span class="type-icon">&#128737;&#65039;</span>Ceinture</div>
-                <div class="type-btn" data-type="alcool" onclick="selectType(this)"><span class="type-icon">&#127866;</span>Alcool</div>
-                <div class="type-btn" data-type="conduite_dangereuse" onclick="selectType(this)"><span class="type-icon">&#9888;&#65039;</span>Dangereuse</div>
-                <div class="type-btn" data-type="stationnement" onclick="selectType(this)"><span class="type-icon">&#127359;&#65039;</span>Parking</div>
-                <div class="type-btn" data-type="permis" onclick="selectType(this)"><span class="type-icon">&#128179;</span>Permis</div>
-                <div class="type-btn" data-type="autre" onclick="selectType(this)"><span class="type-icon">&#128221;</span>Autre</div>
+
+            <!-- Step indicators (3 steps) -->
+            <div class="scan-steps">
+                <div class="scan-step-dot active" id="dot1"></div>
+                <div class="scan-step-dot" id="dot2"></div>
+                <div class="scan-step-dot" id="dot3"></div>
             </div>
 
-            <div class="or-divider">OU PHOTO DU TICKET</div>
+            <!-- === STEP 1: TICKET PHOTO === -->
+            <div class="scan-panel active" id="scanStep1">
+                <div class="scan-step-label"><span>Etape 1/3</span> &mdash; Photographiez votre ticket</div>
 
-            <div class="form-group full" style="margin-bottom:1.5rem">
-                <div class="upload-zone" id="uploadZone">
-                    <input type="file" id="ticketPhoto" accept="image/*" onchange="showFileName(this)">
-                    <div class="upload-icon">&#128247;</div>
-                    <div class="upload-text">Glisser ou cliquer — Vision AI extraira les informations</div>
-                    <div class="file-name" id="fileName"></div>
+                <!-- Preview (hidden until photo taken) -->
+                <div class="photo-preview-zone" id="photoPreview">
+                    <img id="previewImg" src="" alt="Apercu du ticket">
+                    <div class="photo-preview-badge">&#10003; Photo prise</div>
                 </div>
+
+                <!-- Camera zone -->
+                <div class="camera-zone" id="cameraZone">
+                    <span class="camera-icon">&#128247;</span>
+                    <div class="camera-title">Prenez votre ticket en photo</div>
+                    <div class="camera-sub">Notre IA extraira automatiquement toutes les informations</div>
+
+                    <div class="btn-camera" id="btnCamera">
+                        &#128248; Ouvrir la camera
+                        <input type="file" id="ticketCamera" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+                    </div>
+                    <div class="btn-gallery">
+                        &#128193; Choisir dans la galerie
+                        <input type="file" id="ticketGallery" accept="image/*,.pdf" onchange="handlePhoto(this)">
+                    </div>
+                </div>
+
+                <button class="btn-retake" id="btnRetake" style="display:none" onclick="retakePhoto()">&#128260; Reprendre la photo</button>
+
+                <!-- Quality feedback -->
+                <div class="quality-feedback" id="qualityFeedback">
+                    <span class="quality-icon" id="qualityIcon"></span>
+                    <span id="qualityText"></span>
+                </div>
+
+                <!-- Tips -->
+                <div class="photo-tips">
+                    <div class="photo-tip">
+                        <span class="photo-tip-icon">&#9728;&#65039;</span>
+                        <span class="photo-tip-text">Bonne lumiere</span>
+                    </div>
+                    <div class="photo-tip">
+                        <span class="photo-tip-icon">&#128196;</span>
+                        <span class="photo-tip-text">A plat sur table</span>
+                    </div>
+                    <div class="photo-tip">
+                        <span class="photo-tip-icon">&#128064;</span>
+                        <span class="photo-tip-text">Tout le ticket visible</span>
+                    </div>
+                </div>
+
+                <!-- Do / Don't guide -->
+                <div class="photo-guide" id="photoGuide">
+                    <div class="guide-card guide-do">
+                        <div class="guide-label">&#10003; Bon</div>
+                        <div class="guide-visual">
+                            <div class="guide-ticket-shape">
+                                <div class="guide-ticket-lines"><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+                        <div class="guide-desc">Bien cadre, a plat, bonne lumiere</div>
+                    </div>
+                    <div class="guide-card guide-dont">
+                        <div class="guide-label">&#10007; Mauvais</div>
+                        <div class="guide-visual">
+                            <div class="guide-ticket-shape">
+                                <div class="guide-ticket-lines"><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+                        <div class="guide-desc">Coupe, de biais, trop sombre</div>
+                    </div>
+                </div>
+
+                <!-- Next button -->
+                <button class="btn-analyze" id="btnNext" style="display:none;margin-top:1.5rem" onclick="goToStep(2)">Continuer &#8594;</button>
             </div>
 
-            <form id="ticketForm" onsubmit="return submitAnalysis(event)">
-                <h2><span class="step-num-sm">2</span> Details</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label>Juridiction</label><select id="juridiction"><option value="QC">Quebec</option><option value="ON">Ontario</option></select></div>
-                    <div class="form-group"><label>Infraction</label><input type="text" id="infraction" placeholder="Ex: Exces de vitesse" required></div>
-                    <div class="form-group"><label>Article de loi</label><input type="text" id="loi" placeholder="Ex: Art. 299 CSR"></div>
-                    <div class="form-group"><label>Amende ($)</label><input type="text" id="amende" placeholder="Ex: 368$"></div>
-                    <div class="form-group"><label>Points</label><input type="number" id="points" value="0" min="0" max="15"></div>
-                    <div class="form-group"><label>Lieu</label><input type="text" id="lieu" placeholder="Ex: Boul. Rene-Levesque"></div>
-                    <div class="form-group"><label>Date</label><input type="date" id="date"></div>
-                    <div class="form-group hidden" id="grp_appareil"><label>Appareil de mesure</label><select id="appareil"><option value="">Inconnu</option><option value="Cinematometre laser">Cinematometre laser</option><option value="Radar photo">Radar photo</option><option value="Radar mobile">Radar mobile</option><option value="Camera feu rouge">Camera feu rouge</option><option value="Estimation visuelle">Estimation visuelle</option></select></div>
-                    <div class="form-group hidden" id="grp_captee"><label>Vitesse captee (km/h)</label><input type="number" id="vitesse_captee" value="0" min="0"></div>
-                    <div class="form-group hidden" id="grp_permise"><label>Vitesse permise (km/h)</label><input type="number" id="vitesse_permise" value="0" min="0"></div>
-                    <div class="form-group hidden" id="grp_taux"><label>Taux alcoolemie</label><input type="number" id="taux_alcool" value="0" min="0" max="500"></div>
-                    <div class="form-group hidden" id="grp_test"><label>Type de test</label><select id="test_alcool"><option value="">—</option><option value="Alcootest approuve">Alcootest</option><option value="Ethylometre">Ethylometre</option><option value="Refus">Refus</option></select></div>
-                    <div class="form-group full"><label>Description / Contexte</label><textarea id="description" placeholder="Decrivez ce qui s'est passe..."></textarea></div>
-                    <div class="form-group full"><label>Email (rapport)</label><input type="email" id="email" placeholder="votre@email.com"></div>
+            <!-- === STEP 2: CONTACT INFO === -->
+            <div class="scan-panel" id="scanStep2">
+                <div class="scan-step-label"><span>Etape 2/3</span> &mdash; Vos coordonnees</div>
+
+                <div style="text-align:center;margin-bottom:1.5rem">
+                    <img id="miniPreview" src="" alt="" style="max-height:100px;border-radius:12px;border:1px solid var(--border);display:none">
                 </div>
+
+                <div class="contact-fields">
+                    <div>
+                        <label>Nom complet</label>
+                        <input type="text" id="clientNom" placeholder="Jean Tremblay" required>
+                    </div>
+                    <div>
+                        <label>Courriel</label>
+                        <input type="email" id="clientEmail" placeholder="votre@courriel.com" required>
+                    </div>
+                    <div>
+                        <label>Telephone</label>
+                        <input type="tel" id="clientTel" placeholder="514-555-1234">
+                    </div>
+                    <div>
+                        <label>Temoignage (optionnel)</label>
+                        <textarea id="temoignageText" placeholder="Decrivez brievement ce qui s'est passe dans vos mots..." style="width:100%;min-height:80px;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:#fff;color:var(--text);font-size:.92rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;transition:all .25s;" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
+                        <span style="font-size:.7rem;color:var(--text-muted);">Peut ajouter jusqu'a +35% au score de contestation</span>
+                    </div>
+                </div>
+
                 <br>
-                <button type="submit" class="btn-analyze" id="btnAnalyze">&#9889; Lancer l'analyse — 26 agents AI</button>
-                <div style="text-align:center;margin-top:1rem">
-                    <button type="button" class="btn-secondary" onclick="runDemo()" style="width:auto;padding:10px 28px;border-color:var(--cyan);color:var(--cyan);font-size:.85rem;">
-                        &#127916; Tester sans ticket
-                    </button>
-                    <p class="desc-note">Simule une analyse complete avec des donnees fictives</p>
+                <button class="btn-analyze" onclick="goToStep(3)">Continuer &#8594;</button>
+                <button class="btn-skip" onclick="goToStep(1)">&#8592; Retour</button>
+            </div>
+
+            <!-- === STEP 3: CONFIRM & LAUNCH === -->
+            <div class="scan-panel" id="scanStep3">
+                <div class="scan-step-label"><span>Etape 3/3</span> &mdash; Confirmer et lancer l'analyse</div>
+
+                <!-- Summary -->
+                <div class="summary-grid" id="summaryGrid">
+                    <span class="summary-label">Photo du ticket:</span><span class="summary-value" id="sumTicket">Non fourni</span>
+                    <span class="summary-label">Nom:</span><span class="summary-value" id="sumName">-</span>
+                    <span class="summary-label">Courriel:</span><span class="summary-value" id="sumEmail">-</span>
                 </div>
-            </form>
+
+                <!-- Legal disclaimer checkbox -->
+                <div class="legal-checkbox">
+                    <input type="checkbox" id="legalConsent">
+                    <label for="legalConsent">Je comprends que AITicketInfo fournit de l'<strong>information statistique</strong>, et non des conseils juridiques. AITicketInfo n'est pas un cabinet d'avocats, ne pratique pas le droit et ne remplace en aucun cas la consultation d'un avocat membre du <a href='https://www.barreau.qc.ca/fr/trouver-avocat/' target='_blank'>Barreau du Quebec</a> ou du <a href='https://lso.ca/public-resources/finding-a-lawyer-or-paralegal' target='_blank'>Barreau de l'Ontario (LSO)</a>.</label>
+                </div>
+
+                <form id="ticketForm" onsubmit="return submitAnalysis(event)">
+                    <button type="submit" class="btn-analyze" id="btnAnalyze">&#9889; Analyser mon ticket &mdash; 26 Agents IA</button>
+                </form>
+
+                <button class="btn-skip" onclick="goToStep(2)">&#8592; Retour</button>
+
+                <div style="text-align:center;margin-top:1.5rem">
+                    <button type="button" onclick="runDemo()" style="padding:8px 20px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+                        &#127916; Demo sans ticket
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- PIPELINE -->
@@ -682,28 +1073,28 @@
             </div>
 
             <div class="phase-block" id="pb1">
-                <div class="phase-label"><div class="phase-indicator"></div>PHASE 1 — INTAKE</div>
+                <div class="phase-label"><div class="phase-indicator"></div>PHASE 1 &mdash; RECEPTION</div>
                 <div class="phase-progress"><div class="phase-progress-bar" id="pp1"></div></div>
                 <div class="agents-grid">
                     <div class="agent-node waiting" id="ag-lecteur"><span class="agent-icon">&#128196;</span><span class="agent-name">Lecteur</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-ocr"><span class="agent-icon">&#128247;</span><span class="agent-name">OCR Vision</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-classificateur"><span class="agent-icon">&#127991;</span><span class="agent-name">Classificateur</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-classificateur"><span class="agent-icon">&#127991;</span><span class="agent-name">Classifieur</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-validateur"><span class="agent-icon">&#9989;</span><span class="agent-name">Validateur</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-routing"><span class="agent-icon">&#128268;</span><span class="agent-name">Routing</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-routing"><span class="agent-icon">&#128268;</span><span class="agent-name">Routage</span><span class="agent-model"></span><span class="agent-status"></span></div>
                 </div>
             </div>
             <div class="flow-connector"><div class="flow-line" id="flow1"></div></div>
 
             <div class="phase-block" id="pb2">
-                <div class="phase-label"><div class="phase-indicator"></div>PHASE 2 — ANALYSE JURIDIQUE</div>
+                <div class="phase-label"><div class="phase-indicator"></div>PHASE 2 &mdash; ANALYSE JURIDIQUE</div>
                 <div class="phase-progress"><div class="phase-progress-bar" id="pp2"></div></div>
                 <div class="agents-grid">
                     <div class="agent-node waiting" id="ag-lois"><span class="agent-icon">&#128220;</span><span class="agent-name">Lois</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-lois-qc"><span class="agent-icon">&#9878;</span><span class="agent-name">Lois QC</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-lois-on"><span class="agent-icon">&#127809;</span><span class="agent-name">Lois ON</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-precedents"><span class="agent-icon">&#128218;</span><span class="agent-name">Precedents</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-precedents-qc"><span class="agent-icon">&#9878;</span><span class="agent-name">Preced. QC</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-precedents-on"><span class="agent-icon">&#127809;</span><span class="agent-name">Preced. ON</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-precedents"><span class="agent-icon">&#128218;</span><span class="agent-name">Jurisprudence</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-precedents-qc"><span class="agent-icon">&#9878;</span><span class="agent-name">Jurisp. QC</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-precedents-on"><span class="agent-icon">&#127809;</span><span class="agent-name">Jurisp. ON</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-analyste"><span class="agent-icon">&#129504;</span><span class="agent-name">Analyste</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-analyste-qc"><span class="agent-icon">&#9878;</span><span class="agent-name">Analyste QC</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-analyste-on"><span class="agent-icon">&#127809;</span><span class="agent-name">Analyste ON</span><span class="agent-model"></span><span class="agent-status"></span></div>
@@ -712,13 +1103,13 @@
                     <div class="agent-node waiting" id="ag-procedure-on"><span class="agent-icon">&#127809;</span><span class="agent-name">Proc. ON</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-points"><span class="agent-icon">&#128200;</span><span class="agent-name">Points</span><span class="agent-model"></span><span class="agent-status"></span></div>
                     <div class="agent-node waiting" id="ag-temoignage"><span class="agent-icon">&#128483;</span><span class="agent-name">Temoignage</span><span class="agent-model"></span><span class="agent-status"></span></div>
-                    <div class="agent-node waiting" id="ag-photo"><span class="agent-icon">&#128248;</span><span class="agent-name">Photo Anal.</span><span class="agent-model"></span><span class="agent-status"></span></div>
+                    <div class="agent-node waiting" id="ag-photo"><span class="agent-icon">&#128248;</span><span class="agent-name">Anal. Photo</span><span class="agent-model"></span><span class="agent-status"></span></div>
                 </div>
             </div>
             <div class="flow-connector"><div class="flow-line" id="flow2"></div></div>
 
             <div class="phase-block" id="pb3">
-                <div class="phase-label"><div class="phase-indicator"></div>PHASE 3 — AUDIT &amp; VERIFICATION</div>
+                <div class="phase-label"><div class="phase-indicator"></div>PHASE 3 &mdash; AUDIT &amp; VERIFICATION</div>
                 <div class="phase-progress"><div class="phase-progress-bar" id="pp3"></div></div>
                 <div class="agents-grid">
                     <div class="agent-node waiting" id="ag-verificateur"><span class="agent-icon">&#128270;</span><span class="agent-name">Verificateur</span><span class="agent-model"></span><span class="agent-status"></span></div>
@@ -728,7 +1119,7 @@
             <div class="flow-connector"><div class="flow-line" id="flow3"></div></div>
 
             <div class="phase-block" id="pb4">
-                <div class="phase-label"><div class="phase-indicator"></div>PHASE 4 — LIVRAISON</div>
+                <div class="phase-label"><div class="phase-indicator"></div>PHASE 4 &mdash; LIVRAISON</div>
                 <div class="phase-progress"><div class="phase-progress-bar" id="pp4"></div></div>
                 <div class="agents-grid">
                     <div class="agent-node waiting" id="ag-rapport-client"><span class="agent-icon">&#128209;</span><span class="agent-name">Rapport Client</span><span class="agent-model"></span><span class="agent-status"></span></div>
@@ -770,12 +1161,12 @@
                 <ol class="etapes-list" id="etapesList"></ol>
             </div>
             <div class="card fade-in" id="precedentsCard" style="display:none">
-                <h2>&#128218; Precedents cites</h2>
+                <h2>&#128218; Jurisprudence citee</h2>
                 <div id="precedentsList"></div>
             </div>
             <div class="card fade-in" style="text-align:center">
                 <h2 style="justify-content:center">&#128196; Rapport</h2>
-                <p id="rapportResume" style="font-size:.88rem;color:#aab;line-height:1.7;text-align:left;margin-bottom:1rem"></p>
+                <p id="rapportResume" style="font-size:.88rem;color:var(--text-dim);line-height:1.7;text-align:left;margin-bottom:1rem"></p>
                 <a class="btn-pdf" id="pdfLink" href="#" target="_blank">Telecharger le rapport PDF</a>
             </div>
             <button class="btn-secondary" onclick="resetForm()">&#8634; Nouvelle analyse</button>
@@ -783,11 +1174,484 @@
     </div>
 </section>
 
-<!-- ═══ PRICING ═══ -->
+
+<!-- === CHATBOT ASSISTANT === -->
+<section class="section" id="chatbot" style="background:var(--bg-secondary);">
+    <div class="container">
+        <h2 class="section-title reveal">Assistant <span class="highlight">informatif</span></h2>
+        <p class="section-sub reveal">Posez vos questions ou laissez notre assistant collecter les informations de votre ticket. Aucun conseil juridique — information seulement.</p>
+        <div class="divider"></div>
+
+        <!-- LEGAL MINI BANNER -->
+        <div style="background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.15);border-radius:10px;padding:10px 18px;text-align:center;font-size:12px;color:#92791c;margin-bottom:24px;" class="reveal">
+            <strong>AVIS :</strong> AITicketInfo n'est PAS un cabinet d'avocats. Aucun avis juridique n'est fourni. Pour un avis, consultez un avocat du <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:var(--accent);">Barreau</a>.
+        </div>
+
+        <!-- CHAT CARD -->
+        <div class="card reveal" id="chatCard" style="max-width:720px;margin:0 auto;padding:0;overflow:hidden;border-radius:16px;">
+            
+            <!-- Chat header -->
+            <div style="background:var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/>
+                        <path d="M8 10h16v2H8zm0 5h12v2H8zm0 5h14v2H8z" fill="white"/>
+                    </svg>
+                    <div>
+                        <div style="color:white;font-weight:700;font-size:14px;">Assistant AITicketInfo</div>
+                        <div style="color:rgba(255,255,255,0.7);font-size:11px;" id="chat-status-text">Pret a vous aider</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="toggleChatLangue()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;" id="chatLangBtn">EN/FR</button>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div style="padding:8px 20px;background:var(--bg-card);border-bottom:1px solid var(--border);">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:4px;">
+                    <span id="chat-progress-text">Etape 1 / 10</span>
+                    <span id="chat-progress-pct">0%</span>
+                </div>
+                <div style="width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+                    <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width 0.5s;width:0%;" id="chat-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Chat messages -->
+            <div id="chatMessages" style="height:380px;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;background:var(--bg-secondary);">
+                <div id="chatTyping" style="display:none;align-self:flex-start;padding:10px 14px;background:white;border-radius:14px;border-bottom-left-radius:4px;border:1px solid var(--border);">
+                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite;"></span>
+                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.2s;"></span>
+                    <span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.4s;"></span>
+                </div>
+            </div>
+
+            <!-- Hidden file inputs for scanner -->
+            <input type="file" id="chatFileCamera" accept="image/*" capture="environment" style="display:none" onchange="chatOnFile(this)">
+            <input type="file" id="chatEvidenceInput" accept="image/*" multiple style="display:none" onchange="chatOnEvidence(this)">
+            <input type="file" id="chatFileGallery" accept="image/*,.pdf" style="display:none" onchange="chatOnFile(this)">
+
+            <!-- Input area -->
+            <div style="padding:12px 16px;background:var(--bg-card);border-top:1px solid var(--border);display:flex;gap:8px;" id="chatInputArea">
+                <button onclick="document.getElementById('chatFileGallery').click()" title="Scanner un ticket" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px;border-radius:10px;cursor:pointer;display:flex;align-items:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </button>
+                <input type="text" id="chatInput" placeholder="Tapez votre reponse..." style="flex:1;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;" onkeypress="if(event.key==='Enter')chatEnvoyer()">
+                <button onclick="chatEnvoyer()" style="background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;">Envoyer</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@keyframes chatDot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-4px);opacity:1} }
+@keyframes chatFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.chat-msg { max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;animation:chatFadeIn .3s ease;white-space:pre-line; }
+.chat-msg.bot { align-self:flex-start;background:white;border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text); }
+.chat-msg.user { align-self:flex-end;background:var(--accent);color:white;border-bottom-right-radius:4px; }
+.chat-msg.system { align-self:center;background:var(--green-light);border:1px solid rgba(22,163,74,0.2);color:var(--green);font-size:12px;text-align:center;max-width:90%; }
+.chat-opts { display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:80%; }
+.chat-opt-btn { background:white;border:1px solid var(--accent);color:var(--accent);padding:7px 14px;border-radius:18px;cursor:pointer;font-size:12px;font-weight:500;transition:all .2s; }
+.chat-opt-btn:hover { background:var(--accent);color:white; }
+.chat-multi { display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px; }
+.chat-multi.checked { border-color:var(--accent);background:var(--accent-light); }
+.chat-scan-zone { background:white;border:2px dashed var(--accent);border-radius:14px;padding:20px;text-align:center;max-width:80%;align-self:flex-start;animation:chatFadeIn .3s; }
+.chat-scan-btn { display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin:4px; }
+.chat-scan-btn.sec { background:white;border:1px solid var(--border);color:var(--text); }
+.chat-ocr-result { background:var(--green-light);border:1px solid rgba(22,163,74,0.15);border-radius:12px;padding:14px;max-width:80%;align-self:flex-start;animation:chatFadeIn .3s;font-size:12px; }
+.chat-ocr-row { display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.04); }
+.chat-ocr-row:last-child { border:none; }
+</style>
+
+<script>
+// ─── CHATBOT ENGINE ──────────────────────────
+const CHAT_API = window.location.origin + '/scanticket';
+let chatSessionId = '';
+let chatLangue = 'fr';
+let chatEtape = 0;
+let chatTotal = 10;
+let chatTermine = false;
+let chatScanFile = null;
+let chatPhase = 'nom';
+
+document.addEventListener('DOMContentLoaded', () => {
+    chatSessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    chatDemarrer();
+});
+
+async function chatDemarrer() {
+    chatShowTyping(true);
+    try {
+        const r = await fetch(`${CHAT_API}/api/chat/start`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({session_id: chatSessionId, langue: chatLangue})
+        });
+        const d = await r.json();
+        chatShowTyping(false);
+        chatSessionId = d.session_id || chatSessionId;
+        chatTotal = d.total_etapes || 6;
+        chatPhase = d.phase || 'nom';
+        chatAddMsg('bot', d.message);
+        chatUpdateProgress(0);
+        // Phase nom: juste le champ texte, pas de scan zone
+        if (d.options && d.options.length > 0) chatShowOptions(d.options, d.type, d.upload_photo);
+        document.getElementById('chat-status-text').textContent = 'En ligne';
+    } catch(e) {
+        chatShowTyping(false);
+        chatAddMsg('system', 'Erreur de connexion. Rechargez la page.');
+    }
+}
+
+async function chatEnvoyer() {
+    if (chatTermine) return;
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    chatAddMsg('user', msg);
+    chatClearOpts();
+    chatShowTyping(true);
+    try {
+        const r = await fetch(`${CHAT_API}/api/chat/reply`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({session_id: chatSessionId, message: msg, langue: chatLangue})
+        });
+        const d = await r.json();
+        chatShowTyping(false);
+        chatPhase = d.phase || '';
+        chatEtape = d.etape || 0;
+        chatTotal = d.total_etapes || chatTotal;
+        chatUpdateProgress(chatEtape);
+        chatAddMsg('bot', d.message);
+        if (d.termine) {
+            chatTermine = true;
+            document.getElementById('chatInputArea').style.display = 'none';
+            const sz = document.getElementById('chatScanZone');
+            if (sz) sz.remove();
+        } else if (d.phase === 'photo') {
+            chatShowScanZone();
+            document.getElementById('chatInputArea').style.display = 'none';
+        } else if (d.options && d.options.length > 0) {
+            chatShowOptions(d.options, d.type, d.upload_photo);
+        }
+        if (d.optionnel) chatShowSkip();
+    } catch(e) {
+        chatShowTyping(false);
+        chatAddMsg('system', 'Erreur. Reessayez.');
+    }
+}
+
+function chatAddMsg(role, text) {
+    const c = document.getElementById('chatMessages');
+    const d = document.createElement('div');
+    d.className = 'chat-msg ' + role;
+    d.textContent = text;
+    c.insertBefore(d, document.getElementById('chatTyping'));
+    c.scrollTop = c.scrollHeight;
+}
+
+function chatShowTyping(show) {
+    document.getElementById('chatTyping').style.display = show ? 'flex' : 'none';
+    const c = document.getElementById('chatMessages');
+    c.scrollTop = c.scrollHeight;
+}
+
+function chatUpdateProgress(etape) {
+    const pct = Math.min(Math.round((etape / chatTotal) * 100), 100);
+    document.getElementById('chat-progress-fill').style.width = pct + '%';
+    document.getElementById('chat-progress-text').textContent = `Etape ${Math.min(etape+1, chatTotal)} / ${chatTotal}`;
+    document.getElementById('chat-progress-pct').textContent = pct + '%';
+}
+
+function chatShowOptions(opts, type, uploadPhoto) {
+    const c = document.getElementById('chatMessages');
+    if (type === 'multi_choix') {
+        const container = document.createElement('div');
+        container.className = 'chat-opts'; container.id = 'chatOpts';
+        container.style.flexDirection = 'column';
+        opts.forEach(o => {
+            const lbl = document.createElement('label');
+            lbl.className = 'chat-multi';
+            lbl.innerHTML = `<input type="checkbox" value="${o}" style="accent-color:var(--accent);"> ${o}`;
+            lbl.onclick = () => lbl.classList.toggle('checked');
+            container.appendChild(lbl);
+        });
+        // Bouton upload photo si applicable
+        if (uploadPhoto) {
+            const uploadDiv = document.createElement('div');
+            uploadDiv.style.cssText = 'width:100%;margin-top:8px;padding:10px;background:#f0f7ff;border:1px dashed #2563eb;border-radius:10px;text-align:center;';
+            uploadDiv.innerHTML = '<div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:6px;">Ajouter des photos de preuves (optionnel)</div><div style="font-size:11px;color:#64748b;margin-bottom:8px;">Signalisation, lieu, dommages... GPS et date extraits automatiquement</div>';
+            const uploadBtn = document.createElement('button');
+            uploadBtn.className = 'chat-scan-btn';
+            uploadBtn.style.cssText = 'font-size:12px;padding:8px 16px;';
+            uploadBtn.innerHTML = '&#128247; Ajouter photos';
+            uploadBtn.onclick = (e) => { e.preventDefault(); document.getElementById('chatEvidenceInput').click(); };
+            uploadDiv.appendChild(uploadBtn);
+            const uploadStatus = document.createElement('div');
+            uploadStatus.id = 'chatEvidenceStatus';
+            uploadStatus.style.cssText = 'font-size:11px;color:#64748b;margin-top:6px;';
+            uploadDiv.appendChild(uploadStatus);
+            container.appendChild(uploadDiv);
+        }
+
+        const btn = document.createElement('button');
+        btn.className = 'chat-scan-btn'; btn.textContent = 'Confirmer';
+        btn.style.marginTop = '6px';
+        btn.onclick = () => {
+            const vals = Array.from(container.querySelectorAll('input:checked')).map(c=>c.value);
+            if (!vals.length) vals.push(opts[opts.length-1]);
+            document.getElementById('chatInput').value = vals.join(', ');
+            chatEnvoyer();
+        };
+        container.appendChild(btn);
+        c.insertBefore(container, document.getElementById('chatTyping'));
+        document.getElementById('chatInputArea').style.display = 'none';
+    } else {
+        const container = document.createElement('div');
+        container.className = 'chat-opts'; container.id = 'chatOpts';
+        opts.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'chat-opt-btn'; btn.textContent = o;
+            btn.onclick = () => { document.getElementById('chatInput').value = o; chatEnvoyer(); };
+            container.appendChild(btn);
+        });
+        c.insertBefore(container, document.getElementById('chatTyping'));
+    }
+    c.scrollTop = c.scrollHeight;
+}
+
+function chatClearOpts() {
+    const e = document.getElementById('chatOpts');
+    if (e) e.remove();
+    document.getElementById('chatInputArea').style.display = '';
+}
+
+function chatShowSkip() {
+    const area = document.getElementById('chatInputArea');
+    if (area.querySelector('.chat-skip')) return;
+    const btn = document.createElement('button');
+    btn.className = 'chat-skip';
+    btn.textContent = 'Passer';
+    btn.style.cssText = 'background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px 14px;border-radius:10px;cursor:pointer;font-size:12px;';
+    btn.onclick = () => { document.getElementById('chatInput').value = '-'; chatEnvoyer(); btn.remove(); };
+    area.appendChild(btn);
+}
+
+// ─── SCANNER DANS CHATBOT ────────────────────
+function chatShowScanZone() {
+    const c = document.getElementById('chatMessages');
+    if (document.getElementById('chatScanZone')) return;
+    const z = document.createElement('div');
+    z.className = 'chat-scan-zone'; z.id = 'chatScanZone';
+    z.innerHTML = `
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">Scanner votre ticket</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">Photo ou image — extraction automatique par IA</div>
+        <button class="chat-scan-btn" onclick="document.getElementById('chatFileCamera').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Photo
+        </button>
+        <button class="chat-scan-btn sec" onclick="document.getElementById('chatFileGallery').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Galerie
+        </button>
+        <div id="chatScanPreview"></div>
+        <div id="chatScanProgress" style="display:none;margin-top:10px;">
+            <div style="width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                <div id="chatScanFill" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:3px;width:0%;transition:width .3s;"></div>
+            </div>
+            <div id="chatScanStatus" style="font-size:11px;color:var(--text-dim);margin-top:4px;">Analyse...</div>
+        </div>
+    `;
+    c.insertBefore(z, document.getElementById('chatTyping'));
+    c.scrollTop = c.scrollHeight;
+}
+
+function chatOnFile(input) {
+    if (input.files && input.files[0]) chatHandleFile(input.files[0]);
+    input.value = '';
+}
+
+function chatHandleFile(file) {
+    if (!file.type.match(/image|pdf/)) { chatAddMsg('system','Format non supporte.'); return; }
+    if (file.size > 20*1024*1024) { chatAddMsg('system','Fichier trop gros (max 20 Mo).'); return; }
+    chatScanFile = file;
+    const preview = document.getElementById('chatScanPreview');
+    if (preview && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;max-height:140px;border-radius:8px;margin-top:10px;border:1px solid var(--border);">
+            <div style="margin-top:8px;"><button class="chat-scan-btn" onclick="chatLancerScan()">Analyser ce ticket</button></div>`;
+        };
+        reader.readAsDataURL(file);
+    } else if (preview) {
+        preview.innerHTML = `<div style="margin-top:8px;font-size:12px;">PDF: ${file.name}</div>
+        <div style="margin-top:6px;"><button class="chat-scan-btn" onclick="chatLancerScan()">Analyser ce ticket</button></div>`;
+    }
+}
+
+async function chatLancerScan() {
+    if (!chatScanFile) return;
+    const prog = document.getElementById('chatScanProgress');
+    const fill = document.getElementById('chatScanFill');
+    const status = document.getElementById('chatScanStatus');
+    const preview = document.getElementById('chatScanPreview');
+    if (preview) { const btn = preview.querySelector('.chat-scan-btn'); if(btn) btn.style.display='none'; }
+    prog.style.display = 'block';
+    const steps = [{p:20,m:'Upload...'},{p:45,m:'OCR en cours...'},{p:70,m:'Analyse IA...'},{p:90,m:'Extraction...'}];
+    let si = 0;
+    const timer = setInterval(()=>{ if(si<steps.length){fill.style.width=steps[si].p+'%';status.textContent=steps[si].m;si++;} },1500);
+    try {
+        const fd = new FormData();
+        fd.append('ticket_photo', chatScanFile);
+        const r = await fetch(`${CHAT_API}/api/chat/scan`, {method:'POST', body:fd});
+        clearInterval(timer);
+        const d = await r.json();
+        if (!d.success) throw new Error(d.error||'OCR echoue');
+        fill.style.width = '100%'; status.textContent = `Termine en ${d.temps||'?'}s`;
+        setTimeout(()=>{
+            const sz = document.getElementById('chatScanZone');
+            if(sz) sz.remove();
+            chatAfficherOCR(d);
+            // Envoyer les donnees OCR au backend pour confirmation
+            document.getElementById('chatInputArea').style.display = '';
+            chatEnvoyerOCR(d.ticket || {});
+        }, 600);
+    } catch(e) {
+        clearInterval(timer);
+        status.textContent = 'Erreur: ' + e.message;
+        status.style.color = 'var(--red)';
+    }
+}
+
+async function chatEnvoyerOCR(ticketData) {
+    // Envoyer les donnees OCR au chatbot backend comme JSON
+    chatShowTyping(true);
+    try {
+        const r = await fetch(`${CHAT_API}/api/chat/reply`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({session_id: chatSessionId, message: JSON.stringify(ticketData), langue: chatLangue})
+        });
+        const d = await r.json();
+        chatShowTyping(false);
+        chatPhase = d.phase || '';
+        chatEtape = d.etape || 0;
+        chatTotal = d.total_etapes || chatTotal;
+        chatUpdateProgress(chatEtape);
+        chatAddMsg('bot', d.message);
+        if (d.options && d.options.length > 0) chatShowOptions(d.options, d.type, d.upload_photo);
+    } catch(e) {
+        chatShowTyping(false);
+        chatAddMsg('system', 'Erreur envoi donnees. Reessayez.');
+    }
+}
+
+function chatAfficherOCR(data) {
+    const c = document.getElementById('chatMessages');
+    const t = data.ticket || {};
+    const champs = {'Infraction':t.infraction,'Province':t.juridiction,'Date':t.date,'Amende':t.amende,'Lieu':t.lieu,'Article':t.loi,'Appareil':t.appareil,'Vitesse':t.vitesse_captee?t.vitesse_captee+'/'+t.vitesse_permise+' km/h':null,'No constat':t.numero_constat};
+    let rows = '';
+    for (const [k,v] of Object.entries(champs)) { if(v&&v!=='?'&&v!=='0') rows += `<div class="chat-ocr-row"><span style="color:var(--text-dim);">${k}</span><span style="font-weight:600;">${v}</span></div>`; }
+    const div = document.createElement('div');
+    div.className = 'chat-ocr-result';
+    div.innerHTML = `<div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px;">&#10003; Ticket analyse (${data.temps||'?'}s)</div>${rows||'<div style="color:var(--text-dim);">Aucun champ detecte.</div>'}
+    <button class="chat-scan-btn" onclick="chatUtiliserOCR(this)" style="width:100%;justify-content:center;margin-top:8px;font-size:12px;">Utiliser ces informations</button>`;
+    div.dataset.ticket = JSON.stringify(t);
+    c.insertBefore(div, document.getElementById('chatTyping'));
+    c.scrollTop = c.scrollHeight;
+}
+
+function chatUtiliserOCR(btn) {
+    // Les donnees sont deja envoyees automatiquement via chatEnvoyerOCR
+    btn.textContent = 'Deja applique';
+    btn.disabled = true;
+}
+
+
+
+// --- UPLOAD PREUVES PHOTO ---
+let chatEvidenceFiles = [];
+
+function chatOnEvidence(input) {
+    if (!input.files || !input.files.length) return;
+    chatEvidenceFiles = Array.from(input.files);
+    input.value = '';
+    chatUploadEvidence();
+}
+
+async function chatUploadEvidence() {
+    if (!chatEvidenceFiles.length) return;
+    const status = document.getElementById('chatEvidenceStatus');
+    if (status) status.innerHTML = '<span style="color:#2563eb;">Upload de ' + chatEvidenceFiles.length + ' photo(s)...</span>';
+
+    const fd = new FormData();
+    fd.append('session_id', chatSessionId);
+    chatEvidenceFiles.forEach(f => fd.append('evidence_photos', f));
+
+    try {
+        const r = await fetch(CHAT_API + '/api/chat/evidence', {method: 'POST', body: fd});
+        const d = await r.json();
+        if (!d.success) throw new Error(d.error || 'Upload echoue');
+        chatAfficherPreuves(d);
+        if (status) status.innerHTML = '<span style="color:#16a34a;">&#10003; ' + d.uploaded + ' photo(s) uploadee(s)</span>';
+    } catch(e) {
+        if (status) status.innerHTML = '<span style="color:#dc2626;">Erreur: ' + e.message + '</span>';
+    }
+    chatEvidenceFiles = [];
+}
+
+function chatAfficherPreuves(data) {
+    const c = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-ocr-result';
+
+    let html = '<div style="font-weight:700;color:#16a34a;margin-bottom:8px;font-size:13px;">&#128247; ' + data.uploaded + ' photo(s) de preuve uploadee(s)</div>';
+
+    for (const photo of data.photos) {
+        if (photo.error) {
+            html += '<div class="chat-ocr-row"><span style="color:#dc2626;">' + photo.name + ': ' + photo.error + '</span></div>';
+            continue;
+        }
+        const exif = photo.exif || {};
+        html += '<div style="padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06);">';
+        html += '<div style="font-weight:600;font-size:12px;">' + (photo.original || photo.name) + '</div>';
+
+        if (exif.date_photo) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Date photo</span><span>' + exif.date_photo + '</span></div>';
+        if (exif.appareil_marque || exif.appareil_modele) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Appareil</span><span>' + (exif.appareil_marque||'') + ' ' + (exif.appareil_modele||'') + '</span></div>';
+        if (exif.gps_lat && exif.gps_lon) {
+            html += '<div class="chat-ocr-row"><span style="color:#64748b;">GPS</span><span>' + exif.gps_lat + ', ' + exif.gps_lon + '</span></div>';
+            html += '<div class="chat-ocr-row"><span style="color:#64748b;">Carte</span><a href="' + exif.gps_google_maps + '" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:11px;">Voir sur Google Maps</a></div>';
+        }
+        if (exif.gps_altitude) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Altitude</span><span>' + exif.gps_altitude + ' m</span></div>';
+        if (exif.largeur && exif.hauteur) html += '<div class="chat-ocr-row"><span style="color:#64748b;">Resolution</span><span>' + exif.largeur + 'x' + exif.hauteur + '</span></div>';
+        if (!exif.date_photo && !exif.gps_lat && !exif.appareil_marque) html += '<div style="color:#64748b;font-size:11px;">Pas de donnees EXIF/GPS</div>';
+        html += '</div>';
+    }
+
+    html += '<div style="margin-top:8px;font-size:10px;color:#94a3b8;">Les donnees GPS et date sont extraites automatiquement des photos.</div>';
+
+    div.innerHTML = html;
+    c.insertBefore(div, document.getElementById('chatTyping'));
+    c.scrollTop = c.scrollHeight;
+}
+
+function toggleChatLangue() {
+    chatLangue = chatLangue==='fr'?'en':'fr';
+    document.getElementById('chatLangBtn').textContent = chatLangue==='fr'?'EN/FR':'FR/EN';
+    document.getElementById('chatMessages').innerHTML = '<div id="chatTyping" style="display:none;align-self:flex-start;padding:10px 14px;background:white;border-radius:14px;border-bottom-left-radius:4px;border:1px solid var(--border);"><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite;"></span><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.2s;"></span><span style="display:inline-block;width:6px;height:6px;background:var(--text-dim);border-radius:50%;margin:0 2px;animation:chatDot 1.2s infinite 0.4s;"></span></div>';
+    chatTermine = false;
+    document.getElementById('chatInputArea').style.display = '';
+    chatSessionId = 'chat_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+    chatDemarrer();
+}
+</script>
+
+
+<!-- === PRICING === -->
 <section class="section" id="prix">
     <div class="container">
-        <h2 class="section-title reveal">Tarification</h2>
-        <p class="section-sub reveal">Choisissez le plan adapte a votre situation</p>
+        <h2 class="section-title reveal">Tarifs</h2>
+        <p class="section-sub reveal">Choisissez le forfait adapte a votre situation</p>
         <div class="pricing-grid">
             <div class="price-card reveal">
                 <div class="price-name">Analyse</div>
@@ -797,20 +1661,20 @@
                     <li>1 analyse complete</li>
                     <li>Score de contestation</li>
                     <li>Arguments de defense</li>
-                    <li>26 agents AI</li>
+                    <li>26 agents IA</li>
                 </ul>
                 <a href="#scanner" class="price-btn">Commencer</a>
             </div>
             <div class="price-card featured reveal">
                 <div class="price-name">Rapport Pro</div>
                 <div class="price-amount"><span class="currency">$</span>19<span style="font-size:1rem;color:var(--text-dim)">.99</span></div>
-                <div class="price-period">par contravention</div>
+                <div class="price-period">par ticket</div>
                 <ul class="price-features">
-                    <li>Tout du plan gratuit</li>
-                    <li>Rapport PDF 9 pages</li>
+                    <li>Tout le forfait gratuit</li>
+                    <li>Rapport PDF de 9 pages</li>
                     <li>Rapport technique avocat</li>
                     <li>Jurisprudence detaillee</li>
-                    <li>Envoi par email</li>
+                    <li>Envoi par courriel</li>
                 </ul>
                 <button class="price-btn" onclick="alert('Bientot disponible!')">Obtenir le rapport</button>
             </div>
@@ -821,7 +1685,7 @@
                 <ul class="price-features">
                     <li>Analyses illimitees</li>
                     <li>Rapports PDF illimites</li>
-                    <li>Alertes delais</li>
+                    <li>Alertes de delais</li>
                     <li>Portail membre</li>
                     <li>Support prioritaire</li>
                 </ul>
@@ -831,103 +1695,248 @@
     </div>
 </section>
 
-<!-- ═══ FAQ ═══ -->
+<!-- === FAQ === -->
 <section class="section" id="faq">
     <div class="container">
         <h2 class="section-title reveal">Questions frequentes</h2>
         <div class="divider"></div>
         <div class="faq-list">
             <div class="faq-item reveal">
-                <div class="faq-q" onclick="toggleFaq(this)">Est-ce que Ticket911 remplace un avocat?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Non. Ticket911 est un outil d'analyse qui vous aide a comprendre vos options. Notre rapport peut servir de base a votre defense, mais pour les cas complexes, nous recommandons de consulter un avocat specialise en droit routier.</div>
+                <div class="faq-q" onclick="toggleFaq(this)">Est-ce que AITicketInfo remplace un avocat?<span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Non. AITicketInfo est un outil d'information juridique qui vous aide a comprendre vos options. Notre rapport peut servir de base pour votre defense, mais pour les cas complexes, nous recommandons de consulter un avocat specialise en droit routier. Nous ne sommes pas un cabinet d'avocats et ne fournissons pas de conseils juridiques.</div>
+            </div>
+            <div class="faq-item reveal">
+                <div class="faq-q" onclick="toggleFaq(this)">Est-ce que ce service est legal?<span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Oui. AITicketInfo fournit de l'information juridique, et non des conseils juridiques. Nous analysons les lois, reglements et jurisprudence accessibles au public pour vous aider a comprendre votre situation. C'est similaire aux outils de recherche juridique disponibles au public. Nous ne vous representons pas en cour et ne fournissons pas de conseils juridiques personnalises.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Quelles provinces sont couvertes?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Actuellement le Quebec et l'Ontario, avec des agents specialises pour chaque province. Nous avons plus de 24,770 decisions de jurisprudence et 4,280 articles de loi indexes pour ces deux provinces.</div>
+                <div class="faq-a">Actuellement le Quebec et l'Ontario, avec des agents specialises pour chaque province. Nous avons plus de 31 000 decisions de jurisprudence et 4 500 articles de loi indexes pour ces deux provinces.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Combien de temps prend l'analyse?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Environ 45 secondes. Les 26 agents travaillent en parallele sur 4 phases: intake, analyse juridique, audit independant et livraison du rapport.</div>
+                <div class="faq-a">Environ 45 secondes. Les 26 agents travaillent en parallele sur 4 phases: reception, analyse juridique, audit independant et livraison du rapport.</div>
             </div>
             <div class="faq-item reveal">
-                <div class="faq-q" onclick="toggleFaq(this)">L'analyse gratuite est vraiment gratuite?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Oui. L'analyse complete avec score de contestation et arguments de defense est gratuite. Le rapport PDF detaille de 9 pages avec jurisprudence et rapport technique avocat est disponible avec le plan Rapport Pro.</div>
+                <div class="faq-q" onclick="toggleFaq(this)">L'analyse gratuite est-elle vraiment gratuite?<span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Oui. L'analyse complete avec score de contestation et arguments de defense est gratuite. Le rapport PDF detaille de 9 pages avec jurisprudence et rapport technique avocat est disponible avec le forfait Rapport Pro.</div>
             </div>
             <div class="faq-item reveal">
                 <div class="faq-q" onclick="toggleFaq(this)">Comment fonctionne la photo du ticket?<span class="faq-arrow">&#9660;</span></div>
-                <div class="faq-a">Notre agent Vision AI utilise la reconnaissance optique de caracteres (OCR) pour extraire automatiquement les informations de votre contravention: infraction, amende, article de loi, lieu, date, etc.</div>
+                <div class="faq-a">Notre agent Vision AI utilise la reconnaissance optique de caracteres (OCR) pour extraire automatiquement les informations de votre contravention: infraction, amende, loi, lieu, date, etc.</div>
             </div>
             <div class="faq-item reveal">
-                <div class="faq-q" onclick="toggleFaq(this)">Mes donnees sont-elles securisees?<span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-q" onclick="toggleFaq(this)">Mes donnees sont-elles en securite?<span class="faq-arrow">&#9660;</span></div>
                 <div class="faq-a">Oui. Vos donnees sont traitees sur nos serveurs canadiens securises et ne sont jamais partagees avec des tiers. Les photos de tickets sont supprimees apres l'analyse.</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
+<!-- === FOOTER === -->
 <footer class="footer">
     <div class="container">
-        <div class="footer-logo">TICKET911</div>
+        <div class="footer-logo" style="display:flex;align-items:center;gap:8px;justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="fLogo" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><rect width="36" height="36" rx="10" fill="url(#fLogo)"/><path d="M7 11h22v2.2H7zm0 5.5h16v2.2H7zm0 5.5h19v2.2H7z" fill="white" opacity="0.9"/><circle cx="27" cy="25" r="5.5" fill="#16a34a"/><path d="M24.5 25l1.8 1.8 3.2-3.2" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-weight:900;letter-spacing:0.5px;"><span style="color:#e2e8f0;">AI</span><span style="color:#60a5fa;">TICKET</span><span style="color:#e2e8f0;">INFO</span></span>
+        </div>
         <p class="footer-text">
-            Analyse AI de contraventions | Quebec &amp; Ontario<br>
+            Analyse de contraventions par IA | Quebec &amp; Ontario<br>
             Developpe par <a href="#">SeoAI</a>
         </p>
         <p class="footer-legal">
-            Ce service ne constitue pas un avis juridique. Consultez un avocat pour des conseils personnalises.<br>
-            &copy; 2026 Ticket911 par SeoAI. Tous droits reserves.
+            <strong>Avis juridique :</strong> AITicketInfo est un outil de recherche d'information statistique base sur des jugements et lois publics (CanLII, SOQUIJ, LegisQuebec). 
+            Ce service ne constitue <strong>PAS</strong> un avis juridique, une opinion juridique ou une recommandation. 
+            AITicketInfo n'est <strong>PAS</strong> un cabinet d'avocats, ne pratique pas le droit et ne remplace en aucun cas un avocat. 
+            Les informations presentees sont des <strong>statistiques</strong> tirees de decisions de justice accessibles au public. 
+            Pour un avis juridique personnalise, consultez un avocat membre du 
+            <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;">Barreau du Quebec</a> ou du 
+            <a href="https://lso.ca/public-resources/finding-a-lawyer-or-paralegal" target="_blank" style="color:#93c5fd;">Barreau de l'Ontario (LSO)</a>.<br>
+            &copy; 2026 AITicketInfo par SeoAI. Tous droits reserves. | Sources : <a href="https://www.canlii.org" target="_blank" style="color:#93c5fd;">CanLII</a>, <a href="https://soquij.qc.ca" target="_blank" style="color:#93c5fd;">SOQUIJ</a>, <a href="https://legisquebec.gouv.qc.ca" target="_blank" style="color:#93c5fd;">LegisQuebec</a>
         </p>
     </div>
 </footer>
 
 <script>
 const API_BASE = window.location.pathname.includes('/scanticket') ? '/scanticket/api' : '/api';
-let selectedType = '';
+let ticketFile = null;
 
-// ═══ PARTICLES ═══
-(function initParticles(){
-    const bg=document.getElementById('particles-bg');
-    for(let i=0;i<30;i++){
-        const p=document.createElement('div');p.className='particle';
-        const size=Math.random()*3+1;
-        const colors=['var(--red)','var(--gold)','var(--cyan)','var(--purple)','var(--green)'];
-        p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100+100}%;background:${colors[i%colors.length]};opacity:0.4;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s;`;
-        bg.appendChild(p);
-    }
-})();
-
-// ═══ HEALTH CHECK ═══
+// === HEALTH CHECK ===
 fetch(API_BASE+'/health').then(r=>r.json()).then(d=>{
     const b=document.getElementById('statusBadge');
+// Live stats from DB
+fetch(window.location.origin+'/scanticket/api/health').then(r=>r.json()).then(h=>{
+    const fmt=n=>n?n.toLocaleString('fr-CA'):'--';
+    const sj=document.getElementById('statJuris'); if(sj) sj.innerHTML=fmt(h.jurisprudence);
+    const sl=document.getElementById('statLois'); if(sl) sl.innerHTML=fmt(h.lois);
+    const sa=document.getElementById('statAgents'); if(sa) sa.textContent=h.agents||26;
+    const fj=document.getElementById('featJuris'); if(fj) fj.textContent=fmt(h.jurisprudence);
+    const fl=document.getElementById('featLois'); if(fl) fl.textContent=fmt(h.lois);
+}).catch(()=>{});
     if(d.status==='ok'){b.textContent=d.agents+' agents en ligne';}
     else{b.textContent='Hors ligne';}
 }).catch(()=>{document.getElementById('statusBadge').textContent='Hors ligne';});
 
-// ═══ SCROLL REVEAL ═══
+// === SCROLL REVEAL ===
 const observer=new IntersectionObserver((entries)=>{
     entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});
 },{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 
-// ═══ FAQ ═══
+// === FAQ ===
 function toggleFaq(el){el.parentElement.classList.toggle('open');}
 
-// ═══ SCROLL ═══
+// === SCROLL ===
 function scrollToScanner(){document.getElementById('scanner').scrollIntoView({behavior:'smooth'});}
 
-// ═══ TYPE SELECTION ═══
-function selectType(el){
-    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
-    el.classList.add('selected');selectedType=el.dataset.type;
-    const names={vitesse:'Exces de vitesse',feu_rouge:'Feu rouge',stop:'Arret stop',cellulaire:'Cellulaire au volant',ceinture:'Ceinture de securite',alcool:'Capacites affaiblies',conduite_dangereuse:'Conduite dangereuse',stationnement:'Stationnement',permis:'Permis/Immatriculation',autre:''};
-    document.getElementById('infraction').value=names[selectedType]||'';
-    ['grp_captee','grp_permise'].forEach(id=>document.getElementById(id).classList.toggle('hidden',selectedType!=='vitesse'));
-    ['grp_taux','grp_test'].forEach(id=>document.getElementById(id).classList.toggle('hidden',selectedType!=='alcool'));
-    document.getElementById('grp_appareil').classList.toggle('hidden',!['vitesse','feu_rouge'].includes(selectedType));
-}
-function showFileName(input){document.getElementById('fileName').textContent=input.files[0]?input.files[0].name:'';}
+// === WIZARD NAVIGATION ===
+function goToStep(step){
+    // Validation
+    if(step===2 && !ticketFile){alert('Veuillez d\'abord prendre une photo de votre ticket.');return;}
+    if(step===3){
+        // Validate contact fields
+        const nom=document.getElementById('clientNom').value.trim();
+        const email=document.getElementById('clientEmail').value.trim();
+        if(!nom||!email){alert('Veuillez entrer votre nom et courriel.');return;}
+        // Update summary
+        document.getElementById('sumTicket').textContent=ticketFile?'Fourni':'Non fourni';
+        document.getElementById('sumName').textContent=nom;
+        document.getElementById('sumEmail').textContent=email;
+        document.getElementById('legalConsent').checked=false;
+    }
 
-// ═══ PIPELINE ANIMATION ═══
+    // Hide all panels
+    for(let i=1;i<=3;i++){
+        document.getElementById('scanStep'+i).classList.remove('active');
+        const dot=document.getElementById('dot'+i);
+        dot.classList.remove('active','done');
+    }
+
+    // Show target panel
+    document.getElementById('scanStep'+step).classList.add('active');
+
+    // Update dots
+    for(let i=1;i<step;i++) document.getElementById('dot'+i).classList.add('done');
+    document.getElementById('dot'+step).classList.add('active');
+
+    // Scroll
+    document.getElementById('formCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// === PHOTO HANDLING ===
+function handlePhoto(input){
+    if(!input.files||!input.files[0])return;
+    const file=input.files[0];
+
+    if(file.type.startsWith('image/')){
+        const reader=new FileReader();
+        reader.onload=function(e){
+            const img=new Image();
+            img.onload=function(){
+                const quality=checkImageQuality(img,file);
+                showQualityFeedback(quality);
+                compressImage(img,file,function(compressedFile,previewUrl){
+                    ticketFile=compressedFile;
+                    document.getElementById('previewImg').src=previewUrl;
+                    document.getElementById('miniPreview').src=previewUrl;
+                    document.getElementById('miniPreview').style.display='inline-block';
+                    showPhotoTaken();
+                });
+            };
+            img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        ticketFile=file;
+        document.getElementById('previewImg').alt='PDF: '+file.name;
+        showPhotoTaken();
+        showQualityFeedback({level:'good',text:'PDF recu — '+file.name});
+    }
+}
+
+function showPhotoTaken(){
+    document.getElementById('photoPreview').classList.add('visible');
+    document.getElementById('cameraZone').style.display='none';
+    document.getElementById('btnRetake').style.display='block';
+    document.getElementById('btnNext').style.display='block';
+    document.getElementById('photoGuide').style.display='none';
+}
+
+function checkImageQuality(img,file){
+    const w=img.naturalWidth, h=img.naturalHeight;
+    const megapixels=(w*h)/1000000;
+    const sizeMB=file.size/(1024*1024);
+    if(w<500||h<500){
+        return {level:'bad',text:'Photo trop petite ('+w+'x'+h+'). Prenez une photo plus rapprochee pour que le texte soit lisible.'};
+    }
+    if(megapixels<0.5){
+        return {level:'warning',text:'Resolution faible ('+w+'x'+h+'). L\'OCR pourrait avoir de la difficulte. Essayez avec un meilleur eclairage.'};
+    }
+    const ratio=w/h;
+    if(ratio<0.4||ratio>3){
+        return {level:'warning',text:'Format inhabituel. Assurez-vous que tout le ticket est visible dans la photo.'};
+    }
+    if(megapixels>=2){
+        return {level:'good',text:'Excellente qualite ('+w+'x'+h+', '+sizeMB.toFixed(1)+'MB). Pret pour l\'analyse.'};
+    }
+    return {level:'good',text:'Bonne qualite ('+w+'x'+h+'). Pret pour l\'analyse.'};
+}
+
+function showQualityFeedback(quality){
+    const fb=document.getElementById('qualityFeedback');
+    const icon=document.getElementById('qualityIcon');
+    const text=document.getElementById('qualityText');
+    fb.className='quality-feedback visible '+quality.level;
+    if(quality.level==='good') icon.textContent='\u2705';
+    else if(quality.level==='warning') icon.textContent='\u26A0\uFE0F';
+    else icon.textContent='\u274C';
+    text.textContent=quality.text;
+}
+
+function compressImage(img,originalFile,callback){
+    const MAX_SIZE=2*1024*1024;
+    const MAX_DIM=2000;
+    if(originalFile.size<=MAX_SIZE&&img.naturalWidth<=MAX_DIM&&img.naturalHeight<=MAX_DIM){
+        const reader=new FileReader();
+        reader.onload=function(e){callback(originalFile,e.target.result);};
+        reader.readAsDataURL(originalFile);
+        return;
+    }
+    const canvas=document.createElement('canvas');
+    let w=img.naturalWidth, h=img.naturalHeight;
+    if(w>MAX_DIM||h>MAX_DIM){
+        const scale=Math.min(MAX_DIM/w,MAX_DIM/h);
+        w=Math.round(w*scale); h=Math.round(h*scale);
+    }
+    canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,w,h);
+    let quality=0.85;
+    function tryCompress(){
+        canvas.toBlob(function(blob){
+            if(blob.size>MAX_SIZE&&quality>0.4){quality-=0.1;tryCompress();}
+            else{
+                const compressed=new File([blob],originalFile.name,{type:'image/jpeg',lastModified:Date.now()});
+                callback(compressed,URL.createObjectURL(blob));
+            }
+        },'image/jpeg',quality);
+    }
+    tryCompress();
+}
+
+function retakePhoto(){
+    ticketFile=null;
+    document.getElementById('photoPreview').classList.remove('visible');
+    document.getElementById('cameraZone').style.display='block';
+    document.getElementById('btnRetake').style.display='none';
+    document.getElementById('btnNext').style.display='none';
+    document.getElementById('photoGuide').style.display='grid';
+    document.getElementById('qualityFeedback').className='quality-feedback';
+    document.getElementById('ticketCamera').value='';
+    document.getElementById('ticketGallery').value='';
+}
+
+// === PIPELINE ANIMATION ===
 const PIPELINE={
     1:{agents:['ag-lecteur','ag-ocr','ag-classificateur','ag-validateur','ag-routing'],duration:8},
     2:{agents:['ag-lois','ag-lois-qc','ag-lois-on','ag-precedents','ag-precedents-qc','ag-precedents-on','ag-analyste','ag-analyste-qc','ag-analyste-on','ag-procedure','ag-procedure-qc','ag-procedure-on','ag-points','ag-temoignage','ag-photo'],duration:30},
@@ -959,27 +1968,36 @@ function runPipelineAnimation(){
     });
 }
 
-// ═══ SUBMIT ═══
+// === SUBMIT ===
 async function submitAnalysis(e){
-    e.preventDefault();document.getElementById('btnAnalyze').disabled=true;
+    e.preventDefault();
+    if(!ticketFile){alert('Veuillez prendre une photo de votre ticket.');return false;}
+    if(!document.getElementById('legalConsent').checked){alert('Veuillez accepter l\'avis juridique pour continuer.');return false;}
+
+    document.getElementById('btnAnalyze').disabled=true;
     document.getElementById('formCard').style.display='none';
     document.getElementById('pipelineSection').style.display='block';
     document.getElementById('resultsSection').style.display='none';
     runPipelineAnimation();
+
     const formData=new FormData();
-    const ticket={infraction:document.getElementById('infraction').value,juridiction:document.getElementById('juridiction').value,loi:document.getElementById('loi').value,amende:document.getElementById('amende').value,points_inaptitude:parseInt(document.getElementById('points').value)||0,lieu:document.getElementById('lieu').value,date:document.getElementById('date').value,appareil:document.getElementById('appareil').value,vitesse_captee:parseInt(document.getElementById('vitesse_captee')?.value)||0,vitesse_permise:parseInt(document.getElementById('vitesse_permise')?.value)||0,type_infraction:selectedType};
-    if(selectedType==='alcool'){ticket.taux_alcool=parseInt(document.getElementById('taux_alcool').value)||0;ticket.test_alcool=document.getElementById('test_alcool').value;}
-    const desc=document.getElementById('description').value;
-    if(desc)formData.append('temoignage',desc);
-    formData.append('ticket',JSON.stringify(ticket));
-    formData.append('client_info',JSON.stringify({email:document.getElementById('email').value||''}));
-    const photo=document.getElementById('ticketPhoto').files[0];
-    if(photo)formData.append('image',photo);
+    formData.append('ticket',JSON.stringify({}));
+    formData.append('ticket',ticketFile);
+    formData.append('client_info',JSON.stringify({
+        nom:document.getElementById('clientNom').value||'',
+        email:document.getElementById('clientEmail').value||'',
+        telephone:document.getElementById('clientTel').value||''
+    }));
+
+    // Temoignage (optionnel)
+    const temoignage=document.getElementById('temoignageText').value.trim();
+    if(temoignage) formData.append('temoignage',temoignage);
+
     try{const resp=await fetch(API_BASE+'/analyze',{method:'POST',body:formData});const data=await resp.json();showResults(data);}
     catch(err){alert('Erreur: '+err.message);resetForm();}
 }
 
-// ═══ RESULTS ═══
+// === RESULTS ===
 function showResults(data){
     clearInterval(timerInterval);
     document.querySelectorAll('.agent-node').forEach(n=>{n.classList.remove('waiting','running');n.classList.add('done');n.querySelector('.agent-status').innerHTML='<span class="check-mark">&#10003;</span>';});
@@ -992,30 +2010,29 @@ function showResults(data){
         const circumference=2*Math.PI*70;
         const offset=circumference-(score/100*circumference);
         const fill=document.getElementById('scoreRingFill');
-        const color=score>=60?'var(--green)':score>=30?'#f59e0b':'#ef4444';
+        const color=score>=60?'var(--green)':score>=30?'var(--orange)':'var(--red)';
         fill.style.stroke=color;
         setTimeout(()=>{fill.style.strokeDashoffset=offset;},100);
         document.getElementById('scoreNum').textContent=score+'%';
         const reco=(data.recommandation||'').toLowerCase();
         const rb=document.getElementById('recoBox');
-        if(reco.includes('contester')){rb.textContent='CONTESTER — Bonnes chances';rb.className='reco-box reco-contester';}
-        else if(reco.includes('negocier')){rb.textContent='NEGOCIER — Reduction possible';rb.className='reco-box reco-negocier';}
-        else{rb.textContent='PAYER — Faibles chances';rb.className='reco-box reco-payer';}
-        document.getElementById('resultDetails').innerHTML=[['Dossier','#'+(data.dossier_uuid||'?')],['Juridiction',data.juridiction||'?'],['Confiance',(data.confiance||0)+'%'],['Qualite',((data.supervision||{}).score_qualite||'?')+'%'],['Temps',Math.round(data.temps_total||0)+'s'],['Erreurs',data.nb_erreurs||0]].map(([l,v])=>`<div class="result-row"><span class="result-label">${l}</span><span class="result-value">${v}</span></div>`).join('');
+        if(reco.includes('contester')){rb.textContent='CONTESTER \u2014 Bonnes chances';rb.className='reco-box reco-contester';}
+        else if(reco.includes('negocier')){rb.textContent='NEGOCIER \u2014 Reduction possible';rb.className='reco-box reco-negocier';}
+        else{rb.textContent='PAYER \u2014 Faibles chances';rb.className='reco-box reco-payer';}
+        document.getElementById('resultDetails').innerHTML=[['Dossier','#'+(data.dossier_uuid||'?')],['Juridiction',data.juridiction||'?'],['Confiance',(data.confiance||0)+'%'],['Qualite',((data.supervision||{}).score_qualite||'?')+'%'],['Temps',Math.round(data.temps_total||0)+'s'],['Erreurs',data.nb_erreurs||0]].map(([l,v])=>'<div class="result-row"><span class="result-label">'+l+'</span><span class="result-value">'+v+'</span></div>').join('');
         const args=(data.arguments)||[];
-        document.getElementById('argsList').innerHTML=args.length?args.map((a,i)=>`<li style="animation-delay:${i*.1}s">${a}</li>`).join(''):'<li>Consultez un avocat pour une analyse approfondie</li>';
+        document.getElementById('argsList').innerHTML=args.length?args.map((a,i)=>'<li style="animation-delay:'+i*.1+'s">'+a+'</li>').join(''):'<li>Consultez un avocat pour une analyse approfondie</li>';
         const rc=data.rapport_client||{};
         const etapes=rc.prochaines_etapes||[];
-        document.getElementById('etapesList').innerHTML=etapes.length?etapes.map((e,i)=>`<li style="animation-delay:${i*.1}s">${e}</li>`).join(''):'<li>Consultez un avocat specialise en droit routier</li>';
+        document.getElementById('etapesList').innerHTML=etapes.length?etapes.map((e,i)=>'<li style="animation-delay:'+i*.1+'s">'+e+'</li>').join(''):'<li>Consultez un avocat en droit routier</li>';
         document.getElementById('rapportResume').textContent=rc.resume||'Rapport en cours de generation...';
         document.getElementById('pdfLink').href=API_BASE+'/rapport/'+(data.dossier_uuid||'');
         document.querySelectorAll('.results-section .card').forEach((c,i)=>{c.style.animationDelay=(i*.15)+'s';});
     },1500);
 }
 
-// ═══ DEMO ═══
+// === DEMO ===
 async function runDemo(){
-    document.getElementById('btnAnalyze').disabled=true;
     document.getElementById('formCard').style.display='none';
     document.getElementById('pipelineSection').style.display='block';
     document.getElementById('resultsSection').style.display='none';
@@ -1030,7 +2047,7 @@ async function runDemo(){
     }catch(err){alert('Erreur demo: '+err.message);resetForm();}
 }
 
-// ═══ RESET ═══
+// === RESET ===
 function resetForm(){
     document.getElementById('formCard').style.display='block';
     document.getElementById('pipelineSection').style.display='none';
@@ -1039,15 +2056,26 @@ function resetForm(){
     document.querySelectorAll('.agent-node').forEach(n=>{n.className='agent-node waiting';n.querySelector('.agent-status').innerHTML='';});
     [1,2,3,4].forEach(i=>{document.getElementById('pb'+i).className='phase-block';document.getElementById('pp'+i).style.width='0%';});
     ['flow1','flow2','flow3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
-    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
-    selectedType='';
+    // Reset wizard to step 1
+    goToStep(1);
+    retakePhoto();
+    ticketFile=null;
+    // Reset temoignage
+    document.getElementById('temoignageText').value='';
+    // Reset contact
+    document.getElementById('clientNom').value='';
+    document.getElementById('clientEmail').value='';
+    document.getElementById('clientTel').value='';
+    // Reset results
     document.getElementById('scoreRingFill').style.strokeDashoffset=440;
     clearInterval(timerInterval);
 }
 
-// ═══ NAVBAR SCROLL ═══
+// === NAVBAR SCROLL ===
 window.addEventListener('scroll',()=>{
-    document.querySelector('.navbar').style.background=window.scrollY>50?'rgba(6,10,24,0.95)':'rgba(6,10,24,0.85)';
+    const nav=document.querySelector('.navbar');
+    if(window.scrollY>50) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
 });
 </script>
 </body>

@@ -1,12 +1,12 @@
 """
 Agent QC: ANALYSTE QUEBEC — Strategie specifique droit routier QC
 Code de la securite routiere, SAAQ, Cour municipale, reglements municipaux
-Moteur: DeepSeek V3p2 (raisonnement juridique FR)
+Moteur: GLM-5 (744B, low hallucination, raisonnement juridique)
 """
 
 import json
 import time
-from agents.base_agent import BaseAgent, DEEPSEEK_V3
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentAnalysteQC(BaseAgent):
@@ -14,9 +14,9 @@ class AgentAnalysteQC(BaseAgent):
     def __init__(self):
         super().__init__("Analyste_QC")
 
-    def analyser(self, ticket, lois, precedents):
+    def analyser(self, ticket, lois, precedents, contexte_texte=""):
         """
-        Input: ticket QC + lois CSR + precedents QC
+        Input: ticket QC + lois CSR + precedents QC + contexte enrichi (meteo/routes/vitesse)
         Output: analyse juridique specifique au Quebec
         """
         self.log("Analyse juridique QC (CSR/SAAQ)...", "STEP")
@@ -67,6 +67,12 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
 ## PRECEDENTS QC (DE NOTRE BASE)
 {ctx_precedents if ctx_precedents else "AUCUN precedent QC dans la base. Analyse sur principes generaux."}
 
+## CONTEXTE ENVIRONNEMENTAL (donnees officielles)
+{contexte_texte if contexte_texte else "Aucune donnee meteo/route disponible."}
+NOTE: Si les conditions meteo sont mauvaises (pluie, neige, verglas, vent fort), considere comme argument de defense potentiel.
+Si une zone de travaux est active, verifie si la signalisation temporaire peut etre contestee.
+Si la limite OSM differe du ticket, signale l'anomalie.
+
 ## REPONDS EN JSON:
 {{
     "score_contestation": 0-100,
@@ -86,32 +92,47 @@ REGLE ABSOLUE: Cite UNIQUEMENT les precedents fournis. N'invente AUCUN cas.
     "recommandation": "contester|payer|negocier",
     "explication": "2-3 phrases",
     "note_saaq": "impact sur les points SAAQ",
+    "contexte_meteo": "resume des conditions meteo si pertinent",
+    "contexte_route": "conditions routieres si pertinent",
     "avertissement": "note importante"
 }}"""
 
         system = ("Avocat QC specialise CSR/SAAQ. Cite UNIQUEMENT les precedents fournis. "
                   "Connais le Code de la securite routiere par coeur. JSON uniquement.")
 
-        response = self.call_ai(prompt, system_prompt=system, model=DEEPSEEK_V3, temperature=0.1, max_tokens=3000)
+        response = self.call_ai(prompt, system_prompt=system, model=GLM5, temperature=0.1, max_tokens=4000)
         duration = time.time() - start
 
         if response["success"]:
             try:
                 analyse = self.parse_json_response(response["text"])
-                if not precedents:
-                    analyse["confiance"] = "faible"
-                    analyse["base_sur_precedents"] = False
-                    analyse["avertissement"] = "Analyse sur principes generaux. Aucun precedent QC reel dans la base."
-
-                self.log(f"Score QC: {analyse.get('score_contestation', '?')}% | Grand exces: {analyse.get('grand_exces', '?')}", "OK")
-                self.log_run("analyser_qc", f"QC {ticket.get('infraction', '')}",
-                             f"Score={analyse.get('score_contestation', '?')}%",
-                             tokens=response["tokens"], duration=duration)
-                return analyse
             except Exception as e:
-                self.log(f"Erreur parsing: {e}", "FAIL")
-                self.log_run("analyser_qc", "", "", duration=duration, success=False, error=str(e))
-                return {"raw_response": response["text"], "error": str(e)}
+                # Retry avec Mixtral (meilleur JSON)
+                self.log(f"Parsing fail ({e}), retry Mixtral...", "WARN")
+                from agents.base_agent import MIXTRAL_FR
+                response = self.call_ai(prompt, system_prompt=system, model=MIXTRAL_FR, temperature=0.1, max_tokens=4000)
+                if response["success"]:
+                    try:
+                        analyse = self.parse_json_response(response["text"])
+                    except Exception as e2:
+                        self.log(f"Erreur parsing retry: {e2}", "FAIL")
+                        self.log_run("analyser_qc", "", "", duration=time.time()-start, success=False, error=str(e2))
+                        return {"raw_response": response["text"], "error": str(e2)}
+                else:
+                    self.log(f"Erreur AI retry: {response.get('error', '?')}", "FAIL")
+                    self.log_run("analyser_qc", "", "", duration=time.time()-start, success=False, error=response.get("error"))
+                    return None
+
+            if not precedents:
+                analyse["confiance"] = "faible"
+                analyse["base_sur_precedents"] = False
+                analyse["avertissement"] = "Analyse sur principes generaux. Aucun precedent QC reel dans la base."
+
+            self.log(f"Score QC: {analyse.get('score_contestation', '?')}% | Grand exces: {analyse.get('grand_exces', '?')}", "OK")
+            self.log_run("analyser_qc", f"QC {ticket.get('infraction', '')}",
+                         f"Score={analyse.get('score_contestation', '?')}%",
+                         tokens=response["tokens"], duration=time.time()-start)
+            return analyse
         else:
             self.log(f"Erreur AI: {response.get('error', '?')}", "FAIL")
             self.log_run("analyser_qc", "", "", duration=duration, success=False, error=response.get("error"))

@@ -1,34 +1,29 @@
 """
-Agent QC: PRECEDENTS QUEBEC — FTS local + CanLII API (optionnel)
-Recherche hybride FTS5 + ChromaDB specifique Quebec
+Agent QC: PRECEDENTS QUEBEC — PostgreSQL tsvector + ChromaDB (optionnel)
+Recherche hybride tsvector GIN specifique Quebec
 Cour municipale (QCCM), Cour du Quebec (QCCQ), CS, CA du Quebec
 """
 
-import sqlite3
 import time
-import os
-from agents.base_agent import BaseAgent, DB_PATH
-
-CANLII_API_KEY = os.environ.get("CANLII_API_KEY", "")
+from agents.base_agent import BaseAgent, CANLII_API_KEY
 
 
 class AgentPrecedentsQC(BaseAgent):
 
     def __init__(self):
         super().__init__("Precedents_QC")
-        self.chroma_collection = None
-        self._init_chroma()
+        self._embedding_service = None
 
-    def _init_chroma(self):
-        try:
-            import chromadb
-            client = chromadb.PersistentClient(path="/var/www/ticket911/data/embeddings")
-            self.chroma_collection = client.get_or_create_collection(
-                name="jurisprudence",
-                metadata={"hnsw:space": "cosine"}
-            )
-        except Exception:
-            self.chroma_collection = None
+    def _get_embedding_service(self):
+        if self._embedding_service is None:
+            try:
+                import sys
+                sys.path.insert(0, "/var/www/aiticketinfo")
+                from embedding_service import embedding_service
+                self._embedding_service = embedding_service
+            except Exception as e:
+                self.log(f"Embedding service indisponible: {e}", "WARN")
+        return self._embedding_service
 
     def chercher_precedents(self, ticket, lois, n_results=10):
         """
@@ -39,9 +34,9 @@ class AgentPrecedentsQC(BaseAgent):
         self.log(f"Recherche precedents QC: {infraction[:50]}...", "STEP")
         start = time.time()
 
-        # 1. FTS local — recherche principale
-        fts_results = self._recherche_fts_qc(infraction, n_results)
-        self.log(f"  FTS local: {len(fts_results)} cas QC", "OK" if fts_results else "WARN")
+        # 1. PostgreSQL tsvector — recherche principale
+        fts_results = self._recherche_tsvector_qc(infraction, n_results)
+        self.log(f"  PostgreSQL tsvector: {len(fts_results)} cas QC", "OK" if fts_results else "WARN")
 
         # 2. Semantique (ChromaDB si disponible)
         semantic_results = self._recherche_semantique_qc(infraction, n_results)
@@ -56,7 +51,7 @@ class AgentPrecedentsQC(BaseAgent):
 
         # 4. Fallback: recherche elargie si peu de resultats QC
         if len(fts_results) < 3:
-            fallback = self._recherche_fts_federale(infraction, 5)
+            fallback = self._recherche_tsvector_federale(infraction, 5)
             if fallback:
                 self.log(f"  Fallback federal: {len(fallback)} cas (CSC/CA)", "OK")
                 fts_results.extend(fallback)
@@ -65,178 +60,221 @@ class AgentPrecedentsQC(BaseAgent):
         combined = self._combiner(fts_results, semantic_results, canlii_results)
         top = combined[:n_results]
 
+        # 5. Enrichir avec jurisprudence_citations (716 liens entre cas)
+        jids = [p.get("id") for p in top if p.get("id") and isinstance(p.get("id"), int)]
+        if jids:
+            citations_links = self._fetch_jurisprudence_citations(jids)
+            if citations_links:
+                self.log(f"  Citations links: {len(citations_links)} liens entre cas", "OK")
+                # Attacher les cas liés à chaque precedent
+                links_by_parent = {}
+                for cl in citations_links:
+                    pid = cl["parent_id"]
+                    if pid not in links_by_parent:
+                        links_by_parent[pid] = []
+                    links_by_parent[pid].append(cl)
+                for p in top:
+                    pid = p.get("id")
+                    if pid in links_by_parent:
+                        p["cas_lies"] = links_by_parent[pid]
+
         duration = time.time() - start
         self.log_run("chercher_precedents_qc", f"QC {infraction[:100]}",
-                     f"{len(top)} precedents QC", duration=duration)
+                     f"{len(top)} precedents QC (+{len(jids)} enrichis)", duration=duration)
         self.log(f"{len(top)} precedents QC trouves en {duration:.1f}s", "OK")
         return top
 
-    def _recherche_fts_qc(self, infraction, limit=15):
+    def _recherche_tsvector_qc(self, infraction, limit=15):
+        """Recherche tsvector PostgreSQL dans la table jurisprudence"""
         results = []
-        conn = self.get_db()
-        c = conn.cursor()
-
         try:
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='jurisprudence_fts'")
-            if not c.fetchone():
-                conn.close()
-                return results
-
+            conn = self.get_db()
+            cur = conn.cursor()
             queries = self._generer_requetes_qc(infraction)
             seen_ids = set()
 
             # Priorite 1: Cour municipale et Cour du Quebec — cases traffic directes
             for query in queries:
                 try:
-                    c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                        j.resume, j.juridiction, j.resultat
-                                 FROM jurisprudence_fts fts
-                                 JOIN jurisprudence j ON fts.rowid = j.id
-                                 WHERE jurisprudence_fts MATCH ?
-                                 AND j.juridiction = 'QC'
-                                 AND j.tribunal IN ('QCCM', 'QCCQ', 'QCCS', 'QCCA', 'CSC')
-                                 LIMIT ?""", (query, limit))
-                    for row in c.fetchall():
+                    cur.execute("""
+                        SELECT j.id, j.citation, j.database_id, j.date_decision,
+                               j.resume, j.province, j.resultat,
+                               ts_rank(j.tsv_fr, to_tsquery('french', %s)) AS rank
+                        FROM jurisprudence j
+                        WHERE j.province = 'QC'
+                          AND j.database_id IN ('qccm', 'qccq', 'qccs', 'qcca')
+                          AND j.tsv_fr @@ to_tsquery('french', %s)
+                        ORDER BY rank DESC
+                        LIMIT %s
+                    """, (query, query, limit))
+                    for row in cur.fetchall():
                         if row[0] not in seen_ids:
                             seen_ids.add(row[0])
-                            # Score plus haut pour cour municipale (cas directs)
-                            tribunal_score = 90 if row[2] == 'QCCM' else 85 if row[2] == 'QCCQ' else 75
+                            tribunal_score = 90 if row[2] == 'qccm' else 85 if row[2] == 'qccq' else 75
                             results.append({
-                                "id": row[0], "citation": row[1], "tribunal": row[2],
-                                "date": row[3], "resume": (row[4] or "")[:300],
-                                "juridiction": row[5], "resultat": row[6] or "inconnu",
-                                "source": "FTS-QC", "score": tribunal_score
+                                "id": row[0], "citation": row[1],
+                                "tribunal": (row[2] or "").upper(),
+                                "date": str(row[3]) if row[3] else "",
+                                "resume": (row[4] or "")[:300],
+                                "juridiction": row[5] or "QC",
+                                "resultat": row[6] or "inconnu",
+                                "source": "PostgreSQL-QC", "score": tribunal_score
                             })
-                except sqlite3.OperationalError:
+                except Exception:
                     pass
 
-            # Priorite 2: tout le reste QC
+            # Priorite 2: tout QC (tsvector)
             if len(results) < limit:
                 for query in queries:
                     try:
-                        c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                            j.resume, j.juridiction, j.resultat
-                                     FROM jurisprudence_fts fts
-                                     JOIN jurisprudence j ON fts.rowid = j.id
-                                     WHERE jurisprudence_fts MATCH ?
-                                     AND j.juridiction = 'QC'
-                                     LIMIT ?""", (query, limit - len(results)))
-                        for row in c.fetchall():
+                        cur.execute("""
+                            SELECT j.id, j.citation, j.database_id, j.date_decision,
+                                   j.resume, j.province, j.resultat
+                            FROM jurisprudence j
+                            WHERE j.province = 'QC'
+                              AND j.tsv_fr @@ to_tsquery('french', %s)
+                            LIMIT %s
+                        """, (query, limit - len(results)))
+                        for row in cur.fetchall():
                             if row[0] not in seen_ids:
                                 seen_ids.add(row[0])
                                 results.append({
-                                    "id": row[0], "citation": row[1], "tribunal": row[2],
-                                    "date": row[3], "resume": (row[4] or "")[:300],
-                                    "juridiction": row[5], "resultat": row[6] or "inconnu",
-                                    "source": "FTS-QC", "score": 65
+                                    "id": row[0], "citation": row[1],
+                                    "tribunal": (row[2] or "").upper(),
+                                    "date": str(row[3]) if row[3] else "",
+                                    "resume": (row[4] or "")[:300],
+                                    "juridiction": row[5] or "QC",
+                                    "resultat": row[6] or "inconnu",
+                                    "source": "PostgreSQL-QC", "score": 65
                                 })
-                    except sqlite3.OperationalError:
+                    except Exception:
                         pass
-        except Exception as e:
-            self.log(f"Erreur FTS QC: {e}", "FAIL")
 
-        conn.close()
+            # Priorite 3: recherche ILIKE titre/resume si tsvector donne rien
+            if not results:
+                infraction_words = [w for w in infraction.lower().split() if len(w) > 3][:3]
+                if infraction_words:
+                    pattern = f"%{'%'.join(infraction_words)}%"
+                    try:
+                        cur.execute("""
+                            SELECT j.id, j.citation, j.database_id, j.date_decision,
+                                   j.resume, j.province, j.resultat
+                            FROM jurisprudence j
+                            WHERE j.province = 'QC'
+                              AND (j.titre ILIKE %s OR j.resume ILIKE %s)
+                            ORDER BY j.date_decision DESC NULLS LAST
+                            LIMIT %s
+                        """, (pattern, pattern, limit))
+                        for row in cur.fetchall():
+                            if row[0] not in seen_ids:
+                                seen_ids.add(row[0])
+                                results.append({
+                                    "id": row[0], "citation": row[1],
+                                    "tribunal": (row[2] or "").upper(),
+                                    "date": str(row[3]) if row[3] else "",
+                                    "resume": (row[4] or "")[:300],
+                                    "juridiction": row[5] or "QC",
+                                    "resultat": row[6] or "inconnu",
+                                    "source": "PostgreSQL-ILIKE-QC", "score": 50
+                                })
+                    except Exception:
+                        pass
+
+            conn.close()
+        except Exception as e:
+            self.log(f"Erreur tsvector QC: {e}", "FAIL")
         return results
 
-    def _recherche_fts_federale(self, infraction, limit=5):
+    def _recherche_tsvector_federale(self, infraction, limit=5):
         """Fallback: cherche precedents federaux (CSC) applicables au QC"""
         results = []
-        conn = self.get_db()
-        c = conn.cursor()
         try:
+            conn = self.get_db()
+            cur = conn.cursor()
             queries = self._generer_requetes_qc(infraction)
             seen_ids = set()
             for query in queries:
                 try:
-                    c.execute("""SELECT j.id, j.citation, j.tribunal, j.date_decision,
-                                        j.resume, j.juridiction, j.resultat
-                                 FROM jurisprudence_fts fts
-                                 JOIN jurisprudence j ON fts.rowid = j.id
-                                 WHERE jurisprudence_fts MATCH ?
-                                 AND j.tribunal IN ('CSC', 'SCC')
-                                 LIMIT ?""", (query, limit))
-                    for row in c.fetchall():
+                    cur.execute("""
+                        SELECT j.id, j.citation, j.database_id, j.date_decision,
+                               j.resume, j.province, j.resultat
+                        FROM jurisprudence j
+                        WHERE j.database_id IN ('scc', 'csc')
+                          AND j.tsv_en @@ to_tsquery('english', %s)
+                        LIMIT %s
+                    """, (query, limit))
+                    for row in cur.fetchall():
                         if row[0] not in seen_ids:
                             seen_ids.add(row[0])
                             results.append({
-                                "id": row[0], "citation": row[1], "tribunal": row[2],
-                                "date": row[3], "resume": (row[4] or "")[:300],
-                                "juridiction": "QC", "resultat": row[6] or "inconnu",
-                                "source": "FTS-Federal", "score": 60
+                                "id": row[0], "citation": row[1],
+                                "tribunal": (row[2] or "").upper(),
+                                "date": str(row[3]) if row[3] else "",
+                                "resume": (row[4] or "")[:300],
+                                "juridiction": "QC",
+                                "resultat": row[6] or "inconnu",
+                                "source": "PostgreSQL-Federal", "score": 60
                             })
-                except sqlite3.OperationalError:
+                except Exception:
                     pass
+            conn.close()
         except Exception as e:
-            self.log(f"Erreur FTS Federal: {e}", "FAIL")
-        conn.close()
+            self.log(f"Erreur tsvector Federal: {e}", "FAIL")
         return results
 
     def _recherche_semantique_qc(self, infraction, n_results=10):
-        if not self.chroma_collection or self.chroma_collection.count() == 0:
+        svc = self._get_embedding_service()
+        if not svc:
             return []
 
         results = []
         try:
-            chroma_results = self.chroma_collection.query(
-                query_texts=[f"{infraction} Quebec CSR Code securite routiere"],
-                n_results=n_results,
-                where={"juridiction": "QC"}
+            pgvec_results = svc.search(
+                f"{infraction} Quebec CSR Code securite routiere",
+                top_k=n_results,
+                juridiction="QC"
             )
-            if chroma_results and chroma_results["ids"][0]:
-                for i, doc_id in enumerate(chroma_results["ids"][0]):
-                    metadata = chroma_results["metadatas"][0][i] if chroma_results["metadatas"] else {}
-                    distance = chroma_results["distances"][0][i] if chroma_results["distances"] else 1.0
-                    similarity = max(0, (1 - distance / 2)) * 100
-                    results.append({
-                        "id": metadata.get("db_id", doc_id),
-                        "citation": metadata.get("citation", doc_id),
-                        "tribunal": metadata.get("tribunal", ""),
-                        "date": metadata.get("date", ""),
-                        "resume": (chroma_results["documents"][0][i] or "")[:300],
-                        "juridiction": "QC",
-                        "resultat": metadata.get("resultat", "inconnu"),
-                        "source": "Semantic-QC", "score": round(similarity, 1)
-                    })
+            for r in pgvec_results:
+                similarity = max(0, r.get("similarity", 0)) * 100
+                results.append({
+                    "id": r.get("id"),
+                    "citation": r.get("citation", ""),
+                    "tribunal": r.get("tribunal", ""),
+                    "date": str(r.get("date_decision", "")) if r.get("date_decision") else "",
+                    "resume": (r.get("resume") or "")[:300],
+                    "juridiction": "QC",
+                    "resultat": r.get("resultat", "inconnu"),
+                    "source": "pgvector-QC", "score": round(similarity, 1)
+                })
         except Exception as e:
-            self.log(f"Erreur semantique QC: {e}", "WARN")
+            self.log(f"Erreur pgvector QC: {e}", "WARN")
 
         return results
 
     def _recherche_canlii(self, infraction, lois):
-        """Recherche CanLII API v1 — necessite API key"""
+        """Recherche CanLII API v1 — rate-limited via BaseAgent"""
         results = []
-        if not CANLII_API_KEY:
-            return results
-        try:
-            import requests
-            # CanLII API v1 search endpoint
-            # Databases QC: qcca (CA), qccs (CS), qccq (CQ), qccm (CM)
-            databases = ["qccq", "qcca", "qccs", "qccm"]
-            for db_id in databases:
-                params = {
-                    "api_key": CANLII_API_KEY,
-                    "offset": 0,
-                    "resultCount": 3
-                }
-                resp = requests.get(f"https://api.canlii.org/v1/caseBrowse/{db_id}/",
-                                    params=params, timeout=10)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    for item in data.get("cases", [])[:3]:
-                        results.append({
-                            "id": f"CANLII-{item.get('caseId', {}).get('en', '')}",
-                            "citation": item.get("citation", item.get("title", ""))[:100],
-                            "tribunal": db_id.upper(),
-                            "date": item.get("date", ""),
-                            "resume": item.get("title", "")[:300],
-                            "juridiction": "QC",
-                            "resultat": "inconnu",
-                            "source": "CanLII-QC", "score": 55
-                        })
-                if len(results) >= 5:
-                    break
-        except Exception as e:
-            self.log(f"CanLII erreur: {e}", "WARN")
+        databases = ["qccm", "qccq", "qccs", "qcca"]
+        for db_id in databases:
+            cases = self.canlii_search_cases(db_id, result_count=5)
+            for item in cases[:3]:
+                case_id = item.get("caseId", {})
+                cid = case_id.get("en", "") if isinstance(case_id, dict) else str(case_id)
+                results.append({
+                    "id": f"CANLII-{cid}",
+                    "citation": item.get("citation", item.get("title", ""))[:100],
+                    "tribunal": db_id.upper(),
+                    "date": item.get("date", ""),
+                    "resume": item.get("title", "")[:300],
+                    "juridiction": "QC",
+                    "resultat": "inconnu",
+                    "source": "CanLII-QC", "score": 55
+                })
+            if len(results) >= 5:
+                break
+        remaining = self.canlii_remaining_quota()
+        if remaining < 100:
+            self.log(f"CanLII quota bas: {remaining} restant", "WARN")
         return results
 
     def _combiner(self, fts, semantic, canlii):
@@ -254,25 +292,24 @@ class AgentPrecedentsQC(BaseAgent):
         lower = infraction.lower()
 
         if any(w in lower for w in ["vitesse", "excès", "exces", "km/h", "radar", "photo radar", "cinémomètre"]):
-            queries.extend(["vitesse OR excès OR radar", "cinémomètre OR photo radar",
-                           "art 299 OR art 303"])
+            queries.extend(["vitesse | exces | radar", "cinematometre | photo & radar"])
         if any(w in lower for w in ["feu rouge", "feu", "signalisation", "lumiere"]):
-            queries.extend(["feu rouge OR signalisation", "art 328 OR art 359"])
+            queries.extend(["feu & rouge | signalisation"])
         if any(w in lower for w in ["cellulaire", "telephone", "portable", "texte", "texto"]):
-            queries.extend(["cellulaire OR téléphone OR appareil", "art 443"])
+            queries.extend(["cellulaire | telephone | appareil"])
         if any(w in lower for w in ["stop", "arrêt", "arret"]):
-            queries.extend(["arrêt OR stop", "panneau arrêt OR panneau stop"])
+            queries.extend(["arret | stop", "panneau & arret"])
         if any(w in lower for w in ["alcool", "ivresse", "facultes", "alcootest", "capacité affaiblie"]):
-            queries.extend(["alcool OR facultés affaiblies", "alcootest OR ivressomètre"])
+            queries.extend(["alcool | facultes & affaiblies"])
         if any(w in lower for w in ["ceinture"]):
-            queries.extend(["ceinture sécurité OR ceinture"])
+            queries.extend(["ceinture & securite"])
         if any(w in lower for w in ["dangereuse", "dangereux", "imprudent"]):
-            queries.extend(["conduite dangereuse OR écart marqué"])
+            queries.extend(["conduite & dangereuse"])
         if any(w in lower for w in ["permis", "suspendu", "suspension"]):
-            queries.extend(["permis suspendu OR conduite sans permis"])
+            queries.extend(["permis & suspendu | conduite & sans & permis"])
 
         if not queries:
             words = [w for w in lower.split() if len(w) > 3][:3]
-            queries = [" OR ".join(words)] if words else ["contravention Quebec"]
+            queries = [" & ".join(words)] if words else ["contravention & quebec"]
 
         return queries

@@ -4,8 +4,7 @@ Valide citations, regles HTA, points MTO, stunt driving logic
 """
 
 import time
-import sqlite3
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentVerificateurON(BaseAgent):
@@ -160,11 +159,11 @@ class AgentVerificateurON(BaseAgent):
 
     def _chercher_en_db(self, citation):
         try:
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            c.execute("SELECT id FROM jurisprudence WHERE citation LIKE ? AND juridiction = 'ON' LIMIT 1",
+            conn = self.get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM jurisprudence WHERE citation ILIKE %s AND province = 'ON' LIMIT 1",
                       (f"%{citation[:50]}%",))
-            found = c.fetchone()
+            found = cur.fetchone()
             conn.close()
             return found is not None
         except Exception:

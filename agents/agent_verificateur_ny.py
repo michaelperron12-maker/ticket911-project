@@ -4,8 +4,7 @@ Valide citations, TVB rules, points DMV, VTL references
 """
 
 import time
-import sqlite3
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentVerificateurNY(BaseAgent):
@@ -149,11 +148,11 @@ class AgentVerificateurNY(BaseAgent):
     def _chercher_en_db(self, citation):
         """Cherche une citation dans la DB jurisprudence"""
         try:
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            c.execute("SELECT id FROM jurisprudence WHERE citation LIKE ? AND juridiction = 'NY' LIMIT 1",
+            conn = self.get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM jurisprudence WHERE citation ILIKE %s LIMIT 1",
                       (f"%{citation[:50]}%",))
-            found = c.fetchone()
+            found = cur.fetchone()
             conn.close()
             return found is not None
         except Exception:

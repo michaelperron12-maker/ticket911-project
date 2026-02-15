@@ -24,7 +24,7 @@ Quand le client soumet un ticket + preuves → le systeme genere un **rapport PD
 - Ajouter au formulaire web : upload multi-fichiers
 - Types acceptes : JPG, PNG, PDF, MP4, MOV, TXT
 - Max 50 Mo par fichier, 5 fichiers max
-- Stockage : `/var/www/ticket911/uploads/{uuid}/`
+- Stockage : `/var/www/aiticketinfo/uploads/{uuid}/`
 - Chaque dossier a un ID unique (UUID)
 
 ### 2. OCR photo ticket (~3h)
@@ -135,7 +135,7 @@ PAGE 9 — AVERTISSEMENTS
 - [ ] Creer compte Mindee (mindee.com) → cle API gratuite
 - [ ] Installer WeasyPrint sur serveur OVH : `pip install weasyprint`
 - [ ] Installer dependances systeme : `sudo apt install libpango1.0-dev libcairo2-dev`
-- [ ] Creer dossier uploads : `mkdir -p /var/www/ticket911/uploads`
+- [ ] Creer dossier uploads : `mkdir -p /var/www/aiticketinfo/uploads`
 
 ---
 

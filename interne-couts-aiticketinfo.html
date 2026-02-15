@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>INTERNE - Coûts & Profits - aiticketinfo.com</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fff;
+            color: #1e293b;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .cover {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(160deg, #1a0a0a 0%, #3d1414 40%, #501a1a 70%, #2a0f0f 100%);
+            color: white;
+            text-align: center;
+            padding: 60px;
+            page-break-after: always;
+        }
+        .cover-badge {
+            background: rgba(239,68,68,0.2);
+            border: 2px solid rgba(239,68,68,0.5);
+            border-radius: 50px;
+            padding: 10px 30px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 50px;
+            color: #f87171;
+            font-weight: 700;
+        }
+        .cover h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #f87171;
+        }
+        .cover h2 {
+            font-size: 22px;
+            font-weight: 300;
+            color: #94a3b8;
+            margin-bottom: 60px;
+        }
+        .cover-meta { color: #64748b; font-size: 13px; line-height: 2; }
+        .cover-meta strong { color: #94a3b8; }
+
+        .page {
+            padding: 45px 55px;
+            page-break-after: always;
+        }
+        .page:last-child { page-break-after: avoid; }
+
+        h2.section-title {
+            font-size: 24px;
+            color: #0f172a;
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+        .section-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        h3 {
+            font-size: 17px;
+            color: #1e3a5f;
+            margin: 25px 0 10px 0;
+            font-weight: 700;
+        }
+        h3:first-child { margin-top: 0; }
+        p { margin-bottom: 10px; font-size: 13.5px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 12.5px;
+        }
+        th {
+            background: #f1f5f9;
+            padding: 9px 12px;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #64748b;
+            border-bottom: 2px solid #e2e8f0;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        td strong { color: #0f172a; }
+
+        .cost { color: #dc2626; font-weight: 600; }
+        .price { color: #1d4ed8; font-weight: 600; }
+        .profit { color: #15803d; font-weight: 700; }
+        .margin { color: #7c3aed; font-weight: 700; }
+
+        .profit-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #86efac;
+            border-radius: 12px;
+            padding: 22px;
+            margin: 18px 0;
+            text-align: center;
+        }
+        .profit-box .big { font-size: 36px; font-weight: 800; color: #15803d; }
+        .profit-box p { color: #166534; font-size: 13px; margin: 4px 0 0 0; }
+
+        .warning-box {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+            border-radius: 12px;
+            padding: 18px;
+            margin: 15px 0;
+        }
+        .warning-box h4 { color: #dc2626; font-size: 14px; margin-bottom: 6px; }
+        .warning-box p { color: #7f1d1d; font-size: 12.5px; margin: 0; }
+
+        .info-box {
+            border-radius: 12px;
+            padding: 18px;
+            margin: 15px 0;
+        }
+        .info-box.blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .info-box.green { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .info-box.purple { background: #faf5ff; border: 1px solid #e9d5ff; }
+        .info-box h4 { font-size: 13px; margin-bottom: 5px; margin-top: 0; }
+        .info-box.blue h4 { color: #1d4ed8; }
+        .info-box.green h4 { color: #15803d; }
+        .info-box.purple h4 { color: #7c3aed; }
+        .info-box p { font-size: 12.5px; color: #475569; margin: 0; }
+
+        .db-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin: 10px 0;
+        }
+        .db-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 5px; }
+        .db-card .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-right: 5px;
+        }
+        .tag-qc { background: #dbeafe; color: #1d4ed8; }
+        .tag-on { background: #fce7f3; color: #be185d; }
+        .tag-ny { background: #f3e8ff; color: #7c3aed; }
+        .tag-all { background: #dcfce7; color: #15803d; }
+        .db-card p { font-size: 12px; color: #64748b; margin: 4px 0 0 0; }
+        .db-card ul { margin: 6px 0 0 16px; }
+        .db-card li { font-size: 12px; color: #475569; margin-bottom: 3px; }
+
+        .total-row td {
+            font-weight: 700;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 12px;
+            font-size: 14px;
+        }
+
+        ul { margin: 6px 0 12px 18px; }
+        li { font-size: 13px; margin-bottom: 4px; color: #475569; }
+        li strong { color: #1e293b; }
+
+        .dark-box {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 18px 0;
+            text-align: center;
+            color: white;
+        }
+        .dark-box .big { font-size: 32px; font-weight: 800; }
+        .dark-box .gradient { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .dark-box .green-g { background: linear-gradient(135deg, #4ade80, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .dark-box p { color: #94a3b8; font-size: 13px; margin: 4px 0 0 0; }
+
+        @media print {
+            .cover { height: auto; min-height: 100vh; }
+            .page { padding: 30px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+    <div class="cover-badge">Confidentiel — Usage Interne Seulement</div>
+    <h1>Coûts, Profits & Architecture</h1>
+    <h2>aiticketinfo.com — Plateforme AI Multi-Juridiction</h2>
+    <div class="cover-meta">
+        <p><strong>Document:</strong> Interne Croige</p>
+        <p><strong>Date:</strong> 7 février 2026</p>
+        <p><strong>NE PAS PARTAGER AU CLIENT</strong></p>
+    </div>
+</div>
+
+<!-- PAGE 1: COÛTS RÉELS vs PRIX CLIENT -->
+<div class="page">
+    <h2 class="section-title">Coûts Réels vs Prix Client — Développement</h2>
+    <p class="section-subtitle">Ce que ça nous coûte réellement vs ce qu'on charge au client. Marge cible: 55-65%.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th style="text-align:right; color:#dc2626;">Notre Coût</th>
+                <th style="text-align:right; color:#1d4ed8;">Prix Client</th>
+                <th style="text-align:right; color:#15803d;">Profit</th>
+                <th style="text-align:right; color:#7c3aed;">Marge</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Portail Client Trilingue + Avocat</strong><br><span style="font-size:11px;color:#94a3b8;">~120h dev @ ~— coût réel</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">54%</td>
+            </tr>
+            <tr>
+                <td><strong>AI Premium Multi-Juridiction</strong><br><span style="font-size:11px;color:#94a3b8;">~140h dev + config LangChain/RAG</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">56%</td>
+            </tr>
+            <tr>
+                <td><strong>Bases Jurisprudence AI (3 juridictions)</strong><br><span style="font-size:11px;color:#94a3b8;">~80h scraping + indexation + pgvector</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">50%</td>
+            </tr>
+            <tr>
+                <td><strong>Infrastructure & Hébergement Fort</strong><br><span style="font-size:11px;color:#94a3b8;">~40h setup + achat 1er mois serveurs ~—</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr>
+                <td><strong>Paiement Multi-Devises & Facturation</strong><br><span style="font-size:11px;color:#94a3b8;">~50h Stripe + Lago + taxes</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">58%</td>
+            </tr>
+            <tr>
+                <td><strong>Communications (3 marchés)</strong><br><span style="font-size:11px;color:#94a3b8;">~40h Novu + Twilio config</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr>
+                <td><strong>Documents, Signatures & Traduction</strong><br><span style="font-size:11px;color:#94a3b8;">~40h DocuSeal + WeasyPrint + DeepL</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr>
+                <td><strong>CRM & Rendez-vous</strong><br><span style="font-size:11px;color:#94a3b8;">~40h Twenty CRM + Cal.com</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr>
+                <td><strong>SEO Multi-Marché & Google Ads</strong><br><span style="font-size:11px;color:#94a3b8;">~50h SEO + config + contenu initial</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">58%</td>
+            </tr>
+            <tr>
+                <td><strong>Automatisation & Workflows</strong><br><span style="font-size:11px;color:#94a3b8;">~40h n8n workflows</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr>
+                <td><strong>Tests, Sécurité & Lancement</strong><br><span style="font-size:11px;color:#94a3b8;">~30h QA + pen test + formation</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">63%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTAL DÉVELOPPEMENT</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">57%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="profit-box">
+        <div class="big">— profit</div>
+        <p>Sur le développement — marge de 57%</p>
+    </div>
+</div>
+
+<!-- PAGE 2: COÛTS MENSUELS -->
+<div class="page">
+    <h2 class="section-title">Coûts Réels vs Prix Client — Mensuel Récurrent</h2>
+    <p class="section-subtitle">C'est ici que le vrai argent se fait. Revenus récurrents chaque mois, indéfiniment.</p>
+
+    <h3>Scénario: 650 dossiers/mois (objectif réaliste)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th style="text-align:right; color:#dc2626;">Notre Coût</th>
+                <th style="text-align:right; color:#1d4ed8;">Prix Client</th>
+                <th style="text-align:right; color:#15803d;">Profit</th>
+                <th style="text-align:right; color:#7c3aed;">Marge</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Hébergement Dédié + GPU</strong><br><span style="font-size:11px;color:#94a3b8;">OVH Canada: principal ~— + GPU ~—</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">20%</td>
+            </tr>
+            <tr>
+                <td><strong>Claude API (Anthropic)</strong><br><span style="font-size:11px;color:#94a3b8;">Opus: ~0.— × 650 = —<br>Sonnet: ~0.— × 650 = —<br>Haiku: ~0.— × 650 = —</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" colspan="2" style="font-size:11px;color:#94a3b8;">inclus dans AI Premium</td>
+            </tr>
+            <tr>
+                <td><strong>OpenAI API (backup + embeddings)</strong><br><span style="font-size:11px;color:#94a3b8;">text-embedding-3: ~30— GPT-4 fallback: ~—</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" colspan="2" style="font-size:11px;color:#94a3b8;">inclus dans AI Premium</td>
+            </tr>
+            <tr>
+                <td><strong>Mindee OCR API</strong><br><span style="font-size:11px;color:#94a3b8;">~650 pages × 0.— = —</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" colspan="2" style="font-size:11px;color:#94a3b8;">inclus dans AI Premium</td>
+            </tr>
+            <tr>
+                <td><strong>DeepL Pro API</strong><br><span style="font-size:11px;color:#94a3b8;">Traduction FR/EN/ES</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" colspan="2" style="font-size:11px;color:#94a3b8;">inclus dans AI Premium</td>
+            </tr>
+            <tr style="background:#eff6ff;">
+                <td><strong>= Total AI Premium (regroupé pour client)</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right; color:#dc2626; font-weight:600;">-—</td>
+                <td style="text-align:right; color:#dc2626;">-31%</td>
+            </tr>
+            <tr>
+                <td><strong>Twilio SMS (3 marchés)</strong><br><span style="font-size:11px;color:#94a3b8;">~3000 SMS × 0.— + 3 numéros × —</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">80%</td>
+            </tr>
+            <tr>
+                <td><strong>Maintenance & Support</strong><br><span style="font-size:11px;color:#94a3b8;">~8h/mois × — = —</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">73%</td>
+            </tr>
+            <tr>
+                <td><strong>AI SEO Stratégie (3 marchés)</strong><br><span style="font-size:11px;color:#94a3b8;">~10h/mois × — + outils ~—</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">67%</td>
+            </tr>
+            <tr>
+                <td><strong>Gestion Google Ads (3 marchés)</strong><br><span style="font-size:11px;color:#94a3b8;">~6h/mois × — (budget ads payé par client séparément)</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">63%</td>
+            </tr>
+            <tr>
+                <td><strong>Évolutions & Fonctionnalités</strong><br><span style="font-size:11px;color:#94a3b8;">~8h/mois × —</span></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">60%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTAL MENSUEL</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="margin">46%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="info-box blue">
+        <h4>Note sur l'AI Premium: on perd — dessus</h4>
+        <p>Les coûts AI réels (~— à 650 dossiers) dépassent ce qu'on charge (—). C'est <strong>voulu</strong>. Le client voit un prix bas pour l'AI, et on récupère largement sur les services à haute marge (maintenance 73%, SEO 67%, communications 80%). <strong>Le profit global reste à 46%.</strong> Si le volume monte beaucoup, on ajuste le prix client "AI Premium" dans le contrat avec clause de volume.</p>
+    </div>
+
+    <div class="profit-box">
+        <div class="big">— de profit récurrent</div>
+        <p>= — de revenus récurrents nets — CHAQUE année</p>
+    </div>
+
+    <div class="dark-box">
+        <p style="color:#64748b; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Profit Total Année 1</p>
+        <div class="big gradient">— + — = —</div>
+        <p>Développement + 12 mois de récurrent</p>
+    </div>
+</div>
+
+<!-- PAGE 3: SCALABILITÉ DES COÛTS AI -->
+<div class="page">
+    <h2 class="section-title">Scalabilité: Coûts AI Selon le Volume</h2>
+    <p class="section-subtitle">Si le client grossit beaucoup, voici comment les coûts AI évoluent et comment on protège nos marges.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Volume/mois</th>
+                <th style="text-align:right;">Coût Claude API</th>
+                <th style="text-align:right;">Coût OCR</th>
+                <th style="text-align:right;">Coût Total AI</th>
+                <th style="text-align:right;">Prix Client AI</th>
+                <th style="text-align:right;">Écart</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>100 dossiers</strong></td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>300 dossiers</strong></td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>650 dossiers</strong></td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right; color:#dc2626; font-weight:600;">-—</td>
+            </tr>
+            <tr>
+                <td><strong>1 500 dossiers</strong></td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right; color:#dc2626; font-weight:600;">-—</td>
+            </tr>
+            <tr>
+                <td><strong>5 000 dossiers</strong></td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right; color:#dc2626; font-weight:600;">-—</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="warning-box">
+        <h4>IMPORTANT: Clause de Volume dans le Contrat</h4>
+        <p>Le prix "AI Premium —" couvre jusqu'à <strong>500 dossiers/mois</strong>. Au-delà, facturer un supplément de <strong>1.— additionnel</strong>. Ça nous coûte ~0.—, on fait 0.— de profit par dossier en plus. Mettre ça clairement dans le contrat.</p>
+    </div>
+
+    <h3>Avec Clause de Volume Appliquée</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Volume/mois</th>
+                <th style="text-align:right;">Notre Coût AI</th>
+                <th style="text-align:right;">Client Paie AI</th>
+                <th style="text-align:right;">Profit AI</th>
+                <th style="text-align:right;">Profit Total Mensuel</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>100 dossiers</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>500 dossiers</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>650 dossiers</strong> (objectif)</td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">500 + 150 = —</td>
+                <td style="text-align:right; color:#dc2626;">-—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>1 500 dossiers</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">500 + 1 000 = —</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+            <tr>
+                <td><strong>5 000 dossiers</strong></td>
+                <td style="text-align:right;" class="cost">—</td>
+                <td style="text-align:right;" class="price">500 + 4 500 = —</td>
+                <td style="text-align:right;" class="profit">—</td>
+                <td style="text-align:right;" class="profit">—</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="info-box green">
+        <h4>Résultat: On ne perd jamais d'argent</h4>
+        <p>Avec la clause de volume, notre profit mensuel reste entre <strong>— et —</strong> peu importe le volume. Plus le client grossit, plus on gagne. Le modèle est durable et scalable.</p>
+    </div>
+
+    <h3>Stratégie d'Optimisation des Coûts AI</h3>
+    <ul>
+        <li><strong>Opus 4.6 seulement pour l'analyse juridique + plaidoyer</strong> — les 2 tâches critiques qui justifient le prix premium</li>
+        <li><strong>Sonnet 4.5 pour tout le reste</strong> — scoring, devis, RAG, résumés — 5x moins cher qu'Opus, presque aussi bon</li>
+        <li><strong>Haiku 4.5 pour les micro-tâches</strong> — classification, chat FAQ, validation OCR — 30x moins cher qu'Opus</li>
+        <li><strong>Cache de prompts</strong> — Les system prompts juridiques (lois, procédures) sont cachés par Anthropic = -90% sur ces tokens</li>
+        <li><strong>Ollama local pour le backup</strong> — Si API down OU pour tâches simples en batch la nuit = coût —</li>
+    </ul>
+</div>
+
+<!-- PAGE 4: TOUTES LES BASES DE DONNÉES -->
+<div class="page">
+    <h2 class="section-title">Architecture Complète des Bases de Données</h2>
+    <p class="section-subtitle">Chaque base qu'on construit et utilise, par catégorie.</p>
+
+    <h3>A. Bases de Jurisprudence (Sources Externes → Notre Index)</h3>
+
+    <div class="db-card">
+        <h4>1. CanLII — Canadian Legal Information Institute <span class="tag tag-qc">QC</span> <span class="tag tag-on">ON</span></h4>
+        <p><strong>Source:</strong> canlii.ca — API disponible</p>
+        <ul>
+            <li>Jurisprudence complète du Canada (QC + ON)</li>
+            <li>Décisions des tribunaux provinciaux et fédéraux</li>
+            <li>Textes de lois (Code sécurité routière QC, Highway Traffic Act ON)</li>
+            <li><strong>On indexe:</strong> toutes les décisions liées aux infractions routières dans PostgreSQL + pgvector</li>
+            <li><strong>Coût:</strong> Gratuit (API publique, respect rate limits)</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>2. SOQUIJ — Société québécoise d'information juridique <span class="tag tag-qc">QC</span></h4>
+        <p><strong>Source:</strong> soquij.qc.ca — Abonnement requis</p>
+        <ul>
+            <li>Résumés analytiques de jurisprudence québécoise</li>
+            <li>Annotations et commentaires par des juristes</li>
+            <li>Recherche par type d'infraction, montant, résultat</li>
+            <li><strong>On indexe:</strong> les résumés pertinents pour enrichir les prompts AI</li>
+            <li><strong>Coût:</strong> ~200-— abonnement</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>3. LégisQuébec <span class="tag tag-qc">QC</span></h4>
+        <p><strong>Source:</strong> legisquebec.gouv.qc.ca — Gratuit</p>
+        <ul>
+            <li>Code de la sécurité routière du Québec (complet, à jour)</li>
+            <li>Règlements municipaux (Montréal, Québec, etc.)</li>
+            <li><strong>On indexe:</strong> chaque article de loi avec son contexte pour le RAG</li>
+            <li><strong>Coût:</strong> Gratuit</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>4. e-Laws Ontario <span class="tag tag-on">ON</span></h4>
+        <p><strong>Source:</strong> ontario.ca/laws — Gratuit</p>
+        <ul>
+            <li>Highway Traffic Act (HTA) complet</li>
+            <li>Provincial Offences Act</li>
+            <li>Règlements municipaux Toronto, Ottawa, etc.</li>
+            <li><strong>On indexe:</strong> articles HTA + amendes + points de démérite</li>
+            <li><strong>Coût:</strong> Gratuit</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>5. CourtListener + RECAP <span class="tag tag-ny">NY</span></h4>
+        <p><strong>Source:</strong> courtlistener.com — API open source (Free Law Project)</p>
+        <ul>
+            <li>Millions de décisions de tribunaux américains</li>
+            <li>Filtrable par État de New York, par type d'infraction</li>
+            <li><strong>On indexe:</strong> décisions NY Traffic Violations Bureau (TVB) + tribunaux</li>
+            <li><strong>Coût:</strong> Gratuit (API publique, donation recommandée)</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>6. NY Vehicle & Traffic Law <span class="tag tag-ny">NY</span></h4>
+        <p><strong>Source:</strong> nysenate.gov/legislation/laws/VAT — Gratuit</p>
+        <ul>
+            <li>Toutes les lois NY sur les infractions routières</li>
+            <li>Points système, amendes, surcharges</li>
+            <li>Règles spécifiques NYC (parking, red light cameras)</li>
+            <li><strong>On indexe:</strong> chaque section avec montants et pénalités</li>
+            <li><strong>Coût:</strong> Gratuit</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>7. NYSCEF — NY State Courts Electronic Filing <span class="tag tag-ny">NY</span></h4>
+        <p><strong>Source:</strong> nycourts.gov/efile — Gratuit</p>
+        <ul>
+            <li>Dossiers électroniques des tribunaux NY</li>
+            <li>Décisions récentes, tendances des juges</li>
+            <li><strong>On indexe:</strong> patterns par juge, par tribunal, par infraction</li>
+            <li><strong>Coût:</strong> Gratuit</li>
+        </ul>
+    </div>
+</div>
+
+<!-- PAGE 5: NOS BASES INTERNES -->
+<div class="page">
+    <h3>B. Nos Bases de Données Internes (PostgreSQL)</h3>
+    <p>Ce qu'on construit nous-mêmes dans PostgreSQL sur le serveur dédié:</p>
+
+    <div class="db-card">
+        <h4>8. DB Clients <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>clients</strong> — id, nom, email, téléphone, langue, juridiction, date inscription</li>
+            <li><strong>adresses</strong> — adresse, ville, province/état, code postal, pays</li>
+            <li><strong>auth</strong> — hash mot de passe, 2FA, sessions, tokens JWT</li>
+            <li><strong>preferences</strong> — langue, notifications SMS/email, fuseau horaire</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>9. DB Dossiers / Tickets <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>tickets</strong> — id, client_id, juridiction, type_infraction, montant_amende, date_infraction, lieu</li>
+            <li><strong>ocr_results</strong> — données extraites par OCR, image originale (ref MinIO), confiance</li>
+            <li><strong>ai_analysis</strong> — score contestation, raisons, jurisprudence trouvée, modèle utilisé, tokens consommés</li>
+            <li><strong>dossiers</strong> — id, ticket_id, statut (reçu/analyse/contestation/audience/résultat), avocat_notes</li>
+            <li><strong>contestations</strong> — brouillon AI, version finale avocat, date soumission, tribunal</li>
+            <li><strong>audiences</strong> — date, heure, tribunal, adresse, juge (si connu), résultat</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>10. DB Financière <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>devis</strong> — id, dossier_id, montant_cad, montant_usd, devise, statut, date_envoi</li>
+            <li><strong>paiements</strong> — id, stripe_id, montant, devise, méthode (carte/interac/ach), date, statut</li>
+            <li><strong>factures</strong> — id, dossier_id, montant, taxes (TPS/TVQ/HST/NY), PDF ref, envoyée</li>
+            <li><strong>remboursements</strong> — si contestation gagnée et remboursement applicable</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>11. DB Documents <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>documents</strong> — id, dossier_id, type (mandat/plaidoyer/facture/devis), url MinIO, signé</li>
+            <li><strong>signatures</strong> — id, document_id, client_id, date_signature, ip, hash_document</li>
+            <li>Fichiers physiques stockés dans <strong>MinIO</strong> (S3-compatible), chiffrés AES-256</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>12. DB Jurisprudence Indexée (pgvector) <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>jurisprudence_qc</strong> — id, source (CanLII/SOQUIJ), titre, résumé, texte, embedding_vector, date, résultat</li>
+            <li><strong>jurisprudence_on</strong> — même structure, source Ontario</li>
+            <li><strong>jurisprudence_ny</strong> — même structure, source CourtListener/NYSCEF</li>
+            <li><strong>lois_qc</strong> — articles du Code sécurité routière, embedding_vector</li>
+            <li><strong>lois_on</strong> — articles Highway Traffic Act, embedding_vector</li>
+            <li><strong>lois_ny</strong> — sections Vehicle & Traffic Law, embedding_vector</li>
+            <li>Recherche par <strong>similarité sémantique</strong> — l'AI trouve les précédents par sens, pas par mots-clés</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>13. DB Communications <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>notifications</strong> — id, client_id, canal (sms/email/push), template, statut (envoyé/lu), date</li>
+            <li><strong>chat_messages</strong> — id, dossier_id, sender (client/avocat/ai), message, date</li>
+            <li><strong>audit_log</strong> — id, user_id, action, ressource, date, ip — traçabilité complète</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>14. DB Analytics & Performance <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li><strong>ai_usage</strong> — modèle, tokens_in, tokens_out, coût, latence, date — suivi coûts AI en temps réel</li>
+            <li><strong>stats_contestation</strong> — par juridiction, par type infraction, taux succès, montant moyen</li>
+            <li><strong>stats_revenus</strong> — par mois, par juridiction, par source (SEO/Ads/direct)</li>
+            <li><strong>stats_seo</strong> — positions Google par mot-clé, par ville, évolution</li>
+        </ul>
+    </div>
+
+    <h3>C. Bases Complémentaires</h3>
+
+    <div class="db-card">
+        <h4>15. Redis (Cache) <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li>Cache des sessions utilisateurs (JWT)</li>
+            <li>Cache des résultats AI fréquents (même type d'infraction = même analyse de base)</li>
+            <li>Rate limiting par IP</li>
+            <li>File d'attente Celery (tâches async: OCR, AI, emails)</li>
+        </ul>
+    </div>
+
+    <div class="db-card">
+        <h4>16. Elasticsearch (Recherche) <span class="tag tag-all">TOUTES</span></h4>
+        <ul>
+            <li>Recherche full-text dans les dossiers, clients, jurisprudence</li>
+            <li>Filtres par juridiction, date, statut, type d'infraction</li>
+            <li>Autocomplete pour le portail avocat</li>
+        </ul>
+    </div>
+
+    <div class="dark-box">
+        <p style="color:#64748b; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Total Bases de Données</p>
+        <div class="big green-g">16 bases / index</div>
+        <p>7 sources juridiques externes + 7 bases internes + Redis + Elasticsearch</p>
+    </div>
+</div>
+
+<!-- PAGE 6: RÉSUMÉ -->
+<div class="page">
+    <h2 class="section-title">Résumé Exécutif — Chiffres Clés</h2>
+    <p class="section-subtitle">Les chiffres qui comptent pour nous, en un coup d'oeil.</p>
+
+    <h3>Développement</h3>
+    <table>
+        <tr><td><strong>Notre coût réel</strong></td><td style="text-align:right;" class="cost">—</td></tr>
+        <tr><td><strong>On charge au client</strong></td><td style="text-align:right;" class="price">—</td></tr>
+        <tr class="total-row"><td><strong>PROFIT développement</strong></td><td style="text-align:right;" class="profit">— (57%)</td></tr>
+    </table>
+
+    <h3>Récurrent Mensuel (à 650 dossiers/mois)</h3>
+    <table>
+        <tr><td><strong>Notre coût mensuel réel</strong></td><td style="text-align:right;" class="cost">—</td></tr>
+        <tr><td><strong>Client paie</strong></td><td style="text-align:right;" class="price">—</td></tr>
+        <tr class="total-row"><td><strong>PROFIT mensuel récurrent</strong></td><td style="text-align:right;" class="profit">— (46%)</td></tr>
+    </table>
+
+    <h3>Année 1 Complète</h3>
+    <table>
+        <tr><td><strong>Profit développement</strong></td><td style="text-align:right;" class="profit">—</td></tr>
+        <tr><td><strong>Profit récurrent (12 mois)</strong></td><td style="text-align:right;" class="profit">—</td></tr>
+        <tr class="total-row"><td><strong>PROFIT TOTAL ANNÉE 1</strong></td><td style="text-align:right;" class="profit">—</td></tr>
+    </table>
+
+    <h3>Année 2+ (récurrent seulement)</h3>
+    <table>
+        <tr class="total-row"><td><strong>PROFIT ANNUEL RÉCURRENT</strong></td><td style="text-align:right;" class="profit">— minimum</td></tr>
+    </table>
+
+    <div class="profit-box">
+        <div class="big">— — Année 1</div>
+        <p>Puis ~— de récurrent. Si le client grossit à 1 500+ dossiers/mois, encore plus avec la clause de volume.</p>
+    </div>
+
+    <h3>Protection de nos Marges — Clauses Contrat</h3>
+    <ul>
+        <li><strong>Clause volume AI:</strong> — couvre jusqu'à 500 dossiers. Au-delà: +1.— additionnel</li>
+        <li><strong>Clause SMS:</strong> 3 000 SMS inclus/mois. Au-delà: +0.—</li>
+        <li><strong>Révision annuelle:</strong> Prix ajustables annuellement selon inflation et coûts API</li>
+        <li><strong>Engagement minimum:</strong> 12 mois pour le plan mensuel</li>
+        <li><strong>Propriété du code:</strong> On garde la propriété du code source. Le client a une licence d'utilisation</li>
+    </ul>
+
+    <div class="warning-box">
+        <h4>NE JAMAIS MONTRER CE DOCUMENT AU CLIENT</h4>
+        <p>Ce document contient nos coûts réels, nos marges et notre stratégie de prix. Le client voit uniquement la proposition commerciale (proposition-aiticketinfo.pdf).</p>
+    </div>
+
+    <div style="text-align:center; margin-top:40px; padding-top:20px; border-top:1px solid #e2e8f0; color:#94a3b8; font-size:11px;">
+        <p><strong>Croige — Document Interne Confidentiel</strong></p>
+        <p>7 février 2026</p>
+    </div>
+</div>
+
+</body>
+</html>

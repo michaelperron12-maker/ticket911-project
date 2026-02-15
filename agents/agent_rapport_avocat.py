@@ -5,7 +5,7 @@ Jargon juridique, citations, references legales completes
 
 import time
 import json
-from agents.base_agent import BaseAgent, MIXTRAL_FR, GLM4
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentRapportAvocat(BaseAgent):
@@ -13,9 +13,9 @@ class AgentRapportAvocat(BaseAgent):
     def __init__(self):
         super().__init__("Rapport_Avocat")
 
-    def generer(self, ticket, analyse, lois, precedents, procedure, points_calc, validation, cross_verif):
+    def generer(self, ticket, analyse, lois, precedents, procedure, points_calc, validation, cross_verif, contexte_enrichi=None):
         """
-        Input: TOUTES les donnees de tous les agents
+        Input: TOUTES les donnees de tous les agents + contexte enrichi
         Output: dossier technique complet pour l'avocat
         """
         self.log("Generation du rapport avocat...", "STEP")
@@ -41,6 +41,39 @@ class AgentRapportAvocat(BaseAgent):
             for v in (validation.get("validations", []) if validation else [])
         ])
 
+        # Construire section preuves contextuelles
+        ctx_preuves = ""
+        if contexte_enrichi:
+            w = contexte_enrichi.get("weather")
+            if w:
+                parts = []
+                if w.get("temperature_c") is not None:
+                    parts.append(f"Temperature: {w['temperature_c']}°C")
+                if w.get("precipitation_mm"):
+                    parts.append(f"Precipitation: {w['precipitation_mm']}mm")
+                if w.get("snow_cm"):
+                    parts.append(f"Neige: {w['snow_cm']}cm")
+                if w.get("wind_speed_kmh"):
+                    parts.append(f"Vent: {w['wind_speed_kmh']}km/h")
+                if w.get("station"):
+                    parts.append(f"Station: {w['station']}")
+                if parts:
+                    ctx_preuves += "  Meteo (Env Canada): " + " | ".join(parts) + "\n"
+
+            roads = contexte_enrichi.get("road_conditions", [])
+            if roads:
+                for r in roads[:5]:
+                    ctx_preuves += f"  Route: {r.get('road', '?')} — {r.get('type', '?')} | {r.get('description', '')[:150]}\n"
+
+            speeds = contexte_enrichi.get("speed_limits", [])
+            if speeds:
+                limits = [f"{s.get('road', '?')}: {s.get('limit_kmh', '?')} km/h" for s in speeds[:5]]
+                ctx_preuves += "  Limites OSM: " + " | ".join(limits) + "\n"
+
+            notes = points_calc.get("notes_contexte", []) if points_calc else []
+            for n in notes:
+                ctx_preuves += f"  Note: {n}\n"
+
         prompt = f"""Genere un dossier technique COMPLET pour un avocat en droit routier.
 Utilise le jargon juridique. Cite les articles de loi et la jurisprudence avec precision.
 
@@ -60,6 +93,10 @@ Appareil: {ticket.get('appareil', '?')}
 ## JURISPRUDENCE
 {ctx_precedents if ctx_precedents else "Aucun precedent dans la base."}
 
+## PREUVES CONTEXTUELLES (sources officielles)
+{ctx_preuves if ctx_preuves else "Aucune donnee contextuelle disponible."}
+Sources: Environnement Canada (meteo), 511 QC/ON (routes), OpenStreetMap (limites vitesse)
+
 ## VALIDATION DONNEES
 {ctx_validation if ctx_validation else "Non effectuee."}
 
@@ -72,6 +109,7 @@ Score: {score}% | Confiance verification: {confiance}
     "resume_technique": "resume en jargon juridique",
     "fondement_legal": "articles et lois applicables",
     "jurisprudence_pertinente": "citations cles et leur pertinence",
+    "preuves_contextuelles": "resume des preuves meteo/route/vitesse si pertinent",
     "moyens_de_defense": ["moyen 1 avec reference", "moyen 2"],
     "faiblesses_dossier": ["faiblesse 1", "faiblesse 2"],
     "strategie_recommandee": "plan detaille",
@@ -83,7 +121,7 @@ Score: {score}% | Confiance verification: {confiance}
 
         # Choisir le moteur selon la juridiction
         jur = ticket.get("juridiction", "QC")
-        model = MIXTRAL_FR if jur == "QC" else GLM4
+        model = GLM5
         lang = "Francais" if jur == "QC" else "English"
 
         response = self.call_ai(prompt,

@@ -5,7 +5,7 @@ Pas de jargon juridique, comprehensible par tout le monde
 
 import time
 import json
-from agents.base_agent import BaseAgent, MIXTRAL_FR, GLM4
+from agents.base_agent import BaseAgent, GLM5
 
 
 class AgentRapportClient(BaseAgent):
@@ -13,9 +13,9 @@ class AgentRapportClient(BaseAgent):
     def __init__(self):
         super().__init__("Rapport_Client")
 
-    def generer(self, ticket, analyse, procedure, points_calc, verification_cross):
+    def generer(self, ticket, analyse, procedure, points_calc, verification_cross, contexte_enrichi=None):
         """
-        Input: toutes les donnees collectees par les agents precedents
+        Input: toutes les donnees collectees par les agents precedents + contexte enrichi
         Output: rapport en langage simple pour le client
         """
         self.log("Generation du rapport client...", "STEP")
@@ -24,6 +24,34 @@ class AgentRapportClient(BaseAgent):
         score = analyse.get("score_contestation", 0) if isinstance(analyse, dict) else 0
         reco = analyse.get("recommandation", "?") if isinstance(analyse, dict) else "?"
         args = analyse.get("arguments", []) if isinstance(analyse, dict) else []
+
+        # Formatter conditions contextuelles
+        ctx_conditions = ""
+        if contexte_enrichi:
+            w = contexte_enrichi.get("weather")
+            if w:
+                temp = w.get("temperature_c", "?")
+                precip = w.get("precipitation_mm", 0)
+                snow = w.get("snow_cm", 0)
+                conditions = []
+                if temp != "?":
+                    conditions.append(f"Temperature: {temp}°C")
+                if precip:
+                    conditions.append(f"Precipitation: {precip}mm")
+                if snow:
+                    conditions.append(f"Neige: {snow}cm")
+                if conditions:
+                    ctx_conditions += "- Meteo: " + ", ".join(conditions) + "\n"
+
+            roads = contexte_enrichi.get("road_conditions", [])
+            for r in roads:
+                rtype = r.get("type", "")
+                if rtype in ("construction", "travaux", "chantier", "chantiers", "CONSTRUCTION", "constructionprojects"):
+                    ctx_conditions += f"- Zone travaux: {r.get('road', '')} — amendes possiblement doublees\n"
+
+            notes = points_calc.get("notes_contexte", []) if points_calc else []
+            for n in notes:
+                ctx_conditions += f"- {n}\n"
 
         # Construire le prompt
         prompt = f"""Genere un rapport SIMPLE et CLAIR pour un client non-juriste.
@@ -40,6 +68,9 @@ ANALYSE:
 - Recommandation: {reco}
 - Arguments: {json.dumps(args, ensure_ascii=False)}
 
+CONDITIONS AU MOMENT DE L'INFRACTION:
+{ctx_conditions if ctx_conditions else "Aucune donnee disponible."}
+
 PROCEDURE:
 - Tribunal: {procedure.get('tribunal', '?') if procedure else '?'}
 - Delai: {procedure.get('jours_restants', '?') if procedure else '?'} jours restants
@@ -53,14 +84,15 @@ REPONDS EN JSON:
 {{
     "resume": "2-3 phrases resumant la situation",
     "verdict": "Ce que le client devrait faire en 1 phrase",
+    "conditions_pertinentes": "resume des conditions meteo/route si pertinent",
     "prochaines_etapes": ["etape 1", "etape 2", "etape 3"],
     "attention": "un point important a ne pas oublier",
     "economie": "combien le client peut economiser"
 }}"""
 
-        # Choisir le moteur selon la langue de la juridiction
+        # GLM-5 pour tous — meilleur modele, low hallucination
         jur = ticket.get("juridiction", "QC")
-        model = MIXTRAL_FR if jur == "QC" else GLM4
+        model = GLM5
         lang = "Francais" if jur == "QC" else "English"
 
         response = self.call_ai(prompt,

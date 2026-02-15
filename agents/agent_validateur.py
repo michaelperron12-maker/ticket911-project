@@ -77,7 +77,14 @@ class AgentValidateur(BaseAgent):
         if not v["valide"]:
             anomalies.append(v)
 
-        # 6. Verifier delai de contestation
+        # 6. Verifier vitesse permise vs OSM (limites de vitesse reelles)
+        v = self._verifier_vitesse_osm(ticket, classification)
+        if v:
+            validations.append(v)
+            if not v["valide"]:
+                anomalies.append(v)
+
+        # 7. Verifier delai de contestation
         v = self._verifier_delai(ticket, classification)
         validations.append(v)
 
@@ -184,6 +191,38 @@ class AgentValidateur(BaseAgent):
             return {"test": "vitesse", "valide": False, "detail": f"Captee {captee} <= permise {permise} — incoherent"}
 
         return {"test": "vitesse", "valide": True, "detail": f"Exces: {captee - permise} km/h"}
+
+    def _verifier_vitesse_osm(self, ticket, classification):
+        """Verifier si la vitesse permise du ticket correspond aux donnees OSM"""
+        permise = ticket.get("vitesse_permise", 0) or 0
+        lieu = ticket.get("lieu", "")
+        if not permise or not lieu:
+            return None
+
+        province = classification.get("juridiction", "QC")
+        city = self._extract_city(lieu)
+        speed_data = self._fetch_speed_limits(lieu, province, city)
+
+        if not speed_data:
+            return None
+
+        # Verifier si la vitesse permise du ticket correspond a une limite OSM
+        osm_limits = [s["limit_kmh"] for s in speed_data if s.get("limit_kmh")]
+        if not osm_limits:
+            return None
+
+        # Si la vitesse du ticket ne correspond a aucune limite OSM dans le secteur
+        if permise in osm_limits:
+            return {"test": "vitesse_osm", "valide": True,
+                    "detail": f"Limite {permise} km/h confirmee par OSM ({len(osm_limits)} routes)"}
+
+        closest = min(osm_limits, key=lambda x: abs(x - permise))
+        if abs(closest - permise) <= 10:
+            return {"test": "vitesse_osm", "valide": True,
+                    "detail": f"Limite {permise} km/h ~ OSM {closest} km/h (ecart acceptable)"}
+
+        return {"test": "vitesse_osm", "valide": False,
+                "detail": f"Limite ticket {permise} km/h vs OSM {osm_limits} — possible erreur signalisation"}
 
     def _verifier_delai(self, ticket, classification):
         date_str = ticket.get("date", "")

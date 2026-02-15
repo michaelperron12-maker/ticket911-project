@@ -1,11 +1,10 @@
 """
 Agent 2: CHERCHEUR DE LOIS — Trouve les articles de loi applicables
-Cherche dans les fichiers locaux (deja scrapes) via SQLite FTS5
+Cherche dans PostgreSQL via tsvector full-text search
 """
 
-import sqlite3
 import time
-from agents.base_agent import BaseAgent, DB_PATH
+from agents.base_agent import BaseAgent
 
 
 class AgentLois(BaseAgent):
@@ -30,40 +29,36 @@ class AgentLois(BaseAgent):
 
         # Recherche FTS dans la table des lois
         try:
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lois_fts'")
-            if c.fetchone():
-                # Construire la requete FTS
-                mots_cles = self._extraire_mots_cles(infraction, juridiction)
-                for query in mots_cles:
-                    try:
-                        c.execute("""SELECT l.id, l.juridiction, l.article, l.texte, l.source
-                                     FROM lois_fts fts
-                                     JOIN lois l ON fts.rowid = l.id
-                                     WHERE lois_fts MATCH ?
-                                     LIMIT 5""", (query,))
-                        rows = c.fetchall()
-                        for row in rows:
-                            resultats.append({
-                                "id": row[0], "juridiction": row[1],
-                                "article": row[2], "texte": row[3][:500],
-                                "source": row[4], "recherche": query
-                            })
-                            self.log(f"  Art. {row[2]} ({row[1]}) trouve", "OK")
-                    except sqlite3.OperationalError:
-                        pass
-            else:
-                self.log("Table lois_fts non trouvee — recherche directe", "WARN")
-                # Fallback: recherche directe dans la table lois
-                c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lois'")
-                if c.fetchone():
-                    c.execute("""SELECT id, juridiction, article, texte, source FROM lois
-                                 WHERE juridiction = ? LIMIT 10""", (juridiction,))
-                    for row in c.fetchall():
+            # Construire la requete FTS
+            mots_cles = self._extraire_mots_cles(infraction, juridiction)
+            for query in mots_cles:
+                try:
+                    c.execute("""SELECT l.id, l.province, l.article, l.texte_complet, l.loi
+                                 FROM lois_articles l
+                                 WHERE l.tsv @@ to_tsquery('french', %s)
+                                 LIMIT 5""", (query,))
+                    rows = c.fetchall()
+                    for row in rows:
                         resultats.append({
                             "id": row[0], "juridiction": row[1],
-                            "article": row[2], "texte": row[3][:500],
-                            "source": row[4]
+                            "article": row[2], "texte": row[3][:500] if row[3] else "",
+                            "source": row[4], "recherche": query
                         })
+                        self.log(f"  Art. {row[2]} ({row[1]}) trouve", "OK")
+                except Exception:
+                    pass
+
+            if not resultats:
+                self.log("Aucun resultat FTS — recherche directe", "WARN")
+                # Fallback: recherche directe dans la table lois_articles
+                c.execute("""SELECT id, province, article, texte_complet, loi FROM lois_articles
+                             WHERE province = %s LIMIT 10""", (juridiction,))
+                for row in c.fetchall():
+                    resultats.append({
+                        "id": row[0], "juridiction": row[1],
+                        "article": row[2], "texte": row[3][:500] if row[3] else "",
+                        "source": row[4]
+                    })
         except Exception as e:
             self.log(f"Erreur recherche lois: {e}", "FAIL")
 
@@ -91,7 +86,7 @@ class AgentLois(BaseAgent):
         # Mapping infraction -> mots-cles de recherche
         if any(w in infraction_lower for w in ["vitesse", "speed", "excès", "exces"]):
             if juridiction == "QC":
-                queries.extend(["vitesse", "299", "excès vitesse"])
+                queries.extend(["vitesse", "299", "excès & vitesse"])
             elif juridiction == "ON":
                 queries.extend(["speed", "128", "speeding"])
             else:
@@ -99,9 +94,9 @@ class AgentLois(BaseAgent):
 
         if any(w in infraction_lower for w in ["feu rouge", "red light", "feu"]):
             if juridiction == "QC":
-                queries.extend(["feu rouge", "328", "signalisation"])
+                queries.extend(["feu & rouge", "328", "signalisation"])
             elif juridiction == "ON":
-                queries.extend(["red light", "144"])
+                queries.extend(["red & light", "144"])
 
         if any(w in infraction_lower for w in ["cellulaire", "cell", "phone", "handheld", "texting"]):
             if juridiction == "QC":
