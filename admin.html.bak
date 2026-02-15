@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AITicketInfo Admin — Monitoring</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;--purple:#a78bfa;--text:#e2e8f0;--dim:#94a3b8;--border:#334155;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:rgba(15,23,42,.95);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;}
+.header h1{font-size:20px;font-weight:800;}.header h1 span{color:var(--accent);}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.refresh-btn{background:var(--accent);color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;}
+.refresh-btn:hover{opacity:.85;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding:20px 24px;max-width:1400px;margin:0 auto;}
+.card{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border);}
+.card h2{font-size:14px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.big-num{font-size:36px;font-weight:900;color:white;line-height:1;}
+.big-label{font-size:12px;color:var(--dim);margin-top:4px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.stat-row:last-child{border:none;}
+.stat-key{font-size:13px;color:var(--dim);}
+.stat-val{font-size:14px;font-weight:700;color:white;}
+.bar-container{display:flex;align-items:center;gap:8px;margin:4px 0;}
+.bar{height:6px;border-radius:3px;transition:width .5s;}
+.bar-label{font-size:11px;color:var(--dim);min-width:40px;text-align:right;}
+.bar-name{font-size:12px;color:var(--text);min-width:100px;}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;display:flex;align-items:center;gap:8px;}
+.alert.critical{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.alert.warning{background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:#fde047;}
+.alert.info{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93c5fd;}
+.quota-bar{width:100%;height:12px;background:var(--card2);border-radius:6px;overflow:hidden;margin:10px 0;}
+.quota-fill{height:100%;border-radius:6px;transition:width .5s;}
+.loading{text-align:center;padding:40px;color:var(--dim);font-size:15px;}
+.wide{grid-column:span 2;}
+@media(max-width:768px){.wide{grid-column:span 1;}.grid{grid-template-columns:1fr;}}
+.log-box{background:#0a0e1a;border-radius:8px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;color:#86efac;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+.timestamp{font-size:11px;color:var(--dim);margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1><span>AITicketInfo</span> Admin</h1>
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Chargement...</span></div>
+        <button class="refresh-btn" onclick="loadData()">Rafraichir</button>
+    </div>
+</div>
+
+<div id="content" class="grid">
+    <div class="loading">Chargement des donnees...</div>
+</div>
+
+<script>
+const API = window.location.origin + '/api/monitor';
+let refreshInterval;
+
+async function loadData() {
+    try {
+        const r = await fetch(API);
+        const d = await r.json();
+        if (d.status === 'error') throw new Error(d.error);
+        render(d);
+        document.getElementById('statusDot').style.background = '#22c55e';
+        document.getElementById('statusText').textContent = 'En ligne';
+    } catch(e) {
+        document.getElementById('statusDot').style.background = '#ef4444';
+        document.getElementById('statusText').textContent = 'Erreur: ' + e.message;
+    }
+}
+
+function render(d) {
+    const db = d.db || {};
+    const tables = db.tables || {};
+    const juris = db.jurisprudence || {};
+    const analyses = d.analyses || {};
+    const stats = analyses.stats || {};
+    const canlii = d.canlii || {};
+    const alertes = d.alertes || [];
+
+    const quotaUsed = canlii.used_today || 0;
+    const quotaMax = canlii.daily_max || 4800;
+    const quotaPct = Math.min(100, (quotaUsed / quotaMax * 100));
+    const quotaColor = quotaPct > 90 ? '#ef4444' : quotaPct > 70 ? '#eab308' : '#22c55e';
+
+    // Build tribunal bars
+    const tribunaux = juris.par_tribunal || {};
+    const maxTrib = Math.max(...Object.values(tribunaux), 1);
+    let tribBars = '';
+    for (const [k,v] of Object.entries(tribunaux).slice(0,10)) {
+        const pct = (v / maxTrib * 100).toFixed(0);
+        tribBars += `<div class="bar-container">
+            <span class="bar-name">${k}</span>
+            <div style="flex:1;background:#334155;border-radius:3px;height:6px;"><div class="bar" style="width:${pct}%;background:var(--accent);"></div></div>
+            <span class="bar-label">${v}</span>
+        </div>`;
+    }
+
+    // Resultat bars
+    const resultats = juris.par_resultat || {};
+    const maxRes = Math.max(...Object.values(resultats), 1);
+    const resColors = {acquitte:'#22c55e', coupable:'#ef4444', rejete:'#f97316', reduit:'#eab308', inconnu:'#94a3b8'};
+    let resBars = '';
+    for (const [k,v] of Object.entries(resultats)) {
+        const pct = (v / maxRes * 100).toFixed(0);
+        const col = resColors[k] || '#3b82f6';
+        resBars += `<div class="bar-container">
+            <span class="bar-name">${k}</span>
+            <div style="flex:1;background:#334155;border-radius:3px;height:6px;"><div class="bar" style="width:${pct}%;background:${col};"></div></div>
+            <span class="bar-label">${v}</span>
+        </div>`;
+    }
+
+    // Alertes
+    let alertHtml = '';
+    if (alertes.length === 0) alertHtml = '<div class="alert info">Aucune alerte</div>';
+    for (const a of alertes) {
+        alertHtml += `<div class="alert ${a.level}">${a.level === 'critical' ? '!!!' : a.level === 'warning' ? '!!' : 'i'} ${a.msg}</div>`;
+    }
+
+    // Analyses par recommandation
+    const parReco = analyses.par_recommandation || {};
+    let recoHtml = '';
+    for (const [k,v] of Object.entries(parReco)) {
+        recoHtml += `<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`;
+    }
+
+    // Tables
+    let tablesHtml = '';
+    for (const [k,v] of Object.entries(tables)) {
+        const displayName = k.replace(/_/g, ' ');
+        tablesHtml += `<div class="stat-row"><span class="stat-key">${displayName}</span><span class="stat-val">${v >= 0 ? v.toLocaleString() : 'N/A'}</span></div>`;
+    }
+
+    document.getElementById('content').innerHTML = `
+        <!-- Row 1: Big numbers -->
+        <div class="card">
+            <h2>Jurisprudence</h2>
+            <div class="big-num">${(tables.jurisprudence || 0).toLocaleString()}</div>
+            <div class="big-label">dossiers en base</div>
+            <div style="margin-top:12px;">
+                ${Object.entries(juris.par_province || {}).map(([k,v]) =>
+                    `<span style="display:inline-block;background:var(--card2);padding:3px 10px;border-radius:4px;font-size:12px;margin:2px 4px 2px 0;"><strong>${v}</strong> ${k}</span>`
+                ).join('')}
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Analyses</h2>
+            <div class="big-num">${stats.total || 0}</div>
+            <div class="big-label">analyses effectuees</div>
+            <div style="margin-top:12px;">
+                <div class="stat-row"><span class="stat-key">Score moyen</span><span class="stat-val">${stats.score_moyen || 0}%</span></div>
+                <div class="stat-row"><span class="stat-key">Confiance moyenne</span><span class="stat-val">${stats.confiance_moyenne || 0}%</span></div>
+                <div class="stat-row"><span class="stat-key">Temps moyen</span><span class="stat-val">${stats.temps_moyen || 0}s</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Quota CanLII</h2>
+            <div class="big-num" style="color:${quotaColor}">${canlii.remaining !== undefined ? canlii.remaining : '?'}</div>
+            <div class="big-label">requetes restantes aujourd'hui</div>
+            <div class="quota-bar"><div class="quota-fill" style="width:${quotaPct}%;background:${quotaColor};"></div></div>
+            <div class="stat-row"><span class="stat-key">Utilisees</span><span class="stat-val">${quotaUsed} / ${quotaMax}</span></div>
+            <div class="stat-row"><span class="stat-key">Cron</span><span class="stat-val">1h00 AM</span></div>
+        </div>
+
+        <!-- Row 2: Alertes + Tribunaux -->
+        <div class="card">
+            <h2>Alertes</h2>
+            ${alertHtml}
+        </div>
+
+        <div class="card">
+            <h2>Par tribunal</h2>
+            ${tribBars}
+        </div>
+
+        <div class="card">
+            <h2>Par resultat</h2>
+            ${resBars}
+        </div>
+
+        <!-- Row 3: Tables + Analyses + Log -->
+        <div class="card">
+            <h2>Tables DB</h2>
+            ${tablesHtml}
+        </div>
+
+        <div class="card">
+            <h2>Par recommandation</h2>
+            ${recoHtml || '<div class="stat-row"><span class="stat-key">Aucune analyse</span></div>'}
+        </div>
+
+        <div class="card wide">
+            <h2>Dernier import CanLII</h2>
+            <div class="log-box">${(d.last_import_log || 'Aucun log disponible').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        </div>
+    `;
+}
+
+loadData();
+refreshInterval = setInterval(loadData, 30000);
+</script>
+</body>
+</html>

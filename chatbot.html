@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AITicketInfo — Recherche d'information juridique</title>
+<style>
+:root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #334155;
+    --accent: #3b82f6;
+    --accent2: #2563eb;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --dim: #94a3b8;
+    --border: #334155;
+    --bot-bg: #1e3a5f;
+    --user-bg: #2563eb;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── HEADER ─── */
+.header {
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.header h1 span { color: var(--accent); }
+
+.header .lang-toggle {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-container {
+    padding: 12px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--dim);
+    margin-bottom: 6px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--card2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+/* ─── CHAT AREA ─── */
+.chat-container {
+    flex: 1;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+    white-space: pre-line;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.bot {
+    align-self: flex-start;
+    background: var(--bot-bg);
+    border-bottom-left-radius: 4px;
+}
+
+.message.user {
+    align-self: flex-end;
+    background: var(--user-bg);
+    border-bottom-right-radius: 4px;
+}
+
+.message.system {
+    align-self: center;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+    font-size: 13px;
+    text-align: center;
+    max-width: 90%;
+}
+
+.typing-indicator {
+    align-self: flex-start;
+    padding: 12px 16px;
+    background: var(--bot-bg);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    display: none;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--dim);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1.2s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ─── OPTIONS (boutons de choix) ─── */
+.options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+    align-self: flex-start;
+    max-width: 80%;
+}
+
+.option-btn {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.option-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.option-btn.selected {
+    background: var(--accent);
+    color: white;
+}
+
+/* Multi-select checkboxes */
+.multi-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.multi-option:hover { border-color: var(--accent); }
+
+.multi-option.checked {
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.multi-option input { accent-color: var(--accent); }
+
+.multi-submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.multi-submit:hover { background: var(--accent2); }
+
+/* ─── INPUT AREA ─── */
+.input-container {
+    padding: 16px 24px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+}
+
+.input-row {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+}
+
+.input-row input, .input-row textarea {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+}
+
+.input-row input:focus, .input-row textarea:focus {
+    border-color: var(--accent);
+}
+
+.input-row textarea { min-height: 44px; max-height: 120px; }
+
+.send-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.send-btn:hover { background: var(--accent2); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.skip-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--dim);
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.skip-btn:hover { border-color: var(--dim); color: var(--text); }
+
+/* ─── SCORE DISPLAY ─── */
+.score-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 16px 0;
+    align-self: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.score-big {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 900;
+    margin: 10px 0;
+}
+
+.score-big.high { color: var(--green); }
+.score-big.mid { color: var(--yellow); }
+.score-big.low { color: var(--red); }
+
+.score-label {
+    text-align: center;
+    font-size: 14px;
+    color: var(--dim);
+}
+
+.factor-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+}
+
+.factor-row:last-child { border: none; }
+.factor-name { color: var(--dim); }
+.factor-score { font-weight: 700; }
+.factor-weight { color: var(--dim); font-size: 11px; }
+
+/* ─── SCANNER INLINE ─── */
+.scan-zone {
+    background: var(--card);
+    border: 2px dashed var(--accent);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    max-width: 80%;
+    align-self: flex-start;
+    animation: fadeIn 0.3s ease;
+}
+
+.scan-zone.dragging {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.scan-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.scan-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.scan-btn:hover { background: var(--accent2); }
+
+.scan-btn.secondary {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.scan-btn.secondary:hover { border-color: var(--accent); }
+
+.scan-preview {
+    margin-top: 14px;
+    position: relative;
+    display: inline-block;
+}
+
+.scan-preview img {
+    max-width: 250px;
+    max-height: 180px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.scan-preview .remove-img {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.scan-progress {
+    margin-top: 14px;
+    display: none;
+}
+
+.scan-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--card2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.scan-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s;
+    animation: scanPulse 1.5s infinite;
+}
+
+@keyframes scanPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.scan-status {
+    font-size: 12px;
+    color: var(--dim);
+    margin-top: 6px;
+}
+
+.ocr-result {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    max-width: 80%;
+    align-self: flex-start;
+    animation: fadeIn 0.3s ease;
+    font-size: 13px;
+}
+
+.ocr-result h3 {
+    color: var(--green);
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ocr-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.ocr-field:last-child { border: none; }
+.ocr-field-key { color: var(--dim); }
+.ocr-field-val { color: white; font-weight: 600; }
+
+/* ─── DISCLAIMER ─── */
+.disclaimer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--dim);
+    padding: 12px 24px;
+    border-top: 1px solid var(--border);
+    background: rgba(15, 23, 42, 0.8);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+    .message { max-width: 90%; }
+    .options-container { max-width: 90%; }
+    .scan-zone { max-width: 95%; }
+    .ocr-result { max-width: 95%; }
+    .chat-container { padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#3b82f6"/>
+            <path d="M8 10h16v2H8zm0 5h12v2H8zm0 5h14v2H8z" fill="white"/>
+            <circle cx="24" cy="22" r="4" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+            <path d="M22.5 22l1 1 2-2" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>AI<span>TICKET</span>INFO</h1>
+    </div>
+    <button class="lang-toggle" onclick="toggleLangue()">EN / FR</button>
+</div>
+
+<!-- LEGAL BANNER -->
+<div style="background:rgba(234,179,8,0.08);border-bottom:1px solid rgba(234,179,8,0.2);padding:8px 24px;text-align:center;font-size:11px;color:#fde047;">
+    <strong>AVIS IMPORTANT :</strong> AITicketInfo est un outil de recherche d'information statistique. Nous ne sommes PAS des avocats et ne fournissons AUCUN avis juridique. Pour un avis juridique, consultez un avocat membre du <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;text-decoration:underline;">Barreau du Quebec</a>.
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progress-text">Etape 1 / 10</span>
+        <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+</div>
+
+<!-- CHAT -->
+<div class="chat-container" id="chat">
+    <div class="typing-indicator" id="typing">
+        <span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- HIDDEN FILE INPUTS -->
+<input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none" onchange="onFileSelected(this)">
+<input type="file" id="file-gallery" accept="image/*,.pdf" style="display:none" onchange="onFileSelected(this)">
+
+<!-- INPUT -->
+<div class="input-container" id="input-area">
+    <div class="input-row" id="input-row">
+        <input type="text" id="user-input" placeholder="Tapez votre reponse..."
+               onkeypress="if(event.key==='Enter')envoyer()">
+        <button class="send-btn" id="send-btn" onclick="envoyer()">Envoyer</button>
+    </div>
+</div>
+
+<!-- DISCLAIMER LEGAL -->
+<div class="disclaimer" style="padding:16px 24px;line-height:1.6;">
+    <strong>AITicketInfo</strong> est un service de recherche d'information statistique base sur des jugements publics disponibles sur
+    <a href="https://www.canlii.org" target="_blank" style="color:#93c5fd;">CanLII</a> et
+    <a href="https://soquij.qc.ca" target="_blank" style="color:#93c5fd;">SOQUIJ</a>.<br>
+    <strong style="color:#fde047;">Ce service ne constitue PAS un avis juridique.</strong>
+    AITicketInfo n'est pas un cabinet d'avocats et ne pratique pas le droit.<br>
+    Les informations presentees sont des statistiques tirees de decisions de justice publiques.<br>
+    Pour un avis juridique personnalise, consultez un avocat membre du
+    <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;">Barreau du Quebec</a> ou du
+    <a href="https://lso.ca/public-resources/finding-a-lawyer-or-paralegal" target="_blank" style="color:#93c5fd;">Barreau de l'Ontario</a>.
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────
+const API_BASE = window.location.origin + '/scanticket';  // nginx proxy prefix
+let sessionId = '';
+let langue = 'fr';
+let etapeCourante = 0;
+let totalEtapes = 10;
+let termine = false;
+
+// ─── INIT ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    sessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    demarrerChat();
+});
+
+// ─── DEMARRER LE CHAT ─────────────────────────
+async function demarrerChat() {
+    showTyping(true);
+
+    try {
+        const resp = await fetch(`${API_BASE}/api/chat/start`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId, langue: langue})
+        });
+        const data = await resp.json();
+
+        showTyping(false);
+        sessionId = data.session_id || sessionId;
+        totalEtapes = data.total_etapes || 10;
+
+        addMessage('bot', data.message);
+        updateProgress(0);
+
+        // Afficher la zone de scan inline dans le chat
+        showScannerInChat();
+
+        if (data.options && data.options.length > 0) {
+            showOptions(data.options, data.type);
+        }
+    } catch (err) {
+        showTyping(false);
+        addMessage('system', 'Erreur de connexion au serveur. Rechargez la page.');
+        console.error(err);
+    }
+}
+
+// ─── ENVOYER UNE REPONSE ─────────────────────
+async function envoyer() {
+    if (termine) return;
+
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    addMessage('user', message);
+    clearOptions();
+    showTyping(true);
+
+    try {
+        const resp = await fetch(`${API_BASE}/api/chat/reply`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                session_id: sessionId,
+                message: message,
+                langue: langue
+            })
+        });
+        const data = await resp.json();
+
+        showTyping(false);
+        etapeCourante = data.etape || 0;
+        updateProgress(etapeCourante);
+
+        addMessage('bot', data.message);
+
+        if (data.termine) {
+            termine = true;
+            document.getElementById('input-area').style.display = 'none';
+            const scanZone = document.getElementById('scan-zone');
+            if (scanZone) scanZone.remove();
+
+            // Afficher le score si disponible
+            if (data.donnees_collectees && data.dossier_uuid) {
+                addMessage('system',
+                    `Dossier #${data.dossier_uuid} cree. Analyse en cours...`);
+
+                // Lancer le calcul du score
+                setTimeout(() => calculerScore(data.donnees_collectees), 1500);
+            }
+        } else if (data.options && data.options.length > 0) {
+            showOptions(data.options, data.type);
+        }
+
+        // Gerer les etapes optionnelles
+        if (data.optionnel) {
+            showSkipButton();
+        }
+
+    } catch (err) {
+        showTyping(false);
+        addMessage('system', 'Erreur de connexion. Reessayez.');
+        console.error(err);
+    }
+}
+
+// ─── CALCULER LE SCORE ───────────────────────
+async function calculerScore(donnees) {
+    try {
+        const ticket = {
+            infraction: donnees.infraction || '',
+            province: donnees.province || 'QC',
+            date: donnees.date || '',
+            amende: donnees.amende || '',
+            lieu: donnees.lieu || '',
+            appareil: '',
+            dossier_uuid: donnees.dossier_uuid || ''
+        };
+
+        const preuves = donnees.preuves || [];
+
+        const resp = await fetch(`${API_BASE}/api/score`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ticket: ticket, preuves: preuves})
+        });
+
+        if (resp.ok) {
+            const score = await resp.json();
+            afficherScore(score);
+        }
+    } catch (err) {
+        console.error('Erreur calcul score:', err);
+    }
+}
+
+// ─── AFFICHER LE SCORE ───────────────────────
+function afficherScore(data) {
+    const score = data.score || 0;
+    const scoreClass = score >= 7 ? 'high' : score >= 4 ? 'mid' : 'low';
+
+    const f1 = data.f1 || {};
+    const f2 = data.f2 || {};
+    const f3 = data.f3 || {};
+    const f4 = data.f4 || {};
+    const f5 = data.f5 || {};
+
+    const html = `
+        <div class="score-card">
+            <div class="score-label">SCORE STATISTIQUE</div>
+            <div class="score-big ${scoreClass}">${score} / 10</div>
+            <div class="score-label">Base sur ${data.nb_jugements_similaires || 0} jugements similaires</div>
+
+            <div style="margin-top:16px;">
+                <div class="factor-row">
+                    <span class="factor-name">Taux acquittement historique</span>
+                    <span class="factor-score">${(f1.score || 0).toFixed(1)}</span>
+                    <span class="factor-weight">30%</span>
+                </div>
+                <div class="factor-row">
+                    <span class="factor-name">Force des preuves</span>
+                    <span class="factor-score">${(f2.score || 0).toFixed(1)}</span>
+                    <span class="factor-weight">25%</span>
+                </div>
+                <div class="factor-row">
+                    <span class="factor-name">Arguments applicables</span>
+                    <span class="factor-score">${(f3.score || 0).toFixed(1)}</span>
+                    <span class="factor-weight">20%</span>
+                </div>
+                <div class="factor-row">
+                    <span class="factor-name">Coherence du dossier</span>
+                    <span class="factor-score">${(f4.score || 0).toFixed(1)}</span>
+                    <span class="factor-weight">15%</span>
+                </div>
+                <div class="factor-row">
+                    <span class="factor-name">Facteurs contextuels</span>
+                    <span class="factor-score">${(f5.score || 0).toFixed(1)}</span>
+                    <span class="factor-weight">10%</span>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);">
+                <p>${f1.explication || ''}</p>
+                <p style="margin-top:6px;">Sources: CanLII, SOQUIJ | Methodologie: analyse statistique</p>
+            </div>
+        </div>
+    `;
+
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    div.style.alignSelf = 'center';
+    div.style.width = '100%';
+    div.style.maxWidth = '600px';
+    div.style.animation = 'fadeIn 0.5s ease';
+    chat.insertBefore(div, document.getElementById('typing'));
+    scrollToBottom();
+}
+
+// ─── OPTIONS (boutons de choix) ──────────────
+function showOptions(options, type) {
+    const chat = document.getElementById('chat');
+
+    if (type === 'multi_choix') {
+        // Checkboxes pour multi-select
+        const container = document.createElement('div');
+        container.className = 'options-container';
+        container.id = 'current-options';
+        container.style.flexDirection = 'column';
+        container.style.maxWidth = '80%';
+
+        options.forEach(opt => {
+            const label = document.createElement('label');
+            label.className = 'multi-option';
+            label.innerHTML = `<input type="checkbox" value="${opt}"> ${opt}`;
+            label.onclick = () => label.classList.toggle('checked');
+            container.appendChild(label);
+        });
+
+        const btn = document.createElement('button');
+        btn.className = 'multi-submit';
+        btn.textContent = langue === 'fr' ? 'Confirmer' : 'Confirm';
+        btn.onclick = () => {
+            const checked = container.querySelectorAll('input:checked');
+            const values = Array.from(checked).map(c => c.value);
+            if (values.length === 0) values.push(options[options.length - 1]); // "Aucune preuve"
+            document.getElementById('user-input').value = values.join(', ');
+            envoyer();
+        };
+        container.appendChild(btn);
+
+        chat.insertBefore(container, document.getElementById('typing'));
+        // Cacher l'input texte
+        document.getElementById('input-area').style.display = 'none';
+    } else {
+        // Boutons simples
+        const container = document.createElement('div');
+        container.className = 'options-container';
+        container.id = 'current-options';
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => {
+                document.getElementById('user-input').value = opt;
+                envoyer();
+            };
+            container.appendChild(btn);
+        });
+
+        chat.insertBefore(container, document.getElementById('typing'));
+    }
+
+    scrollToBottom();
+}
+
+function clearOptions() {
+    const existing = document.getElementById('current-options');
+    if (existing) existing.remove();
+    document.getElementById('input-area').style.display = '';
+}
+
+function showSkipButton() {
+    const inputRow = document.getElementById('input-row');
+    const existing = inputRow.querySelector('.skip-btn');
+    if (existing) existing.remove();
+
+    const btn = document.createElement('button');
+    btn.className = 'skip-btn';
+    btn.textContent = langue === 'fr' ? 'Passer' : 'Skip';
+    btn.onclick = () => {
+        document.getElementById('user-input').value = '-';
+        envoyer();
+        btn.remove();
+    };
+    inputRow.appendChild(btn);
+}
+
+// ─── MESSAGES ────────────────────────────────
+function addMessage(role, text) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.textContent = text;
+    chat.insertBefore(div, document.getElementById('typing'));
+    scrollToBottom();
+}
+
+function showTyping(show) {
+    document.getElementById('typing').style.display = show ? 'block' : 'none';
+    if (show) scrollToBottom();
+}
+
+function scrollToBottom() {
+    const chat = document.getElementById('chat');
+    setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
+}
+
+// ─── PROGRESS BAR ────────────────────────────
+function updateProgress(etape) {
+    const pct = Math.min(Math.round((etape / totalEtapes) * 100), 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent =
+        `Etape ${Math.min(etape + 1, totalEtapes)} / ${totalEtapes}`;
+    document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+// ─── SCANNER INLINE ──────────────────────────
+let scannerFile = null;
+
+function showScannerInChat() {
+    const chat = document.getElementById('chat');
+
+    // Eviter les doublons
+    if (document.getElementById('scan-zone')) return;
+
+    const zone = document.createElement('div');
+    zone.className = 'scan-zone';
+    zone.id = 'scan-zone';
+
+    zone.innerHTML = `
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:8px;">
+            <rect x="2" y="2" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
+            <rect x="26" y="2" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
+            <rect x="2" y="26" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
+            <rect x="26" y="26" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
+            <line x1="0" y1="20" x2="40" y2="20" stroke="#3b82f6" stroke-width="2"/>
+        </svg>
+        <div style="font-size:15px;font-weight:700;color:white;">Scanner votre ticket</div>
+        <div style="font-size:12px;color:var(--dim);margin-top:4px;">
+            Prenez une photo ou selectionnez une image de votre contravention.<br>
+            Les informations seront extraites automatiquement par AI<span style="color:var(--accent);">TICKET</span>INFO.
+        </div>
+        <div class="scan-btns">
+            <button class="scan-btn" onclick="document.getElementById('file-camera').click()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Prendre une photo
+            </button>
+            <button class="scan-btn secondary" onclick="document.getElementById('file-gallery').click()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                Choisir une image
+            </button>
+        </div>
+        <div id="scan-preview-area"></div>
+        <div class="scan-progress" id="scan-progress">
+            <div class="scan-progress-bar"><div class="scan-progress-fill" id="scan-progress-fill"></div></div>
+            <div class="scan-status" id="scan-status">Analyse en cours...</div>
+        </div>
+    `;
+
+    // Drag & drop
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragging');
+        if (e.dataTransfer.files.length > 0) handleScanFile(e.dataTransfer.files[0]);
+    });
+
+    chat.insertBefore(zone, document.getElementById('typing'));
+    scrollToBottom();
+}
+
+function onFileSelected(input) {
+    if (input.files && input.files[0]) {
+        handleScanFile(input.files[0]);
+    }
+    input.value = '';
+}
+
+function handleScanFile(file) {
+    if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)|application\/pdf/)) {
+        addMessage('system', 'Format non supporte. Utilisez JPG, PNG ou PDF.');
+        return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+        addMessage('system', 'Fichier trop gros (max 20 Mo).');
+        return;
+    }
+
+    scannerFile = file;
+
+    // Afficher la preview
+    const previewArea = document.getElementById('scan-preview-area');
+    if (previewArea) {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewArea.innerHTML = `
+                    <div class="scan-preview">
+                        <img src="${e.target.result}" alt="Ticket">
+                        <button class="remove-img" onclick="removeScanPreview()">X</button>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>
+                            Analyser ce ticket
+                        </button>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewArea.innerHTML = `
+                <div style="margin-top:10px;padding:12px;background:var(--card2);border-radius:8px;font-size:13px;">
+                    PDF: ${file.name} (${(file.size/1024).toFixed(0)} Ko)
+                </div>
+                <div style="margin-top:10px;">
+                    <button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>
+                        Analyser ce ticket
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    scrollToBottom();
+}
+
+function removeScanPreview() {
+    scannerFile = null;
+    const previewArea = document.getElementById('scan-preview-area');
+    if (previewArea) previewArea.innerHTML = '';
+}
+
+async function lancerScan() {
+    if (!scannerFile) return;
+
+    const progressEl = document.getElementById('scan-progress');
+    const fillEl = document.getElementById('scan-progress-fill');
+    const statusEl = document.getElementById('scan-status');
+    const previewArea = document.getElementById('scan-preview-area');
+
+    // Cacher le bouton analyser, montrer la progression
+    if (previewArea) {
+        const analyzeBtn = previewArea.querySelector('.scan-btn');
+        if (analyzeBtn) analyzeBtn.style.display = 'none';
+    }
+    progressEl.style.display = 'block';
+
+    // Etapes visuelles
+    const etapes = [
+        { pct: 15, msg: 'Upload de l\'image...' },
+        { pct: 35, msg: 'Extraction du texte (OCR)...' },
+        { pct: 55, msg: 'Analyse par intelligence artificielle...' },
+        { pct: 75, msg: 'Identification des champs...' },
+        { pct: 90, msg: 'Verification des donnees...' },
+    ];
+
+    let etapeIdx = 0;
+    const progressTimer = setInterval(() => {
+        if (etapeIdx < etapes.length) {
+            fillEl.style.width = etapes[etapeIdx].pct + '%';
+            statusEl.textContent = etapes[etapeIdx].msg;
+            etapeIdx++;
+        }
+    }, 1500);
+
+    try {
+        const formData = new FormData();
+        formData.append('ticket_photo', scannerFile);
+        formData.append('ticket', JSON.stringify({}));
+        formData.append('client_info', JSON.stringify({}));
+
+        const resp = await fetch(`${API_BASE}/api/analyze`, {
+            method: 'POST',
+            body: formData
+        });
+
+        clearInterval(progressTimer);
+
+        if (!resp.ok) throw new Error('Erreur serveur ' + resp.status);
+
+        const data = await resp.json();
+
+        fillEl.style.width = '100%';
+        statusEl.textContent = 'Analyse terminee!';
+
+        // Retirer la zone de scan
+        setTimeout(() => {
+            const scanZone = document.getElementById('scan-zone');
+            if (scanZone) scanZone.remove();
+
+            // Afficher les resultats OCR dans le chat
+            afficherResultatsScan(data);
+        }, 800);
+
+    } catch (err) {
+        clearInterval(progressTimer);
+        fillEl.style.width = '0%';
+        statusEl.textContent = 'Erreur: ' + err.message;
+        statusEl.style.color = '#fca5a5';
+        console.error('Erreur scan:', err);
+        addMessage('system', 'Erreur lors de l\'analyse. Vous pouvez reessayer ou remplir les informations manuellement.');
+    }
+}
+
+function afficherResultatsScan(data) {
+    const chat = document.getElementById('chat');
+    const analyse = data.analyse || {};
+    const ticket = analyse.ticket || data.ticket || {};
+
+    // Construire le resume des champs extraits
+    const champs = {
+        'Infraction': ticket.infraction || analyse.infraction || '?',
+        'Province': ticket.juridiction || data.juridiction || '?',
+        'Date': ticket.date || '?',
+        'Amende': ticket.amende || '?',
+        'Lieu': ticket.lieu || '?',
+        'Article': ticket.loi || ticket.article || '?',
+        'Appareil': ticket.appareil || '?',
+        'Vitesse captee': ticket.vitesse_captee ? ticket.vitesse_captee + ' km/h' : '?',
+        'Vitesse permise': ticket.vitesse_permise ? ticket.vitesse_permise + ' km/h' : '?',
+    };
+
+    let fieldsHtml = '';
+    for (const [key, val] of Object.entries(champs)) {
+        if (val && val !== '?' && val !== '0' && val !== '0 km/h') {
+            fieldsHtml += `<div class="ocr-field"><span class="ocr-field-key">${key}</span><span class="ocr-field-val">${val}</span></div>`;
+        }
+    }
+
+    if (!fieldsHtml) {
+        fieldsHtml = '<div style="color:var(--dim);">Aucun champ detecte. Continuez manuellement.</div>';
+    }
+
+    const resultDiv = document.createElement('div');
+    resultDiv.className = 'ocr-result';
+    resultDiv.innerHTML = `
+        <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Ticket analyse par AITICKETINFO
+        </h3>
+        ${fieldsHtml}
+        <div style="margin-top:10px;font-size:11px;color:var(--dim);">
+            Score: ${data.score || '?'}/10 | Confiance: ${data.confiance || '?'}% | Dossier: #${data.dossier_uuid || '?'}
+        </div>
+        <div style="margin-top:8px;">
+            <button class="scan-btn" onclick="utiliserDonneesScan(this)" style="width:100%;justify-content:center;font-size:13px;padding:10px;">
+                Utiliser ces informations dans le chatbot
+            </button>
+        </div>
+    `;
+    resultDiv.dataset.ticket = JSON.stringify(ticket);
+    resultDiv.dataset.analyse = JSON.stringify(data);
+
+    chat.insertBefore(resultDiv, document.getElementById('typing'));
+    scrollToBottom();
+}
+
+async function utiliserDonneesScan(btn) {
+    const resultDiv = btn.closest('.ocr-result');
+    const ticket = JSON.parse(resultDiv.dataset.ticket || '{}');
+    const analyseData = JSON.parse(resultDiv.dataset.analyse || '{}');
+
+    btn.disabled = true;
+    btn.textContent = 'Application en cours...';
+
+    // Envoyer les infos extraites une par une au chatbot
+    const mappings = [
+        { champ: 'infraction', val: ticket.infraction },
+        { champ: 'province', val: ticket.juridiction === 'QC' ? 'Quebec' : ticket.juridiction === 'ON' ? 'Ontario' : null },
+        { champ: 'date', val: ticket.date },
+        { champ: 'amende', val: ticket.amende },
+        { champ: 'lieu', val: ticket.lieu },
+        { champ: 'circonstances', val: [ticket.appareil, ticket.vitesse_captee ? ticket.vitesse_captee + ' km/h capte' : '', ticket.vitesse_permise ? ticket.vitesse_permise + ' km/h permis' : ''].filter(Boolean).join(', ') || null },
+    ];
+
+    for (const m of mappings) {
+        if (m.val && m.val !== '?' && m.val !== '0' && etapeCourante < totalEtapes) {
+            addMessage('user', m.val);
+            showTyping(true);
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/chat/reply`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ session_id: sessionId, message: m.val, langue: langue })
+                });
+                const data = await resp.json();
+                showTyping(false);
+                etapeCourante = data.etape || 0;
+                updateProgress(etapeCourante);
+                addMessage('bot', data.message);
+
+                if (data.termine) {
+                    termine = true;
+                    document.getElementById('input-area').style.display = 'none';
+                    break;
+                }
+
+                if (data.options && data.options.length > 0) {
+                    // Ne pas afficher les options si on va auto-remplir la prochaine
+                    const nextMapping = mappings[mappings.indexOf(m) + 1];
+                    if (!nextMapping || !nextMapping.val || nextMapping.val === '?') {
+                        showOptions(data.options, data.type);
+                    }
+                }
+            } catch (err) {
+                showTyping(false);
+                break;
+            }
+
+            // Petit delai entre chaque envoi pour le naturel
+            await new Promise(r => setTimeout(r, 600));
+        }
+    }
+
+    btn.textContent = 'Informations appliquees';
+    addMessage('system', langue === 'fr'
+        ? 'Les informations du ticket ont ete appliquees. Continuez a repondre aux questions restantes.'
+        : 'Ticket information has been applied. Continue answering the remaining questions.');
+}
+
+function showScannerBanner(show) {
+    // Maintenant on affiche la zone de scan dans le chat au lieu d'un banner
+    if (show) showScannerInChat();
+}
+
+// ─── LANGUE ──────────────────────────────────
+function toggleLangue() {
+    langue = langue === 'fr' ? 'en' : 'fr';
+    document.querySelector('.lang-toggle').textContent =
+        langue === 'fr' ? 'EN / FR' : 'FR / EN';
+    // Redemarrer la conversation
+    document.getElementById('chat').innerHTML =
+        '<div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>';
+    termine = false;
+    document.getElementById('input-area').style.display = '';
+    sessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    demarrerChat();
+}
+</script>
+
+</body>
+</html>
