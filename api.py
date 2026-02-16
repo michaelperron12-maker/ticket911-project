@@ -120,6 +120,34 @@ def upload_files():
 
 
 # ─── ANALYSE COMPLETE (27 agents) ─────────────
+
+def _save_user_analysis(dossier_uuid, titre, score, recommandation, auth_header):
+    """Sauvegarde l'analyse dans user_analyses si l'utilisateur est connecte"""
+    if not auth_header or not auth_header.startswith("Bearer ") or not _auth_available:
+        return
+    try:
+        from auth import decode_token
+        token = auth_header[7:]
+        payload = decode_token(token)
+        if not payload:
+            return
+        user_id = payload.get("user_id")
+        if not user_id:
+            return
+        conn2 = psycopg2.connect(**PG_CONFIG)
+        cur2 = conn2.cursor()
+        cur2.execute("""
+            INSERT INTO user_analyses (user_id, dossier_uuid, titre, score_global, recommandation)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, dossier_uuid, titre, score, recommandation))
+        conn2.commit()
+        cur2.close()
+        conn2.close()
+        print(f"[AUTH] Analyse {dossier_uuid} sauvegardee pour user {user_id}")
+    except Exception as e:
+        print(f"[AUTH] Erreur save analyse: {e}")
+
+
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
     """Analyse complete — pipeline 27 agents / 4 phases"""
@@ -206,6 +234,15 @@ def analyze():
             pass
 
         conn.close()
+
+        # Sauvegarder dans user_analyses si connecte
+        _save_user_analysis(
+            dossier_uuid,
+            ticket.get("infraction", ticket.get("titre", "Analyse")),
+            rapport.get("score_final", 0),
+            rapport.get("recommandation", "?"),
+            request.headers.get("Authorization", "")
+        )
 
         return jsonify({
             "success": True,
