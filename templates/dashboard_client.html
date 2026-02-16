@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon espace — Ticket911</title>
+<style>
+    :root { --bg:#0a0e1a; --card:#111827; --border:rgba(255,255,255,.08); --accent:#2563eb; --red:#e63946; --gold:#d4a843; --green:#22c55e; --text:#e2e8f0; --text-dim:#94a3b8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    .nav { background:rgba(17,24,39,.95); border-bottom:1px solid var(--border); padding:.8rem 2rem; display:flex; align-items:center; gap:2rem; position:sticky; top:0; z-index:100; backdrop-filter:blur(12px); }
+    .nav .logo { font-size:1.3rem; font-weight:900; }
+    .nav .logo span { color:var(--red); }
+    .nav-links { display:flex; gap:1.5rem; flex:1; }
+    .nav-links a { color:var(--text-dim); text-decoration:none; font-size:.85rem; font-weight:500; }
+    .nav-links a:hover, .nav-links a.active { color:var(--text); }
+    .nav .user-info { font-size:.85rem; color:var(--text-dim); }
+    .nav .btn-sm { padding:.4rem .8rem; background:var(--red); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:.8rem; font-weight:600; }
+    .container { max-width:1100px; margin:0 auto; padding:2rem; }
+    h1 { font-size:1.8rem; margin-bottom:1.5rem; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; }
+    .stat-card .num { font-size:2rem; font-weight:900; }
+    .stat-card .label { font-size:.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; margin-top:.3rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }
+    .card h2 { font-size:1.1rem; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .badge { padding:.2rem .6rem; border-radius:4px; font-size:.7rem; font-weight:700; text-transform:uppercase; }
+    .badge-gratuit { background:rgba(100,116,139,.2); color:#94a3b8; }
+    .badge-pro { background:rgba(37,99,235,.2); color:#60a5fa; }
+    .badge-abo { background:rgba(212,168,67,.2); color:var(--gold); }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-size:.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; padding:.6rem .5rem; border-bottom:1px solid var(--border); }
+    td { padding:.7rem .5rem; border-bottom:1px solid rgba(255,255,255,.03); font-size:.85rem; }
+    .score-pill { display:inline-block; padding:.2rem .5rem; border-radius:4px; font-weight:700; font-size:.8rem; }
+    .score-high { background:rgba(34,197,94,.2); color:#86efac; }
+    .score-mid { background:rgba(234,179,8,.2); color:#fde047; }
+    .score-low { background:rgba(239,68,68,.2); color:#fca5a5; }
+    .reco-contester { color:#22c55e; }
+    .reco-negocier { color:#eab308; }
+    .reco-payer { color:#ef4444; }
+    .empty { text-align:center; padding:3rem; color:var(--text-dim); }
+    .empty a { color:var(--accent); text-decoration:none; font-weight:600; }
+    .btn-cta { display:inline-block; padding:.7rem 1.5rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-size:.9rem; font-weight:700; text-decoration:none; cursor:pointer; }
+    .btn-cta:hover { opacity:.9; }
+    .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .profile-field { font-size:.85rem; }
+    .profile-field .label { font-size:.7rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:.2rem; }
+    #loading { text-align:center; padding:4rem; font-size:1.2rem; color:var(--text-dim); }
+</style>
+</head>
+<body>
+<nav class="nav">
+    <div class="logo">Ticket<span>911</span>.ca</div>
+    <div class="nav-links">
+        <a href="/scanticket/dashboard" class="active">Tableau de bord</a>
+        <a href="/scanticket/">Analyser un ticket</a>
+    </div>
+    <span class="user-info" id="userInfo"></span>
+    <button class="btn-sm" onclick="doLogout()">Deconnexion</button>
+</nav>
+
+<div class="container">
+    <div id="loading">Chargement...</div>
+    <div id="content" style="display:none">
+        <h1>Bonjour <span id="userName"></span></h1>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num" id="totalAnalyses">0</div>
+                <div class="label">Analyses effectuees</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="avgScore">—</div>
+                <div class="label">Score moyen</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="planLabel">Gratuit</div>
+                <div class="label">Votre plan</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="memberSince">—</div>
+                <div class="label">Membre depuis</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Mes analyses</h2>
+            <div id="analysesEmpty" class="empty" style="display:none">
+                <p>Vous n'avez pas encore d'analyse.</p>
+                <a href="/scanticket/" class="btn-cta" style="margin-top:1rem;display:inline-block;">Analyser mon premier ticket</a>
+            </div>
+            <table id="analysesTable" style="display:none">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Dossier</th>
+                        <th>Titre</th>
+                        <th>Score</th>
+                        <th>Recommandation</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="analysesBody"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Mon profil</h2>
+            <div class="profile-grid" id="profileGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>Mon plan</h2>
+            <div id="planSection"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE = window.location.origin + '/scanticket/api/auth';
+const token = localStorage.getItem('tk911_token');
+
+if (!token) {
+    window.location.href = '/scanticket/login';
+}
+
+async function loadDashboard() {
+    try {
+        const r = await fetch(API_BASE + '/me', {
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        if (r.status === 401) {
+            localStorage.removeItem('tk911_token');
+            localStorage.removeItem('tk911_user');
+            window.location.href = '/scanticket/login';
+            return;
+        }
+        const data = await r.json();
+        const user = data.user;
+        const analyses = data.analyses || [];
+
+        // Header
+        document.getElementById('userInfo').textContent = user.email;
+        document.getElementById('userName').textContent = user.prenom || user.email.split('@')[0];
+
+        // Stats
+        document.getElementById('totalAnalyses').textContent = analyses.length;
+        if (analyses.length > 0) {
+            const scores = analyses.filter(a => a.score !== null).map(a => a.score);
+            if (scores.length > 0) {
+                document.getElementById('avgScore').textContent = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) + '%';
+            }
+        }
+        const planLabels = {gratuit:'Gratuit',pro:'Pro',abo:'Abonnement'};
+        document.getElementById('planLabel').textContent = planLabels[user.plan] || user.plan;
+
+        if (user.created_at) {
+            const d = new Date(user.created_at);
+            document.getElementById('memberSince').textContent = d.toLocaleDateString('fr-CA');
+        }
+
+        // Analyses table
+        if (analyses.length === 0) {
+            document.getElementById('analysesEmpty').style.display = 'block';
+        } else {
+            document.getElementById('analysesTable').style.display = 'table';
+            const tbody = document.getElementById('analysesBody');
+            analyses.forEach(a => {
+                const scoreClass = a.score >= 60 ? 'score-high' : a.score >= 30 ? 'score-mid' : 'score-low';
+                const recoClass = a.recommandation === 'contester' ? 'reco-contester' : a.recommandation === 'negocier' ? 'reco-negocier' : 'reco-payer';
+                const date = a.date ? new Date(a.date).toLocaleDateString('fr-CA') : '—';
+                tbody.innerHTML += `<tr>
+                    <td>${date}</td>
+                    <td><code>${a.dossier_uuid || '—'}</code></td>
+                    <td>${a.titre || '—'}</td>
+                    <td><span class="score-pill ${scoreClass}">${a.score !== null ? a.score + '%' : '—'}</span></td>
+                    <td><span class="${recoClass}" style="font-weight:600;text-transform:capitalize">${a.recommandation || '—'}</span></td>
+                    <td>${a.dossier_uuid ? '<a href="/scanticket/api/rapport/'+a.dossier_uuid+'" style="color:var(--accent);font-size:.8rem;">PDF</a>' : ''}</td>
+                </tr>`;
+            });
+        }
+
+        // Profile
+        const pg = document.getElementById('profileGrid');
+        const fields = [
+            {label:'Email', value:user.email},
+            {label:'Nom', value:(user.prenom||'')+' '+(user.nom||'')},
+            {label:'Telephone', value:user.telephone||'—'},
+            {label:'Derniere connexion', value:user.last_login ? new Date(user.last_login).toLocaleString('fr-CA') : '—'},
+        ];
+        fields.forEach(f => {
+            pg.innerHTML += `<div class="profile-field"><div class="label">${f.label}</div><div>${f.value}</div></div>`;
+        });
+
+        // Plan section
+        const ps = document.getElementById('planSection');
+        const badgeClass = user.plan === 'pro' ? 'badge-pro' : user.plan === 'abo' ? 'badge-abo' : 'badge-gratuit';
+        ps.innerHTML = `
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                <span class="badge ${badgeClass}">${planLabels[user.plan] || user.plan}</span>
+                ${user.plan === 'gratuit' ? '<span style="font-size:.85rem;color:var(--text-dim);">1 analyse gratuite incluse</span>' : ''}
+            </div>
+            ${user.plan === 'gratuit' ? `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:1rem;">
+                        <div style="font-weight:700;margin-bottom:.3rem;">Rapport Pro — 19.99$</div>
+                        <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:.8rem;">PDF 9 pages, jurisprudence, arguments</div>
+                        <button class="btn-cta" style="width:100%;font-size:.85rem;" onclick="alert('Bientot disponible — Stripe en cours')">Acheter</button>
+                    </div>
+                    <div style="background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);border-radius:8px;padding:1rem;">
+                        <div style="font-weight:700;margin-bottom:.3rem;">Abonnement — 9.99$/mois</div>
+                        <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:.8rem;">Analyses illimitees + PDF</div>
+                        <button class="btn-cta" style="width:100%;font-size:.85rem;background:var(--gold);" onclick="alert('Bientot disponible — Stripe en cours')">S'abonner</button>
+                    </div>
+                </div>
+            ` : '<div style="font-size:.85rem;color:var(--green);">Votre plan est actif.</div>'}
+        `;
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+    } catch(e) {
+        document.getElementById('loading').textContent = 'Erreur de chargement. Veuillez vous reconnecter.';
+    }
+}
+
+function doLogout() {
+    localStorage.removeItem('tk911_token');
+    localStorage.removeItem('tk911_user');
+    window.location.href = '/scanticket/login';
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — Ticket911</title>
+<style>
+    :root { --bg:#0a0e1a; --card:#111827; --border:rgba(255,255,255,.08); --accent:#2563eb; --red:#e63946; --gold:#d4a843; --text:#e2e8f0; --text-dim:#94a3b8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .logo { font-size:2rem; font-weight:900; margin-bottom:2rem; }
+    .logo span { color:var(--red); }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; width:100%; max-width:420px; }
+    h1 { font-size:1.5rem; margin-bottom:1.5rem; text-align:center; }
+    .field { margin-bottom:1.2rem; }
+    .field label { display:block; font-size:.8rem; color:var(--text-dim); margin-bottom:.4rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+    .field input { width:100%; padding:.75rem 1rem; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:.95rem; outline:none; transition:border .2s; }
+    .field input:focus { border-color:var(--accent); }
+    .btn { width:100%; padding:.85rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; transition:opacity .2s; margin-top:.5rem; }
+    .btn:hover { opacity:.9; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .error { background:rgba(230,57,70,.15); color:#fca5a5; padding:.6rem 1rem; border-radius:6px; font-size:.85rem; margin-bottom:1rem; display:none; }
+    .link { text-align:center; margin-top:1.2rem; font-size:.85rem; color:var(--text-dim); }
+    .link a { color:var(--accent); text-decoration:none; font-weight:600; }
+    .link a:hover { text-decoration:underline; }
+    .back { position:absolute; top:1.5rem; left:1.5rem; color:var(--text-dim); text-decoration:none; font-size:.85rem; }
+    .back:hover { color:var(--text); }
+</style>
+</head>
+<body>
+<a href="/scanticket/" class="back">← Retour</a>
+<div class="logo">Ticket<span>911</span>.ca</div>
+<div class="card">
+    <h1>Connexion</h1>
+    <div class="error" id="error"></div>
+    <form id="loginForm" onsubmit="doLogin(event)">
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" required placeholder="votre@email.com" autocomplete="email">
+        </div>
+        <div class="field">
+            <label>Mot de passe</label>
+            <input type="password" id="password" required placeholder="••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn" id="submitBtn">Se connecter</button>
+    </form>
+    <div class="link">Pas encore de compte? <a href="/scanticket/register">Creer un compte</a></div>
+</div>
+
+<script>
+const API_BASE = window.location.origin + '/scanticket/api/auth';
+
+async function doLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('error');
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Connexion...';
+
+    try {
+        const r = await fetch(API_BASE + '/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+            })
+        });
+        const data = await r.json();
+        if (!r.ok) {
+            err.textContent = data.error || 'Erreur de connexion';
+            err.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Se connecter';
+            return;
+        }
+        localStorage.setItem('tk911_token', data.token);
+        localStorage.setItem('tk911_user', JSON.stringify(data.user));
+        window.location.href = '/scanticket/dashboard';
+    } catch(e) {
+        err.textContent = 'Erreur de connexion au serveur';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+    }
+}
+
+// Si deja connecte, rediriger
+if (localStorage.getItem('tk911_token')) {
+    window.location.href = '/scanticket/dashboard';
+}
+</script>
+</body>
+</html>

@@ -64,6 +64,14 @@ def get_client_folder(dossier_uuid):
 
 
 # ─── PAGE WEB ─────────────────────────────────
+
+# Auth module
+try:
+    from auth import register_auth_routes, init_auth_tables
+    _auth_available = True
+except ImportError:
+    _auth_available = False
+
 @app.route("/")
 def index():
     resp = make_response(send_from_directory(".", "scanner.html"))
@@ -159,7 +167,7 @@ def analyze():
         data = request.get_json()
         if not data:
             conn.close()
-
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
         return jsonify({"error": "JSON ou multipart requis"}), 400
         ticket = data.get("ticket", data)
         client_info = data.get("client_info", {})
@@ -249,8 +257,7 @@ def get_rapport_pdf(dossier_uuid):
 
         if not row:
             conn.close()
-
-        return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
 
         # Parse les JSONs
         data = {
@@ -657,7 +664,7 @@ def get_dossier(dossier_uuid):
 
         if not row:
             conn.close()
-
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
         return jsonify({"error": "Dossier non trouve"}), 404
 
         conn.close()
@@ -715,7 +722,7 @@ def send_report():
 
         if not row:
             conn.close()
-
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
         return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
 
         rapport_client = row[0] if isinstance(row[0], dict) else json.loads(row[0] or "{}")
@@ -1979,7 +1986,7 @@ def get_score(dossier_uuid):
         conn.close()
         if not row:
             conn.close()
-
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
         return jsonify({"error": "Score non trouve"}), 404
         conn.close()
 
@@ -2088,7 +2095,7 @@ def chat_scan():
         
         if not ticket or not any(v for k, v in ticket.items() if k != "texte_brut_ocr" and v):
             conn.close()
-
+            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
         return jsonify({
                 "success": False,
                 "error": "OCR n a pas reussi a extraire les informations. Essayez avec une meilleure photo.",
@@ -2282,17 +2289,23 @@ def api_recensement():
         """)
         last_run = cur.fetchone()
 
-        # Top zones (lieux avec le plus d'anomalies high)
+        # Top zones (lieux avec le plus d'anomalies high) + nom municipalite
         cur.execute("""
-            SELECT region, COUNT(*) AS nb,
-                SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) AS nb_high
-            FROM recensement_stats
-            WHERE is_active = TRUE AND region IS NOT NULL
-            GROUP BY region
+            SELECT r.region, COUNT(*) AS nb,
+                SUM(CASE WHEN r.severity = 'high' THEN 1 ELSE 0 END) AS nb_high,
+                m.nom_municipalite, m.mrc, m.region_admin, m.population
+            FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE r.is_active = TRUE AND r.region IS NOT NULL
+            GROUP BY r.region, m.nom_municipalite, m.mrc, m.region_admin, m.population
             ORDER BY nb_high DESC, nb DESC
             LIMIT 10
         """)
-        top_zones = [{"region": r[0], "total": r[1], "high": r[2]} for r in cur.fetchall()]
+        top_zones = [{
+            "region": r[0], "total": r[1], "high": r[2],
+            "nom_municipalite": r[3], "mrc": r[4],
+            "region_admin": r[5], "population": r[6]
+        } for r in cur.fetchall()]
 
         # Top articles (acquittement ou surrepresentes)
         cur.execute("""
@@ -2310,21 +2323,24 @@ def api_recensement():
             "severity": r[5]
         } for r in cur.fetchall()]
 
-        # Anomalies recentes (les plus severes)
+        # Anomalies recentes (les plus severes) + nom municipalite
         cur.execute("""
-            SELECT anomaly_type, region, article, deviation_pct, z_score,
-                   severity, defense_text_fr, sample_size
-            FROM recensement_stats
-            WHERE is_active = TRUE
-            ORDER BY CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
-                     z_score DESC
+            SELECT r.anomaly_type, r.region, r.article, r.deviation_pct, r.z_score,
+                   r.severity, r.defense_text_fr, r.sample_size,
+                   m.nom_municipalite
+            FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE r.is_active = TRUE
+            ORDER BY CASE r.severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+                     r.z_score DESC
             LIMIT 15
         """)
         recent = [{
             "type": r[0], "region": r[1], "article": r[2],
             "deviation_pct": float(r[3]) if r[3] else None,
             "z_score": float(r[4]) if r[4] else None,
-            "severity": r[5], "defense_text": r[6], "sample_size": r[7]
+            "severity": r[5], "defense_text": r[6], "sample_size": r[7],
+            "nom_municipalite": r[8]
         } for r in cur.fetchall()]
 
         # Distribution par type
@@ -2438,14 +2454,16 @@ def api_recensement_details():
         cur.execute(f"SELECT COUNT(*) FROM recensement_stats r WHERE {where}", params)
         total_count = cur.fetchone()[0]
 
-        # Anomalies avec details
+        # Anomalies avec details + nom municipalite
         cur.execute(f"""
             SELECT r.id, r.anomaly_type, r.region, r.article,
                    r.observed_value, r.expected_value, r.deviation_pct, r.z_score,
                    r.severity, r.confidence_level, r.defense_text_fr, r.legal_reference,
                    r.computation_details, r.sample_size, r.period_start, r.period_end,
-                   r.created_at
+                   r.created_at,
+                   m.nom_municipalite, m.mrc, m.region_admin, m.population
             FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
             WHERE {where}
             ORDER BY
                 CASE r.severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
@@ -2467,6 +2485,8 @@ def api_recensement_details():
                 "period_start": row[14].isoformat() if row[14] else None,
                 "period_end": row[15].isoformat() if row[15] else None,
                 "created": row[16].isoformat() if row[16] else None,
+                "nom_municipalite": row[17], "mrc": row[18],
+                "region_admin": row[19], "population": row[20],
                 "constats_info": None,
             }
 
@@ -2529,6 +2549,33 @@ def api_recensement_details():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+
+# Init auth tables + routes
+if _auth_available:
+    try:
+        init_auth_tables()
+        register_auth_routes(app)
+        print("[AUTH] Routes auth enregistrees")
+    except Exception as e:
+        print(f"[AUTH] Erreur init: {e}")
+
+
+# ═══════════════════════════════════════════════════════
+# PAGES — Login / Register / Dashboard Client
+# ═══════════════════════════════════════════════════════
+
+@app.route("/login")
+def page_login():
+    return send_file("templates/login.html")
+
+@app.route("/register")
+def page_register():
+    return send_file("templates/register.html")
+
+@app.route("/dashboard")
+def page_dashboard():
+    return send_file("templates/dashboard_client.html")
 
 if __name__ == "__main__":
     print("FightMyTicket API v2 — 27 agents — http://0.0.0.0:8912")

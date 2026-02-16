@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscription — Ticket911</title>
+<style>
+    :root { --bg:#0a0e1a; --card:#111827; --border:rgba(255,255,255,.08); --accent:#2563eb; --red:#e63946; --gold:#d4a843; --text:#e2e8f0; --text-dim:#94a3b8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; }
+    .logo { font-size:2rem; font-weight:900; margin-bottom:2rem; }
+    .logo span { color:var(--red); }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; width:100%; max-width:420px; }
+    h1 { font-size:1.5rem; margin-bottom:1.5rem; text-align:center; }
+    .field { margin-bottom:1rem; }
+    .field label { display:block; font-size:.8rem; color:var(--text-dim); margin-bottom:.4rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+    .field input { width:100%; padding:.75rem 1rem; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:.95rem; outline:none; transition:border .2s; }
+    .field input:focus { border-color:var(--accent); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .btn { width:100%; padding:.85rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; transition:opacity .2s; margin-top:.5rem; }
+    .btn:hover { opacity:.9; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .error { background:rgba(230,57,70,.15); color:#fca5a5; padding:.6rem 1rem; border-radius:6px; font-size:.85rem; margin-bottom:1rem; display:none; }
+    .success { background:rgba(34,197,94,.15); color:#86efac; padding:.6rem 1rem; border-radius:6px; font-size:.85rem; margin-bottom:1rem; display:none; }
+    .link { text-align:center; margin-top:1.2rem; font-size:.85rem; color:var(--text-dim); }
+    .link a { color:var(--accent); text-decoration:none; font-weight:600; }
+    .back { position:absolute; top:1.5rem; left:1.5rem; color:var(--text-dim); text-decoration:none; font-size:.85rem; }
+    .back:hover { color:var(--text); }
+    .terms { font-size:.75rem; color:var(--text-dim); text-align:center; margin-top:1rem; }
+</style>
+</head>
+<body>
+<a href="/scanticket/" class="back">← Retour</a>
+<div class="logo">Ticket<span>911</span>.ca</div>
+<div class="card">
+    <h1>Creer un compte</h1>
+    <div class="error" id="error"></div>
+    <div class="success" id="success"></div>
+    <form id="registerForm" onsubmit="doRegister(event)">
+        <div class="row">
+            <div class="field">
+                <label>Prenom</label>
+                <input type="text" id="prenom" placeholder="Jean">
+            </div>
+            <div class="field">
+                <label>Nom</label>
+                <input type="text" id="nom" placeholder="Tremblay">
+            </div>
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" required placeholder="votre@email.com" autocomplete="email">
+        </div>
+        <div class="field">
+            <label>Telephone (optionnel)</label>
+            <input type="tel" id="telephone" placeholder="514-555-1234">
+        </div>
+        <div class="field">
+            <label>Mot de passe (min 6 caracteres)</label>
+            <input type="password" id="password" required minlength="6" placeholder="••••••" autocomplete="new-password">
+        </div>
+        <div class="field">
+            <label>Confirmer le mot de passe</label>
+            <input type="password" id="password2" required minlength="6" placeholder="••••••" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn" id="submitBtn">Creer mon compte</button>
+    </form>
+    <div class="terms">En creant un compte, vous acceptez nos conditions d'utilisation.</div>
+    <div class="link">Deja un compte? <a href="/scanticket/login">Se connecter</a></div>
+</div>
+
+<script>
+const API_BASE = window.location.origin + '/scanticket/api/auth';
+
+async function doRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('error');
+    const succ = document.getElementById('success');
+    err.style.display = 'none';
+    succ.style.display = 'none';
+
+    const pw = document.getElementById('password').value;
+    const pw2 = document.getElementById('password2').value;
+    if (pw !== pw2) {
+        err.textContent = 'Les mots de passe ne correspondent pas';
+        err.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creation...';
+
+    try {
+        const r = await fetch(API_BASE + '/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: pw,
+                nom: document.getElementById('nom').value,
+                prenom: document.getElementById('prenom').value,
+                telephone: document.getElementById('telephone').value,
+            })
+        });
+        const data = await r.json();
+        if (!r.ok) {
+            err.textContent = data.error || 'Erreur lors de l\'inscription';
+            err.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Creer mon compte';
+            return;
+        }
+        localStorage.setItem('tk911_token', data.token);
+        localStorage.setItem('tk911_user', JSON.stringify(data.user));
+        window.location.href = '/scanticket/dashboard';
+    } catch(e) {
+        err.textContent = 'Erreur de connexion au serveur';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Creer mon compte';
+    }
+}
+
+if (localStorage.getItem('tk911_token')) {
+    window.location.href = '/scanticket/dashboard';
+}
+</script>
+</body>
+</html>
