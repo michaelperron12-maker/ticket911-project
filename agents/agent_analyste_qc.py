@@ -131,6 +131,62 @@ class AgentAnalysteQC(BaseAgent):
             "raison": "Signalisation contradictoire ou ambigue = doute profite au defendeur",
             "exemples": ["Lessard 2022 QCCM 567"]
         },
+        "preuve_insuffisante": {
+            "boost": 25,
+            "raison": "Preuve insuffisante: la poursuite n'a pas prouve hors de tout doute raisonnable",
+        },
+        "policier_mal_positionne": {
+            "boost": 25,
+            "raison": "Le policier n'etait pas bien positionne pour constater l'infraction",
+        },
+        "cellulaire_mains_libres": {
+            "boost": 30,
+            "raison": "Appareil utilise en mode mains libres ou ecouteur: pas une infraction au CSR",
+        },
+        "virage_droite_feu_rouge": {
+            "boost": 25,
+            "raison": "Virage a droite au feu rouge avec arret complet: conforme au CSR",
+        },
+        "ceinture_contestee": {
+            "boost": 25,
+            "raison": "Ceinture portee mais apparence trompeuse ou doute sur le port",
+        },
+        "signalisation_non_conforme": {
+            "boost": 25,
+            "raison": "Signalisation non conforme ou insuffisamment visible",
+        },
+        "prescription": {
+            "boost": 35,
+            "raison": "Infraction prescrite: le delai de prescription est expire",
+        },
+        "conditions_routieres": {
+            "boost": 25,
+            "raison": "Conditions routieres defavorables rendant le freinage impossible",
+        },
+        "estoppel_autorite": {
+            "boost": 30,
+            "raison": "Estoppel: l'autorite a induit le contrevenant en erreur",
+        },
+        "declaration_exclue": {
+            "boost": 30,
+            "raison": "Declaration ou aveu exclu pour defaut d'avis constitutionnel",
+        },
+        "interpretation_juridique": {
+            "boost": 30,
+            "raison": "Interpretation juridique favorable: l'article ne s'applique pas aux faits",
+        },
+        "impossibilite_conformite": {
+            "boost": 25,
+            "raison": "Defense d'impossibilite de se conformer a la loi",
+        },
+        "delai_transmission_constat": {
+            "boost": 30,
+            "raison": "Delai de transmission du constat depasse le delai legal (photo radar: 30 jours)",
+        },
+        "radar_preuve_faible": {
+            "boost": 20,
+            "raison": "Preuve radar insuffisante: distance, calibration ou conditions non prouvees",
+        },
     }
 
     def __init__(self):
@@ -713,13 +769,30 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             score += v["boost"]
             vecteurs.append({"nom": "radar_preuve_faible", "boost": v["boost"], "raison": v["raison"]})
 
-        # === FIX FAUX POSITIFS V6 ===
+        # === FIX FAUX POSITIFS V6c ===
+        # Cas #43: virage droite INTERDIT a Montreal (art. 359.1 CSR)
+        if "virage droite interdit montreal" in contexte:
+            score -= 30
+            vecteurs.append({"nom": "virage_interdit_mtl", "boost": -30,
+                            "raison": "Virage a droite au feu rouge interdit a Montreal (art. 359.1 CSR)"})
+
+        # Cas #98: requete arret des procedures REJETEE
+        if "arret procedures rejete" in contexte:
+            score -= 25
+            vecteurs.append({"nom": "arret_rejete_pipeline", "boost": -25,
+                            "raison": "Requete en arret des procedures rejetee par le tribunal"})
         # Cas #58: cinematometre + policier = preuve solide si pas de contexte defense
         # Cas #98: delai Jordan rejete (53 mois mais renonciation defense)
         if "requête en arrêt" in contexte.lower() or "requete en arret" in contexte.lower():
             if any(w in contexte.lower() for w in ["rejetée", "rejetee", "rejete", "refused"]):
                 score -= 20
                 vecteurs.append({"nom": "arret_rejete", "boost": -20, "raison": "Requete en arret des procedures rejetee par le tribunal"})
+
+        # Fix #58: si vitesse + aucun vecteur de defense = preuve solide
+        if not vecteurs and any(w in infraction for w in ["vitesse", "exces", "Exces"]):
+            score -= 5
+            vecteurs.append({"nom": "vitesse_sans_defense", "boost": -5,
+                            "raison": "Exces de vitesse sans aucun moyen de defense identifie"})
 
         # Borner entre 5 et 90
         score = max(5, min(90, score))
