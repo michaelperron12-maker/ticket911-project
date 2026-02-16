@@ -194,9 +194,7 @@ def analyze():
     else:
         data = request.get_json()
         if not data:
-            conn.close()
-            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
-        return jsonify({"error": "JSON ou multipart requis"}), 400
+            return jsonify({"error": "JSON ou multipart requis"}), 400
         ticket = data.get("ticket", data)
         client_info = data.get("client_info", {})
         image_path = None
@@ -205,8 +203,6 @@ def analyze():
         temoins = data.get("temoins", [])
 
     if not ticket.get("infraction") and not image_path:
-        conn.close()
-
         return jsonify({"error": "Photo du ticket ou champ 'infraction' requis"}), 400
 
     try:
@@ -232,8 +228,6 @@ def analyze():
             conn.close()
         except Exception:
             pass
-
-        conn.close()
 
         # Sauvegarder dans user_analyses si connecte
         _save_user_analysis(
@@ -725,7 +719,6 @@ def send_report():
     """Envoie le rapport par email a un destinataire"""
     data = request.get_json()
     if not data:
-        conn.close()
 
         return jsonify({"error": "JSON requis"}), 400
 
@@ -733,7 +726,6 @@ def send_report():
     dossier_uuid = data.get("dossier_uuid", "")
 
     if not email or not dossier_uuid:
-        conn.close()
 
         return jsonify({"error": "email et dossier_uuid requis"}), 400
 
@@ -1974,7 +1966,6 @@ def calculer_score():
     """Calcule le score statistique pour un ticket. Pas un avis juridique."""
     data = request.get_json()
     if not data:
-        conn.close()
 
         return jsonify({"error": "JSON requis"}), 400
     ticket = data.get("ticket", data)
@@ -1983,11 +1974,9 @@ def calculer_score():
         from score_juridique import ScoreJuridique
         scorer = ScoreJuridique()
         resultat = scorer.calculer(ticket, preuves)
-        conn.close()
 
         return jsonify({"success": True, **resultat})
     except Exception as e:
-        conn.close()
 
         return jsonify({"error": str(e)}), 500
 
@@ -2047,14 +2036,12 @@ def chat_reply():
     """Envoie une reponse au chatbot et recoit la prochaine question."""
     data = request.get_json()
     if not data:
-        conn.close()
 
         return jsonify({"error": "JSON requis"}), 400
     session_id = data.get("session_id", "")
     reponse = data.get("message", "")
     langue = data.get("langue", "fr")
     if not session_id or not reponse:
-        conn.close()
 
         return jsonify({"error": "session_id et message requis"}), 400
     from chatbot_accueil import ChatbotAccueil
@@ -2094,13 +2081,11 @@ def chat_scan():
     start = time.time()
     
     if "ticket_photo" not in request.files:
-        conn.close()
 
         return jsonify({"error": "Aucune image. Envoyez ticket_photo."}), 400
     
     file = request.files["ticket_photo"]
     if not file or not file.filename:
-        conn.close()
 
         return jsonify({"error": "Fichier vide"}), 400
     
@@ -2132,7 +2117,6 @@ def chat_scan():
             "methode": "OCR.space + DeepSeek V3"
         })
     except Exception as e:
-        conn.close()
 
         return jsonify({"success": False, "error": str(e)}), 500
     finally:
@@ -2154,13 +2138,11 @@ def chat_evidence():
 
     session_id = request.form.get("session_id", "")
     if not session_id:
-        conn.close()
 
         return jsonify({"error": "session_id requis"}), 400
 
     files = request.files.getlist("evidence_photos")
     if not files:
-        conn.close()
 
         return jsonify({"error": "Aucune photo envoyee"}), 400
 

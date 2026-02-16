@@ -16,8 +16,33 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
+        /* === NAVBAR === */
+        .navbar {
+            position:fixed; top:0; left:0; right:0; z-index:100;
+            padding:1rem 0;
+            background:rgba(15,23,42,0.92);
+            backdrop-filter:blur(12px);
+            border-bottom:1px solid #334155;
+            transition:box-shadow .3s;
+        }
+        .navbar.scrolled { box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+        .navbar .nav-inner { max-width:1200px; margin:0 auto; padding:0 1.5rem; display:flex; justify-content:space-between; align-items:center; }
+        .nav-logo { font-size:1.2rem; font-weight:900; letter-spacing:1px; color:var(--accent); text-decoration:none; }
+        .nav-links { display:flex; gap:1.5rem; align-items:center; }
+        .nav-links a { color:var(--dim); font-size:.82rem; font-weight:600; text-decoration:none; transition:color .2s; }
+        .nav-links a:hover { color:var(--text); }
+        .nav-links a.active { color:var(--accent); }
+        .nav-cta {
+            padding:8px 20px !important; border-radius:10px; font-size:.82rem; font-weight:700;
+            background:var(--accent); color:#fff !important; border:none; cursor:pointer; transition:all .3s;
+        }
+        .nav-cta:hover { background:#2563eb; transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
+        @media(max-width:700px) {
+            .nav-links a:not(.nav-cta):not(.active) { display:none; }
+        }
+
         .header {
-            text-align:center; padding:2rem 1rem 1.5rem;
+            text-align:center; padding:5rem 1rem 1.5rem;
             background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             border-bottom:1px solid #334155;
         }
@@ -180,6 +205,18 @@
 </head>
 <body>
 
+<!-- === NAVBAR === -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <a href="./" class="nav-logo">AITicketInfo</a>
+        <div class="nav-links">
+            <a href="./">Scanner</a>
+            <a href="recensement" class="active">Recensement</a>
+            <a href="./#scanner" class="nav-cta">Analyser mon ticket</a>
+        </div>
+    </div>
+</nav>
+
 <div class="header">
     <h1>Recensement des <span>Stats</span></h1>
     <p>Detection d'anomalies statistiques — Contraventions Quebec</p>
@@ -251,6 +288,26 @@ const TYPE_LABELS = {
     'radar_disproportionne': 'Radar disproportionne',
     'piege_vitesse': 'Piege a vitesse',
     'pattern_jour': 'Pattern jour semaine',
+    'vehicule_lourd_anomal': 'Vehicule lourd cible',
+    'intervention_anomale': 'Intervention anomale',
+    'concentration_articles': 'Concentration article',
+    'tendance_annuelle': 'Tendance annuelle',
+    'heure_pointe_anomale': 'Heure de pointe',
+    'amende_disproportionnee': 'Amende disproportionnee',
+    'collision_vs_enforcement': 'Constats vs accidents',
+    'tolerance_radar': 'Tolerance radar',
+    'points_anormaux': 'Points inaptitude',
+    'spike_debut_mois': 'Objectif debut mois',
+    'exces_distribution': 'Distribution exces',
+    'multi_infraction': 'Multi-infraction',
+    'recidive_municipale': 'Recidive municipale',
+    'weekend_ratio': 'Ratio week-end',
+    'loi_anomale': 'Loi anomale',
+    'vitesse_benford': 'Benford vitesse',
+    'bracketing_vitesse': 'Bracketing seuils',
+    'blitz_vacances': 'Blitz vacances',
+    'zone_scolaire_hors_heures': 'Zone scolaire',
+    'profilage_veil_darkness': 'Profilage racial',
 };
 
 const TYPE_ICONS = {
@@ -262,6 +319,26 @@ const TYPE_ICONS = {
     'radar_disproportionne': '&#9673;',
     'piege_vitesse': '&#9889;',
     'pattern_jour': '&#9683;',
+    'vehicule_lourd_anomal': '&#128666;',
+    'intervention_anomale': '&#128270;',
+    'concentration_articles': '&#127919;',
+    'tendance_annuelle': '&#128200;',
+    'heure_pointe_anomale': '&#9200;',
+    'amende_disproportionnee': '&#128176;',
+    'collision_vs_enforcement': '&#128680;',
+    'tolerance_radar': '&#128207;',
+    'points_anormaux': '&#128293;',
+    'spike_debut_mois': '&#128197;',
+    'exces_distribution': '&#128202;',
+    'multi_infraction': '&#128279;',
+    'recidive_municipale': '&#128257;',
+    'weekend_ratio': '&#127774;',
+    'loi_anomale': '&#9878;',
+    'vitesse_benford': '&#128290;',
+    'bracketing_vitesse': '&#128207;',
+    'blitz_vacances': '&#127958;',
+    'zone_scolaire_hors_heures': '&#127979;',
+    'profilage_veil_darkness': '&#128101;',
 };
 
 let currentTypeFilter = '';
@@ -390,7 +467,7 @@ async function loadDetails(page) {
                 const ci = a.constats_info;
                 constatsHTML = `
                     <div class="anom-constats">
-                        <div class="ci-title">Donnees constats — Lieu ${a.region}</div>
+                        <div class="ci-title">Donnees constats — ${a.nom_municipalite || 'Lieu ' + a.region}</div>
                         <div class="ci-row">
                             <div class="ci-item">Total: <span class="ci-val">${ci.total_constats.toLocaleString('fr-CA')}</span></div>
                             <div class="ci-item">Periode: <span class="ci-val">${ci.premiere_date || '?'} a ${ci.derniere_date || '?'}</span></div>
@@ -422,7 +499,8 @@ async function loadDetails(page) {
 
             card.innerHTML = `
                 <div class="anom-head">
-                    <div class="anom-title">${TYPE_ICONS[a.type]||''} ${TYPE_LABELS[a.type]||a.type}${a.region ? ' — Lieu ' + a.region : ''}${a.article ? ' — Art. ' + a.article : ''}</div>
+                    <div class="anom-title">${TYPE_ICONS[a.type]||''} ${TYPE_LABELS[a.type]||a.type}${a.region ? ' — ' + (a.nom_municipalite || 'Lieu ' + a.region) : ''}${a.mrc ? ' (MRC: ' + a.mrc + ')' : ''}${a.article ? ' — Art. ' + a.article : ''}</div>
+                    ${a.nom_municipalite ? '<div style="color:var(--dim);font-size:.72rem;margin-top:2px;">Code: '+a.region+(a.region_admin?' | Région: '+a.region_admin:'')+(a.population?' | Pop: '+Number(a.population).toLocaleString('fr-CA'):'')+'</div>' : ''}
                     <div class="anom-meta">
                         <span class="badge ${a.severity}">${a.severity}</span>
                         <span class="badge conf">${a.confidence || '?'}</span>
@@ -463,6 +541,13 @@ async function loadDetails(page) {
 
 loadSummary();
 loadDetails(1);
+
+// Navbar scroll effect
+window.addEventListener('scroll',()=>{
+    const nav=document.querySelector('.navbar');
+    if(window.scrollY>50) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+});
 </script>
 
 </body>

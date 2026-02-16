@@ -775,7 +775,8 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             score -= 30
             vecteurs.append({"nom": "declare_coupable", "boost": -30,
                             "raison": "Le tribunal a declare le conducteur coupable"})
-        if "preuve retenue" in contexte:
+        # Preuve retenue seulement si PAS preuve insuffisante (sinon contradiction)
+        if "preuve retenue" in contexte and "preuve insuffisante" not in contexte:
             score -= 15
             vecteurs.append({"nom": "preuve_retenue", "boost": -15,
                             "raison": "La preuve du policier a ete retenue par le tribunal"})

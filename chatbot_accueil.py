@@ -742,13 +742,29 @@ class ChatbotAccueil:
 
         messages = [{"role": "system", "content": system}]
 
+        # Construire les messages avec alternance stricte user/assistant
         for msg in historique[-16:]:
             role = "assistant" if msg["role"] == "bot" else "user"
-            messages.append({"role": role, "content": msg["message"]})
+            content = msg["message"]
+            if not content or not content.strip():
+                continue
+            # Fusionner si meme role que le precedent
+            if messages and messages[-1]["role"] == role:
+                messages[-1]["content"] += "
+" + content
+            else:
+                messages.append({"role": role, "content": content})
 
-        if not historique:
+        # S assurer que le premier message apres system est "user"
+        if len(messages) > 1 and messages[1]["role"] != "user":
+            messages.insert(1, {"role": "user", "content": "Bonjour"})
+
+        # S assurer que le dernier message est "user" (sinon le LLM ne repond pas)
+        if not messages or messages[-1]["role"] == "system":
             lang_instruction = "Reponds en francais." if langue == "fr" else "Respond in English."
             messages.append({"role": "user", "content": f"[Debut de conversation] {lang_instruction}"})
+        elif messages[-1]["role"] == "assistant":
+            messages.append({"role": "user", "content": "Continue."})
 
         try:
             resp = self.llm.chat.completions.create(

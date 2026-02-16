@@ -1330,6 +1330,8 @@ async function chatEnvoyer() {
             document.getElementById('chatInputArea').style.display = 'none';
             const sz = document.getElementById('chatScanZone');
             if (sz) sz.remove();
+            // Lancer automatiquement le pipeline 27 agents avec les donnees collectees
+            chatLancerPipeline(d.donnees_collectees || {});
         } else if (d.phase === 'photo') {
             chatShowScanZone();
             document.getElementById('chatInputArea').style.display = 'none';
@@ -1488,6 +1490,99 @@ function chatHandleFile(file) {
     } else if (preview) {
         preview.innerHTML = `<div style="margin-top:8px;font-size:12px;">PDF: ${file.name}</div>
         <div style="margin-top:6px;"><button class="chat-scan-btn" onclick="chatLancerScan()">Analyser ce ticket</button></div>`;
+    }
+}
+
+async function chatLancerPipeline(donnees) {
+    // Transition: cacher le chat, afficher le pipeline d'analyse
+    chatAddMsg('bot', 'Lancement de l\'analyse complete par nos 27 agents AI...');
+    
+    // Scroll vers la section pipeline  
+    setTimeout(() => {
+        const chatSection = document.getElementById('chatbot');
+        if (chatSection) chatSection.style.display = 'none';
+        document.getElementById('pipelineSection').style.display = 'block';
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('pipelineSection').scrollIntoView({behavior:'smooth',block:'start'});
+        runPipelineAnimation();
+    }, 2000);
+
+    // Preparer les donnees pour le pipeline
+    const formData = new FormData();
+    
+    // Ticket data from OCR + chatbot collected data
+    const ticketData = {
+        infraction: donnees.infraction || '',
+        juridiction: donnees.juridiction || '',
+        date: donnees.date || '',
+        amende: donnees.amende || '',
+        lieu: donnees.lieu || '',
+        loi: donnees.loi || '',
+        vitesse_captee: donnees.vitesse_captee || '',
+        vitesse_permise: donnees.vitesse_permise || '',
+        appareil: donnees.appareil || donnees.appareil_details || '',
+        numero_constat: donnees.numero_constat || '',
+        agent: donnees.agent || '',
+        nom_conducteur: donnees.nom_conducteur || '',
+        permis: donnees.permis || '',
+        plaque: donnees.plaque || ''
+    };
+    formData.append('ticket', JSON.stringify(ticketData));
+
+    // Photo du ticket si disponible
+    if (chatScanFile) {
+        formData.append('ticket_photo', chatScanFile);
+    }
+
+    // Client info
+    formData.append('client_info', JSON.stringify({
+        nom: donnees.nom || '',
+        email: donnees.email || ''
+    }));
+
+    // Temoignage = circonstances + toutes les donnees supplementaires
+    const temoignageLines = [];
+    if (donnees.circonstances) temoignageLines.push('Circonstances: ' + donnees.circonstances);
+    if (donnees.meteo_conditions) temoignageLines.push('Meteo/route: ' + donnees.meteo_conditions);
+    if (donnees.heure_contexte) temoignageLines.push('Heure/trafic: ' + donnees.heure_contexte);
+    if (donnees.controle_details) temoignageLines.push('Intervention: ' + donnees.controle_details);
+    if (donnees.vitesse_details) temoignageLines.push('Vitesse: ' + donnees.vitesse_details);
+    if (donnees.signalisation) temoignageLines.push('Signalisation: ' + donnees.signalisation);
+    if (donnees.stationnement_details) temoignageLines.push('Stationnement: ' + donnees.stationnement_details);
+    if (donnees.stationnement_signalisation) temoignageLines.push('Signalisation stationnement: ' + donnees.stationnement_signalisation);
+    if (donnees.feu_rouge_details) temoignageLines.push('Feu rouge: ' + donnees.feu_rouge_details);
+    if (donnees.stop_details) temoignageLines.push('Stop: ' + donnees.stop_details);
+    if (donnees.cellulaire_details) temoignageLines.push('Cellulaire: ' + donnees.cellulaire_details);
+    if (donnees.ceinture_details) temoignageLines.push('Ceinture: ' + donnees.ceinture_details);
+    if (donnees.zone_speciale_details) temoignageLines.push('Zone speciale: ' + donnees.zone_speciale_details);
+    if (donnees.alcool_details) temoignageLines.push('Alcool: ' + donnees.alcool_details);
+    if (donnees.anomalies) temoignageLines.push('Anomalies constat: ' + donnees.anomalies);
+    if (donnees.delai_constat) temoignageLines.push('Delai reception: ' + donnees.delai_constat);
+    if (donnees.historique_conducteur) temoignageLines.push('Historique: ' + donnees.historique_conducteur);
+    if (donnees.commentaires_supplementaires) temoignageLines.push('Commentaires: ' + donnees.commentaires_supplementaires);
+    if (donnees.preuves) {
+        const p = Array.isArray(donnees.preuves) ? donnees.preuves.join(', ') : donnees.preuves;
+        temoignageLines.push('Preuves: ' + p);
+    }
+    if (donnees.temoins) temoignageLines.push('Temoins: ' + donnees.temoins);
+    formData.append('temoignage', temoignageLines.join('\n'));
+
+    try {
+        const resp = await fetch(CHAT_API + '/api/analyze', {method: 'POST', body: formData});
+        const data = await resp.json();
+        if (data.success) {
+            showResults(data);
+        } else {
+            alert('Erreur analyse: ' + (data.error || 'Inconnue'));
+            document.getElementById('pipelineSection').style.display = 'none';
+            const chatSection = document.getElementById('chatbot');
+            if (chatSection) chatSection.style.display = '';
+        }
+    } catch(err) {
+        alert('Erreur: ' + err.message);
+        document.getElementById('pipelineSection').style.display = 'none';
+        const chatSection = document.getElementById('chatbot');
+        if (chatSection) chatSection.style.display = '';
     }
 }
 

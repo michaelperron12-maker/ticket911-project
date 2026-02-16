@@ -176,7 +176,8 @@ class BaseAgent:
         self.name = name
         self.client = OpenAI(
             api_key=FIREWORKS_API_KEY,
-            base_url="https://api.fireworks.ai/inference/v1"
+            base_url="https://api.fireworks.ai/inference/v1",
+            timeout=30.0  # 30s max par requete — evite blocage si modele down
         )
 
     def get_db(self):
