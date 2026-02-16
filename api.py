@@ -2354,7 +2354,7 @@ def api_recensement():
             WHERE r.is_active = TRUE
             ORDER BY CASE r.severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
                      r.z_score DESC
-            LIMIT 15
+            LIMIT 100
         """)
         recent = [{
             "type": r[0], "region": r[1], "article": r[2],
@@ -2383,6 +2383,7 @@ def api_recensement():
             "top_zones": top_zones,
             "top_articles": top_articles,
             "recent_anomalies": recent,
+            "anomalies": recent,
         })
 
     except Exception as e:
