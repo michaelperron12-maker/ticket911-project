@@ -603,20 +603,6 @@ def health():
         cur.execute("SELECT COUNT(*) FROM lois_articles")
         nb_lois = cur.fetchone()[0]
         conn.close()
-        # conn.close() moved after helper calls below
-
-        services_data = _monitor_services()
-        sources_data = _monitor_sources(cur)
-        bg_agents_data = _monitor_background_agents(cur)
-        dq_data = _monitor_data_quality(cur, nb_juris_total)
-        agents_data = _monitor_agents_stats(cur)
-        rag_data = _monitor_rag_metrics(cur)
-        system_data = _monitor_system()
-        robots_data = _monitor_robots()
-        audit_data = _monitor_audit(cur)
-        saaq_data = _monitor_saaq(cur)
-
-        conn.close()
 
         return jsonify({
             "status": "ok",
@@ -627,8 +613,10 @@ def health():
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:
-        conn.close()
-
+        try:
+            conn.close()
+        except Exception:
+            pass
         return jsonify({"status": "error", "error": str(e)}), 500
 
 
@@ -2131,15 +2119,11 @@ def chat_scan():
         duration = round(time.time() - start, 1)
         
         if not ticket or not any(v for k, v in ticket.items() if k != "texte_brut_ocr" and v):
-            conn.close()
-            return jsonify({"error": f"Dossier {dossier_uuid} non trouve"}), 404
-        return jsonify({
+            return jsonify({
                 "success": False,
                 "error": "OCR n a pas reussi a extraire les informations. Essayez avec une meilleure photo.",
                 "temps": duration
             })
-        
-        conn.close()
 
         return jsonify({
             "success": True,
