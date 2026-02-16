@@ -538,6 +538,67 @@ FROM mtl_collisions
 GROUP BY arrondissement
 ORDER BY total_collisions DESC;
 
+-- ============================================================
+-- RECENSEMENT DES STATS (anomalies pre-calculees)
+-- Detecte quotas, speed traps, radars disproportionnes, etc.
+-- Recalcule chaque dimanche 5:30AM
+-- ============================================================
+CREATE TABLE IF NOT EXISTS recensement_stats (
+    id SERIAL PRIMARY KEY,
+    batch_id UUID NOT NULL,
+    anomaly_type VARCHAR(50) NOT NULL,
+    -- champs de matching ticket
+    region VARCHAR(100),
+    article VARCHAR(50),
+    radar_site_id INTEGER,
+    radar_site_name TEXT,
+    -- metriques statistiques
+    observed_value NUMERIC(12,2),
+    expected_value NUMERIC(12,2),
+    deviation_pct NUMERIC(8,2),
+    z_score NUMERIC(6,2),
+    confidence_level VARCHAR(10) DEFAULT 'medium'
+        CHECK (confidence_level IN ('high','medium','low')),
+    severity VARCHAR(10) DEFAULT 'medium'
+        CHECK (severity IN ('high','medium','low')),
+    -- textes defense prets a injecter
+    defense_text_fr TEXT NOT NULL,
+    legal_reference TEXT,
+    -- details calcul
+    computation_details JSONB,
+    period_start DATE,
+    period_end DATE,
+    sample_size INTEGER,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_recens_type ON recensement_stats(anomaly_type);
+CREATE INDEX IF NOT EXISTS idx_recens_region ON recensement_stats(region);
+CREATE INDEX IF NOT EXISTS idx_recens_article ON recensement_stats(article);
+CREATE INDEX IF NOT EXISTS idx_recens_severity ON recensement_stats(severity);
+CREATE INDEX IF NOT EXISTS idx_recens_active ON recensement_stats(is_active);
+CREATE INDEX IF NOT EXISTS idx_recens_batch ON recensement_stats(batch_id);
+-- index composite pour matching rapide ticket -> anomalies
+CREATE INDEX IF NOT EXISTS idx_recens_match ON recensement_stats(is_active, region, article);
+
+-- ============================================================
+-- RECENSEMENT RUNS (log des executions hebdomadaires)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS recensement_runs (
+    id SERIAL PRIMARY KEY,
+    batch_id UUID NOT NULL UNIQUE,
+    started_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP,
+    anomalies_computed INTEGER DEFAULT 0,
+    anomalies_high INTEGER DEFAULT 0,
+    anomalies_medium INTEGER DEFAULT 0,
+    anomalies_low INTEGER DEFAULT 0,
+    duration_seconds REAL,
+    status VARCHAR(20) DEFAULT 'running',
+    details JSONB
+);
+
 -- Vue : radars les plus actifs
 CREATE OR REPLACE VIEW v_radars_top AS
 SELECT

@@ -18,6 +18,7 @@ from agents.agent_classificateur import AgentClassificateur
 from agents.agent_validateur import AgentValidateur
 from agents.agent_routing import AgentRouting
 from agents.agent_erreurs_admin import AgentErreursAdmin
+from agents.agent_recensement_stats import AgentRecensementStats
 
 # Phase 2: Analyse — Lecteur (partage)
 from agents.agent_lecteur import AgentLecteur
@@ -72,6 +73,7 @@ class Orchestrateur(BaseAgent):
         self.validateur = AgentValidateur()
         self.routing = AgentRouting()
         self.erreurs_admin = AgentErreursAdmin()
+        self.recensement_stats = AgentRecensementStats()
 
         # Phase 2: QC
         self.lecteur = AgentLecteur()
@@ -213,6 +215,22 @@ class Orchestrateur(BaseAgent):
             erreurs_admin_result = {}
             rapport["phases"]["intake"]["erreurs_admin"] = {"status": "FAIL", "error": str(e)}
             rapport["erreurs"].append(f"ErreursAdmin: {e}")
+
+        # Agent Recensement Stats (anomalies pre-calculees)
+        recensement_result = {}
+        try:
+            recensement_result = self.recensement_stats.match_anomalies(ticket, classification)
+            rapport["phases"]["intake"]["recensement_stats"] = {"status": "OK", "data": recensement_result}
+            nb_anom = recensement_result.get("nb_anomalies", 0)
+            nb_h = recensement_result.get("nb_high", 0)
+            if nb_anom > 0:
+                print(f"  >>> Recensement: {nb_anom} anomalies ({nb_h} critiques)")
+                if nb_h > 0:
+                    print(f"  >>> {recensement_result.get('resume', '')}")
+        except Exception as e:
+            recensement_result = {}
+            rapport["phases"]["intake"]["recensement_stats"] = {"status": "FAIL", "error": str(e)}
+            rapport["erreurs"].append(f"RecensementStats: {e}")
 
         # Agent Routing
         try:

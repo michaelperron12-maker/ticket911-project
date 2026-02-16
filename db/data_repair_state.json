@@ -1,35 +1,35 @@
 {
-  "last_run": "2026-02-15T06:10:22.178232",
+  "last_run": "2026-02-16T01:45:04.232322",
   "results": {
     "quality_before": {
-      "total": 31689,
+      "total": 35945,
       "fields": {
         "database_id": {
           "null_count": 3397,
-          "filled_pct": 89.3
+          "filled_pct": 90.5
         },
         "resume": {
-          "null_count": 5841,
-          "filled_pct": 81.6
+          "null_count": 5360,
+          "filled_pct": 85.1
         },
         "titre": {
           "null_count": 2519,
-          "filled_pct": 92.1
+          "filled_pct": 93.0
         },
         "resultat": {
-          "null_count": 1018,
-          "filled_pct": 96.8
+          "null_count": 0,
+          "filled_pct": 100.0
         },
         "embedding": {
-          "null_count": 175,
-          "filled_pct": 99.4
+          "null_count": 174,
+          "filled_pct": 99.5
         },
         "date_decision": {
-          "null_count": 1130,
-          "filled_pct": 96.4
+          "null_count": 1149,
+          "filled_pct": 96.8
         }
       },
-      "score": 92.4
+      "score": 94.1
     },
     "database_id": {
       "fixed": 0,
@@ -37,46 +37,46 @@
     },
     "resultat": {
       "fixed": 0,
-      "total": 14960
+      "total": 1226
     },
     "ticket_related": {
-      "fixed": 0,
-      "total": 20574
+      "fixed": 102,
+      "total": 21051
     },
     "tsvector": {
       "null_fr": 0,
       "null_en": 0
     },
     "quality_after": {
-      "total": 31689,
+      "total": 35946,
       "fields": {
         "database_id": {
           "null_count": 3397,
-          "filled_pct": 89.3
+          "filled_pct": 90.5
         },
         "resume": {
-          "null_count": 5841,
-          "filled_pct": 81.6
+          "null_count": 5361,
+          "filled_pct": 85.1
         },
         "titre": {
           "null_count": 2519,
-          "filled_pct": 92.1
+          "filled_pct": 93.0
         },
         "resultat": {
-          "null_count": 1018,
-          "filled_pct": 96.8
+          "null_count": 0,
+          "filled_pct": 100.0
         },
         "embedding": {
-          "null_count": 175,
-          "filled_pct": 99.4
+          "null_count": 173,
+          "filled_pct": 99.5
         },
         "date_decision": {
-          "null_count": 1130,
-          "filled_pct": 96.4
+          "null_count": 1149,
+          "filled_pct": 96.8
         }
       },
-      "score": 92.4
+      "score": 94.1
     },
-    "duration": 1.8
+    "duration": 2.5
   }
 }

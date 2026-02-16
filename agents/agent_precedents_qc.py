@@ -59,11 +59,12 @@ class AgentPrecedentsQC(BaseAgent):
         if semantic_results:
             self.log(f"  Semantique: {len(semantic_results)} cas QC", "OK")
 
-        # 5. CanLII API (si cle configuree)
+        # 5. CanLII API DESACTIVEE — tout est en local (34,709 cas PostgreSQL)
         canlii_results = []
-        if CANLII_API_KEY:
-            canlii_results = self._recherche_canlii(infraction, lois)
-            self.log(f"  CanLII: {len(canlii_results)} cas", "OK" if canlii_results else "WARN")
+        # if CANLII_API_KEY:
+        #     canlii_results = self._recherche_canlii(infraction, lois)
+        #     self.log(f"  CanLII: {len(canlii_results)} cas", "OK" if canlii_results else "WARN")
+        self.log("  CanLII: SKIP (34k cas en local)", "OK")
 
         # 6. Combiner, diversifier et equilibrer acquittes/coupables
         combined = self._combiner_et_diversifier(

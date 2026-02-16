@@ -2248,6 +2248,288 @@ def chatbot_page():
 
 
 
+# ─── RECENSEMENT DASHBOARD PAGE ────────────────
+@app.route("/recensement")
+def recensement_page():
+    return send_from_directory(".", "recensement.html")
+
+
+# ─── RECENSEMENT DES STATS (anomalies pre-calculees) ───
+@app.route("/api/recensement")
+def api_recensement():
+    """Dashboard des anomalies statistiques detectees."""
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        # Stats globales
+        cur.execute("""
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END),
+                SUM(CASE WHEN severity = 'medium' THEN 1 ELSE 0 END),
+                SUM(CASE WHEN severity = 'low' THEN 1 ELSE 0 END)
+            FROM recensement_stats WHERE is_active = TRUE
+        """)
+        row = cur.fetchone()
+        total, high, medium, low = row[0] or 0, row[1] or 0, row[2] or 0, row[3] or 0
+
+        # Dernier run
+        cur.execute("""
+            SELECT batch_id, completed_at, anomalies_computed, duration_seconds
+            FROM recensement_runs WHERE status = 'completed'
+            ORDER BY completed_at DESC LIMIT 1
+        """)
+        last_run = cur.fetchone()
+
+        # Top zones (lieux avec le plus d'anomalies high)
+        cur.execute("""
+            SELECT region, COUNT(*) AS nb,
+                SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) AS nb_high
+            FROM recensement_stats
+            WHERE is_active = TRUE AND region IS NOT NULL
+            GROUP BY region
+            ORDER BY nb_high DESC, nb DESC
+            LIMIT 10
+        """)
+        top_zones = [{"region": r[0], "total": r[1], "high": r[2]} for r in cur.fetchall()]
+
+        # Top articles (acquittement ou surrepresentes)
+        cur.execute("""
+            SELECT article, anomaly_type, observed_value, expected_value, z_score, severity
+            FROM recensement_stats
+            WHERE is_active = TRUE AND article IS NOT NULL
+            ORDER BY CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END, z_score DESC
+            LIMIT 10
+        """)
+        top_articles = [{
+            "article": r[0], "type": r[1],
+            "observed": float(r[2]) if r[2] else None,
+            "expected": float(r[3]) if r[3] else None,
+            "z_score": float(r[4]) if r[4] else None,
+            "severity": r[5]
+        } for r in cur.fetchall()]
+
+        # Anomalies recentes (les plus severes)
+        cur.execute("""
+            SELECT anomaly_type, region, article, deviation_pct, z_score,
+                   severity, defense_text_fr, sample_size
+            FROM recensement_stats
+            WHERE is_active = TRUE
+            ORDER BY CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+                     z_score DESC
+            LIMIT 15
+        """)
+        recent = [{
+            "type": r[0], "region": r[1], "article": r[2],
+            "deviation_pct": float(r[3]) if r[3] else None,
+            "z_score": float(r[4]) if r[4] else None,
+            "severity": r[5], "defense_text": r[6], "sample_size": r[7]
+        } for r in cur.fetchall()]
+
+        # Distribution par type
+        cur.execute("""
+            SELECT anomaly_type, COUNT(*) FROM recensement_stats
+            WHERE is_active = TRUE GROUP BY anomaly_type ORDER BY COUNT(*) DESC
+        """)
+        by_type = {r[0]: r[1] for r in cur.fetchall()}
+
+        conn.close()
+
+        return jsonify({
+            "total_anomalies": total,
+            "high": high, "medium": medium, "low": low,
+            "last_computed": last_run[1].isoformat() if last_run and last_run[1] else None,
+            "last_batch": str(last_run[0])[:8] if last_run else None,
+            "last_duration_s": last_run[3] if last_run else None,
+            "by_type": by_type,
+            "top_zones": top_zones,
+            "top_articles": top_articles,
+            "recent_anomalies": recent,
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recensement/match")
+def api_recensement_match():
+    """Match un ticket specifique contre les anomalies."""
+    region = request.args.get("municipality") or request.args.get("region") or request.args.get("lieu")
+    article = request.args.get("article")
+
+    if not region and not article:
+        return jsonify({"error": "Parametre 'municipality' ou 'article' requis"}), 400
+
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        conditions = ["is_active = TRUE"]
+        params = []
+
+        if region:
+            conditions.append("(region = %s OR region IS NULL)")
+            params.append(region)
+        if article:
+            conditions.append("(article = %s OR article IS NULL)")
+            params.append(article)
+
+        where = " AND ".join(conditions)
+        cur.execute(f"""
+            SELECT anomaly_type, region, article, deviation_pct, z_score,
+                   severity, confidence_level, defense_text_fr, legal_reference, sample_size
+            FROM recensement_stats
+            WHERE {where}
+            ORDER BY CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+                     z_score DESC
+            LIMIT 20
+        """, params)
+
+        anomalies = [{
+            "type": r[0], "region": r[1], "article": r[2],
+            "deviation_pct": float(r[3]) if r[3] else None,
+            "z_score": float(r[4]) if r[4] else None,
+            "severity": r[5], "confidence": r[6],
+            "defense_text": r[7], "legal_reference": r[8], "sample_size": r[9]
+        } for r in cur.fetchall()]
+
+        nb_high = sum(1 for a in anomalies if a["severity"] == "high")
+        defense_texts = [a["defense_text"] for a in anomalies if a["severity"] in ("high", "medium")]
+
+        conn.close()
+
+        return jsonify({
+            "anomalies": anomalies,
+            "nb_anomalies": len(anomalies),
+            "nb_high": nb_high,
+            "defense_texts": defense_texts[:10],
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recensement/details")
+def api_recensement_details():
+    """Toutes les anomalies avec details enrichis + stats croisees constats."""
+    severity_filter = request.args.get("severity")
+    type_filter = request.args.get("type")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 50))
+    offset = (page - 1) * per_page
+
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        conditions = ["r.is_active = TRUE"]
+        params = []
+        if severity_filter:
+            conditions.append("r.severity = %s")
+            params.append(severity_filter)
+        if type_filter:
+            conditions.append("r.anomaly_type = %s")
+            params.append(type_filter)
+
+        where = " AND ".join(conditions)
+
+        # Count total
+        cur.execute(f"SELECT COUNT(*) FROM recensement_stats r WHERE {where}", params)
+        total_count = cur.fetchone()[0]
+
+        # Anomalies avec details
+        cur.execute(f"""
+            SELECT r.id, r.anomaly_type, r.region, r.article,
+                   r.observed_value, r.expected_value, r.deviation_pct, r.z_score,
+                   r.severity, r.confidence_level, r.defense_text_fr, r.legal_reference,
+                   r.computation_details, r.sample_size, r.period_start, r.period_end,
+                   r.created_at
+            FROM recensement_stats r
+            WHERE {where}
+            ORDER BY
+                CASE r.severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+                r.z_score DESC
+            LIMIT %s OFFSET %s
+        """, params + [per_page, offset])
+
+        anomalies = []
+        for row in cur.fetchall():
+            a = {
+                "id": row[0], "type": row[1], "region": row[2], "article": row[3],
+                "observed": float(row[4]) if row[4] else None,
+                "expected": float(row[5]) if row[5] else None,
+                "deviation_pct": float(row[6]) if row[6] else None,
+                "z_score": float(row[7]) if row[7] else None,
+                "severity": row[8], "confidence": row[9],
+                "defense_text": row[10], "legal_ref": row[11],
+                "details": row[12], "sample_size": row[13],
+                "period_start": row[14].isoformat() if row[14] else None,
+                "period_end": row[15].isoformat() if row[15] else None,
+                "created": row[16].isoformat() if row[16] else None,
+                "constats_info": None,
+            }
+
+            # Enrichir avec donnees constats si region disponible
+            if a["region"]:
+                cur.execute("""
+                    SELECT
+                        COUNT(*) AS total,
+                        MIN(date_infraction) AS first_date,
+                        MAX(date_infraction) AS last_date,
+                        COUNT(DISTINCT article) AS nb_articles,
+                        MODE() WITHIN GROUP (ORDER BY description_infraction) AS top_desc,
+                        MODE() WITHIN GROUP (ORDER BY loi) AS top_loi,
+                        MODE() WITHIN GROUP (ORDER BY type_intervention) AS top_interv,
+                        AVG(montant_amende) AS avg_amende,
+                        AVG(points_inaptitude) AS avg_points,
+                        SUM(CASE WHEN vitesse_constatee IS NOT NULL THEN 1 ELSE 0 END) AS nb_vitesse
+                    FROM qc_constats_infraction
+                    WHERE lieu_infraction = %s
+                """, (a["region"],))
+                ci = cur.fetchone()
+                if ci and ci[0] > 0:
+                    a["constats_info"] = {
+                        "total_constats": ci[0],
+                        "premiere_date": ci[1].isoformat() if ci[1] else None,
+                        "derniere_date": ci[2].isoformat() if ci[2] else None,
+                        "nb_articles_distincts": ci[3],
+                        "description_freq": ci[4],
+                        "loi_freq": ci[5],
+                        "type_intervention_freq": ci[6],
+                        "amende_moyenne": round(float(ci[7]), 2) if ci[7] else None,
+                        "points_moyens": round(float(ci[8]), 1) if ci[8] else None,
+                        "nb_avec_vitesse": ci[9],
+                    }
+
+            anomalies.append(a)
+
+        # Stats DB globales
+        cur.execute("SELECT COUNT(*) FROM qc_constats_infraction")
+        total_constats = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM jurisprudence WHERE est_ticket_related = TRUE")
+        total_juris = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM qc_radar_photo_lieux WHERE actif = TRUE")
+        total_radars = cur.fetchone()[0]
+
+        conn.close()
+
+        return jsonify({
+            "anomalies": anomalies,
+            "total": total_count,
+            "page": page, "per_page": per_page,
+            "total_pages": (total_count + per_page - 1) // per_page,
+            "db_stats": {
+                "total_constats": total_constats,
+                "total_jurisprudence": total_juris,
+                "total_radars_actifs": total_radars,
+            }
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     print("FightMyTicket API v2 — 27 agents — http://0.0.0.0:8912")
     app.run(host="0.0.0.0", port=8912, debug=False)
