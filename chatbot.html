@@ -706,6 +706,62 @@ async function calculerScore(donnees) {
 }
 
 // ─── AFFICHER LE SCORE ───────────────────────
+
+async function lancerAnalyseComplete() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = "Analyse en cours... (45-90 secondes)";
+    btn.style.opacity = "0.7";
+
+    // Recuperer les donnees collectees depuis le chat history
+    try {
+        const resp = await fetch(`${API_BASE}/api/chat/history/${sessionId}`);
+        const history = await resp.json();
+
+        // Construire le ticket depuis les donnees collectees
+        const ticketData = history.donnees_collectees || history.ticket || {};
+
+        addMessage("system", "Analyse lancee! 27 agents IA travaillent sur votre dossier...");
+
+        const formData = new FormData();
+        formData.append("ticket", JSON.stringify(ticketData));
+        formData.append("client_info", JSON.stringify({nom: history.nom_client || ""}));
+
+        // Si on a la photo en memoire, la renvoyer
+        if (scannerFile) {
+            formData.append("ticket_photo", scannerFile);
+        }
+
+        const analyzeResp = await fetch(`${API_BASE}/api/analyze`, {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await analyzeResp.json();
+
+        if (result.success) {
+            addMessage("system", `Analyse terminee! Dossier #${result.dossier_uuid}\nScore: ${result.score}/10 | Recommandation: ${result.recommandation}\n\nUn rapport PDF detaille est disponible.`);
+
+            // Bouton PDF
+            const chat = document.getElementById("chat");
+            const pdfDiv = document.createElement("div");
+            pdfDiv.style.cssText = "text-align:center;margin:12px 0;";
+            pdfDiv.innerHTML = `<a href="${API_BASE}/api/rapport/${result.dossier_uuid}" target="_blank" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;">Telecharger le rapport PDF</a>`;
+            chat.insertBefore(pdfDiv, document.getElementById("typing"));
+        } else {
+            addMessage("system", "Erreur: " + (result.error || "Erreur inconnue"));
+            btn.disabled = false;
+            btn.textContent = "Relancer l'analyse";
+            btn.style.opacity = "1";
+        }
+    } catch (err) {
+        addMessage("system", "Erreur de connexion: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "Relancer l'analyse";
+        btn.style.opacity = "1";
+    }
+}
+
 function afficherScore(data) {
     const score = data.score || 0;
     const scoreClass = score >= 7 ? 'high' : score >= 4 ? 'mid' : 'low';
@@ -753,6 +809,9 @@ function afficherScore(data) {
             <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);">
                 <p>${f1.explication || ''}</p>
                 <p style="margin-top:6px;">Sources: CanLII, SOQUIJ | Methodologie: analyse statistique</p>
+            <div style="margin-top:16px;">
+                <button onclick="lancerAnalyseComplete()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e63946,#c62828);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 15px rgba(230,57,70,0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(230,57,70,0.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(230,57,70,0.3)'">Lancer l'analyse complete — 27 Agents IA</button>
+            </div>
             </div>
         </div>
     `;
