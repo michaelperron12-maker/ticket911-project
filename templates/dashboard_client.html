@@ -186,6 +186,7 @@ async function loadDashboard() {
             {label:'Email', value:user.email},
             {label:'Nom', value:(user.prenom||'')+' '+(user.nom||'')},
             {label:'Telephone', value:user.telephone||'—'},
+            {label:"Permis de conduire", value:user.permis_conduire||"—"},
             {label:'Derniere connexion', value:user.last_login ? new Date(user.last_login).toLocaleString('fr-CA') : '—'},
         ];
         fields.forEach(f => {

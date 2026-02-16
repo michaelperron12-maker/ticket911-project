@@ -56,6 +56,10 @@
             <input type="tel" id="telephone" placeholder="514-555-1234">
         </div>
         <div class="field">
+            <label>Numero de permis de conduire</label>
+            <input type="text" id="permis" placeholder="A1234-567890-12" maxlength="20" autocomplete="off">
+        </div>
+        <div class="field">
             <label>Mot de passe (min 6 caracteres)</label>
             <input type="password" id="password" required minlength="6" placeholder="••••••" autocomplete="new-password">
         </div>
@@ -100,7 +104,8 @@ async function doRegister(e) {
                 password: pw,
                 nom: document.getElementById('nom').value,
                 prenom: document.getElementById('prenom').value,
-                telephone: document.getElementById('telephone').value,
+                telephone: document.getElementById("telephone").value,
+                permis_conduire: document.getElementById("permis").value,
             })
         });
         const data = await r.json();

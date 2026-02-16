@@ -160,6 +160,7 @@ def register_auth_routes(app):
         nom = data.get("nom", "")
         prenom = data.get("prenom", "")
         telephone = data.get("telephone", "")
+        permis_conduire = data.get("permis_conduire", "")
 
         if not email or "@" not in email:
             return jsonify({"error": "Email invalide"}), 400
@@ -179,9 +180,9 @@ def register_auth_routes(app):
         # Creer l'utilisateur
         pw_hash = hash_password(password)
         cur.execute("""
-            INSERT INTO users (email, password_hash, nom, prenom, telephone)
-            VALUES (%s, %s, %s, %s, %s) RETURNING id
-        """, (email, pw_hash, nom, prenom, telephone))
+            INSERT INTO users (email, password_hash, nom, prenom, telephone, permis_conduire)
+            VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+        """, (email, pw_hash, nom, prenom, telephone, permis_conduire))
         user_id = cur.fetchone()[0]
         conn.commit()
         cur.close()
@@ -241,7 +242,7 @@ def register_auth_routes(app):
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""
-            SELECT id, email, nom, prenom, telephone, role, plan,
+            SELECT id, email, nom, prenom, telephone, permis_conduire, role, plan,
                    stripe_customer_id, email_verified, created_at, last_login
             FROM users WHERE id = %s
         """, (user_data["user_id"],))
@@ -270,6 +271,7 @@ def register_auth_routes(app):
                 "nom": user["nom"],
                 "prenom": user["prenom"],
                 "telephone": user["telephone"],
+                "permis_conduire": user["permis_conduire"],
                 "role": user["role"],
                 "plan": user["plan"],
                 "email_verified": user["email_verified"],
@@ -301,7 +303,7 @@ def register_auth_routes(app):
 
         updates = []
         values = []
-        for field in ["nom", "prenom", "telephone"]:
+        for field in ["nom", "prenom", "telephone", "permis_conduire"]:
             if field in data:
                 updates.append(f"{field} = %s")
                 values.append(data[field])
