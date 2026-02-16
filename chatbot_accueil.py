@@ -23,7 +23,7 @@ PG_CONFIG = {
 }
 
 FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "")
-LLM_MODEL = "accounts/fireworks/models/glm-5"
+LLM_MODEL = "accounts/fireworks/models/mixtral-8x22b-instruct"
 
 
 # ─── SYSTEM PROMPT ─────────────────────────────────────────────────────
@@ -85,21 +85,51 @@ CHAMPS_OCR = [
 ]
 
 QUESTIONS_SUPPLEMENTAIRES = [
+    # ─── QUESTIONS GENERALES (toujours posees) ────────────────────
     {
         "champ": "circonstances",
         "label_fr": "Que s'est-il passe exactement?",
         "label_en": "What exactly happened?",
-        "description_fr": "Decrivez les circonstances de l'infraction (ex: trafic, meteo, visibilite)",
-        "description_en": "Describe the circumstances (traffic, weather, visibility)",
+        "description_fr": "Decrivez les circonstances de l'infraction (ex: ou etiez-vous, que faisiez-vous)",
+        "description_en": "Describe the circumstances (where were you, what were you doing)",
         "type": "texte_long",
         "toujours": True,
     },
     {
+        "champ": "meteo_conditions",
+        "label_fr": "Conditions meteo et route",
+        "label_en": "Weather and road conditions",
+        "description_fr": "Quelles etaient les conditions meteo? (soleil, pluie, neige, brouillard, nuit) Et l'etat de la route? (seche, mouillee, glacee, enneigee)",
+        "description_en": "What was the weather? (sun, rain, snow, fog, night) And road condition? (dry, wet, icy, snowy)",
+        "type": "texte",
+        "toujours": True,
+    },
+    {
+        "champ": "heure_contexte",
+        "label_fr": "Heure et contexte de circulation",
+        "label_en": "Time and traffic context",
+        "description_fr": "A quelle heure exacte etait-ce? Y avait-il du trafic? Heure de pointe? Zone achalandee ou calme?",
+        "description_en": "What exact time was it? Was there traffic? Rush hour? Busy or quiet area?",
+        "type": "texte",
+        "toujours": True,
+    },
+    {
+        "champ": "controle_details",
+        "label_fr": "Details de l'intervention policiere",
+        "label_en": "Police stop details",
+        "description_fr": "Comment avez-vous ete intercepte? (arret routier, filature, barrage, stationne) L'agent etait-il en uniforme? Vehicule identifie?",
+        "description_en": "How were you stopped? (traffic stop, pursuit, checkpoint, parked) Was the officer in uniform? Marked vehicle?",
+        "type": "texte",
+        "toujours": True,
+    },
+
+    # ─── QUESTIONS VITESSE (conditionnelles) ──────────────────────
+    {
         "champ": "vitesse_details",
         "label_fr": "Details de la vitesse",
         "label_en": "Speed details",
-        "description_fr": "Quelle etait votre vitesse reelle selon vous? La limite affichee etait-elle visible?",
-        "description_en": "What was your actual speed? Was the speed limit sign visible?",
+        "description_fr": "Quelle etait votre vitesse reelle selon vous? La limite affichee etait-elle visible? Etiez-vous en descente?",
+        "description_en": "What was your actual speed? Was the speed limit sign visible? Were you going downhill?",
         "type": "texte",
         "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["vitesse", "speed", "299", "328", "excess"]),
     },
@@ -107,26 +137,132 @@ QUESTIONS_SUPPLEMENTAIRES = [
         "champ": "appareil_details",
         "label_fr": "Type d'appareil de mesure",
         "label_en": "Measurement device type",
-        "description_fr": "Savez-vous quel type d'appareil a ete utilise? (radar, cinematometre, lidar, photo radar)",
-        "description_en": "Do you know what device was used? (radar, lidar, photo radar)",
+        "description_fr": "Savez-vous quel type d'appareil a ete utilise? (radar, cinematometre, lidar, photo radar) L'agent vous a-t-il montre la lecture?",
+        "description_en": "Do you know what device was used? (radar, lidar, photo radar) Did the officer show you the reading?",
         "type": "texte",
-        "condition": lambda d: not d.get("appareil") or d.get("appareil") in ("?", "0", ""),
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["vitesse", "speed", "299", "328", "excess", "radar"]) and (not d.get("appareil") or d.get("appareil") in ("?", "0", "")),
     },
     {
         "champ": "signalisation",
         "label_fr": "Signalisation sur les lieux",
         "label_en": "Signage at the location",
-        "description_fr": "La signalisation etait-elle clairement visible? Y avait-il un panneau de limite de vitesse?",
-        "description_en": "Was signage clearly visible? Was there a speed limit sign?",
+        "description_fr": "La signalisation etait-elle clairement visible? Y avait-il un panneau de limite de vitesse? Etait-il obstrue (arbre, neige)?",
+        "description_en": "Was signage clearly visible? Was there a speed limit sign? Was it obstructed (tree, snow)?",
         "type": "texte",
-        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["vitesse", "speed", "feu", "red", "stop", "arret"]),
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["vitesse", "speed", "feu", "red", "stop", "arret", "signal", "panneau", "sign"]),
     },
+
+    # ─── QUESTIONS STATIONNEMENT (conditionnelles) ────────────────
+    {
+        "champ": "stationnement_details",
+        "label_fr": "Details du stationnement",
+        "label_en": "Parking details",
+        "description_fr": "Etait-ce un stationnement interdit, expire ou zone reservee? Y avait-il un panneau d'interdiction visible? Un horodateur etait-il present et fonctionnel? Combien de temps etiez-vous stationne?",
+        "description_en": "Was it no parking, expired or reserved zone? Was a no-parking sign visible? Was there a working parking meter? How long were you parked?",
+        "type": "texte_long",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "") + d.get("lieu", "")).lower() for w in ["stationn", "parking", "parcometre", "horodateur", "park", "118", "386", "387", "388", "borne"]),
+    },
+    {
+        "champ": "stationnement_signalisation",
+        "label_fr": "Signalisation de stationnement",
+        "label_en": "Parking signage",
+        "description_fr": "Le panneau d'interdiction etait-il clairement visible? Les heures/jours d'interdiction etaient-ils lisibles? Y avait-il de la neige/graffiti/vegetation couvrant le panneau?",
+        "description_en": "Was the no-parking sign clearly visible? Were the restriction hours/days readable? Was there snow/graffiti/vegetation covering the sign?",
+        "type": "texte",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "") + d.get("lieu", "")).lower() for w in ["stationn", "parking", "park", "118", "386", "387", "388"]),
+    },
+
+    # ─── QUESTIONS FEU ROUGE (conditionnelles) ────────────────────
+    {
+        "champ": "feu_rouge_details",
+        "label_fr": "Details du feu rouge",
+        "label_en": "Red light details",
+        "description_fr": "Le feu etait-il rouge ou jaune quand vous avez franchi? Combien de temps le feu jaune a-t-il dure (estimation)? Etiez-vous deja dans l'intersection? Y avait-il une camera de feu rouge?",
+        "description_en": "Was the light red or yellow when you crossed? How long was the yellow (estimate)? Were you already in the intersection? Was there a red light camera?",
+        "type": "texte_long",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["feu rouge", "red light", "359", "360", "signal", "feu"]),
+    },
+
+    # ─── QUESTIONS STOP (conditionnelles) ─────────────────────────
+    {
+        "champ": "stop_details",
+        "label_fr": "Details du stop",
+        "label_en": "Stop sign details",
+        "description_fr": "Avez-vous fait un arret complet? Le panneau stop etait-il visible (neige, vegetation, vandalise)? Quel type d'intersection etait-ce? Y avait-il d'autres vehicules?",
+        "description_en": "Did you make a complete stop? Was the stop sign visible (snow, vegetation, vandalized)? What type of intersection? Were there other vehicles?",
+        "type": "texte_long",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["stop", "arret", "arr\u00eat", "368"]),
+    },
+
+    # ─── QUESTIONS CELLULAIRE (conditionnelles) ───────────────────
+    {
+        "champ": "cellulaire_details",
+        "label_fr": "Details de l'utilisation du cellulaire",
+        "label_en": "Cell phone usage details",
+        "description_fr": "Utilisiez-vous le telephone? Pour quel usage (GPS, appel, texto)? Aviez-vous un support mains libres? Le vehicule etait-il en mouvement ou arrete (feu rouge, trafic)?",
+        "description_en": "Were you using your phone? For what (GPS, call, text)? Did you have a hands-free mount? Was the vehicle moving or stopped (red light, traffic)?",
+        "type": "texte_long",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["cellulaire", "cell", "telephone", "t\u00e9l\u00e9phone", "phone", "439", "443", "texte", "texto", "sms", "mobile", "appareil electronique", "electronic"]),
+    },
+
+    # ─── QUESTIONS CEINTURE (conditionnelles) ─────────────────────
+    {
+        "champ": "ceinture_details",
+        "label_fr": "Details de la ceinture de securite",
+        "label_en": "Seatbelt details",
+        "description_fr": "Portiez-vous votre ceinture? Avez-vous une exemption medicale? Etait-ce vous ou un passager? La ceinture etait-elle defectueuse?",
+        "description_en": "Were you wearing your seatbelt? Do you have a medical exemption? Was it you or a passenger? Was the belt defective?",
+        "type": "texte",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["ceinture", "seatbelt", "belt", "396", "397"]),
+    },
+
+    # ─── QUESTIONS ZONE SCOLAIRE / CHANTIER (conditionnelles) ─────
+    {
+        "champ": "zone_speciale_details",
+        "label_fr": "Details de la zone speciale",
+        "label_en": "Special zone details",
+        "description_fr": "Etait-ce une zone scolaire ou un chantier? Les feux clignotants etaient-ils actifs? Y avait-il des enfants/travailleurs presents? La signalisation temporaire etait-elle conforme?",
+        "description_en": "Was it a school zone or construction zone? Were flashing lights active? Were children/workers present? Was temporary signage proper?",
+        "type": "texte",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "") + d.get("lieu", "")).lower() for w in ["scolaire", "school", "chantier", "construction", "travaux", "zone"]),
+    },
+
+    # ─── QUESTIONS ALCOOL / FACULTES AFFAIBLIES (conditionnelles) ─
+    {
+        "champ": "alcool_details",
+        "label_fr": "Details du controle d'alcool",
+        "label_en": "Alcohol control details",
+        "description_fr": "Y a-t-il eu un test d'alcoolemie (ivressometre, ADA)? Quel etait le taux? Avez-vous refuse le test? Avez-vous demande un second echantillon? Prenez-vous des medicaments?",
+        "description_en": "Was there a breathalyzer test (ASD, approved instrument)? What was the reading? Did you refuse the test? Did you request a second sample? Are you on medication?",
+        "type": "texte_long",
+        "condition": lambda d: any(w in (d.get("infraction", "") + d.get("loi", "")).lower() for w in ["alcool", "alcohol", "ivresse", "impair", "dui", "dwi", "facultes", "facult\u00e9s", "253", "254", "255", "320.14", "320.15", "capacite", "alcoolemie", "0.08", "0,08"]),
+    },
+
+    # ─── QUESTIONS GENERALES SUITE (toujours posees) ──────────────
     {
         "champ": "anomalies",
         "label_fr": "Anomalies sur le ticket",
         "label_en": "Ticket anomalies",
-        "description_fr": "Y a-t-il des erreurs visibles sur le constat? (nom, plaque, date, adresse, numero d'article)",
-        "description_en": "Are there visible errors on the ticket? (name, plate, date, address)",
+        "description_fr": "Y a-t-il des erreurs visibles sur le constat? (mauvais nom, plaque incorrecte, mauvaise date, adresse erronee, article de loi incorrect, signature manquante)",
+        "description_en": "Are there visible errors on the ticket? (wrong name, incorrect plate, wrong date, wrong address, incorrect law article, missing signature)",
+        "type": "texte",
+        "toujours": True,
+    },
+    {
+        "champ": "delai_constat",
+        "label_fr": "Delai et reception du constat",
+        "label_en": "Ticket timing and receipt",
+        "description_fr": "Quand avez-vous recu le constat? Etait-ce sur place ou par la poste? Si par la poste, combien de jours apres l'infraction?",
+        "description_en": "When did you receive the ticket? Was it on the spot or by mail? If by mail, how many days after the violation?",
+        "type": "texte",
+        "toujours": True,
+    },
+    {
+        "champ": "historique_conducteur",
+        "label_fr": "Historique de conduite",
+        "label_en": "Driving history",
+        "description_fr": "Est-ce votre premier constat? Combien de points de demerite avez-vous actuellement? Avez-vous deja conteste un constat?",
+        "description_en": "Is this your first ticket? How many demerit points do you currently have? Have you contested a ticket before?",
         "type": "texte",
         "toujours": True,
     },
@@ -137,8 +273,8 @@ QUESTIONS_SUPPLEMENTAIRES = [
         "description_fr": "Avez-vous des preuves supplementaires?",
         "description_en": "Do you have additional evidence?",
         "type": "multi_choix",
-        "options_fr": ["Photo de la signalisation", "Temoins", "Certificat de calibration", "Autre document", "Aucune preuve supplementaire"],
-        "options_en": ["Signage photo", "Witnesses", "Calibration certificate", "Other document", "No additional evidence"],
+        "options_fr": ["Photo de la signalisation", "Photo du lieu", "Dashcam / video", "Temoins", "Certificat de calibration", "Document medical", "Recu de stationnement", "Autre document", "Aucune preuve supplementaire"],
+        "options_en": ["Signage photo", "Location photo", "Dashcam / video", "Witnesses", "Calibration certificate", "Medical document", "Parking receipt", "Other document", "No additional evidence"],
         "upload_photo": True,
         "toujours": True,
     },
@@ -151,6 +287,16 @@ QUESTIONS_SUPPLEMENTAIRES = [
         "type": "texte",
         "optionnel": True,
         "condition": lambda d: "Temoins" in d.get("preuves", []) or "Witnesses" in d.get("preuves", []),
+    },
+    {
+        "champ": "commentaires_supplementaires",
+        "label_fr": "Autre chose a ajouter?",
+        "label_en": "Anything else to add?",
+        "description_fr": "Y a-t-il autre chose que vous aimeriez mentionner? (urgence medicale, stress, tout detail pertinent)",
+        "description_en": "Is there anything else you'd like to mention? (medical emergency, stress, any relevant detail)",
+        "type": "texte_long",
+        "optionnel": True,
+        "toujours": True,
     },
     {
         "champ": "email",
@@ -550,11 +696,30 @@ class ChatbotAccueil:
             "appareil": "Appareil de mesure",
             "numero_constat": "Numero de constat",
             "agent": "Agent",
+            "nom_conducteur": "Nom sur constat",
+            "permis": "No. permis",
+            "plaque": "Plaque",
             "circonstances": "Circonstances",
+            "meteo_conditions": "Meteo et route",
+            "heure_contexte": "Heure et trafic",
+            "controle_details": "Intervention policiere",
+            "vitesse_details": "Details vitesse",
+            "appareil_details": "Appareil de mesure",
             "signalisation": "Signalisation",
-            "anomalies": "Anomalies",
+            "stationnement_details": "Details stationnement",
+            "stationnement_signalisation": "Signalisation stationnement",
+            "feu_rouge_details": "Details feu rouge",
+            "stop_details": "Details stop",
+            "cellulaire_details": "Details cellulaire",
+            "ceinture_details": "Details ceinture",
+            "zone_speciale_details": "Zone speciale",
+            "alcool_details": "Details alcool",
+            "anomalies": "Anomalies sur constat",
+            "delai_constat": "Delai reception",
+            "historique_conducteur": "Historique conduite",
             "preuves": "Preuves",
             "temoins": "Temoins",
+            "commentaires_supplementaires": "Commentaires",
             "email": "Courriel",
         }
         for champ, label in labels.items():
