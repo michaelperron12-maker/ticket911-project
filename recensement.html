@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recensement des Stats — Anomalies Quebec</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --accent: #3b82f6; --green: #22c55e; --red: #ef4444;
+            --orange: #f59e0b; --purple: #a855f7; --cyan: #06b6d4;
+            --text: #f1f5f9; --dim: #94a3b8; --muted: #64748b;
+            --gold: #d4a843;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+        .header {
+            text-align:center; padding:2rem 1rem 1.5rem;
+            background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-bottom:1px solid #334155;
+        }
+        .header h1 { font-size:2rem; font-weight:900; margin-bottom:.3rem; }
+        .header h1 span { background:linear-gradient(135deg,var(--accent),var(--cyan));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .header p { color:var(--dim); font-size:.85rem; }
+        .header .live-badge {
+            display:inline-block; background:rgba(34,197,94,.15); color:var(--green);
+            padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700;
+            margin-top:.5rem; letter-spacing:.5px;
+        }
+        .header .live-badge::before { content:''; display:inline-block; width:6px; height:6px;
+            background:var(--green); border-radius:50%; margin-right:5px; animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        .container { max-width:1200px; margin:0 auto; padding:1.5rem; }
+
+        /* Stats row */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; margin-bottom:1.5rem; }
+        .stat-card {
+            background:var(--bg2); border-radius:12px; padding:1.2rem;
+            border:1px solid #334155; text-align:center; position:relative; overflow:hidden;
+        }
+        .stat-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+        .stat-card .num { font-size:2.2rem; font-weight:900; }
+        .stat-card .label { color:var(--dim); font-size:.75rem; margin-top:.2rem; text-transform:uppercase; letter-spacing:.5px; }
+        .stat-card.total .num { color:var(--accent); }
+        .stat-card.total::after { background:var(--accent); }
+        .stat-card.high .num { color:var(--red); }
+        .stat-card.high::after { background:var(--red); }
+        .stat-card.med .num { color:var(--orange); }
+        .stat-card.med::after { background:var(--orange); }
+        .stat-card.low .num { color:var(--green); }
+        .stat-card.low::after { background:var(--green); }
+
+        /* DB stats mini row */
+        .db-row { display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:2rem; }
+        .db-mini {
+            background:var(--bg2); border-radius:8px; padding:.8rem 1rem;
+            border:1px solid #334155; display:flex; justify-content:space-between; align-items:center;
+        }
+        .db-mini .db-label { color:var(--muted); font-size:.75rem; }
+        .db-mini .db-val { color:var(--cyan); font-weight:700; font-size:.95rem; }
+
+        /* Type breakdown */
+        .types-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.6rem; margin-bottom:2rem; }
+        .type-chip {
+            background:var(--bg2); border-radius:8px; padding:.7rem 1rem;
+            display:flex; justify-content:space-between; align-items:center;
+            border:1px solid #334155; font-size:.82rem; cursor:pointer; transition:all .2s;
+        }
+        .type-chip:hover { border-color:var(--accent); background:#1a2744; }
+        .type-chip.active { border-color:var(--accent); background:#1a2744; }
+        .type-chip .count { font-weight:800; color:var(--accent); font-size:1rem; }
+
+        /* Section titles */
+        .stitle { font-size:1.05rem; font-weight:700; margin:2rem 0 .8rem; color:var(--text);
+            display:flex; align-items:center; gap:.5rem; }
+        .stitle::before { content:''; width:4px; height:18px; background:var(--accent); border-radius:2px; }
+        .stitle .count-tag { font-size:.7rem; background:var(--bg3); padding:2px 8px; border-radius:10px; color:var(--dim); margin-left:.5rem; }
+
+        /* Search */
+        .search-box {
+            background:var(--bg2); border-radius:12px; padding:1.2rem 1.5rem;
+            border:1px solid #334155; margin-bottom:1.5rem;
+        }
+        .search-box h3 { font-size:.95rem; margin-bottom:.8rem; }
+        .search-row { display:flex; gap:.6rem; flex-wrap:wrap; }
+        .search-row input, .search-row select {
+            flex:1; min-width:120px; padding:.5rem .8rem; border-radius:8px;
+            border:1px solid #475569; background:var(--bg); color:var(--text);
+            font-family:inherit; font-size:.85rem;
+        }
+        .search-row select { min-width:140px; }
+        .search-row input::placeholder { color:var(--muted); }
+        .search-row button {
+            padding:.5rem 1.5rem; border-radius:8px; border:none;
+            background:var(--accent); color:white; font-weight:700;
+            cursor:pointer; font-family:inherit; font-size:.85rem; white-space:nowrap;
+        }
+        .search-row button:hover { background:#2563eb; }
+        .btn-reset { background:#475569!important; }
+        .btn-reset:hover { background:#64748b!important; }
+
+        /* Anomaly cards */
+        .anomaly-list { display:flex; flex-direction:column; gap:.8rem; }
+        .anom-card {
+            background:var(--bg2); border-radius:10px; padding:1rem 1.2rem;
+            border:1px solid #334155; border-left:4px solid var(--accent);
+            transition:all .2s;
+        }
+        .anom-card:hover { border-color:#475569; }
+        .anom-card.high { border-left-color:var(--red); }
+        .anom-card.medium { border-left-color:var(--orange); }
+        .anom-card.low { border-left-color:var(--green); }
+
+        .anom-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.5rem; gap:1rem; flex-wrap:wrap; }
+        .anom-title { font-weight:700; font-size:.9rem; }
+        .anom-meta { display:flex; gap:.6rem; flex-wrap:wrap; }
+        .badge {
+            display:inline-block; padding:2px 8px; border-radius:4px;
+            font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.3px;
+        }
+        .badge.high { background:rgba(239,68,68,.15); color:var(--red); }
+        .badge.medium { background:rgba(245,158,11,.15); color:var(--orange); }
+        .badge.low { background:rgba(34,197,94,.15); color:var(--green); }
+        .badge.conf { background:rgba(59,130,246,.1); color:var(--accent); }
+
+        .anom-stats {
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+            gap:.5rem; margin:.6rem 0; padding:.6rem 0;
+            border-top:1px solid #293548; border-bottom:1px solid #293548;
+        }
+        .anom-stat { text-align:center; }
+        .anom-stat .val { font-weight:800; font-size:.95rem; font-family:'Courier New',monospace; }
+        .anom-stat .lbl { font-size:.65rem; color:var(--muted); text-transform:uppercase; }
+        .anom-stat .val.red { color:var(--red); }
+        .anom-stat .val.orange { color:var(--orange); }
+        .anom-stat .val.green { color:var(--green); }
+        .anom-stat .val.blue { color:var(--accent); }
+
+        .anom-defense { color:var(--dim); font-size:.8rem; line-height:1.5; margin:.5rem 0; }
+        .anom-ref { color:var(--muted); font-size:.72rem; font-style:italic; }
+
+        .anom-constats {
+            margin-top:.6rem; padding:.6rem .8rem; background:var(--bg);
+            border-radius:6px; font-size:.75rem; color:var(--dim);
+        }
+        .anom-constats .ci-title { color:var(--cyan); font-weight:700; margin-bottom:.3rem; font-size:.78rem; }
+        .anom-constats .ci-row { display:flex; gap:1.5rem; flex-wrap:wrap; }
+        .anom-constats .ci-item { }
+        .anom-constats .ci-val { color:var(--text); font-weight:600; }
+
+        /* Pagination */
+        .pagination { display:flex; justify-content:center; gap:.5rem; margin:2rem 0; }
+        .pagination button {
+            padding:.4rem .8rem; border-radius:6px; border:1px solid #475569;
+            background:var(--bg2); color:var(--text); cursor:pointer; font-family:inherit;
+            font-size:.8rem;
+        }
+        .pagination button.active { background:var(--accent); border-color:var(--accent); }
+        .pagination button:hover:not(.active) { background:var(--bg3); }
+
+        .meta-footer {
+            text-align:center; padding:2rem 0; color:var(--muted); font-size:.75rem;
+            border-top:1px solid #1e293b; margin-top:2rem;
+        }
+
+        .loading { text-align:center; padding:3rem; color:var(--dim); }
+        .empty { text-align:center; padding:2rem; color:var(--muted); font-style:italic; }
+
+        @media(max-width:700px) {
+            .stats-row { grid-template-columns:repeat(2,1fr); }
+            .db-row { grid-template-columns:1fr; }
+            .search-row { flex-direction:column; }
+            .anom-stats { grid-template-columns:repeat(3,1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Recensement des <span>Stats</span></h1>
+    <p>Detection d'anomalies statistiques — Contraventions Quebec</p>
+    <div class="live-badge">LIVE — DONNEES REELLES</div>
+</div>
+
+<div class="container">
+
+    <!-- Stats globales -->
+    <div class="stats-row">
+        <div class="stat-card total"><div class="num" id="s-total">—</div><div class="label">Anomalies actives</div></div>
+        <div class="stat-card high"><div class="num" id="s-high">—</div><div class="label">Critiques</div></div>
+        <div class="stat-card med"><div class="num" id="s-med">—</div><div class="label">Moyennes</div></div>
+        <div class="stat-card low"><div class="num" id="s-low">—</div><div class="label">Faibles</div></div>
+    </div>
+
+    <!-- DB stats -->
+    <div class="db-row">
+        <div class="db-mini"><span class="db-label">Constats analyses</span><span class="db-val" id="db-constats">—</span></div>
+        <div class="db-mini"><span class="db-label">Jurisprudence tickets</span><span class="db-val" id="db-juris">—</span></div>
+        <div class="db-mini"><span class="db-label">Radars actifs</span><span class="db-val" id="db-radars">—</span></div>
+    </div>
+
+    <!-- Types -->
+    <div class="stitle">Anomalies par type <span class="count-tag" id="type-count"></span></div>
+    <div class="types-grid" id="types-grid"></div>
+
+    <!-- Search -->
+    <div class="search-box">
+        <h3>Filtrer les anomalies</h3>
+        <div class="search-row">
+            <input type="text" id="inp-lieu" placeholder="Code municipal (ex: 66023)">
+            <input type="text" id="inp-article" placeholder="Article (ex: 463)">
+            <select id="sel-severity">
+                <option value="">Toutes severites</option>
+                <option value="high">Critiques</option>
+                <option value="medium">Moyennes</option>
+                <option value="low">Faibles</option>
+            </select>
+            <select id="sel-type">
+                <option value="">Tous les types</option>
+            </select>
+            <button onclick="loadDetails(1)">Filtrer</button>
+            <button class="btn-reset" onclick="resetFilters()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="stitle">Anomalies detectees <span class="count-tag" id="results-count"></span></div>
+    <div class="anomaly-list" id="anomaly-list">
+        <div class="loading">Chargement...</div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="meta-footer" id="meta-footer"></div>
+</div>
+
+<script>
+const BASE = window.location.pathname.replace(/\/recensement\.html.*/, '').replace(/\/recensement$/, '');
+const API = BASE + '/api/recensement';
+
+const TYPE_LABELS = {
+    'anomalie_saisonniere': 'Anomalie saisonniere',
+    'article_surrepresente': 'Article surrepresente',
+    'hotspot_geo': 'Hotspot geographique',
+    'spike_fin_mois': 'Quota fin de mois',
+    'taux_acquittement': 'Taux acquittement',
+    'radar_disproportionne': 'Radar disproportionne',
+    'piege_vitesse': 'Piege a vitesse',
+    'pattern_jour': 'Pattern jour semaine',
+};
+
+const TYPE_ICONS = {
+    'anomalie_saisonniere': '&#9670;',
+    'article_surrepresente': '&#9733;',
+    'hotspot_geo': '&#9679;',
+    'spike_fin_mois': '&#9650;',
+    'taux_acquittement': '&#9745;',
+    'radar_disproportionne': '&#9673;',
+    'piege_vitesse': '&#9889;',
+    'pattern_jour': '&#9683;',
+};
+
+let currentTypeFilter = '';
+
+async function loadSummary() {
+    try {
+        const r = await fetch(API);
+        const d = await r.json();
+
+        document.getElementById('s-total').textContent = (d.total_anomalies||0).toLocaleString('fr-CA');
+        document.getElementById('s-high').textContent = (d.high||0).toLocaleString('fr-CA');
+        document.getElementById('s-med').textContent = (d.medium||0).toLocaleString('fr-CA');
+        document.getElementById('s-low').textContent = (d.low||0).toLocaleString('fr-CA');
+
+        // Types
+        const tg = document.getElementById('types-grid');
+        const sel = document.getElementById('sel-type');
+        tg.innerHTML = '';
+        const types = Object.entries(d.by_type || {}).sort((a,b) => b[1]-a[1]);
+        document.getElementById('type-count').textContent = types.length + ' types';
+        for (const [type, count] of types) {
+            const chip = document.createElement('div');
+            chip.className = 'type-chip';
+            chip.innerHTML = `<span>${TYPE_LABELS[type]||type}</span><span class="count">${count}</span>`;
+            chip.onclick = () => { toggleType(type, chip); };
+            tg.appendChild(chip);
+            sel.innerHTML += `<option value="${type}">${TYPE_LABELS[type]||type}</option>`;
+        }
+
+        // Meta
+        document.getElementById('meta-footer').innerHTML =
+            `Dernier calcul: ${d.last_computed ? new Date(d.last_computed).toLocaleString('fr-CA') : '—'} | ` +
+            `Batch: ${d.last_batch||'—'} | Duree: ${d.last_duration_s||'—'}s | ` +
+            `Donnees: constats CRQ, radars QC, jurisprudence CanLII+SOQUIJ`;
+
+    } catch(e) { console.error(e); }
+}
+
+function toggleType(type, chip) {
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    if (currentTypeFilter === type) {
+        currentTypeFilter = '';
+        document.getElementById('sel-type').value = '';
+    } else {
+        currentTypeFilter = type;
+        chip.classList.add('active');
+        document.getElementById('sel-type').value = type;
+    }
+    loadDetails(1);
+}
+
+function resetFilters() {
+    document.getElementById('inp-lieu').value = '';
+    document.getElementById('inp-article').value = '';
+    document.getElementById('sel-severity').value = '';
+    document.getElementById('sel-type').value = '';
+    currentTypeFilter = '';
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    loadDetails(1);
+}
+
+async function loadDetails(page) {
+    const list = document.getElementById('anomaly-list');
+    list.innerHTML = '<div class="loading">Chargement des anomalies...</div>';
+
+    const params = new URLSearchParams();
+    params.set('page', page);
+    params.set('per_page', 30);
+
+    const sev = document.getElementById('sel-severity').value;
+    const typ = document.getElementById('sel-type').value || currentTypeFilter;
+    if (sev) params.set('severity', sev);
+    if (typ) params.set('type', typ);
+
+    // Si lieu ou article, utiliser l'endpoint match
+    const lieu = document.getElementById('inp-lieu').value.trim();
+    const article = document.getElementById('inp-article').value.trim();
+
+    let url = API + '/details?' + params;
+
+    try {
+        const r = await fetch(url);
+        const d = await r.json();
+
+        if (d.error) { list.innerHTML = `<div class="empty">Erreur: ${d.error}</div>`; return; }
+
+        // DB stats
+        if (d.db_stats) {
+            document.getElementById('db-constats').textContent = (d.db_stats.total_constats||0).toLocaleString('fr-CA');
+            document.getElementById('db-juris').textContent = (d.db_stats.total_jurisprudence||0).toLocaleString('fr-CA');
+            document.getElementById('db-radars').textContent = (d.db_stats.total_radars_actifs||0).toLocaleString('fr-CA');
+        }
+
+        document.getElementById('results-count').textContent = d.total + ' resultats';
+
+        if (!d.anomalies || d.anomalies.length === 0) {
+            list.innerHTML = '<div class="empty">Aucune anomalie trouvee.</div>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+
+        // Filter by lieu/article client-side if needed
+        let anomalies = d.anomalies;
+        if (lieu) anomalies = anomalies.filter(a => a.region === lieu);
+        if (article) anomalies = anomalies.filter(a => a.article === article);
+
+        list.innerHTML = '';
+        for (const a of anomalies) {
+            const card = document.createElement('div');
+            card.className = `anom-card ${a.severity}`;
+
+            let statsHTML = `
+                <div class="anom-stat"><div class="val ${a.z_score >= 3.5 ? 'red' : a.z_score >= 2.5 ? 'orange' : 'blue'}">${a.z_score ? a.z_score.toFixed(1) : '—'}</div><div class="lbl">Z-Score</div></div>
+                <div class="anom-stat"><div class="val">${a.deviation_pct ? (a.deviation_pct > 0 ? '+' : '') + a.deviation_pct.toFixed(0) + '%' : '—'}</div><div class="lbl">Deviation</div></div>
+                <div class="anom-stat"><div class="val blue">${a.observed ? a.observed.toLocaleString('fr-CA',{maximumFractionDigits:1}) : '—'}</div><div class="lbl">Observe</div></div>
+                <div class="anom-stat"><div class="val">${a.expected ? a.expected.toLocaleString('fr-CA',{maximumFractionDigits:1}) : '—'}</div><div class="lbl">Attendu</div></div>
+                <div class="anom-stat"><div class="val">${a.sample_size ? a.sample_size.toLocaleString('fr-CA') : '—'}</div><div class="lbl">Echantillon</div></div>
+            `;
+            if (a.period_start) {
+                statsHTML += `<div class="anom-stat"><div class="val">${a.period_start}</div><div class="lbl">Periode</div></div>`;
+            }
+
+            // Constats enrichment
+            let constatsHTML = '';
+            if (a.constats_info) {
+                const ci = a.constats_info;
+                constatsHTML = `
+                    <div class="anom-constats">
+                        <div class="ci-title">Donnees constats — Lieu ${a.region}</div>
+                        <div class="ci-row">
+                            <div class="ci-item">Total: <span class="ci-val">${ci.total_constats.toLocaleString('fr-CA')}</span></div>
+                            <div class="ci-item">Periode: <span class="ci-val">${ci.premiere_date || '?'} a ${ci.derniere_date || '?'}</span></div>
+                            <div class="ci-item">Articles distincts: <span class="ci-val">${ci.nb_articles_distincts}</span></div>
+                            <div class="ci-item">Loi: <span class="ci-val">${ci.loi_freq || '—'}</span></div>
+                            <div class="ci-item">Description: <span class="ci-val">${ci.description_freq || '—'}</span></div>
+                            <div class="ci-item">Type: <span class="ci-val">${ci.type_intervention_freq || '—'}</span></div>
+                            ${ci.amende_moyenne ? `<div class="ci-item">Amende moy: <span class="ci-val">${ci.amende_moyenne}$</span></div>` : ''}
+                            ${ci.points_moyens ? `<div class="ci-item">Points moy: <span class="ci-val">${ci.points_moyens}</span></div>` : ''}
+                            ${ci.nb_avec_vitesse ? `<div class="ci-item">Avec vitesse: <span class="ci-val">${ci.nb_avec_vitesse.toLocaleString('fr-CA')}</span></div>` : ''}
+                        </div>
+                    </div>`;
+            }
+
+            // Computation details
+            let detailsHTML = '';
+            if (a.details && typeof a.details === 'object') {
+                const keys = Object.keys(a.details).filter(k => !['mean_ratio','std_ratio'].includes(k));
+                if (keys.length > 0) {
+                    const items = keys.slice(0, 8).map(k => {
+                        let v = a.details[k];
+                        if (typeof v === 'object') v = JSON.stringify(v).substring(0,60);
+                        if (typeof v === 'number') v = v.toLocaleString('fr-CA', {maximumFractionDigits:2});
+                        return `<span style="margin-right:1rem">${k}: <strong>${v}</strong></span>`;
+                    }).join('');
+                    detailsHTML = `<div style="font-size:.7rem;color:var(--muted);margin-top:.3rem;line-height:1.6">${items}</div>`;
+                }
+            }
+
+            card.innerHTML = `
+                <div class="anom-head">
+                    <div class="anom-title">${TYPE_ICONS[a.type]||''} ${TYPE_LABELS[a.type]||a.type}${a.region ? ' — Lieu ' + a.region : ''}${a.article ? ' — Art. ' + a.article : ''}</div>
+                    <div class="anom-meta">
+                        <span class="badge ${a.severity}">${a.severity}</span>
+                        <span class="badge conf">${a.confidence || '?'}</span>
+                    </div>
+                </div>
+                <div class="anom-stats">${statsHTML}</div>
+                <div class="anom-defense">${a.defense_text || ''}</div>
+                <div class="anom-ref">${a.legal_ref || ''}</div>
+                ${detailsHTML}
+                ${constatsHTML}
+            `;
+            list.appendChild(card);
+        }
+
+        // Pagination
+        const pag = document.getElementById('pagination');
+        pag.innerHTML = '';
+        if (d.total_pages > 1) {
+            for (let p = 1; p <= Math.min(d.total_pages, 10); p++) {
+                const btn = document.createElement('button');
+                btn.textContent = p;
+                if (p === d.page) btn.className = 'active';
+                btn.onclick = () => loadDetails(p);
+                pag.appendChild(btn);
+            }
+            if (d.total_pages > 10) {
+                const sp = document.createElement('span');
+                sp.textContent = `... ${d.total_pages}`;
+                sp.style.cssText = 'color:var(--muted);padding:.4rem';
+                pag.appendChild(sp);
+            }
+        }
+
+    } catch(e) {
+        list.innerHTML = `<div class="empty">Erreur: ${e.message}</div>`;
+    }
+}
+
+loadSummary();
+loadDetails(1);
+</script>
+
+</body>
+</html>
