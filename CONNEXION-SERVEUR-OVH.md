@@ -16,8 +16,8 @@
 | **OS** | Ubuntu 24.04 |
 | **Python** | 3.13.7 |
 | **Node.js** | v20.20.0 |
-| **Disque** | 72 Go (28 Go utilisés, 44 Go libre) |
-| **RAM** | 7.6 Go (27% utilisé) |
+| **Disque** | 72 Go (48 Go utilisés, 24 Go libre — 67%) |
+| **RAM** | 7.6 Go (~46% utilisé, swappiness=10) |
 | **SSL** | Let's Encrypt (certbot, renouvellement auto) |
 
 ---
@@ -165,7 +165,7 @@ sudo systemctl enable nom_du_service
 |------|-------------|--------|--------|---------|
 | **seo_agent.db** | `/opt/seo-agent/db/` | 22M | 150 | DB principale SeoAI (agents, sites, keywords, etc.) |
 | **seo_brain.db** | `/opt/seo-agent/db/` | 132K | — | AI cerveau |
-| **tickets_qc_on** (PostgreSQL) | Docker `seo-agent-postgres` | — | 19 | 8,254+ juris QC, lois, constats, radar, collisions, SAAQ points, conditions routières |
+| **tickets_qc_on** (PostgreSQL) | Docker `seo-agent-postgres` | ~3 Go | 19+ | 8,321 juris QC, 1.7M accidents SAAQ, 356K constats, lois, radar, SAAQ points, conditions routières |
 | **facturation.db** | `/var/www/facturation/` | 252K | 12 | 7 factures |
 | **jcpeintre.db** | `/var/www/jcpeintre.com/data/` | 168K | — | Données JC Peintre |
 | **sessions.db** | `/var/www/dashboard/` | 36K | 5 | Sessions dashboard |
@@ -213,13 +213,14 @@ Host:      172.18.0.3:5432
 Tables:    19 tables
 
 Tables principales:
-├── jurisprudence              # 8,254+ dossiers QC (CanLII, import auto quotidien)
-├── lois_articles              # Lois QC + ON
-├── saaq_points_inaptitude     # 36 infractions, points/amendes
+├── saaq_rapports_accident     # 1,717,407 rapports accident (2011-2022)
+├── qc_constats_infraction     # 356,715 constats Contrôle routier QC
+├── jurisprudence              # 8,321+ dossiers QC (CanLII, import auto quotidien 4AM)
+├── lois_articles              # 4,588 lois QC + ON
+├── saaq_points_inaptitude     # 22 infractions, points/amendes
 ├── saaq_seuils_points         # 5 seuils (probatoire, apprenti, régulier)
 ├── conditions_routieres_hiver # 446 segments MTQ temps réel
-├── qc_constats_infraction     # 356K constats
-├── qc_radar_photo_stats       # 27K stats radar
+├── qc_radar_photo_stats       # 384 stats radar
 ├── qc_radar_photo_lieux       # 160 emplacements
 ├── mtl_collisions             # 218K+ collisions Montréal
 ├── road_conditions            # Conditions routières
@@ -238,8 +239,9 @@ Tables principales:
 ├── db/                            # État et metadata
 ├── data/                          # ChromaDB embeddings
 ├── logs/                          # Logs d'analyse + canlii_usage.json
-├── import_canlii_traffic.py       # Import CanLII (rate limit 4700/jour)
-├── import_conditions_routieres.py # Import MTQ conditions routières
+├── import_canlii_traffic.py       # Import CanLII (rate limit 4700/jour, 5 tribunaux QC)
+├── import_conditions_routieres.py # Import MTQ conditions routières hiver
+├── import_saaq_accidents.py       # Import rapports accident SAAQ (2011-2022)
 ├── seed_saaq_points.py            # Seed SAAQ points d'inaptitude
 ├── populate_chromadb.py           # Population ChromaDB
 └── setup_database.py              # Création tables PostgreSQL
@@ -331,10 +333,12 @@ ssh -i ~/.ssh/id_ed25519_michael ubuntu@148.113.194.234 "sudo cp -r /tmp/agents/
 ### Sources de données intégrées
 | Source | API | Données | Fréquence |
 |--------|-----|---------|-----------|
-| CanLII | REST API (clé) | Jurisprudence QC traffic | Auto quotidien 4AM |
-| MTQ/Données Québec | WFS (gratuit) | Conditions routières hiver | Manuel/cron |
-| SAAQ | Données hardcodées | Points d'inaptitude, seuils | Statique (seed) |
-| Données Québec | CKAN (gratuit) | Constats, radar, collisions | Importé |
+| CanLII | REST API (clé) | Jurisprudence QC traffic (5 tribunaux: qccm, qccq, qccs, qcca, qctaq) | Auto quotidien 4AM |
+| MTQ/Données Québec | WFS (gratuit) | Conditions routières hiver (446 segments) | Manuel/cron |
+| SAAQ | Données hardcodées | Points d'inaptitude (22), seuils (5) | Statique (seed) |
+| SAAQ/Données Québec | CSV (gratuit) | 1.7M rapports accident (2011-2022) | Importé |
+| SAAQ/Données Québec | CKAN (gratuit) | 356K constats Contrôle routier | Importé |
+| Données Québec | CKAN (gratuit) | Radar, collisions MTL | Importé |
 
 ---
 
@@ -402,7 +406,7 @@ ssh -i ~/.ssh/id_ed25519_michael ubuntu@148.113.194.234 "ls /etc/nginx/sites-ena
 ### Configs nginx importantes
 | Fichier | Rôle |
 |---------|------|
-| `/etc/nginx/sites-enabled/seoparai.com` | Site principal + APIs + Ticket911 |
+| `/etc/nginx/sites-enabled/seoparai.com` | Site principal + APIs + AITicketInfo |
 | `/etc/nginx/sites-enabled/uptime-kuma` | Uptime Kuma SSL (port 3011) |
 | `/etc/nginx/sites-enabled/deneigement-excellence.ca` | Déneigement |
 | `/etc/nginx/sites-enabled/paysagiste-excellence.ca` | Paysagement |
@@ -419,11 +423,11 @@ ssh -i ~/.ssh/id_ed25519_michael ubuntu@148.113.194.234 "ls /etc/nginx/sites-ena
 
 | Domaine | Expiration | Jours restants |
 |---------|------------|----------------|
-| seoparai.com + www | 9 mai 2026 | 87 jours |
-| jcpeintre.com + www | 4 mai 2026 | 83 jours |
-| deneigement-excellence.ca + www | 4 mai 2026 | 83 jours |
-| paysagiste-excellence.ca + www | 5 mai 2026 | 84 jours |
-| facturation.deneigement-excellence.ca | 4 mai 2026 | 83 jours |
+| seoparai.com + www | 9 mai 2026 | 83 jours |
+| jcpeintre.com + www | 4 mai 2026 | 78 jours |
+| deneigement-excellence.ca + www | 4 mai 2026 | 78 jours |
+| paysagiste-excellence.ca + www | 5 mai 2026 | 79 jours |
+| facturation.deneigement-excellence.ca | 4 mai 2026 | 78 jours |
 
 ### Renouveler manuellement (normalement auto)
 ```bash
@@ -579,9 +583,9 @@ scp -i ~/.ssh/id_ed25519_michael -r dossier/ ubuntu@148.113.194.234:/var/www/den
 sudo chown -R www-data:www-data /var/www/deneigement/
 sudo chmod -R 755 /var/www/deneigement/
 
-# Ticket911 (Flask tourne sous ubuntu)
-sudo chown -R ubuntu:ubuntu /var/www/ticket911/
-sudo chmod -R 755 /var/www/ticket911/
+# AITicketInfo (Flask tourne sous ubuntu)
+sudo chown -R ubuntu:ubuntu /var/www/aiticketinfo/
+sudo chmod -R 755 /var/www/aiticketinfo/
 ```
 
 ---
