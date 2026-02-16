@@ -1,7 +1,8 @@
 """
 Agent Phase 1: OCR MASTER — Photo de contravention → champs extraits
-Moteur: OCR.space (gratuit) → DeepSeek V3 (parsing structuré)
-Fallback: Qwen3-VL vision si disponible
+Moteur principal: Mindee (API pro)
+Fallback 1: OCR.space (gratuit) → DeepSeek V3 (parsing)
+Fallback 2: Qwen3-VL vision
 """
 
 import os
@@ -9,6 +10,8 @@ import json
 import time
 import base64
 from agents.base_agent import BaseAgent, QWEN_VL
+
+MINDEE_API_KEY = os.environ.get("MINDEE_API_KEY", "")
 
 
 class AgentOCR(BaseAgent):
@@ -26,15 +29,20 @@ class AgentOCR(BaseAgent):
 
         result = None
 
-        # Methode 1: OCR.space (gratuit, toujours disponible)
+        # Methode 1: Mindee (API pro, meilleure precision)
         if image_path or image_base64:
+            result = self._ocr_mindee(image_path, image_base64)
+
+        # Methode 2: OCR.space fallback (gratuit)
+        if not result and (image_path or image_base64):
+            self.log("Mindee indisponible, fallback OCR.space...", "WARN")
             result = self._ocr_space(image_path, image_base64)
 
-        # Methode 2: AI vision fallback (Qwen VL si disponible)
+        # Methode 3: AI vision fallback (Qwen VL)
         if not result and (image_path or image_base64):
             result = self._ocr_ai_vision(image_path, image_base64)
 
-        # Methode 3: Pas d'image, retourner structure vide
+        # Methode 4: Pas d'image, retourner structure vide
         if not result:
             result = self._empty_ticket()
             self.log("Aucune image fournie — structure vide", "WARN")
@@ -44,6 +52,83 @@ class AgentOCR(BaseAgent):
                      f"{len([v for v in result.values() if v])} champs extraits", duration=duration)
         self.log(f"OCR complete en {duration:.1f}s — {len([v for v in result.values() if v])} champs", "OK")
         return result
+
+    def _ocr_mindee(self, image_path, image_base64):
+        """OCR via Mindee SDK v2 → texte brut → AI parsing"""
+        if not MINDEE_API_KEY:
+            self.log("Mindee: pas de cle API", "WARN")
+            return None
+
+        try:
+            from mindee import ClientV2, InferenceParameters, InferenceResponse, PathInput
+
+            self.log("Mindee OCR v2: extraction du texte...", "STEP")
+
+            client = ClientV2(MINDEE_API_KEY)
+            params = InferenceParameters(
+                model_id="mindee/international_id",
+                raw_text=True,
+            )
+
+            # Preparer l'image
+            tmp_path = None
+            if image_base64 and not image_path:
+                import tempfile
+                tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
+                tmp.write(base64.b64decode(image_base64))
+                tmp.close()
+                tmp_path = tmp.name
+                image_path = tmp_path
+
+            if not image_path or not os.path.exists(image_path):
+                return None
+
+            input_source = PathInput(image_path)
+            response = client.enqueue_and_get_result(
+                InferenceResponse, input_source, params
+            )
+
+            # Cleanup temp file
+            if tmp_path:
+                os.unlink(tmp_path)
+
+            # Extraire le texte brut
+            raw_text = ""
+            if hasattr(response, 'inference') and response.inference:
+                # Chercher le raw text dans les pages
+                if hasattr(response.inference, 'pages'):
+                    for page in response.inference.pages:
+                        if hasattr(page, 'raw_text') and page.raw_text:
+                            raw_text += str(page.raw_text) + "\n"
+                # Ou dans le result
+                if not raw_text and hasattr(response.inference, 'result'):
+                    result = response.inference.result
+                    if hasattr(result, 'fields') and result.fields:
+                        for key, field in result.fields.items():
+                            if field and hasattr(field, 'value') and field.value:
+                                raw_text += f"{key}: {field.value}\n"
+
+            if not raw_text or len(raw_text.strip()) < 20:
+                self.log("Mindee: peu de texte extrait, essai string complet...", "WARN")
+                raw_text = str(response.inference) if hasattr(response, 'inference') else ""
+
+            if not raw_text or len(raw_text.strip()) < 20:
+                self.log("Mindee: texte insuffisant", "WARN")
+                return None
+
+            self.log(f"Mindee: {len(raw_text)} caracteres extraits", "OK")
+
+            result = self._parse_raw_text(raw_text)
+            if result:
+                result["ocr_methode"] = "mindee_v2"
+            return result
+
+        except ImportError:
+            self.log("Mindee SDK non installe", "WARN")
+            return None
+        except Exception as e:
+            self.log(f"Erreur Mindee: {e}", "FAIL")
+            return None
 
     def _ocr_space(self, image_path, image_base64):
         """OCR via OCR.space API gratuite → texte brut → AI parsing"""
@@ -101,6 +186,8 @@ class AgentOCR(BaseAgent):
 
             # Parser le texte brut avec DeepSeek V3
             result = self._parse_raw_text(raw_text)
+            if result:
+                result["ocr_methode"] = "ocr_space"
             return result
 
         except Exception as e:
@@ -179,6 +266,7 @@ Reponds UNIQUEMENT en JSON:
         if response["success"]:
             try:
                 result = self.parse_json_response(response["text"])
+                result["ocr_methode"] = "qwen_vl"
                 filled = len([v for v in result.values() if v and v != 0])
                 self.log(f"Vision OCR reussi — {filled} champs extraits", "OK")
                 return result
