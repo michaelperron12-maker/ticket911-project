@@ -6,3 +6,23 @@ __pycache__/
 .env
 .env.local
 .DS_Store
+
+# Backups
+*.bak*
+*.backup
+
+# Logs (generated runtime)
+logs/
+
+# Uploads (user data)
+data/uploads/
+
+# ChromaDB (binary, regenerated)
+data/embeddings/
+
+# State files (change every cycle)
+db/*_state.json
+
+# Runtime
+*.pid
+*.sock

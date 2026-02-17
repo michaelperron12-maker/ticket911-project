@@ -34,29 +34,31 @@ PG_CONFIG = {
 }
 
 # ═══════════════════════════════════════════════════════════
-# FIREWORKS AI — STACK MODELES (mis a jour 14 fev 2026)
+# FIREWORKS AI — STACK MODELES (mis a jour 17 fev 2026)
+# Teste: 8 stables, 5 morts (GLM-5, DeepSeek-R1, Mixtral, Qwen3-235B, Qwen3-Small)
 # ═══════════════════════════════════════════════════════════
 FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "")
 
 # --- TIER 1: Flagships (raisonnement juridique profond) ---
-GLM5 = "accounts/fireworks/models/glm-5"                       # #1 — 744B MoE, 202K ctx, low hallucination, $1.00/$3.20
+DEEPSEEK_V3 = "accounts/fireworks/models/deepseek-v3p2"        # #1 — 685B, 128K ctx, rapide+intelligent, $0.56/$1.68
 KIMI_K25 = "accounts/fireworks/models/kimi-k2p5"               # #2 — #1 intelligence Fireworks, 262K ctx, $0.60/$3.00
-DEEPSEEK_V3 = "accounts/fireworks/models/deepseek-v3p2"        # #3 — 685B, 128K ctx, excellent rapport qualite/prix, $0.56/$1.68
+MINIMAX = "accounts/fireworks/models/minimax-m2p1"              # #3 — Rapide, stable, $0.30/$1.20
 
 # --- TIER 2: Raisonnement + Thinking ---
 KIMI_THINK = "accounts/fireworks/models/kimi-k2-thinking"       # Thinking mode, 262K ctx, verification independante
-DEEPSEEK_R1 = "accounts/fireworks/models/deepseek-r1-0528"     # Chain-of-thought, verification croisee
-GLM4 = "accounts/fireworks/models/glm-4p7"                     # 430 t/s le plus rapide, multilingue, $0.60/$2.20
+GLM4 = "accounts/fireworks/models/glm-4p7"                     # 430 t/s, multilingue, $0.60/$2.20
+LLAMA3 = "accounts/fireworks/models/llama-v3p3-70b-instruct"   # Llama 3.3 70B, stable, $0.18
 
-# --- TIER 3: Specialises ---
-QWEN3 = "accounts/fireworks/models/qwen3-235b-a22b"            # Classification, knowledge, multilingue
-MIXTRAL_FR = "accounts/fireworks/models/mixtral-8x22b-instruct" # Fort en francais (Mistral/France)
-MINIMAX = "accounts/fireworks/models/minimax-m2p1"              # Rapide, $0.30/$1.20
-
-# --- TIER 4: Rapides / Legers (intake, routing, validation) ---
+# --- TIER 3: Rapides / Legers (intake, routing, validation) ---
 GPT_OSS_LARGE = "accounts/fireworks/models/gpt-oss-120b"       # 120B, general purpose, $0.15/$0.60
 GPT_OSS_SMALL = "accounts/fireworks/models/gpt-oss-20b"        # 20B, ultra-rapide, $0.07/$0.30
-QWEN3_SMALL = "accounts/fireworks/models/qwen3-30b-a3b"        # 30B, latence 0.29s, $0.15/$0.60
+
+# --- MORTS (retires 17 fev 2026) ---
+GLM5 = DEEPSEEK_V3          # MORT — redirige vers DeepSeek V3
+DEEPSEEK_R1 = KIMI_THINK    # 404 — redirige vers Kimi Think
+MIXTRAL_FR = MINIMAX         # 404 — redirige vers MiniMax
+QWEN3 = DEEPSEEK_V3         # 404 — redirige vers DeepSeek V3
+QWEN3_SMALL = GPT_OSS_SMALL # 404 — redirige vers GPT-OSS 20B
 
 # --- Vision (multimodal) ---
 QWEN_VL = "accounts/fireworks/models/qwen3-vl-235b-a22b-instruct"  # Vision + texte
@@ -199,9 +201,9 @@ class BaseAgent:
         except Exception as e:
             print(f"  [!] log_run error: {e}")
 
-    # Cascade de fallback: si un modele est down, essayer le suivant
-    # GLM5 → DeepSeek V3 → Kimi K2.5 → GLM4 → DeepSeek R1 → Mixtral FR → MiniMax → GPT-OSS 120B
-    FALLBACK_CHAIN = [GLM5, DEEPSEEK_V3, KIMI_K25, GLM4, DEEPSEEK_R1, MIXTRAL_FR, MINIMAX, GPT_OSS_LARGE]
+    # Cascade de fallback: 8 modeles stables, tous testes 17 fev 2026
+    # DeepSeek V3 → Kimi K2.5 → MiniMax → Kimi Think → GLM4 → Llama3 → GPT-OSS 120B → GPT-OSS 20B
+    FALLBACK_CHAIN = [DEEPSEEK_V3, KIMI_K25, MINIMAX, KIMI_THINK, GLM4, LLAMA3, GPT_OSS_LARGE, GPT_OSS_SMALL]
 
     def call_ai(self, prompt, system_prompt="", model=None, temperature=0.1, max_tokens=2000):
         """Appel AI via Fireworks — multi-moteurs avec fallback en cascade"""

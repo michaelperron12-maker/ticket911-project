@@ -2,10 +2,12 @@
 """
 aiticketinfo-classifier — Agent 24/7 classification et embeddings
 Tourne en continu, prend son temps, corrige les donnees en boucle.
-- Remplit embeddings manquants (via Fireworks API)
-- Reclassifie database_id, resultat, est_ticket_related
+- Remplit embeddings manquants (via Fireworks qwen3-embedding-8b)
+- Reclassifie database_id, resultat, est_ticket_related (mots-cles)
+- Classification IA profonde: type_infraction, moyens_defense, article_csr (Phase 4)
 - Sleep entre chaque operation pour pas surcharger
 - Recommence une fois fini pour les nouveaux imports
+Mis a jour 17 fev 2026 — ajout Phase 4 IA + modeles stables
 """
 
 import os
@@ -15,6 +17,8 @@ import time
 import json
 import signal
 import psycopg2
+import psycopg2.extras
+import httpx
 from datetime import datetime
 
 # ══════════════════════════════════════════════════════════
@@ -37,11 +41,34 @@ PG_CONFIG = {
 }
 
 LOG_FILE = "/var/www/aiticketinfo/logs/classifier.log"
+STATE_FILE = "/var/www/aiticketinfo/db/classifier_phase4_state.json"
 SLEEP_BETWEEN = 1        # secondes entre chaque dossier
 SLEEP_BATCH = 5          # secondes entre chaque batch
-SLEEP_CYCLE = 60         # 5 min entre chaque cycle complet
-BATCH_SIZE = 50           # dossiers par batch embedding
-EMBEDDING_ENABLED = True  # activer/desactiver embeddings
+SLEEP_CYCLE = 60         # secondes entre chaque cycle complet
+BATCH_SIZE = 50          # dossiers par batch embedding
+PHASE4_BATCH = 10        # dossiers par cycle Phase 4 IA
+EMBEDDING_ENABLED = True
+PHASE4_ENABLED = True    # Classification IA profonde
+
+# Fireworks API — modeles stables testes 17 fev 2026
+FW_KEY = os.environ.get("FIREWORKS_API_KEY", "fw_CbsGnsaL5NSi4wgasWhjtQ")
+FW_URL = "https://api.fireworks.ai/inference/v1/chat/completions"
+FW_MODELS = [
+    "accounts/fireworks/models/deepseek-v3p2",     # #1 rapide+intelligent
+    "accounts/fireworks/models/kimi-k2p5",          # #2 fallback
+    "accounts/fireworks/models/minimax-m2p1",       # #3 fallback
+]
+FW_TIMEOUT = 20.0
+
+# Phase 4 prompt
+PHASE4_PROMPT = '''Analyse cette decision judiciaire quebecoise/canadienne.
+Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
+{{"article_csr":"str ou null","type_infraction":"exces_vitesse|feu_rouge|panneau_arret|cellulaire|ceinture|conduite_dangereuse|alcool_volant|depassement_interdit|virage_interdit|delit_fuite|distraction|stationnement|autre_csr|non_routier","resultat":"acquitte|coupable|reduit|rejete","moyens_defense":["str"],"motifs_juge":"1 phrase","resume":"2 phrases max"}}
+
+DECISION:
+{texte}
+
+JSON:'''
 
 # Mapping citation → database_id
 CITATION_TO_DB = {
@@ -158,53 +185,262 @@ def is_traffic(titre, resume=""):
 
 
 # ══════════════════════════════════════════════════════════
-# CLASSIFY: database_id, resultat, est_ticket_related
+# CLASSIFY SIMPLE: database_id, resultat, est_ticket_related
 # ══════════════════════════════════════════════════════════
 
 def classify_pass(conn):
-    """Un pass de classification sur tous les dossiers incomplets"""
     cur = conn.cursor()
     fixed = {"database_id": 0, "resultat": 0, "ticket_related": 0}
 
-    # 1. database_id manquants
     cur.execute("SELECT id, citation FROM jurisprudence WHERE database_id IS NULL OR database_id = ''")
-    rows = cur.fetchall()
-    for row_id, citation in rows:
-        if not running:
-            break
+    for row_id, citation in cur.fetchall():
+        if not running: break
         db_id = extract_db_id(citation)
         if db_id:
             cur.execute("UPDATE jurisprudence SET database_id = %s WHERE id = %s", (db_id, row_id))
             fixed["database_id"] += 1
     conn.commit()
 
-    # 2. resultat inconnus
     cur.execute("""SELECT id, titre, resume FROM jurisprudence
                    WHERE resultat IS NULL OR resultat = '' OR resultat = 'inconnu'""")
-    rows = cur.fetchall()
-    for row_id, titre, resume in rows:
-        if not running:
-            break
+    for row_id, titre, resume in cur.fetchall():
+        if not running: break
         r = detect_resultat(titre, resume)
         if r:
             cur.execute("UPDATE jurisprudence SET resultat = %s WHERE id = %s", (r, row_id))
             fixed["resultat"] += 1
     conn.commit()
 
-    # 3. est_ticket_related
     cur.execute("""SELECT id, titre, resume FROM jurisprudence
                    WHERE est_ticket_related = false OR est_ticket_related IS NULL""")
-    rows = cur.fetchall()
-    for row_id, titre, resume in rows:
-        if not running:
-            break
+    for row_id, titre, resume in cur.fetchall():
+        if not running: break
         if is_traffic(titre, resume):
             cur.execute("UPDATE jurisprudence SET est_ticket_related = true WHERE id = %s", (row_id,))
             fixed["ticket_related"] += 1
     conn.commit()
-
     cur.close()
     return fixed
+
+
+# ══════════════════════════════════════════════════════════
+# PHASE 4: Classification IA profonde (type_infraction etc.)
+# ══════════════════════════════════════════════════════════
+
+def truncate_text(t):
+    if not t: return t
+    for m in ["[1]", "MOTIFS", "JUGEMENT", "REASONS", "DISPOSITIF"]:
+        i = t.find(m)
+        if 0 < i < 2000:
+            t = t[i:]
+            break
+    return t[:3500]
+
+
+def get_case_text(case):
+    tc = case.get("texte_complet") or ""
+    if tc and len(tc) >= 100:
+        return truncate_text(tc), "texte"
+    parts = []
+    for f in ["titre", "citation"]:
+        v = case.get(f)
+        if v: parts.append(v)
+    ria = case.get("resume_ia") or ""
+    res = case.get("resume") or ""
+    if ria and len(ria) > len(res):
+        parts.append(ria)
+    elif res:
+        parts.append(res)
+    mc = case.get("mots_cles")
+    if mc and isinstance(mc, list):
+        parts.append("Mots-cles: " + ", ".join(mc[:10]))
+    c = "\n".join(parts)
+    return (c, "resume") if len(c) > 40 else (None, None)
+
+
+def call_fireworks(texte):
+    for model in FW_MODELS:
+        try:
+            resp = httpx.post(FW_URL,
+                headers={"Authorization": f"Bearer {FW_KEY}", "Content-Type": "application/json"},
+                json={"model": model,
+                      "messages": [{"role": "user", "content": PHASE4_PROMPT.format(texte=texte)}],
+                      "temperature": 0.0, "max_tokens": 600},
+                timeout=httpx.Timeout(FW_TIMEOUT, connect=8.0))
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"]
+                result = extract_json(content)
+                if result:
+                    return result
+        except httpx.TimeoutException:
+            pass
+        except Exception:
+            pass
+        time.sleep(0.5)
+    return None
+
+
+def extract_json(content):
+    if not content: return None
+    start = content.find("{")
+    if start < 0: return None
+    end = content.rfind("}")
+    if end <= start:
+        s = content[start:]
+        if s.count('"') % 2 == 1: s += '"'
+        s += "]" * max(0, s.count("[") - s.count("]"))
+        s += "}" * max(0, s.count("{") - s.count("}"))
+        try: return json.loads(s)
+        except Exception: return None
+    try: return json.loads(content[start:end+1])
+    except json.JSONDecodeError:
+        s = content[start:end+1]
+        last = s.rfind(",")
+        if last > 0:
+            s2 = s[:last]
+            s2 += "]" * max(0, s2.count("[") - s2.count("]"))
+            s2 += "}" * max(0, s2.count("{") - s2.count("}"))
+            try: return json.loads(s2)
+            except Exception: pass
+    return None
+
+
+def norm_resultat(r):
+    if not r: return None
+    r = str(r).lower().strip()
+    if any(w in r for w in ["acquit", "non coupable", "not guilty"]): return "acquitte"
+    if any(w in r for w in ["coupable", "guilty", "condamn", "convicted"]): return "coupable"
+    if any(w in r for w in ["redui", "rédui", "reduced", "diminu"]): return "reduit"
+    if any(w in r for w in ["rejet", "dismiss", "denied", "refus"]): return "rejete"
+    if any(w in r for w in ["retir", "withdraw", "abandon"]): return "retire"
+    if r in ("acquitte", "coupable", "reduit", "rejete", "retire"): return r
+    return r[:30]
+
+
+def phase4_pass(conn):
+    if not PHASE4_ENABLED:
+        return 0, 0
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("""
+        SELECT id, texte_complet, resume, resume_ia, titre, citation, mots_cles
+        FROM jurisprudence
+        WHERE classifie = false
+          AND (texte_complet IS NOT NULL AND LENGTH(texte_complet) >= 100
+               OR resume IS NOT NULL AND LENGTH(resume) > 50
+               OR resume_ia IS NOT NULL AND LENGTH(resume_ia) > 50)
+        ORDER BY
+            CASE WHEN LOWER(COALESCE(tribunal,'')) = 'qccm' THEN 1
+                 WHEN LOWER(COALESCE(tribunal,'')) = 'qccq' THEN 2 ELSE 4 END,
+            id
+        LIMIT %s
+    """, (PHASE4_BATCH,))
+    cases = cur.fetchall()
+
+    if not cases:
+        cur.close()
+        return 0, 0
+
+    ok = 0
+    fail = 0
+    for case in cases:
+        if not running: break
+        try:
+            texte, src = get_case_text(case)
+            if not texte:
+                # Pas assez de texte — marquer comme classifie pour pas retenter
+                cur.execute("UPDATE jurisprudence SET classifie=true, type_infraction='non_routier', confiance_classif=0.1 WHERE id=%s", (case["id"],))
+                conn.commit()
+                fail += 1
+                continue
+
+            result = call_fireworks(texte)
+            time.sleep(0.3)
+
+            if not result:
+                fail += 1
+                continue
+
+            # Normaliser les champs
+            for sf in ["article_csr", "type_infraction", "sous_type", "zone_type", "resultat", "motifs_juge", "resume"]:
+                v = result.get(sf)
+                if isinstance(v, list): result[sf] = v[0] if v else None
+                elif isinstance(v, (int, float)): result[sf] = str(v)
+
+            result["resultat"] = norm_resultat(result.get("resultat"))
+
+            ti = result.get("type_infraction", "")
+            if isinstance(ti, list): ti = ti[0] if ti else ""
+            if ti and isinstance(ti, str):
+                ti = ti.lower().strip()
+                # Rejeter si c'est la liste complète (bug connu)
+                if "|" in ti:
+                    ti = "autre_csr"
+                result["type_infraction"] = ti
+
+            for f in ["moyens_defense", "arguments_gagnants", "arguments_rejetes"]:
+                v = result.get(f)
+                if not isinstance(v, list): result[f] = [v] if v else []
+
+            conf = 0.5
+            if result.get("article_csr") and result.get("type_infraction"): conf = 0.8
+            if src == "texte": conf = min(1.0, conf + 0.15)
+
+            cur.execute("""
+                UPDATE jurisprudence SET
+                    article_csr = COALESCE(%s, article_csr),
+                    type_infraction = %s,
+                    sous_type = COALESCE(%s, sous_type),
+                    zone_type = COALESCE(%s, zone_type),
+                    moyens_defense = %s,
+                    arguments_gagnants = COALESCE(%s, arguments_gagnants),
+                    arguments_rejetes = COALESCE(%s, arguments_rejetes),
+                    motifs_juge = COALESCE(%s, motifs_juge),
+                    resultat = COALESCE(%s, resultat),
+                    resume_ia = COALESCE(resume_ia, %s),
+                    classifie = true,
+                    confiance_classif = %s
+                WHERE id = %s
+            """, (
+                result.get("article_csr"), result.get("type_infraction"),
+                result.get("sous_type"), result.get("zone_type"),
+                result.get("moyens_defense") or [],
+                result.get("arguments_gagnants") or [],
+                result.get("arguments_rejetes") or [],
+                result.get("motifs_juge"),
+                result.get("resultat"),
+                result.get("resume"),
+                conf, case["id"],
+            ))
+            conn.commit()
+            ok += 1
+
+        except Exception as e:
+            log(f"    [!] Phase4 id={case['id']}: {str(e)[:60]}")
+            try:
+                conn.rollback()
+            except: pass
+            fail += 1
+
+    cur.close()
+    return ok, fail
+
+
+def save_phase4_state(ok_total, fail_total, remaining):
+    try:
+        state = {}
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE) as f:
+                state = json.load(f)
+        state["last_run"] = datetime.now().isoformat()
+        state["ok_total"] = state.get("ok_total", 0) + ok_total
+        state["fail_total"] = state.get("fail_total", 0) + fail_total
+        state["remaining"] = remaining
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        with open(STATE_FILE, "w") as f:
+            json.dump(state, f, indent=2)
+    except Exception:
+        pass
 
 
 # ══════════════════════════════════════════════════════════
@@ -212,7 +448,6 @@ def classify_pass(conn):
 # ══════════════════════════════════════════════════════════
 
 def get_embedding_service():
-    """Charger le service d'embedding"""
     try:
         from embedding_service import embedding_service
         return embedding_service
@@ -222,28 +457,18 @@ def get_embedding_service():
 
 
 def build_embed_text(row):
-    """Construire le texte pour embedding"""
     parts = []
-    if row.get("titre"):
-        parts.append(row["titre"])
-    if row.get("citation"):
-        parts.append(row["citation"])
-    if row.get("database_id"):
-        parts.append(f"Tribunal: {row['database_id'].upper()}")
-    if row.get("resume"):
-        parts.append(row["resume"])
-    if row.get("mots_cles"):
-        parts.append(" ".join(row["mots_cles"][:20]))
-    if row.get("resultat"):
-        parts.append(f"Resultat: {row['resultat']}")
-    if row.get("province"):
-        parts.append(f"Province: {row['province']}")
-    text = " ".join(parts)
-    return text[:8000]
+    if row.get("titre"): parts.append(row["titre"])
+    if row.get("citation"): parts.append(row["citation"])
+    if row.get("database_id"): parts.append(f"Tribunal: {row['database_id'].upper()}")
+    if row.get("resume"): parts.append(row["resume"])
+    if row.get("mots_cles"): parts.append(" ".join(row["mots_cles"][:20]))
+    if row.get("resultat"): parts.append(f"Resultat: {row['resultat']}")
+    if row.get("province"): parts.append(f"Province: {row['province']}")
+    return " ".join(parts)[:8000]
 
 
 def embedding_pass(conn):
-    """Un pass pour remplir les embeddings manquants"""
     if not EMBEDDING_ENABLED:
         return 0
 
@@ -264,20 +489,13 @@ def embedding_pass(conn):
 
     fixed = 0
     for row in rows:
-        if not running:
-            break
+        if not running: break
         try:
             text = build_embed_text(row)
-            if not text.strip():
-                continue
-
-            # Appel API embedding
+            if not text.strip(): continue
             emb = svc.embed_single(text)
             if emb and len(emb) > 0:
-                cur.execute(
-                    "UPDATE jurisprudence SET embedding = %s::vector WHERE id = %s",
-                    (str(emb), row["id"])
-                )
+                cur.execute("UPDATE jurisprudence SET embedding = %s::vector WHERE id = %s", (str(emb), row["id"]))
                 conn.commit()
                 fixed += 1
                 time.sleep(SLEEP_BETWEEN)
@@ -285,7 +503,6 @@ def embedding_pass(conn):
             conn.rollback()
             log(f"  Embedding erreur id={row['id']}: {e}")
             time.sleep(5)
-
     cur.close()
     return fixed
 
@@ -295,7 +512,6 @@ def embedding_pass(conn):
 # ══════════════════════════════════════════════════════════
 
 def get_stats(conn):
-    """Stats rapides"""
     cur = conn.cursor()
     cur.execute("SELECT count(*) FROM jurisprudence")
     total = cur.fetchone()[0]
@@ -305,8 +521,10 @@ def get_stats(conn):
     no_db = cur.fetchone()[0]
     cur.execute("SELECT count(*) FROM jurisprudence WHERE resultat IS NULL OR resultat = '' OR resultat = 'inconnu'")
     no_res = cur.fetchone()[0]
+    cur.execute("SELECT count(*) FROM jurisprudence WHERE classifie = false")
+    no_class = cur.fetchone()[0]
     cur.close()
-    return {"total": total, "no_embed": no_embed, "no_db_id": no_db, "no_resultat": no_res}
+    return {"total": total, "no_embed": no_embed, "no_db_id": no_db, "no_resultat": no_res, "no_classif": no_class}
 
 
 # ══════════════════════════════════════════════════════════
@@ -315,52 +533,52 @@ def get_stats(conn):
 
 def main():
     log("=" * 60)
-    log("AITICKETINFO CLASSIFIER — Demarrage")
+    log("AITICKETINFO CLASSIFIER v2 — Demarrage")
     log("  Mode: 24/7 continu")
-    log(f"  Sleep entre dossiers: {SLEEP_BETWEEN}s")
-    log(f"  Sleep entre cycles: {SLEEP_CYCLE}s")
     log(f"  Embeddings: {'ON' if EMBEDDING_ENABLED else 'OFF'}")
+    log(f"  Phase 4 IA: {'ON' if PHASE4_ENABLED else 'OFF'} ({PHASE4_BATCH}/cycle)")
+    log(f"  Modeles: {', '.join(m.split('/')[-1] for m in FW_MODELS)}")
+    log(f"  Cycle: {SLEEP_CYCLE}s")
     log("=" * 60)
 
     cycle = 0
+    p4_ok_total = 0
+    p4_fail_total = 0
+
     while running:
         cycle += 1
         try:
             conn = get_conn()
-            stats_before = get_stats(conn)
+            stats = get_stats(conn)
             log(f"\n--- Cycle {cycle} ---")
-            log(f"  DB: {stats_before['total']} total | "
-                f"{stats_before['no_embed']} sans embed | "
-                f"{stats_before['no_db_id']} sans tribunal | "
-                f"{stats_before['no_resultat']} sans resultat")
+            log(f"  DB: {stats['total']} total | {stats['no_embed']} sans embed | "
+                f"{stats['no_db_id']} sans tribunal | {stats['no_resultat']} sans resultat | "
+                f"{stats['no_classif']} non classifies")
 
-            # Classification
-            if stats_before["no_db_id"] > 0 or stats_before["no_resultat"] > 0:
-                log("  Classification...")
+            # 1. Classification simple (mots-cles)
+            if stats["no_db_id"] > 0 or stats["no_resultat"] > 0:
+                log("  Classification mots-cles...")
                 fixed = classify_pass(conn)
                 if any(v > 0 for v in fixed.values()):
                     log(f"  Corriges: db_id={fixed['database_id']}, "
-                        f"resultat={fixed['resultat']}, "
-                        f"traffic={fixed['ticket_related']}")
-                else:
-                    log("  Rien a corriger")
+                        f"resultat={fixed['resultat']}, traffic={fixed['ticket_related']}")
 
-            # Embeddings
-            if stats_before["no_embed"] > 0 and EMBEDDING_ENABLED:
-                log(f"  Embeddings ({stats_before['no_embed']} manquants)...")
+            # 2. Embeddings
+            if stats["no_embed"] > 0 and EMBEDDING_ENABLED:
+                log(f"  Embeddings ({stats['no_embed']} manquants)...")
                 embedded = embedding_pass(conn)
                 if embedded > 0:
                     log(f"  {embedded} embeddings crees")
-                else:
-                    log("  Aucun embedding cree (service indisponible ou erreur)")
-                time.sleep(SLEEP_BATCH)
 
-            # Stats apres
-            stats_after = get_stats(conn)
-            if stats_after != stats_before:
-                log(f"  Apres: {stats_after['no_embed']} sans embed | "
-                    f"{stats_after['no_db_id']} sans tribunal | "
-                    f"{stats_after['no_resultat']} sans resultat")
+            # 3. Phase 4 — Classification IA profonde
+            if stats["no_classif"] > 0 and PHASE4_ENABLED:
+                log(f"  Phase 4 IA ({stats['no_classif']} restants)...")
+                p4_ok, p4_fail = phase4_pass(conn)
+                p4_ok_total += p4_ok
+                p4_fail_total += p4_fail
+                if p4_ok > 0 or p4_fail > 0:
+                    log(f"  Phase4: +{p4_ok} OK, {p4_fail} fail (total: {p4_ok_total} OK)")
+                save_phase4_state(p4_ok, p4_fail, stats["no_classif"] - p4_ok)
 
             conn.close()
 
@@ -368,15 +586,12 @@ def main():
             log(f"  ERREUR cycle {cycle}: {e}")
             time.sleep(30)
 
-        # Attendre avant le prochain cycle
         if running:
-            log(f"  Prochain cycle dans {SLEEP_CYCLE}s...")
             for _ in range(SLEEP_CYCLE):
-                if not running:
-                    break
+                if not running: break
                 time.sleep(1)
 
-    log("\nAITICKETINFO CLASSIFIER — Arret propre")
+    log(f"\nAITICKETINFO CLASSIFIER v2 — Arret propre (Phase4: {p4_ok_total} OK)")
 
 
 if __name__ == "__main__":
