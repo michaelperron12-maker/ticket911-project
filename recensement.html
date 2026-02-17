@@ -195,6 +195,65 @@
         .loading { text-align:center; padding:3rem; color:var(--dim); }
         .empty { text-align:center; padding:2rem; color:var(--muted); font-style:italic; }
 
+        /* === TABS === */
+        .tabs-bar {
+            display:flex; gap:0; margin-bottom:1.5rem; border-bottom:2px solid #334155;
+        }
+        .tab-btn {
+            padding:.7rem 1.5rem; border:none; background:none; color:var(--dim);
+            font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;
+            border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .2s;
+            white-space:nowrap;
+        }
+        .tab-btn:hover { color:var(--text); background:rgba(59,130,246,.05); }
+        .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+        .tab-btn .tab-count {
+            display:inline-block; background:var(--bg3); padding:1px 7px; border-radius:10px;
+            font-size:.7rem; margin-left:.4rem; color:var(--dim);
+        }
+        .tab-btn.active .tab-count { background:rgba(59,130,246,.2); color:var(--accent); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+
+        /* Blitz cards */
+        .blitz-card {
+            background:var(--bg2); border-radius:10px; padding:1rem 1.2rem;
+            border:1px solid #334155; border-left:4px solid var(--red);
+            margin-bottom:.8rem; transition:all .2s;
+        }
+        .blitz-card.medium { border-left-color:var(--orange); }
+        .blitz-card.low { border-left-color:var(--green); }
+        .blitz-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem; }
+        .blitz-title { font-weight:800; font-size:1rem; }
+        .blitz-date { color:var(--cyan); font-size:.85rem; font-weight:600; }
+        .blitz-metrics { display:flex; gap:1.5rem; margin:.6rem 0; flex-wrap:wrap; }
+        .blitz-metric { text-align:center; }
+        .blitz-metric .bm-val { font-weight:900; font-size:1.1rem; font-family:'Courier New',monospace; }
+        .blitz-metric .bm-val.red { color:var(--red); }
+        .blitz-metric .bm-val.orange { color:var(--orange); }
+        .blitz-metric .bm-val.blue { color:var(--accent); }
+        .blitz-metric .bm-lbl { font-size:.65rem; color:var(--muted); text-transform:uppercase; }
+
+        /* Day pattern bars */
+        .dow-chart { display:flex; gap:.4rem; align-items:flex-end; height:160px; margin:1rem 0; }
+        .dow-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; }
+        .dow-bar {
+            width:100%; border-radius:4px 4px 0 0; min-height:4px;
+            background:var(--accent); transition:height .5s ease;
+        }
+        .dow-bar.spike { background:var(--red); }
+        .dow-bar.quiet { background:var(--green); }
+        .dow-label { font-size:.65rem; color:var(--dim); margin-top:.3rem; text-align:center; }
+        .dow-pct { font-size:.7rem; font-weight:700; color:var(--text); margin-bottom:.2rem; }
+
+        /* Pattern card */
+        .pattern-card {
+            background:var(--bg2); border-radius:10px; padding:1rem 1.2rem;
+            border:1px solid #334155; margin-bottom:.8rem;
+        }
+        .pattern-card .pc-title { font-weight:700; font-size:.9rem; margin-bottom:.5rem; }
+        .pattern-card .pc-info { color:var(--dim); font-size:.8rem; line-height:1.5; }
+
         @media(max-width:700px) {
             .stats-row { grid-template-columns:repeat(2,1fr); }
             .db-row { grid-template-columns:1fr; }
@@ -240,37 +299,127 @@
         <div class="db-mini"><span class="db-label">Radars actifs</span><span class="db-val" id="db-radars">—</span></div>
     </div>
 
-    <!-- Types -->
-    <div class="stitle">Anomalies par type <span class="count-tag" id="type-count"></span></div>
-    <div class="types-grid" id="types-grid"></div>
+    <!-- === TABS === -->
+    <div class="tabs-bar">
+        <button class="tab-btn active" onclick="switchTab('anomalies')">Anomalies <span class="tab-count" id="tab-count-anom">—</span></button>
+        <button class="tab-btn" onclick="switchTab('blitz')">Blitz <span class="tab-count" id="tab-count-blitz">—</span></button>
+        <button class="tab-btn" onclick="switchTab('patterns')">Patterns jour/semaine <span class="tab-count" id="tab-count-pat">—</span></button>
+        <button class="tab-btn" onclick="switchTab('ocr')">Tickets scannes <span class="tab-count" id="tab-count-ocr">—</span></button>
+    </div>
 
-    <!-- Search -->
-    <div class="search-box">
-        <h3>Filtrer les anomalies</h3>
-        <div class="search-row">
-            <input type="text" id="inp-lieu" placeholder="Code municipal (ex: 66023)">
-            <input type="text" id="inp-article" placeholder="Article (ex: 463)">
-            <select id="sel-severity">
-                <option value="">Toutes severites</option>
-                <option value="high">Critiques</option>
-                <option value="medium">Moyennes</option>
-                <option value="low">Faibles</option>
-            </select>
-            <select id="sel-type">
-                <option value="">Tous les types</option>
-            </select>
-            <button onclick="loadDetails(1)">Filtrer</button>
-            <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    <!-- ═══ TAB: ANOMALIES ═══ -->
+    <div class="tab-panel active" id="panel-anomalies">
+        <!-- Types -->
+        <div class="stitle">Anomalies par type <span class="count-tag" id="type-count"></span></div>
+        <div class="types-grid" id="types-grid"></div>
+
+        <!-- Search -->
+        <div class="search-box">
+            <h3>Filtrer les anomalies</h3>
+            <div class="search-row">
+                <input type="text" id="inp-lieu" placeholder="Ville ou code (ex: Quebec, 66023)">
+                <input type="text" id="inp-article" placeholder="Article (ex: 463)">
+                <select id="sel-severity">
+                    <option value="">Toutes severites</option>
+                    <option value="high">Critiques</option>
+                    <option value="medium">Moyennes</option>
+                    <option value="low">Faibles</option>
+                </select>
+                <select id="sel-type">
+                    <option value="">Tous les types</option>
+                </select>
+                <button onclick="loadDetails(1)">Filtrer</button>
+                <button class="btn-reset" onclick="resetFilters()">Reset</button>
+            </div>
         </div>
+
+        <!-- Results -->
+        <div class="stitle">Anomalies detectees <span class="count-tag" id="results-count"></span></div>
+        <div class="anomaly-list" id="anomaly-list">
+            <div class="loading">Chargement...</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
     </div>
 
-    <!-- Results -->
-    <div class="stitle">Anomalies detectees <span class="count-tag" id="results-count"></span></div>
-    <div class="anomaly-list" id="anomaly-list">
-        <div class="loading">Chargement...</div>
+    <!-- ═══ TAB: BLITZ ═══ -->
+    <div class="tab-panel" id="panel-blitz">
+        <div class="stitle">Operations blitz detectees <span class="count-tag" id="blitz-results-count"></span></div>
+        <p style="color:var(--dim);font-size:.8rem;margin-bottom:1rem;">
+            Jours ou une municipalite a eu un pic massif de constats (30+ par jour, 3x+ la moyenne).
+            Indicatif d'operations policiere ciblees.
+        </p>
+
+        <!-- Blitz stats -->
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem;">
+            <div class="stat-card high"><div class="num" id="blitz-high">—</div><div class="label">Blitz critiques</div></div>
+            <div class="stat-card med"><div class="num" id="blitz-med">—</div><div class="label">Blitz moyens</div></div>
+            <div class="stat-card low"><div class="num" id="blitz-low">—</div><div class="label">Blitz faibles</div></div>
+            <div class="stat-card total"><div class="num" id="blitz-max">—</div><div class="label">Max constats/jour</div></div>
+        </div>
+
+        <!-- Blitz filter -->
+        <div class="search-box">
+            <div class="search-row">
+                <input type="text" id="blitz-inp-muni" placeholder="Municipalite (ex: Montreal)">
+                <select id="blitz-sel-sev">
+                    <option value="">Toutes severites</option>
+                    <option value="high">Critiques</option>
+                    <option value="medium">Moyens</option>
+                    <option value="low">Faibles</option>
+                </select>
+                <button onclick="loadBlitz(1)">Filtrer</button>
+                <button class="btn-reset" onclick="document.getElementById('blitz-inp-muni').value='';document.getElementById('blitz-sel-sev').value='';loadBlitz(1);">Reset</button>
+            </div>
+        </div>
+
+        <div id="blitz-list"><div class="loading">Cliquez sur l'onglet pour charger...</div></div>
+        <div class="pagination" id="blitz-pagination"></div>
     </div>
 
-    <div class="pagination" id="pagination"></div>
+    <!-- ═══ TAB: PATTERNS ═══ -->
+    <div class="tab-panel" id="panel-patterns">
+        <div class="stitle">Patterns jour de semaine <span class="count-tag" id="pat-results-count"></span></div>
+        <p style="color:var(--dim);font-size:.8rem;margin-bottom:1rem;">
+            Distribution des constats par jour de semaine. Identifie les municipalites ou certains
+            jours concentrent anormalement plus de tickets (z-score &ge; 2.5).
+        </p>
+
+        <!-- Global distribution -->
+        <div class="pattern-card">
+            <div class="pc-title">Distribution provinciale (toutes municipalites)</div>
+            <div class="dow-chart" id="global-dow-chart"></div>
+        </div>
+
+        <!-- Patterns filter -->
+        <div class="search-box" style="margin-top:1rem;">
+            <div class="search-row">
+                <input type="text" id="pat-inp-muni" placeholder="Municipalite (ex: Laval)">
+                <button onclick="loadPatterns(1)">Filtrer</button>
+                <button class="btn-reset" onclick="document.getElementById('pat-inp-muni').value='';loadPatterns(1);">Reset</button>
+            </div>
+        </div>
+
+        <div id="patterns-list"><div class="loading">Cliquez sur l'onglet pour charger...</div></div>
+        <div class="pagination" id="pat-pagination"></div>
+    </div>
+
+    <!-- ═══ TAB: OCR ═══ -->
+    <div class="tab-panel" id="panel-ocr">
+        <div class="stitle">Donnees des tickets scannes (OCR)</div>
+        <p style="color:var(--dim);font-size:.8rem;margin-bottom:1rem;">
+            Au fur et a mesure que les clients scannent leurs tickets, on accumule les donnees:
+            matricule policier, rue exacte, corps de police, appareil de mesure, etc.
+            Ces donnees ne sont PAS dans les fichiers publics du Quebec.
+        </p>
+
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem;">
+            <div class="stat-card total"><div class="num" id="ocr-total">—</div><div class="label">Tickets scannes</div></div>
+            <div class="stat-card high"><div class="num" id="ocr-matricules">—</div><div class="label">Matricules uniques</div></div>
+            <div class="stat-card med"><div class="num" id="ocr-rues">—</div><div class="label">Rues indexees</div></div>
+        </div>
+
+        <div id="ocr-content"><div class="loading">Cliquez sur l'onglet pour charger...</div></div>
+    </div>
 
     <div class="meta-footer" id="meta-footer"></div>
 </div>
@@ -308,6 +457,8 @@ const TYPE_LABELS = {
     'blitz_vacances': 'Blitz vacances',
     'zone_scolaire_hors_heures': 'Zone scolaire',
     'profilage_veil_darkness': 'Profilage racial',
+    'blitz_daily': 'Blitz quotidien',
+    'pattern_jour_semaine': 'Pattern jour semaine',
 };
 
 const TYPE_ICONS = {
@@ -339,6 +490,8 @@ const TYPE_ICONS = {
     'blitz_vacances': '&#127958;',
     'zone_scolaire_hors_heures': '&#127979;',
     'profilage_veil_darkness': '&#128101;',
+    'blitz_daily': '&#128680;',
+    'pattern_jour_semaine': '&#128197;',
 };
 
 let currentTypeFilter = '';
@@ -539,8 +692,307 @@ async function loadDetails(page) {
     }
 }
 
+// ═══ TAB SYSTEM ═══
+let tabsLoaded = { anomalies: false, blitz: false, patterns: false, ocr: false };
+
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+
+    if (!tabsLoaded[name]) {
+        tabsLoaded[name] = true;
+        if (name === 'blitz') loadBlitz(1);
+        else if (name === 'patterns') loadPatterns(1);
+        else if (name === 'ocr') loadOCR();
+    }
+}
+
+// ═══ BLITZ ═══
+async function loadBlitz(page) {
+    const list = document.getElementById('blitz-list');
+    list.innerHTML = '<div class="loading">Chargement des blitz...</div>';
+
+    const params = new URLSearchParams();
+    params.set('page', page);
+    params.set('per_page', 30);
+    const muni = document.getElementById('blitz-inp-muni').value.trim();
+    const sev = document.getElementById('blitz-sel-sev').value;
+    if (muni) params.set('municipality', muni);
+    if (sev) params.set('severity', sev);
+
+    try {
+        const r = await fetch(BASE + '/api/blitz?' + params);
+        const d = await r.json();
+        if (d.error) { list.innerHTML = `<div class="empty">Erreur: ${d.error}</div>`; return; }
+
+        // Stats
+        document.getElementById('tab-count-blitz').textContent = d.total || 0;
+        document.getElementById('blitz-results-count').textContent = d.total + ' blitz';
+        if (d.stats) {
+            document.getElementById('blitz-high').textContent = d.stats.high || 0;
+            document.getElementById('blitz-med').textContent = d.stats.medium || 0;
+            document.getElementById('blitz-low').textContent = d.stats.low || 0;
+            document.getElementById('blitz-max').textContent = d.stats.max_constats ? Math.round(d.stats.max_constats) : '—';
+        }
+
+        if (!d.blitz_events || d.blitz_events.length === 0) {
+            list.innerHTML = '<div class="empty">Aucun blitz detecte. Executez le detecteur blitz_daily d\'abord.</div>';
+            return;
+        }
+
+        list.innerHTML = '';
+        for (const b of d.blitz_events) {
+            const card = document.createElement('div');
+            card.className = `blitz-card ${b.severity}`;
+            const ratio = b.ratio || (b.avg_daily > 0 ? (b.nb_constats / b.avg_daily).toFixed(1) : '?');
+            card.innerHTML = `
+                <div class="blitz-head">
+                    <div>
+                        <div class="blitz-title">${b.nom_municipalite || b.lieu}${b.mrc ? ' <span style="color:var(--dim);font-size:.75rem">(MRC: '+b.mrc+')</span>' : ''}</div>
+                        <div class="blitz-date">${b.date || '—'} — ${b.jour || '—'}</div>
+                    </div>
+                    <div class="anom-meta">
+                        <span class="badge ${b.severity}">${b.severity}</span>
+                        <span class="badge conf">${b.blitz_type || 'standard'}</span>
+                        ${b.consecutive_days > 1 ? '<span class="badge" style="background:rgba(168,85,247,.15);color:var(--purple)">'+b.consecutive_days+' jours</span>' : ''}
+                    </div>
+                </div>
+                <div class="blitz-metrics">
+                    <div class="blitz-metric"><div class="bm-val red">${Math.round(b.nb_constats)}</div><div class="bm-lbl">Constats ce jour</div></div>
+                    <div class="blitz-metric"><div class="bm-val">${b.avg_daily ? b.avg_daily.toFixed(1) : '—'}</div><div class="bm-lbl">Moyenne/jour</div></div>
+                    <div class="blitz-metric"><div class="bm-val orange">${ratio}x</div><div class="bm-lbl">Ratio</div></div>
+                    <div class="blitz-metric"><div class="bm-val blue">${b.z_score ? b.z_score.toFixed(1) : '—'}</div><div class="bm-lbl">Z-Score</div></div>
+                </div>
+                <div class="anom-defense">${b.defense_text || ''}</div>
+            `;
+            list.appendChild(card);
+        }
+
+        // Pagination
+        renderPagination('blitz-pagination', d.page, d.total_pages, loadBlitz);
+
+    } catch(e) {
+        list.innerHTML = `<div class="empty">Erreur: ${e.message}</div>`;
+    }
+}
+
+// ═══ DAY PATTERNS ═══
+const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const JOURS_FULL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+function renderDowChart(containerId, distribution) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    const ordered = JOURS_FULL.map(j => ({
+        jour: j,
+        nb: distribution[j] ? distribution[j].nb : 0,
+        pct: distribution[j] ? distribution[j].pct : 0,
+    }));
+    const maxPct = Math.max(...ordered.map(d => d.pct), 1);
+
+    for (let i = 0; i < ordered.length; i++) {
+        const d = ordered[i];
+        const heightPct = (d.pct / maxPct) * 100;
+        const isSpike = d.pct > 20;
+        const isQuiet = d.pct < 5;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'dow-bar-wrap';
+        wrap.innerHTML = `
+            <div class="dow-pct">${d.pct.toFixed(1)}%</div>
+            <div class="dow-bar ${isSpike ? 'spike' : isQuiet ? 'quiet' : ''}" style="height:${Math.max(heightPct, 3)}%"></div>
+            <div class="dow-label">${JOURS[i]}<br><span style="color:var(--text);font-weight:700">${d.nb.toLocaleString('fr-CA')}</span></div>
+        `;
+        container.appendChild(wrap);
+    }
+}
+
+async function loadPatterns(page) {
+    const list = document.getElementById('patterns-list');
+    list.innerHTML = '<div class="loading">Chargement des patterns...</div>';
+
+    const params = new URLSearchParams();
+    params.set('page', page);
+    params.set('per_page', 20);
+    const muni = document.getElementById('pat-inp-muni').value.trim();
+    if (muni) params.set('municipality', muni);
+
+    try {
+        const r = await fetch(BASE + '/api/day-patterns?' + params);
+        const d = await r.json();
+        if (d.error) { list.innerHTML = `<div class="empty">Erreur: ${d.error}</div>`; return; }
+
+        document.getElementById('tab-count-pat').textContent = d.total || 0;
+        document.getElementById('pat-results-count').textContent = d.total + ' patterns anormaux';
+
+        // Global distribution
+        if (d.global_distribution && Object.keys(d.global_distribution).length > 0) {
+            renderDowChart('global-dow-chart', d.global_distribution);
+        }
+
+        if (!d.patterns || d.patterns.length === 0) {
+            list.innerHTML = '<div class="empty">Aucun pattern anormal detecte. Executez le detecteur jour_semaine d\'abord.</div>';
+            return;
+        }
+
+        list.innerHTML = '';
+        for (const p of d.patterns) {
+            const card = document.createElement('div');
+            card.className = 'pattern-card';
+
+            // Mini chart for this municipality
+            const chartId = 'dow-' + p.id;
+            let distHTML = '';
+            if (p.distribution && Object.keys(p.distribution).length > 0) {
+                distHTML = `<div class="dow-chart" id="${chartId}" style="height:120px;"></div>`;
+            }
+
+            card.innerHTML = `
+                <div class="anom-head">
+                    <div class="pc-title">${p.nom_municipalite || p.lieu}${p.region_admin ? ' <span style="color:var(--dim);font-size:.75rem">('+p.region_admin+')</span>' : ''}</div>
+                    <div class="anom-meta">
+                        <span class="badge ${p.severity}">${p.severity}</span>
+                        <span class="badge ${p.pattern_type === 'spike' ? 'high' : 'low'}">${p.pattern_type === 'spike' ? 'Pic' : 'Creux'}: ${p.jour_pic || '?'}</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;margin:.5rem 0;font-size:.85rem;">
+                    <span>Jour pic: <strong style="color:var(--accent)">${p.jour_pic || '—'}</strong></span>
+                    <span>% observe: <strong style="color:${p.pct_jour_pic > 20 ? 'var(--red)' : 'var(--text)'}">${p.pct_jour_pic.toFixed(1)}%</strong></span>
+                    <span>% attendu: <strong>${p.pct_attendu.toFixed(1)}%</strong></span>
+                    <span>Z-score: <strong style="color:var(--orange)">${p.z_score.toFixed(1)}</strong></span>
+                    <span>Total constats: <strong>${p.total_constats ? p.total_constats.toLocaleString('fr-CA') : '—'}</strong></span>
+                </div>
+                ${distHTML}
+                <div class="anom-defense">${p.defense_text || ''}</div>
+            `;
+            list.appendChild(card);
+
+            // Render mini chart after DOM insertion
+            if (p.distribution && Object.keys(p.distribution).length > 0) {
+                setTimeout(() => {
+                    const el = document.getElementById(chartId);
+                    if (!el) return;
+                    el.innerHTML = '';
+                    const dist = p.distribution;
+                    const vals = JOURS_FULL.map(j => ({
+                        jour: j,
+                        nb: dist[j] ? dist[j].nb : 0,
+                        pct: dist[j] ? dist[j].pct : 0,
+                        z: dist[j] ? dist[j].z : 0,
+                    }));
+                    const maxP = Math.max(...vals.map(v => v.pct), 1);
+                    for (let i = 0; i < vals.length; i++) {
+                        const v = vals[i];
+                        const h = (v.pct / maxP) * 100;
+                        const cls = v.z > 2.5 ? 'spike' : v.z < -2.5 ? 'quiet' : '';
+                        const w = document.createElement('div');
+                        w.className = 'dow-bar-wrap';
+                        w.innerHTML = `
+                            <div class="dow-pct">${v.pct.toFixed(1)}%</div>
+                            <div class="dow-bar ${cls}" style="height:${Math.max(h,3)}%"></div>
+                            <div class="dow-label">${JOURS[i]}</div>
+                        `;
+                        el.appendChild(w);
+                    }
+                }, 10);
+            }
+        }
+
+        renderPagination('pat-pagination', d.page, d.total_pages, loadPatterns);
+
+    } catch(e) {
+        list.innerHTML = `<div class="empty">Erreur: ${e.message}</div>`;
+    }
+}
+
+// ═══ OCR STATS ═══
+async function loadOCR() {
+    const content = document.getElementById('ocr-content');
+    content.innerHTML = '<div class="loading">Chargement...</div>';
+
+    try {
+        const r = await fetch(BASE + '/api/ocr-stats');
+        const d = await r.json();
+
+        document.getElementById('ocr-total').textContent = d.total_scans || 0;
+        document.getElementById('tab-count-ocr').textContent = d.total_scans || 0;
+
+        if (d.total_scans === 0) {
+            document.getElementById('ocr-matricules').textContent = '0';
+            document.getElementById('ocr-rues').textContent = '0';
+            content.innerHTML = `
+                <div class="pattern-card">
+                    <div class="pc-title">En attente de donnees</div>
+                    <div class="pc-info">
+                        ${d.message || 'Aucun ticket scanne encore.'}<br><br>
+                        <strong>Comment ca fonctionne:</strong><br>
+                        1. Un client scanne son ticket via le formulaire<br>
+                        2. Le OCR (Mindee) extrait les champs: matricule, rue, appareil, etc.<br>
+                        3. Les donnees s'accumulent dans <code>tickets_scannes_meta</code><br>
+                        4. Apres 100+ scans, on voit emerger les patterns: quel policier donne le plus, quelles rues sont ciblees, etc.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        document.getElementById('ocr-matricules').textContent = d.top_matricules ? d.top_matricules.length : 0;
+        document.getElementById('ocr-rues').textContent = d.top_rues ? d.top_rues.length : 0;
+
+        let html = '';
+        if (d.top_matricules && d.top_matricules.length > 0) {
+            html += '<div class="stitle">Top matricules policiers</div>';
+            for (const m of d.top_matricules) {
+                html += `<div class="pattern-card"><strong>${m.matricule}</strong> (${m.corps || '?'}) — <span style="color:var(--red);font-weight:800">${m.nb_tickets} tickets</span></div>`;
+            }
+        }
+        if (d.top_rues && d.top_rues.length > 0) {
+            html += '<div class="stitle">Top rues ciblees</div>';
+            for (const rue of d.top_rues) {
+                html += `<div class="pattern-card"><strong>${rue.rue}</strong> (${rue.ville || '?'}) — <span style="color:var(--orange);font-weight:800">${rue.nb_tickets} tickets</span></div>`;
+            }
+        }
+        if (d.top_corps && d.top_corps.length > 0) {
+            html += '<div class="stitle">Par corps policier</div>';
+            for (const c of d.top_corps) {
+                html += `<div class="pattern-card"><strong>${c.corps}</strong> — ${c.nb_tickets} tickets</div>`;
+            }
+        }
+        content.innerHTML = html || '<div class="empty">Donnees en cours d\'accumulation...</div>';
+
+    } catch(e) {
+        content.innerHTML = `<div class="empty">Erreur: ${e.message}</div>`;
+    }
+}
+
+// ═══ PAGINATION HELPER ═══
+function renderPagination(containerId, currentPage, totalPages, loadFn) {
+    const pag = document.getElementById(containerId);
+    pag.innerHTML = '';
+    if (totalPages <= 1) return;
+    for (let p = 1; p <= Math.min(totalPages, 10); p++) {
+        const btn = document.createElement('button');
+        btn.textContent = p;
+        if (p === currentPage) btn.className = 'active';
+        btn.onclick = () => loadFn(p);
+        pag.appendChild(btn);
+    }
+    if (totalPages > 10) {
+        const sp = document.createElement('span');
+        sp.textContent = `... ${totalPages}`;
+        sp.style.cssText = 'color:var(--muted);padding:.4rem';
+        pag.appendChild(sp);
+    }
+}
+
+// ═══ INIT ═══
 loadSummary();
 loadDetails(1);
+tabsLoaded.anomalies = true;
 
 // Navbar scroll effect
 window.addEventListener('scroll',()=>{

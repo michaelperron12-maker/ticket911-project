@@ -2388,6 +2388,309 @@ def detect_profilage_veil(cur, dry_run=False):
 
 
 # ══════════════════════════════════════════════════════════════
+#  AC. BLITZ QUOTIDIEN — Détection de blitz par jour+municipalité
+# ══════════════════════════════════════════════════════════════
+def detect_blitz_daily(cur, dry_run=False):
+    """Détecte les jours avec un pic massif de tickets dans une municipalité.
+    Seuils: >= 30 constats/jour ET >= 3x la moyenne ET z-score >= 2.5
+    Classification: mega (100+), standard (30-99 & 3x avg)
+    """
+    log("Détection: blitz_daily (pic quotidien par municipalité)", "STEP")
+
+    cur.execute("""
+        WITH daily_counts AS (
+            SELECT
+                lieu_infraction,
+                date_infraction,
+                COUNT(*) AS nb,
+                EXTRACT(DOW FROM date_infraction)::int AS dow
+            FROM qc_constats_infraction
+            WHERE date_infraction IS NOT NULL
+                AND lieu_infraction IS NOT NULL AND lieu_infraction != ''
+            GROUP BY lieu_infraction, date_infraction
+        ),
+        lieu_stats AS (
+            SELECT
+                lieu_infraction,
+                AVG(nb) AS avg_daily,
+                STDDEV(nb) AS std_daily,
+                COUNT(*) AS nb_jours_data
+            FROM daily_counts
+            GROUP BY lieu_infraction
+            HAVING COUNT(*) >= 30
+        )
+        SELECT
+            d.lieu_infraction,
+            d.date_infraction,
+            d.nb,
+            d.dow,
+            s.avg_daily,
+            s.std_daily,
+            s.nb_jours_data
+        FROM daily_counts d
+        JOIN lieu_stats s ON s.lieu_infraction = d.lieu_infraction
+        WHERE d.nb >= 30
+            AND d.nb >= s.avg_daily * 3
+        ORDER BY d.lieu_infraction, d.date_infraction
+    """)
+
+    rows = cur.fetchall()
+    if not rows:
+        log("  Aucun blitz détecté", "WARN")
+        return []
+
+    jours_noms = {0: 'Dimanche', 1: 'Lundi', 2: 'Mardi', 3: 'Mercredi',
+                  4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi'}
+
+    # Fetch municipalité names
+    lieux = set(r[0] for r in rows)
+    lieu_noms = {}
+    if lieux:
+        placeholders = ','.join(['%s'] * len(lieux))
+        cur.execute(f"SELECT code_geo, nom_municipalite FROM municipalites_qc WHERE code_geo IN ({placeholders})",
+                    tuple(lieux))
+        lieu_noms = {r[0]: r[1] for r in cur.fetchall()}
+
+    # Group consecutive days for the same municipality (blitz multi-jours)
+    blitz_groups = []
+    current_group = []
+    for row in rows:
+        lieu, dt, nb, dow, avg_d, std_d, nb_jours = row
+        if current_group and (current_group[-1][0] != lieu or
+                              (dt - current_group[-1][1]).days > 1):
+            blitz_groups.append(current_group)
+            current_group = []
+        current_group.append(row)
+    if current_group:
+        blitz_groups.append(current_group)
+
+    anomalies = []
+    blitz_saved = 0
+    blitz_table_rows = []
+
+    for group in blitz_groups:
+        group_id = str(uuid.uuid4())
+        consecutive = len(group)
+
+        for lieu, dt, nb, dow, avg_d, std_d, nb_jours in group:
+            avg_f = float(avg_d)
+            std_f = float(std_d) if std_d else 0
+            ratio = round(nb / avg_f, 1) if avg_f > 0 else 0
+            z = z_score(nb, avg_f, std_f)
+
+            if z < 2.5:
+                continue
+
+            nom = lieu_noms.get(lieu, lieu)
+            jour_nom = jours_noms.get(dow, '?')
+            blitz_type = 'mega' if nb >= 100 else 'standard'
+            if consecutive >= 2:
+                blitz_type = 'multi_day'
+            if dow in (0, 6):
+                blitz_type = 'weekend'
+
+            sev = severity_from_z(z)
+
+            defense = (
+                f"Le {dt} ({jour_nom}) à {nom}, {nb} constats ont été émis en une seule journée — "
+                f"soit {ratio}x la moyenne quotidienne de {avg_f:.1f}. "
+                f"Ce pic massif (z-score={z:.1f}) est indicatif d'une opération blitz policière. "
+            )
+            if consecutive >= 2:
+                defense += f"Cette opération s'est étendue sur {consecutive} jours consécutifs. "
+            defense += (
+                "Argument: intensification ciblée non justifiée par la sécurité routière, "
+                "application sélective contraire aux principes d'équité."
+            )
+
+            anomalies.append({
+                'anomaly_type': 'blitz_daily',
+                'region': lieu, 'article': None,
+                'observed_value': float(nb),
+                'expected_value': round(avg_f, 1),
+                'deviation_pct': round((nb - avg_f) / avg_f * 100, 1) if avg_f > 0 else 0,
+                'z_score': z,
+                'severity': sev,
+                'confidence_level': confidence_from_sample(int(nb_jours)),
+                'defense_text_fr': defense,
+                'legal_reference': 'Charte canadienne, art. 7 et 15 — application sélective et disproportionnée',
+                'sample_size': nb,
+                'computation_details': {
+                    'date': str(dt), 'jour': jour_nom,
+                    'nom_municipalite': nom,
+                    'nb_constats': nb, 'avg_daily': round(avg_f, 2),
+                    'std_daily': round(std_f, 2), 'ratio': ratio,
+                    'blitz_type': blitz_type,
+                    'consecutive_days': consecutive,
+                    'blitz_group_id': group_id,
+                }
+            })
+            blitz_saved += 1
+
+    log(f"  → {blitz_saved} blitz quotidiens détectés ({len(blitz_groups)} groupes)", "OK")
+    return anomalies
+
+
+# ══════════════════════════════════════════════════════════════
+#  AD. PATTERN JOUR DE SEMAINE — Distribution par municipalité
+# ══════════════════════════════════════════════════════════════
+def detect_pattern_jour_semaine(cur, dry_run=False):
+    """Détecte les municipalités avec une distribution jour de semaine anormale.
+    Compare chaque jour vs distribution attendue uniforme (14.29%).
+    Identifie les pics (enforcement concentré) et creux (relâche).
+    """
+    log("Détection: pattern_jour_semaine (distribution hebdomadaire)", "STEP")
+
+    cur.execute("""
+        WITH jour_counts AS (
+            SELECT
+                lieu_infraction,
+                EXTRACT(DOW FROM date_infraction)::int AS dow,
+                COUNT(*) AS nb
+            FROM qc_constats_infraction
+            WHERE date_infraction IS NOT NULL
+                AND lieu_infraction IS NOT NULL AND lieu_infraction != ''
+            GROUP BY lieu_infraction, dow
+        ),
+        lieu_totals AS (
+            SELECT lieu_infraction, SUM(nb) AS total
+            FROM jour_counts
+            GROUP BY lieu_infraction
+            HAVING SUM(nb) >= 200
+        )
+        SELECT
+            j.lieu_infraction,
+            j.dow,
+            j.nb,
+            t.total,
+            ROUND(j.nb::numeric / t.total * 100, 2) AS pct
+        FROM jour_counts j
+        JOIN lieu_totals t ON t.lieu_infraction = j.lieu_infraction
+        ORDER BY j.lieu_infraction, j.dow
+    """)
+
+    rows = cur.fetchall()
+    if not rows:
+        log("  Aucune donnée suffisante", "WARN")
+        return []
+
+    jours_noms = {0: 'Dimanche', 1: 'Lundi', 2: 'Mardi', 3: 'Mercredi',
+                  4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi'}
+
+    # Group by municipality
+    lieu_data = {}
+    for lieu, dow, nb, total, pct in rows:
+        if lieu not in lieu_data:
+            lieu_data[lieu] = {'total': int(total), 'jours': {}}
+        lieu_data[lieu]['jours'][int(dow)] = {'nb': int(nb), 'pct': float(pct)}
+
+    # Fetch municipalité names
+    lieux = list(lieu_data.keys())
+    lieu_noms = {}
+    if lieux:
+        placeholders = ','.join(['%s'] * len(lieux))
+        cur.execute(f"SELECT code_geo, nom_municipalite FROM municipalites_qc WHERE code_geo IN ({placeholders})",
+                    tuple(lieux))
+        lieu_noms = {r[0]: r[1] for r in cur.fetchall()}
+
+    # Expected: uniform = 14.29% per day
+    expected_pct = 100.0 / 7  # 14.29%
+
+    # Collect all pct values per dow across municipalities for z-score
+    all_pcts = {d: [] for d in range(7)}
+    for lieu, data in lieu_data.items():
+        for dow in range(7):
+            if dow in data['jours']:
+                all_pcts[dow].append(data['jours'][dow]['pct'])
+
+    # Mean and std per dow across all municipalities
+    dow_stats = {}
+    for dow in range(7):
+        vals = all_pcts[dow]
+        if vals:
+            m = sum(vals) / len(vals)
+            s = math.sqrt(sum((v - m) ** 2 for v in vals) / len(vals)) if len(vals) > 1 else 0
+            dow_stats[dow] = (m, s)
+        else:
+            dow_stats[dow] = (expected_pct, 1)
+
+    anomalies = []
+    for lieu, data in lieu_data.items():
+        total = data['total']
+        nom = lieu_noms.get(lieu, lieu)
+
+        # Find the most extreme day
+        max_z = 0
+        max_dow = None
+        max_pct = 0
+        jour_details = {}
+
+        for dow in range(7):
+            if dow not in data['jours']:
+                continue
+            pct = data['jours'][dow]['pct']
+            nb = data['jours'][dow]['nb']
+            mean_dow, std_dow = dow_stats[dow]
+            z = z_score(pct, mean_dow, std_dow)
+            jour_details[dow] = {'nb': nb, 'pct': pct, 'z': z}
+
+            if abs(z) > abs(max_z):
+                max_z = z
+                max_dow = dow
+                max_pct = pct
+
+        # Only flag if the most extreme day has z >= 2.5
+        if max_dow is None or abs(max_z) < 2.5:
+            continue
+
+        jour_nom = jours_noms.get(max_dow, '?')
+        is_spike = max_z > 0
+        pattern_type = 'spike' if is_spike else 'quiet'
+
+        if is_spike:
+            defense = (
+                f"À {nom}, le {jour_nom} concentre {max_pct:.1f}% des constats "
+                f"(attendu: {expected_pct:.1f}%, z-score={max_z:.1f}). "
+                f"Cette surreprésentation systématique du {jour_nom} sur {total:,} constats "
+                f"suggère un pattern d'enforcement ciblé. "
+                f"Argument: quotas ou opérations planifiées ciblant un jour précis."
+            )
+        else:
+            defense = (
+                f"À {nom}, le {jour_nom} ne représente que {max_pct:.1f}% des constats "
+                f"(attendu: {expected_pct:.1f}%, z-score={max_z:.1f}). "
+                f"Ce creux anormal suggère un relâchement volontaire de l'enforcement."
+            )
+
+        anomalies.append({
+            'anomaly_type': 'pattern_jour_semaine',
+            'region': lieu, 'article': None,
+            'observed_value': round(max_pct, 1),
+            'expected_value': round(expected_pct, 1),
+            'deviation_pct': round(max_pct - expected_pct, 1),
+            'z_score': max_z,
+            'severity': severity_from_z(max_z),
+            'confidence_level': confidence_from_sample(total),
+            'defense_text_fr': defense,
+            'legal_reference': 'Charte canadienne, art. 7 et 15 — traitement équitable',
+            'sample_size': total,
+            'computation_details': {
+                'nom_municipalite': nom,
+                'jour_pic': jour_nom,
+                'pattern_type': pattern_type,
+                'distribution': {jours_noms[d]: {
+                    'nb': jour_details[d]['nb'],
+                    'pct': jour_details[d]['pct'],
+                    'z': jour_details[d]['z']
+                } for d in jour_details}
+            }
+        })
+
+    log(f"  → {len(anomalies)} patterns jour de semaine anormaux", "OK")
+    return anomalies
+
+
+# ══════════════════════════════════════════════════════════════
 #  RUNNER PRINCIPAL
 # ══════════════════════════════════════════════════════════════
 
@@ -2422,6 +2725,9 @@ DETECTORS = {
     'blitz': ('blitz_vacances', detect_blitz_vacances),
     'scolaire': ('zone_scolaire_hors_heures', detect_zone_scolaire),
     'profil': ('profilage_veil_darkness', detect_profilage_veil),
+    # ── Détecteurs v4 (granulaire) ──
+    'blitz_daily': ('blitz_daily', detect_blitz_daily),
+    'jour_semaine': ('pattern_jour_semaine', detect_pattern_jour_semaine),
 }
 
 

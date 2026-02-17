@@ -2554,6 +2554,270 @@ def api_recensement_details():
         return jsonify({"error": str(e)}), 500
 
 
+# ══════════════════════════════════════════════════════════════
+#  BLITZ — Événements de blitz policiers détectés
+# ══════════════════════════════════════════════════════════════
+@app.route("/api/blitz")
+def api_blitz():
+    """Retourne les blitz quotidiens détectés (anomaly_type = blitz_daily)."""
+    municipality = request.args.get("municipality")
+    severity = request.args.get("severity")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 50))
+    offset = (page - 1) * per_page
+
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        conditions = ["r.is_active = TRUE", "r.anomaly_type = 'blitz_daily'"]
+        params = []
+        if municipality:
+            conditions.append("(r.region = %s OR m.nom_municipalite ILIKE %s)")
+            params.extend([municipality, f"%{municipality}%"])
+        if severity:
+            conditions.append("r.severity = %s")
+            params.append(severity)
+
+        where = " AND ".join(conditions)
+
+        # Count
+        cur.execute(f"""
+            SELECT COUNT(*) FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE {where}
+        """, params)
+        total = cur.fetchone()[0]
+
+        # Stats
+        cur.execute(f"""
+            SELECT
+                COUNT(*) FILTER (WHERE r.severity = 'high') AS high,
+                COUNT(*) FILTER (WHERE r.severity = 'medium') AS medium,
+                COUNT(*) FILTER (WHERE r.severity = 'low') AS low,
+                AVG(r.observed_value) AS avg_constats,
+                MAX(r.observed_value) AS max_constats,
+                AVG(r.z_score) AS avg_z
+            FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE {where}
+        """, params)
+        stats = cur.fetchone()
+
+        # Blitz events
+        cur.execute(f"""
+            SELECT r.id, r.region, r.observed_value, r.expected_value,
+                   r.deviation_pct, r.z_score, r.severity, r.defense_text_fr,
+                   r.computation_details, r.sample_size, r.created_at,
+                   m.nom_municipalite, m.mrc, m.region_admin
+            FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE {where}
+            ORDER BY r.observed_value DESC
+            LIMIT %s OFFSET %s
+        """, params + [per_page, offset])
+
+        events = []
+        for row in cur.fetchall():
+            details = row[8] if row[8] else {}
+            events.append({
+                "id": row[0], "lieu": row[1],
+                "nb_constats": float(row[2]) if row[2] else 0,
+                "avg_daily": float(row[3]) if row[3] else 0,
+                "deviation_pct": float(row[4]) if row[4] else 0,
+                "z_score": float(row[5]) if row[5] else 0,
+                "severity": row[6],
+                "defense_text": row[7],
+                "date": details.get("date"),
+                "jour": details.get("jour"),
+                "nom_municipalite": row[11] or details.get("nom_municipalite", row[1]),
+                "mrc": row[12], "region_admin": row[13],
+                "ratio": details.get("ratio", 0),
+                "blitz_type": details.get("blitz_type", "standard"),
+                "consecutive_days": details.get("consecutive_days", 1),
+                "blitz_group_id": details.get("blitz_group_id"),
+            })
+
+        conn.close()
+        return jsonify({
+            "total": total,
+            "stats": {
+                "high": stats[0] or 0, "medium": stats[1] or 0, "low": stats[2] or 0,
+                "avg_constats": round(float(stats[3]), 1) if stats[3] else 0,
+                "max_constats": float(stats[4]) if stats[4] else 0,
+                "avg_z_score": round(float(stats[5]), 1) if stats[5] else 0,
+            },
+            "blitz_events": events,
+            "page": page, "per_page": per_page,
+            "total_pages": (total + per_page - 1) // per_page if total > 0 else 0,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ══════════════════════════════════════════════════════════════
+#  DAY PATTERNS — Distribution jour de semaine par municipalité
+# ══════════════════════════════════════════════════════════════
+@app.route("/api/day-patterns")
+def api_day_patterns():
+    """Retourne les patterns jour de semaine anormaux (anomaly_type = pattern_jour_semaine)."""
+    municipality = request.args.get("municipality")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 50))
+    offset = (page - 1) * per_page
+
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        conditions = ["r.is_active = TRUE", "r.anomaly_type = 'pattern_jour_semaine'"]
+        params = []
+        if municipality:
+            conditions.append("(r.region = %s OR m.nom_municipalite ILIKE %s)")
+            params.extend([municipality, f"%{municipality}%"])
+
+        where = " AND ".join(conditions)
+
+        cur.execute(f"""
+            SELECT COUNT(*) FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE {where}
+        """, params)
+        total = cur.fetchone()[0]
+
+        cur.execute(f"""
+            SELECT r.id, r.region, r.observed_value, r.expected_value,
+                   r.deviation_pct, r.z_score, r.severity, r.defense_text_fr,
+                   r.computation_details, r.sample_size, r.created_at,
+                   m.nom_municipalite, m.region_admin
+            FROM recensement_stats r
+            LEFT JOIN municipalites_qc m ON m.code_geo = r.region
+            WHERE {where}
+            ORDER BY ABS(r.z_score) DESC
+            LIMIT %s OFFSET %s
+        """, params + [per_page, offset])
+
+        patterns = []
+        for row in cur.fetchall():
+            details = row[8] if row[8] else {}
+            patterns.append({
+                "id": row[0], "lieu": row[1],
+                "nom_municipalite": row[11] or row[1],
+                "region_admin": row[12],
+                "jour_pic": details.get("jour_pic"),
+                "pattern_type": details.get("pattern_type"),
+                "pct_jour_pic": float(row[2]) if row[2] else 0,
+                "pct_attendu": float(row[3]) if row[3] else 14.29,
+                "z_score": float(row[5]) if row[5] else 0,
+                "severity": row[6],
+                "defense_text": row[7],
+                "total_constats": row[9],
+                "distribution": details.get("distribution", {}),
+            })
+
+        # Global day-of-week distribution (province-wide)
+        cur.execute("""
+            SELECT EXTRACT(DOW FROM date_infraction)::int AS dow, COUNT(*) AS nb
+            FROM qc_constats_infraction
+            WHERE date_infraction IS NOT NULL
+            GROUP BY dow ORDER BY dow
+        """)
+        global_dow = {}
+        jours = {0: 'Dimanche', 1: 'Lundi', 2: 'Mardi', 3: 'Mercredi',
+                 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi'}
+        total_global = 0
+        for dow, nb in cur.fetchall():
+            global_dow[jours[dow]] = nb
+            total_global += nb
+
+        conn.close()
+        return jsonify({
+            "total": total,
+            "patterns": patterns,
+            "global_distribution": {k: {"nb": v, "pct": round(v / total_global * 100, 2)} for k, v in global_dow.items()} if total_global > 0 else {},
+            "page": page, "per_page": per_page,
+            "total_pages": (total + per_page - 1) // per_page if total > 0 else 0,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ══════════════════════════════════════════════════════════════
+#  OCR STATS — Statistiques des tickets scannés (matricules, rues, etc.)
+# ══════════════════════════════════════════════════════════════
+@app.route("/api/ocr-stats")
+def api_ocr_stats():
+    """Retourne les stats agrégées des tickets scannés par les clients (matricule, rue, etc.)."""
+    try:
+        conn = psycopg2.connect(**PG_CONFIG)
+        cur = conn.cursor()
+
+        # Check if table exists
+        cur.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'tickets_scannes_meta'
+            )
+        """)
+        if not cur.fetchone()[0]:
+            conn.close()
+            return jsonify({
+                "total_scans": 0,
+                "message": "Table tickets_scannes_meta pas encore créée. Exécuter la migration.",
+                "top_matricules": [], "top_rues": [], "top_corps": [],
+            })
+
+        cur.execute("SELECT COUNT(*) FROM tickets_scannes_meta")
+        total = cur.fetchone()[0]
+
+        if total == 0:
+            conn.close()
+            return jsonify({
+                "total_scans": 0,
+                "message": "Aucun ticket scanné encore. Les données s'accumulent au fil des scans clients.",
+                "top_matricules": [], "top_rues": [], "top_corps": [],
+            })
+
+        # Top matricules
+        cur.execute("""
+            SELECT matricule_policier, corps_policier, COUNT(*) AS nb
+            FROM tickets_scannes_meta
+            WHERE matricule_policier IS NOT NULL AND matricule_policier != ''
+            GROUP BY matricule_policier, corps_policier
+            ORDER BY nb DESC LIMIT 20
+        """)
+        top_mat = [{"matricule": r[0], "corps": r[1], "nb_tickets": r[2]} for r in cur.fetchall()]
+
+        # Top rues
+        cur.execute("""
+            SELECT rue_exacte, ville, COUNT(*) AS nb
+            FROM tickets_scannes_meta
+            WHERE rue_exacte IS NOT NULL AND rue_exacte != ''
+            GROUP BY rue_exacte, ville
+            ORDER BY nb DESC LIMIT 20
+        """)
+        top_rues = [{"rue": r[0], "ville": r[1], "nb_tickets": r[2]} for r in cur.fetchall()]
+
+        # Top corps policiers
+        cur.execute("""
+            SELECT corps_policier, COUNT(*) AS nb
+            FROM tickets_scannes_meta
+            WHERE corps_policier IS NOT NULL AND corps_policier != ''
+            GROUP BY corps_policier
+            ORDER BY nb DESC LIMIT 10
+        """)
+        top_corps = [{"corps": r[0], "nb_tickets": r[1]} for r in cur.fetchall()]
+
+        conn.close()
+        return jsonify({
+            "total_scans": total,
+            "top_matricules": top_mat,
+            "top_rues": top_rues,
+            "top_corps": top_corps,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # Init auth tables + routes
 if _auth_available:

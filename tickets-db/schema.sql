@@ -614,3 +614,45 @@ LEFT JOIN (
     GROUP BY municipalite, route
 ) s ON s.municipalite = r.municipalite AND s.route = r.route
 ORDER BY total_constats DESC;
+
+-- ══════════════════════════════════════════════════════════════
+-- Table : métadonnées OCR des tickets scannés par les clients
+-- ══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS tickets_scannes_meta (
+    id SERIAL PRIMARY KEY,
+    dossier_uuid UUID NOT NULL,
+    matricule_policier VARCHAR(50),
+    corps_policier VARCHAR(100),
+    poste_police VARCHAR(100),
+    rue_exacte VARCHAR(500),
+    ville VARCHAR(200),
+    code_postal VARCHAR(10),
+    numero_constat VARCHAR(50),
+    article VARCHAR(50),
+    loi VARCHAR(200),
+    date_infraction DATE,
+    heure_infraction TIME,
+    appareil_type VARCHAR(100),
+    appareil_serie VARCHAR(100),
+    plaque VARCHAR(20),
+    type_vehicule VARCHAR(100),
+    montant_amende NUMERIC(10,2),
+    points_inaptitude INTEGER,
+    vitesse_captee INTEGER,
+    vitesse_permise INTEGER,
+    zone_scolaire BOOLEAN DEFAULT FALSE,
+    zone_construction BOOLEAN DEFAULT FALSE,
+    conditions_meteo VARCHAR(200),
+    confiance_ocr NUMERIC(5,2),
+    champs_extraits JSONB,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_tsm_dossier ON tickets_scannes_meta(dossier_uuid);
+CREATE INDEX IF NOT EXISTS idx_tsm_matricule ON tickets_scannes_meta(matricule_policier);
+CREATE INDEX IF NOT EXISTS idx_tsm_rue ON tickets_scannes_meta(rue_exacte);
+CREATE INDEX IF NOT EXISTS idx_tsm_ville ON tickets_scannes_meta(ville);
+CREATE INDEX IF NOT EXISTS idx_tsm_corps ON tickets_scannes_meta(corps_policier);
+CREATE INDEX IF NOT EXISTS idx_tsm_date ON tickets_scannes_meta(date_infraction);
+CREATE INDEX IF NOT EXISTS idx_tsm_constat ON tickets_scannes_meta(numero_constat);
