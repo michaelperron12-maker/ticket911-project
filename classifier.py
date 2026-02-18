@@ -42,11 +42,11 @@ PG_CONFIG = {
 
 LOG_FILE = "/var/www/aiticketinfo/logs/classifier.log"
 STATE_FILE = "/var/www/aiticketinfo/db/classifier_phase4_state.json"
-SLEEP_BETWEEN = 1        # secondes entre chaque dossier
-SLEEP_BATCH = 5          # secondes entre chaque batch
-SLEEP_CYCLE = 60         # secondes entre chaque cycle complet
+SLEEP_BETWEEN = 0.5      # secondes entre chaque dossier (etait 1)
+SLEEP_BATCH = 3          # secondes entre chaque batch (etait 5)
+SLEEP_CYCLE = 20         # secondes entre chaque cycle complet (etait 60)
 BATCH_SIZE = 50          # dossiers par batch embedding
-PHASE4_BATCH = 10        # dossiers par cycle Phase 4 IA
+PHASE4_BATCH = 30        # dossiers par cycle Phase 4 IA (etait 10)
 EMBEDDING_ENABLED = True
 PHASE4_ENABLED = True    # Classification IA profonde
 
@@ -59,6 +59,11 @@ FW_MODELS = [
     "accounts/fireworks/models/minimax-m2p1",       # #3 fallback
 ]
 FW_TIMEOUT = 20.0
+
+# Groq API — fallback gratuit si Fireworks fail (ne pas surutiliser)
+GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # Phase 4 prompt
 PHASE4_PROMPT = '''Analyse cette decision judiciaire quebecoise/canadienne.
@@ -277,6 +282,22 @@ def call_fireworks(texte):
         except Exception:
             pass
         time.sleep(0.5)
+    # Fallback Groq (gratuit) si tous les modeles Fireworks ont fail
+    if GROQ_KEY:
+        try:
+            resp = httpx.post(GROQ_URL,
+                headers={"Authorization": f"Bearer {GROQ_KEY}", "Content-Type": "application/json"},
+                json={"model": GROQ_MODEL,
+                      "messages": [{"role": "user", "content": PHASE4_PROMPT.format(texte=texte)}],
+                      "temperature": 0.0, "max_tokens": 600},
+                timeout=httpx.Timeout(15.0, connect=8.0))
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"]
+                result = extract_json(content)
+                if result:
+                    return result
+        except Exception:
+            pass
     return None
 
 

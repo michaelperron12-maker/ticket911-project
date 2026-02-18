@@ -1,6 +1,6 @@
 """
 Base Agent — Classe parente pour tous les agents AITicketInfo
-Stack multi-moteurs Fireworks AI — 12 modeles optimises par role
+Stack multi-providers: Fireworks + Groq + SambaNova + Cerebras
 PostgreSQL backend (tickets_qc_on)
 """
 
@@ -34,10 +34,27 @@ PG_CONFIG = {
 }
 
 # ═══════════════════════════════════════════════════════════
+# API KEYS — Tous les providers
+# ═══════════════════════════════════════════════════════════
+FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+SAMBANOVA_API_KEY = os.environ.get("SAMBANOVA_API_KEY", "")
+CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY", "")
+
+# ═══════════════════════════════════════════════════════════
+# PROVIDERS — Config OpenAI-compatible (base_url + api_key)
+# ═══════════════════════════════════════════════════════════
+PROVIDER_CONFIG = {
+    "fireworks": {"base_url": "https://api.fireworks.ai/inference/v1", "api_key": FIREWORKS_API_KEY},
+    "groq":      {"base_url": "https://api.groq.com/openai/v1",       "api_key": GROQ_API_KEY},
+    "sambanova": {"base_url": "https://api.sambanova.ai/v1",          "api_key": SAMBANOVA_API_KEY},
+    "cerebras":  {"base_url": "https://api.cerebras.ai/v1",           "api_key": CEREBRAS_API_KEY},
+}
+
+# ═══════════════════════════════════════════════════════════
 # FIREWORKS AI — STACK MODELES (mis a jour 17 fev 2026)
 # Teste: 8 stables, 5 morts (GLM-5, DeepSeek-R1, Mixtral, Qwen3-235B, Qwen3-Small)
 # ═══════════════════════════════════════════════════════════
-FIREWORKS_API_KEY = os.environ.get("FIREWORKS_API_KEY", "")
 
 # --- TIER 1: Flagships (raisonnement juridique profond) ---
 DEEPSEEK_V3 = "accounts/fireworks/models/deepseek-v3p2"        # #1 — 685B, 128K ctx, rapide+intelligent, $0.56/$1.68
@@ -67,6 +84,41 @@ QWEN_VL = "accounts/fireworks/models/qwen3-vl-235b-a22b-instruct"  # Vision + te
 KIMI_K2 = KIMI_K25                                              # Compatibilite ancien code
 DEEPSEEK_MODEL = DEEPSEEK_V3                                    # Compatibilite ancien code
 COGITO = KIMI_THINK                                              # Alias retire
+
+# ═══════════════════════════════════════════════════════════
+# GROQ — Inference ultra-rapide (no thinking, ~500 t/s)
+# ═══════════════════════════════════════════════════════════
+GROQ_LLAMA70B = "llama-3.3-70b-versatile"                       # 70B, 128K ctx, 113 t/s, GRATUIT
+GROQ_LLAMA8B = "llama-3.1-8b-instant"                           # 8B, 536 t/s, ultra-rapide, GRATUIT
+GROQ_MIXTRAL = GROQ_LLAMA70B                                    # MORT (decommissioned 2026) → redirige vers Llama 70B
+
+# ═══════════════════════════════════════════════════════════
+# SAMBANOVA — Inference rapide (Llama + DeepSeek)
+# ═══════════════════════════════════════════════════════════
+SAMBA_LLAMA70B = "Meta-Llama-3.3-70B-Instruct"                  # 70B, rapide
+SAMBA_DEEPSEEK = "DeepSeek-V3-0324"                              # DeepSeek sur SambaNova
+
+# ═══════════════════════════════════════════════════════════
+# CEREBRAS — Inference rapide (~2000 t/s)
+# ═══════════════════════════════════════════════════════════
+CEREBRAS_LLAMA8B = "llama3.1-8b"                                 # 8B, ultra-rapide
+
+# ═══════════════════════════════════════════════════════════
+# MODEL → PROVIDER MAPPING (auto-routing)
+# ═══════════════════════════════════════════════════════════
+MODEL_PROVIDER = {}
+# Fireworks — tous les modeles avec prefix "accounts/fireworks/"
+for _m in [DEEPSEEK_V3, KIMI_K25, MINIMAX, KIMI_THINK, GLM4, LLAMA3, GPT_OSS_LARGE, GPT_OSS_SMALL, QWEN_VL]:
+    MODEL_PROVIDER[_m] = "fireworks"
+# Groq
+for _m in [GROQ_LLAMA70B, GROQ_LLAMA8B, GROQ_MIXTRAL]:
+    MODEL_PROVIDER[_m] = "groq"
+# SambaNova
+for _m in [SAMBA_LLAMA70B, SAMBA_DEEPSEEK]:
+    MODEL_PROVIDER[_m] = "sambanova"
+# Cerebras
+for _m in [CEREBRAS_LLAMA8B]:
+    MODEL_PROVIDER[_m] = "cerebras"
 
 _PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(_PROJECT_DIR, "data")
@@ -172,15 +224,40 @@ class CanLIIRateLimiter:
 
 
 class BaseAgent:
-    """Classe de base pour tous les agents AITicketInfo — PostgreSQL backend"""
+    """Classe de base pour tous les agents AITicketInfo — Multi-provider backend"""
+
+    # Clients caches par provider (shared entre instances pour economiser RAM)
+    _clients = {}
+    _clients_lock = threading.Lock()
 
     def __init__(self, name):
         self.name = name
-        self.client = OpenAI(
-            api_key=FIREWORKS_API_KEY,
-            base_url="https://api.fireworks.ai/inference/v1",
-            timeout=30.0  # 30s max par requete — evite blocage si modele down
-        )
+        # Client par defaut (Fireworks — compatibilite)
+        self.client = self._get_provider_client("fireworks")
+
+    @classmethod
+    def _get_provider_client(cls, provider):
+        """Retourne un client OpenAI pour le provider (cache thread-safe)"""
+        with cls._clients_lock:
+            if provider not in cls._clients:
+                config = PROVIDER_CONFIG.get(provider, PROVIDER_CONFIG["fireworks"])
+                if not config["api_key"]:
+                    return None
+                cls._clients[provider] = OpenAI(
+                    api_key=config["api_key"],
+                    base_url=config["base_url"],
+                    timeout=30.0
+                )
+            return cls._clients[provider]
+
+    def _resolve_client(self, model):
+        """Trouve le bon client OpenAI pour un modele donne"""
+        provider = MODEL_PROVIDER.get(model, "fireworks")
+        client = self._get_provider_client(provider)
+        if client:
+            return client
+        # Fallback: si le provider n'a pas de cle, utiliser Fireworks
+        return self.client
 
     def get_db(self):
         """Retourne une connexion PostgreSQL."""
@@ -201,13 +278,15 @@ class BaseAgent:
         except Exception as e:
             print(f"  [!] log_run error: {e}")
 
-    # Cascade de fallback: 8 modeles stables, tous testes 17 fev 2026
-    # DeepSeek V3 → Kimi K2.5 → MiniMax → Kimi Think → GLM4 → Llama3 → GPT-OSS 120B → GPT-OSS 20B
+    # Cascade de fallback: multi-provider (18 fev 2026)
+    # Rapide (Groq/Samba/Cerebras) → Fireworks (raisonnement profond)
     FALLBACK_CHAIN = [DEEPSEEK_V3, KIMI_K25, MINIMAX, KIMI_THINK, GLM4, LLAMA3, GPT_OSS_LARGE, GPT_OSS_SMALL]
+    FAST_FALLBACK_CHAIN = [GROQ_LLAMA70B, SAMBA_LLAMA70B, SAMBA_DEEPSEEK, CEREBRAS_LLAMA8B, GROQ_LLAMA8B]
 
     def call_ai(self, prompt, system_prompt="", model=None, temperature=0.1, max_tokens=2000):
-        """Appel AI via Fireworks — multi-moteurs avec fallback en cascade"""
+        """Appel AI multi-provider — routing auto vers Fireworks/Groq/SambaNova/Cerebras"""
         model = model or DEEPSEEK_V3
+        client = self._resolve_client(model)
         start = time.time()
         try:
             messages = []
@@ -215,7 +294,7 @@ class BaseAgent:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
 
-            response = self.client.chat.completions.create(
+            response = client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
@@ -227,27 +306,38 @@ class BaseAgent:
                 raise ValueError("Model returned empty response")
             tokens = response.usage.total_tokens if response.usage else 0
             duration = time.time() - start
+            provider = MODEL_PROVIDER.get(model, "fireworks")
 
-            return {"text": text, "tokens": tokens, "duration": duration, "success": True, "model": model}
+            return {"text": text, "tokens": tokens, "duration": duration, "success": True, "model": model, "provider": provider}
         except Exception as e:
             duration = time.time() - start
+            model_short = model.split('/')[-1] if '/' in model else model
             # Fallback en cascade: essayer le prochain modele disponible
+            # D'abord chercher dans la chain du meme type
+            chain = self.FAST_FALLBACK_CHAIN if model in self.FAST_FALLBACK_CHAIN else self.FALLBACK_CHAIN
             try:
-                idx = self.FALLBACK_CHAIN.index(model)
-                if idx + 1 < len(self.FALLBACK_CHAIN):
-                    next_model = self.FALLBACK_CHAIN[idx + 1]
-                    self.log(f"Fallback {model.split('/')[-1]} → {next_model.split('/')[-1]}", "WARN")
+                idx = chain.index(model)
+                if idx + 1 < len(chain):
+                    next_model = chain[idx + 1]
+                    next_short = next_model.split('/')[-1] if '/' in next_model else next_model
+                    self.log(f"Fallback {model_short} → {next_short}", "WARN")
                     return self.call_ai(prompt, system_prompt, model=next_model, temperature=temperature, max_tokens=max_tokens)
             except ValueError:
-                # model pas dans la chain — essayer DeepSeek V3 comme fallback general
-                if model != DEEPSEEK_V3:
-                    self.log(f"Fallback {model.split('/')[-1]} → deepseek-v3", "WARN")
-                    return self.call_ai(prompt, system_prompt, model=DEEPSEEK_V3, temperature=temperature, max_tokens=max_tokens)
+                pass
+            # Fallback cross-provider: rapide → Fireworks ou Fireworks → rapide
+            if model not in self.FALLBACK_CHAIN and model != DEEPSEEK_V3:
+                self.log(f"Fallback {model_short} → deepseek-v3 (cross-provider)", "WARN")
+                return self.call_ai(prompt, system_prompt, model=DEEPSEEK_V3, temperature=temperature, max_tokens=max_tokens)
+            elif model in self.FALLBACK_CHAIN and GROQ_API_KEY:
+                # Fireworks epuise → essayer Groq
+                self.log(f"Fallback {model_short} → groq-llama70b (cross-provider)", "WARN")
+                return self.call_ai(prompt, system_prompt, model=GROQ_LLAMA70B, temperature=temperature, max_tokens=max_tokens)
             return {"text": "", "tokens": 0, "duration": duration, "success": False, "error": str(e)}
 
     def call_ai_vision(self, prompt, image_path=None, image_base64=None, system_prompt="", model=None, temperature=0.1, max_tokens=2000):
         """Appel AI Vision via Qwen3-VL — analyse d'images"""
         model = model or QWEN_VL
+        client = self._resolve_client(model)
         start = time.time()
         try:
             # Encoder l'image si chemin fourni
@@ -273,7 +363,7 @@ class BaseAgent:
                 ]
             })
 
-            response = self.client.chat.completions.create(
+            response = client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,

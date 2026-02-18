@@ -5,7 +5,7 @@ Jargon juridique, citations, references legales completes
 
 import time
 import json
-from agents.base_agent import BaseAgent, GLM5
+from agents.base_agent import BaseAgent, SAMBA_LLAMA70B
 
 
 class AgentRapportAvocat(BaseAgent):
@@ -119,9 +119,9 @@ Score: {score}% | Confiance verification: {confiance}
     "note_confidentielle": "observations internes"
 }}"""
 
-        # Choisir le moteur selon la juridiction
+        # SambaNova Llama 70B — rapide, gratuit, no thinking
         jur = ticket.get("juridiction", "QC")
-        model = GLM5
+        model = SAMBA_LLAMA70B
         lang = "Francais" if jur == "QC" else "English"
 
         response = self.call_ai(prompt,

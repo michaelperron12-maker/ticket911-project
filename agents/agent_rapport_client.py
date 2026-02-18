@@ -5,7 +5,7 @@ Pas de jargon juridique, comprehensible par tout le monde
 
 import time
 import json
-from agents.base_agent import BaseAgent, GLM5
+from agents.base_agent import BaseAgent, GROQ_LLAMA70B
 
 
 class AgentRapportClient(BaseAgent):
@@ -90,9 +90,9 @@ REPONDS EN JSON:
     "economie": "combien le client peut economiser"
 }}"""
 
-        # GLM-5 pour tous — meilleur modele, low hallucination
+        # Groq Llama 70B — rapide, gratuit, no thinking
         jur = ticket.get("juridiction", "QC")
-        model = GLM5
+        model = GROQ_LLAMA70B
         lang = "Francais" if jur == "QC" else "English"
 
         response = self.call_ai(prompt,

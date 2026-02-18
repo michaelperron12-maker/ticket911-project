@@ -2,7 +2,7 @@
 Agent 1: LECTEUR — Parse et structure les donnees du ticket
 """
 
-from agents.base_agent import BaseAgent, GPT_OSS_SMALL
+from agents.base_agent import BaseAgent, GROQ_LLAMA8B
 
 
 class AgentLecteur(BaseAgent):
@@ -46,7 +46,7 @@ TICKET:
 {ticket_input}"""
 
         response = self.call_ai(prompt, system_prompt="Extrais les donnees structurees. JSON uniquement.",
-                                model=GPT_OSS_SMALL, temperature=0.05, max_tokens=1000)
+                                model=GROQ_LLAMA8B, temperature=0.05, max_tokens=1000)
         duration = __import__('time').time() - start_time
 
         if response["success"]:

@@ -6,7 +6,7 @@ Extrait faits, contradictions, elements de defense
 
 import time
 import json
-from agents.base_agent import BaseAgent, GLM5
+from agents.base_agent import BaseAgent, SAMBA_DEEPSEEK
 
 
 class AgentTemoignage(BaseAgent):
@@ -76,7 +76,7 @@ REPONDS EN JSON:
 
         response = self.call_ai(prompt,
                                 system_prompt="Analyse juridique de temoignage. Extrais les faits et arguments de defense. Objectif et factuel. JSON uniquement.",
-                                model=GLM5, temperature=0.1, max_tokens=2000)
+                                model=SAMBA_DEEPSEEK, temperature=0.1, max_tokens=2000)
 
         duration = time.time() - start
 
