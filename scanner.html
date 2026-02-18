@@ -2102,7 +2102,7 @@ function showResults(data){
     setTimeout(()=>{
         document.getElementById('pipelineSection').style.display='none';
         document.getElementById('resultsSection').style.display='block';
-        const score=data.score_final||0;
+        const score=data.score||data.score_final||0;
         const circumference=2*Math.PI*70;
         const offset=circumference-(score/100*circumference);
         const fill=document.getElementById('scoreRingFill');
@@ -2115,7 +2115,11 @@ function showResults(data){
         if(reco.includes('contester')){rb.textContent='CONTESTER \u2014 Bonnes chances';rb.className='reco-box reco-contester';}
         else if(reco.includes('negocier')){rb.textContent='NEGOCIER \u2014 Reduction possible';rb.className='reco-box reco-negocier';}
         else{rb.textContent='PAYER \u2014 Faibles chances';rb.className='reco-box reco-payer';}
-        document.getElementById('resultDetails').innerHTML=[['Dossier','#'+(data.dossier_uuid||'?')],['Juridiction',data.juridiction||'?'],['Confiance',(data.confiance||0)+'%'],['Qualite',((data.supervision||{}).score_qualite||'?')+'%'],['Temps',Math.round(data.temps_total||0)+'s'],['Erreurs',data.nb_erreurs||0]].map(([l,v])=>'<div class="result-row"><span class="result-label">'+l+'</span><span class="result-value">'+v+'</span></div>').join('');
+        var detailRows=[['Dossier','#'+(data.dossier_uuid||'?')],['Juridiction',data.juridiction||'?']];
+        if(data.taux_acquittement_reel)detailRows.push(['Taux acquittement historique',data.taux_acquittement_reel+'% ('+(data.nb_cas_historiques||'?')+' cas reels)']);
+        if(data.type_infraction_detecte)detailRows.push(['Type infraction',data.type_infraction_detecte.replace(/_/g,' ')]);
+        detailRows.push(['Confiance',(data.confiance||0)+'%'],['Qualite',((data.supervision||{}).score_qualite||'?')+'%'],['Temps',Math.round(data.temps||data.temps_total||0)+'s'],['Erreurs',data.erreurs||data.nb_erreurs||0]);
+        document.getElementById('resultDetails').innerHTML=detailRows.map(([l,v])=>'<div class="result-row"><span class="result-label">'+l+'</span><span class="result-value">'+v+'</span></div>').join('');
         const args=(data.arguments)||[];
         document.getElementById('argsList').innerHTML=args.length?args.map((a,i)=>'<li style="animation-delay:'+i*.1+'s">'+a+'</li>').join(''):'<li>Consultez un avocat pour une analyse approfondie</li>';
         const rc=data.rapport_client||{};

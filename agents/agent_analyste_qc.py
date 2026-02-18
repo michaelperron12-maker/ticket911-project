@@ -13,6 +13,25 @@ from agents.base_agent import BaseAgent, GLM5
 
 class AgentAnalysteQC(BaseAgent):
 
+    # ═══ TAUX D'ACQUITTEMENT REELS PAR TYPE D'INFRACTION ═══
+    # Source: jurisprudence QC (10,440+ cas avec resultat connu)
+    # Mis a jour: 2026-02-17 — recalculer periodiquement
+    TAUX_ACQUITTEMENT_REEL = {
+        "exces_vitesse":        {"taux": 60.0, "nb_cas": 407, "acquittes": 244},
+        "stop":                 {"taux": 57.3, "nb_cas": 96,  "acquittes": 55},
+        "stationnement":        {"taux": 48.6, "nb_cas": 35,  "acquittes": 17},
+        "depassement":          {"taux": 48.1, "nb_cas": 27,  "acquittes": 13},
+        "cellulaire":           {"taux": 46.3, "nb_cas": 54,  "acquittes": 25},
+        "feu_rouge":            {"taux": 43.2, "nb_cas": 139, "acquittes": 60},
+        "virage":               {"taux": 43.2, "nb_cas": 139, "acquittes": 60},
+        "ceinture":             {"taux": 41.3, "nb_cas": 46,  "acquittes": 19},
+        "autre_csr":            {"taux": 39.6, "nb_cas": 1302,"acquittes": 515},
+        "alcool_drogue":        {"taux": 35.6, "nb_cas": 511, "acquittes": 182},
+        "conduite_dangereuse":  {"taux": 26.7, "nb_cas": 247, "acquittes": 66},
+    }
+    # Taux global si type non identifie
+    TAUX_GLOBAL = 37.2  # 3889 acquittes / 10440 avec resultat
+
     # Taux d'acquittement connus par vecteur de defense (base sur jurisprudence reelle)
     VECTEURS_ACQUITTEMENT = {
         "cinematometre": {
@@ -264,9 +283,14 @@ Score pre-calcule: {pre_score['score_base']}%
 Vecteurs detectes:
 {chr(10).join(f"- {v['nom']}: +{v['boost']}% — {v['raison']}" for v in pre_score['vecteurs'])}
 
-IMPORTANT: Le score_contestation final doit TENIR COMPTE du pre-score ({pre_score['score_base']}%)
-et des statistiques d'acquittement ({stats_precedents['pct_acquittes']}%).
-Si le pre-score est >= 50, le score final ne devrait PAS etre en dessous de 45.
+## STATISTIQUES HISTORIQUES REELLES (jurisprudence QC)
+- Type infraction detecte: {pre_score.get('type_infraction', 'autre_csr')}
+- Taux acquittement historique: {pre_score.get('taux_reel', self.TAUX_GLOBAL)}% (sur {pre_score.get('nb_cas', 0)} cas reels)
+- Ce taux represente le pourcentage REEL de cas similaires acquittes en cour municipale QC.
+
+IMPORTANT: Le score_contestation final doit TENIR COMPTE du taux acquittement reel ({pre_score.get('taux_reel', self.TAUX_GLOBAL)}%),
+du pre-score ({pre_score['score_base']}%) et des statistiques des precedents trouves ({stats_precedents['pct_acquittes']}%).
+Si le taux historique est eleve (>50%), le score ne devrait PAS etre sous 40.
 Si des vecteurs de defense forts sont detectes, le score devrait refleter ces opportunites.
 
 ## CONTEXTE ENVIRONNEMENTAL
@@ -329,12 +353,16 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
                 except (ValueError, TypeError):
                     llm_score = pre_score['score_base']
 
-            # Le score final est la moyenne ponderee du pre-score et du score LLM
-            # Pre-score (40%) + LLM (60%) — le LLM peut ajuster mais pas ignorer les vecteurs
-            final_score = int(pre_score['score_base'] * 0.4 + llm_score * 0.6)
+            # V5: Score final = moyenne ponderee de 3 composantes
+            # Taux reel (25%) + Pre-score vecteurs (30%) + LLM (45%)
+            taux_reel = pre_score.get('taux_reel', self.TAUX_GLOBAL)
+            final_score = int(taux_reel * 0.25 + pre_score['score_base'] * 0.30 + llm_score * 0.45)
             analyse["score_contestation"] = final_score
             analyse["score_pre_calcule"] = pre_score['score_base']
             analyse["score_llm"] = llm_score
+            analyse["taux_acquittement_reel"] = taux_reel
+            analyse["type_infraction_detecte"] = pre_score.get('type_infraction', 'autre_csr')
+            analyse["nb_cas_historiques"] = pre_score.get('nb_cas', 0)
             analyse["vecteurs_defense"] = [v['nom'] for v in pre_score['vecteurs']]
 
             if not precedents:
@@ -351,8 +379,8 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             else:
                 analyse["recommandation"] = "payer"
 
-            self.log(f"Score QC: {final_score}% (pre:{pre_score['score_base']}% llm:{llm_score}%) | "
-                     f"Grand exces: {analyse.get('grand_exces', '?')}", "OK")
+            self.log(f"Score QC: {final_score}% (reel:{taux_reel}% pre:{pre_score['score_base']}% llm:{llm_score}%) | "
+                     f"Type: {pre_score.get('type_infraction', '?')} | Grand exces: {analyse.get('grand_exces', '?')}", "OK")
             self.log_run("analyser_qc", f"QC {ticket.get('infraction', '')}",
                          f"Score={final_score}%",
                          tokens=response["tokens"], duration=time.time()-start)
@@ -362,12 +390,63 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             self.log_run("analyser_qc", "", "", duration=duration, success=False, error=response.get("error"))
             return None
 
+    def _detecter_type_infraction(self, ticket):
+        """Detecter le type d'infraction pour lookup des stats reelles"""
+        infraction = (ticket.get("infraction", "") or "").lower()
+        loi = (ticket.get("loi", "") or "").lower()
+        appareil = (ticket.get("appareil", "") or "").lower()
+
+        # Ordre de priorite: le plus specifique d'abord
+        if any(w in infraction for w in ["conduite dangereuse", "course", "303.2"]):
+            return "conduite_dangereuse"
+        if any(w in infraction for w in ["alcool", "drogue", "faculte affaiblie", "alcootest", "ivresse"]):
+            return "alcool_drogue"
+        if any(w in infraction for w in ["vitesse", "excès", "exces", "km/h"]) or "cinematometre" in appareil or "radar" in appareil:
+            return "exces_vitesse"
+        if any(w in infraction for w in ["cellulaire", "telephone", "téléphone", "443.1"]) or "443" in loi:
+            return "cellulaire"
+        if any(w in infraction for w in ["feu rouge", "feu", "359"]) or "359" in loi:
+            return "feu_rouge"
+        if any(w in infraction for w in ["arret", "arrêt", "stop", "panneau d'arret"]):
+            return "stop"
+        if any(w in infraction for w in ["ceinture", "396"]) or "396" in loi:
+            return "ceinture"
+        if any(w in infraction for w in ["stationnement", "parcage", "parking"]):
+            return "stationnement"
+        if any(w in infraction for w in ["depassement", "dépassement"]):
+            return "depassement"
+        if any(w in infraction for w in ["virage"]):
+            return "virage"
+        return "autre_csr"
+
     def _pre_scoring(self, ticket, precedents):
         """Pre-scoring deterministe base sur les vecteurs de defense detectes
-        V4: Vecteurs etendus (non-vitesse) + penalite grand exces renforcee"""
-        score = 25  # Score de base pour tout ticket
+        V5: Stats reelles d'acquittement + vecteurs etendus + penalite grand exces"""
+        # ═══ NOUVEAU: Score de base = taux acquittement reel par type ═══
+        type_inf = self._detecter_type_infraction(ticket)
+        stats_reelles = self.TAUX_ACQUITTEMENT_REEL.get(type_inf)
+        if stats_reelles:
+            taux_reel = stats_reelles["taux"]
+            nb_cas = stats_reelles["nb_cas"]
+        else:
+            taux_reel = self.TAUX_GLOBAL
+            nb_cas = 10440
+
+        # Base: melange entre taux reel et base fixe (eviter scores trop extremes)
+        # 70% taux reel + 30% base fixe (25)
+        score = int(taux_reel * 0.7 + 25 * 0.3)
         vecteurs = []
         grand_exces = False
+
+        # Ajouter le vecteur statistique comme premier element
+        vecteurs.append({
+            "nom": "stats_reelles",
+            "boost": score - 25,
+            "raison": f"Taux acquittement historique {type_inf}: {taux_reel}% (base sur {nb_cas} cas reels)",
+            "taux_reel": taux_reel,
+            "type_infraction": type_inf,
+            "nb_cas": nb_cas
+        })
 
         infraction = (ticket.get("infraction", "") or "").lower()
         appareil = (ticket.get("appareil", "") or "").lower()
@@ -798,8 +877,9 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
                 score -= 20
                 vecteurs.append({"nom": "arret_rejete", "boost": -20, "raison": "Requete en arret des procedures rejetee par le tribunal"})
 
-        # Fix #58: si vitesse + aucun vecteur de defense = preuve solide
-        if not vecteurs and any(w in infraction for w in ["vitesse", "exces", "Exces"]):
+        # Fix #58: si vitesse + aucun vecteur de defense (sauf stats_reelles) = preuve solide
+        real_vecteurs = [v for v in vecteurs if v["nom"] != "stats_reelles"]
+        if not real_vecteurs and any(w in infraction for w in ["vitesse", "exces", "Exces"]):
             score -= 5
             vecteurs.append({"nom": "vitesse_sans_defense", "boost": -5,
                             "raison": "Exces de vitesse sans aucun moyen de defense identifie"})
@@ -811,7 +891,10 @@ IMPORTANT: Ajuste le score_contestation selon ton analyse juridique, mais garde-
             "score_base": score,
             "vecteurs": vecteurs,
             "grand_exces": grand_exces,
-            "exces_kmh": exces
+            "exces_kmh": exces,
+            "taux_reel": taux_reel,
+            "type_infraction": type_inf,
+            "nb_cas": nb_cas
         }
 
     def _analyser_precedents_stats(self, precedents):
