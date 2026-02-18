@@ -400,13 +400,43 @@ class ChatbotAccueil:
                 "total_etapes": 6,
                 "phase": "photo",
                 "type": "photo_ticket",
-                "options": [],
+                "options": ["Pas de photo / Entrer manuellement"] if langue == "fr" else ["No photo / Enter manually"],
                 "champ": "ticket_photo",
                 "session_id": session_id
             }
 
         # ─── PHASE 1: PHOTO SCANNEE (donnees OCR recues) ───
         if etape_num == 1:
+            # Option: pas de photo — entrer manuellement
+            skip_words = ["pas de photo", "no photo", "skip", "passer", "manuel",
+                          "manual", "aucune", "entrer manuellement", "enter manually",
+                          "je n'ai pas", "j'ai pas"]
+            if any(w in reponse_user.lower() for w in skip_words):
+                self._maj_session(session_id, 3, donnees)
+                if langue == "fr":
+                    msg = ("Pas de probleme! On va entrer les informations manuellement.\n\n"
+                           "Quel est le type d'infraction?\n"
+                           "(ex: exces de vitesse, feu rouge, arret obligatoire, cellulaire, stationnement)")
+                else:
+                    msg = ("No problem! We'll enter the information manually.\n\n"
+                           "What is the type of offence?")
+                self._sauvegarder_message(session_id, "bot", msg, 3)
+                donnees["_mode_manuel"] = True
+                donnees["_questions_queue"] = ["type_infraction", "lieu", "date_infraction",
+                                                "conditions_meteo", "contestation_motif", "preuves"]
+                self._maj_session(session_id, 3, donnees)
+                return {
+                    "message": msg,
+                    "etape": 3,
+                    "total_etapes": 6,
+                    "phase": "questions",
+                    "type": "choix",
+                    "options": ["Exces de vitesse", "Feu rouge", "Arret obligatoire",
+                                "Cellulaire au volant", "Stationnement", "Autre"],
+                    "champ": "type_infraction",
+                    "session_id": session_id
+                }
+
             # Les donnees OCR arrivent en JSON depuis le frontend
             try:
                 ocr_data = json.loads(reponse_user)
@@ -495,6 +525,22 @@ class ChatbotAccueil:
 
         # ─── PHASE 3+: QUESTIONS DYNAMIQUES ───
         if etape_num >= 3:
+            # Detecter si l'utilisateur veut arreter les questions
+            stop_words = ["rien", "non", "pas d'info", "pas plus", "je sais pas",
+                          "je ne sais pas", "aucune idee", "c'est tout", "c est tout",
+                          "terminer", "finir", "passer", "skip", "done", "nothing",
+                          "no more", "that's all", "thats all", "next", "analyser",
+                          "lancer", "go", "resultat"]
+            reponse_lower = reponse_user.lower().strip()
+            if any(w in reponse_lower for w in stop_words) and len(reponse_lower) < 40:
+                # Sauvegarder et terminer directement
+                queue = donnees.get("_questions_queue", [])
+                if queue:
+                    queue.pop(0)
+                donnees["_questions_queue"] = []
+                self._maj_session(session_id, etape_num + 1, donnees)
+                return self._terminer(session_id, donnees, langue)
+
             # Sauvegarder la reponse
             queue = donnees.get("_questions_queue", [])
             if queue:
@@ -750,8 +796,7 @@ class ChatbotAccueil:
                 continue
             # Fusionner si meme role que le precedent
             if messages and messages[-1]["role"] == role:
-                messages[-1]["content"] += "
-" + content
+                messages[-1]["content"] += "\n" + content
             else:
                 messages.append({"role": role, "content": content})
 
