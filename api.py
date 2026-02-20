@@ -2258,10 +2258,26 @@ def chatbot_page():
 
 
 
-# ─── RECENSEMENT DASHBOARD PAGE ────────────────
+# ─── PAGES HTML STATIQUES ────────────────
 @app.route("/recensement")
 def recensement_page():
     return send_from_directory(".", "recensement.html")
+
+@app.route("/presentation")
+def presentation_page():
+    return send_from_directory(".", "presentation-aiticketinfo.html")
+
+@app.route("/resume-apis")
+def resume_apis_page():
+    return send_from_directory(".", "resume-apis-agents-aiticketinfo.html")
+
+@app.route("/plan-execution")
+def plan_execution_page():
+    return send_from_directory(".", "plan-execution-interne-aiticketinfo.html")
+
+@app.route("/email-pitch")
+def email_pitch_page():
+    return send_from_directory(".", "email-pitch-aiticketinfo.html")
 
 
 # ─── RECENSEMENT DES STATS (anomalies pre-calculees) ───
