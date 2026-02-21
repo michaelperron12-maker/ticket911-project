@@ -1,1269 +1,596 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AITicketInfo — Recherche d'information juridique</title>
 <style>
+/* ===== CSS VARIABLES ===== */
 :root {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --card2: #334155;
-    --accent: #3b82f6;
-    --accent2: #2563eb;
-    --green: #22c55e;
-    --yellow: #eab308;
-    --red: #ef4444;
-    --text: #e2e8f0;
-    --dim: #94a3b8;
-    --border: #334155;
-    --bot-bg: #1e3a5f;
-    --user-bg: #2563eb;
+  --bg:#f0f4f8;--card:#ffffff;--card-alt:#f8fafc;--accent:#1e3a5f;--accent-light:#2a4f7f;
+  --accent-btn:#2563eb;--accent-btn2:#1d4ed8;
+  --red:#e63946;--gold:#d4a843;--green:#16a34a;--yellow:#ca8a04;--orange:#ea580c;
+  --purple:#7c3aed;--cyan:#0891b2;
+  --text:#1e293b;--text2:#334155;--dim:#64748b;--muted:#94a3b8;
+  --border:#e2e8f0;--border-light:#f1f5f9;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --sidebar-w:240px;--topbar-h:56px;
+  --bot-bg:rgba(30,58,95,.06);--bot-border:rgba(30,58,95,.12);--bot-text:var(--text);
+  --user-bg:#2563eb;--user-text:#ffffff;
+  --sys-bg:rgba(22,163,74,.06);--sys-border:rgba(22,163,74,.2);--sys-text:#16a34a;
+}
+[data-theme="dark"] {
+  --bg:#0b1120;--card:#1e293b;--card-alt:#162032;
+  --text:#e2e8f0;--text2:#cbd5e1;--dim:#94a3b8;--muted:#64748b;
+  --border:#334155;--border-light:#1e293b;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 2px 8px rgba(0,0,0,.2);
+  --bot-bg:#1e3a5f;--bot-border:#2a4f7f;--bot-text:#e2e8f0;
+  --sys-bg:rgba(34,197,94,.1);--sys-border:rgba(34,197,94,.3);--sys-text:#86efac;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ─── HEADER ─── */
-.header {
-    background: rgba(15, 23, 42, 0.95);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    backdrop-filter: blur(8px);
-}
-
-.header h1 {
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.header h1 span { color: var(--accent); }
-
-.header .lang-toggle {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-/* ─── PROGRESS BAR ─── */
-.progress-container {
-    padding: 12px 24px;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-}
-
-.progress-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--dim);
-    margin-bottom: 6px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: var(--card2);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--green));
-    border-radius: 3px;
-    transition: width 0.5s ease;
-    width: 0%;
-}
-
-/* ─── CHAT AREA ─── */
-.chat-container {
-    flex: 1;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.message {
-    max-width: 80%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.5;
-    animation: fadeIn 0.3s ease;
-    white-space: pre-line;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.message.bot {
-    align-self: flex-start;
-    background: var(--bot-bg);
-    border-bottom-left-radius: 4px;
-}
-
-.message.user {
-    align-self: flex-end;
-    background: var(--user-bg);
-    border-bottom-right-radius: 4px;
-}
-
-.message.system {
-    align-self: center;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #86efac;
-    font-size: 13px;
-    text-align: center;
-    max-width: 90%;
-}
-
-.typing-indicator {
-    align-self: flex-start;
-    padding: 12px 16px;
-    background: var(--bot-bg);
-    border-radius: 16px;
-    border-bottom-left-radius: 4px;
-    display: none;
-}
-
-.typing-indicator span {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--dim);
-    border-radius: 50%;
-    margin: 0 2px;
-    animation: typing 1.2s infinite;
-}
-
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
-}
-
-/* ─── OPTIONS (boutons de choix) ─── */
-.options-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 0;
-    align-self: flex-start;
-    max-width: 80%;
-}
-
-.option-btn {
-    background: var(--card);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.option-btn:hover {
-    background: var(--accent);
-    color: white;
-}
-
-.option-btn.selected {
-    background: var(--accent);
-    color: white;
-}
-
-/* Multi-select checkboxes */
-.multi-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-}
-
-.multi-option:hover { border-color: var(--accent); }
-
-.multi-option.checked {
-    border-color: var(--accent);
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.multi-option input { accent-color: var(--accent); }
-
-.multi-submit {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-.multi-submit:hover { background: var(--accent2); }
-
-/* ─── INPUT AREA ─── */
-.input-container {
-    padding: 16px 24px;
-    background: var(--card);
-    border-top: 1px solid var(--border);
-}
-
-.input-row {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    gap: 10px;
-}
-
-.input-row input, .input-row textarea {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    resize: none;
-}
-
-.input-row input:focus, .input-row textarea:focus {
-    border-color: var(--accent);
-}
-
-.input-row textarea { min-height: 44px; max-height: 120px; }
-
-.send-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.send-btn:hover { background: var(--accent2); }
-.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.skip-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--dim);
-    padding: 12px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.skip-btn:hover { border-color: var(--dim); color: var(--text); }
-
-/* ─── SCORE DISPLAY ─── */
-.score-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin: 16px 0;
-    align-self: center;
-    width: 100%;
-    max-width: 600px;
-}
-
-.score-big {
-    text-align: center;
-    font-size: 48px;
-    font-weight: 900;
-    margin: 10px 0;
-}
-
-.score-big.high { color: var(--green); }
-.score-big.mid { color: var(--yellow); }
-.score-big.low { color: var(--red); }
-
-.score-label {
-    text-align: center;
-    font-size: 14px;
-    color: var(--dim);
-}
-
-.factor-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 13px;
-}
-
-.factor-row:last-child { border: none; }
-.factor-name { color: var(--dim); }
-.factor-score { font-weight: 700; }
-.factor-weight { color: var(--dim); font-size: 11px; }
-
-/* ─── SCANNER INLINE ─── */
-.scan-zone {
-    background: var(--card);
-    border: 2px dashed var(--accent);
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    max-width: 80%;
-    align-self: flex-start;
-    animation: fadeIn 0.3s ease;
-}
-
-.scan-zone.dragging {
-    border-color: var(--green);
-    background: rgba(34, 197, 94, 0.05);
-}
-
-.scan-btns {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 14px;
-    flex-wrap: wrap;
-}
-
-.scan-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.scan-btn:hover { background: var(--accent2); }
-
-.scan-btn.secondary {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    color: var(--text);
-}
-
-.scan-btn.secondary:hover { border-color: var(--accent); }
-
-.scan-preview {
-    margin-top: 14px;
-    position: relative;
-    display: inline-block;
-}
-
-.scan-preview img {
-    max-width: 250px;
-    max-height: 180px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
-
-.scan-preview .remove-img {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-}
-
-.scan-progress {
-    margin-top: 14px;
-    display: none;
-}
-
-.scan-progress-bar {
-    width: 100%;
-    height: 8px;
-    background: var(--card2);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.scan-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--green));
-    border-radius: 4px;
-    width: 0%;
-    transition: width 0.3s;
-    animation: scanPulse 1.5s infinite;
-}
-
-@keyframes scanPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-.scan-status {
-    font-size: 12px;
-    color: var(--dim);
-    margin-top: 6px;
-}
-
-.ocr-result {
-    background: rgba(34, 197, 94, 0.08);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    border-radius: 12px;
-    padding: 16px;
-    max-width: 80%;
-    align-self: flex-start;
-    animation: fadeIn 0.3s ease;
-    font-size: 13px;
-}
-
-.ocr-result h3 {
-    color: var(--green);
-    font-size: 14px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.ocr-field {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
-.ocr-field:last-child { border: none; }
-.ocr-field-key { color: var(--dim); }
-.ocr-field-val { color: white; font-weight: 600; }
-
-/* ─── DISCLAIMER ─── */
-.disclaimer {
-    text-align: center;
-    font-size: 11px;
-    color: var(--dim);
-    padding: 12px 24px;
-    border-top: 1px solid var(--border);
-    background: rgba(15, 23, 42, 0.8);
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 768px) {
-    .message { max-width: 90%; }
-    .options-container { max-width: 90%; }
-    .scan-zone { max-width: 95%; }
-    .ocr-result { max-width: 95%; }
-    .chat-container { padding: 12px; }
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+a{text-decoration:none;color:inherit;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--border-light);}
+::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:#0f172a;z-index:200;display:flex;flex-direction:column;transition:transform .3s ease;overflow-y:auto;overflow-x:hidden;}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar-logo h1{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.5px;}
+.sidebar-logo h1 em{color:var(--gold);font-style:normal;}
+.sidebar-logo .sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.sidebar-nav{padding:12px 0;flex:1;}
+.sidebar-group-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:16px 20px 6px;}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);transition:all .15s;cursor:pointer;border-left:3px solid transparent;}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,.05);}
+.sidebar-link.active{color:var(--gold);background:rgba(212,168,67,.08);border-left-color:var(--gold);}
+.sidebar-link svg{width:18px;height:18px;opacity:.6;flex-shrink:0;}.sidebar-link.active svg{opacity:1;}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.06);margin:8px 16px;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);}
+.sidebar-status{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px rgba(74,222,128,.4)}50%{opacity:.4;box-shadow:0 0 2px rgba(74,222,128,.1)}}
+.theme-toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;padding:6px 0;transition:color .15s;}
+.theme-toggle:hover{color:rgba(255,255,255,.8);}
+.theme-toggle-track{width:36px;height:20px;background:rgba(255,255,255,.15);border-radius:10px;position:relative;transition:background .2s;}
+.theme-toggle-thumb{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s;}
+[data-theme="dark"] .theme-toggle-thumb{transform:translateX(16px);}
+[data-theme="dark"] .theme-toggle-track{background:var(--gold);}
+
+/* ===== HAMBURGER ===== */
+.hamburger{display:none;position:fixed;top:10px;left:10px;z-index:300;width:40px;height:40px;background:#0f172a;border:none;border-radius:10px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.hamburger span{width:18px;height:2px;background:#fff;border-radius:1px;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190;}
+
+/* ===== MAIN CONTENT ===== */
+.main-content{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;transition:margin-left .3s;}
+
+/* ===== TOP BAR ===== */
+.top-bar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;transition:background .3s,border-color .3s;}
+.top-bar-left{display:flex;align-items:center;gap:12px;}
+.top-bar-title{font-size:15px;font-weight:700;color:var(--text);}
+.lang-toggle{background:var(--card-alt);border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.lang-toggle:hover{border-color:var(--accent);}
+
+/* ===== LEGAL BANNER ===== */
+.legal-banner{background:rgba(212,168,67,.06);border-bottom:1px solid rgba(212,168,67,.15);padding:8px 24px;text-align:center;font-size:11px;color:var(--yellow);flex-shrink:0;line-height:1.5;}
+.legal-banner a{color:var(--accent-btn);text-decoration:underline;}
+
+/* ===== PROGRESS BAR ===== */
+.progress-container{padding:10px 24px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;transition:background .3s;}
+.progress-info{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:5px;}
+.progress-bar{width:100%;height:5px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-btn),var(--green));border-radius:3px;transition:width .5s ease;width:0%;}
+
+/* ===== CHAT AREA ===== */
+.chat-container{flex:1;max-width:800px;width:100%;margin:0 auto;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.message{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.5;animation:fadeIn .3s ease;white-space:pre-line;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.message.bot{align-self:flex-start;background:var(--bot-bg);border:1px solid var(--bot-border);color:var(--bot-text);border-bottom-left-radius:4px;}
+.message.user{align-self:flex-end;background:var(--user-bg);color:var(--user-text);border-bottom-right-radius:4px;}
+.message.system{align-self:center;background:var(--sys-bg);border:1px solid var(--sys-border);color:var(--sys-text);font-size:13px;text-align:center;max-width:90%;}
+.typing-indicator{align-self:flex-start;padding:12px 16px;background:var(--bot-bg);border:1px solid var(--bot-border);border-radius:16px;border-bottom-left-radius:4px;display:none;}
+.typing-indicator span{display:inline-block;width:8px;height:8px;background:var(--muted);border-radius:50%;margin:0 2px;animation:typing 1.2s infinite;}
+.typing-indicator span:nth-child(2){animation-delay:.2s;}
+.typing-indicator span:nth-child(3){animation-delay:.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+
+/* ===== OPTIONS ===== */
+.options-container{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;align-self:flex-start;max-width:80%;}
+.option-btn{background:var(--card);border:1px solid var(--accent-btn);color:var(--accent-btn);padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;}
+.option-btn:hover,.option-btn.selected{background:var(--accent-btn);color:#fff;}
+.multi-option{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s;}
+.multi-option:hover{border-color:var(--accent-btn);}
+.multi-option.checked{border-color:var(--accent-btn);background:rgba(37,99,235,.06);}
+[data-theme="dark"] .multi-option.checked{background:rgba(37,99,235,.2);}
+.multi-option input{accent-color:var(--accent-btn);}
+.multi-submit{background:var(--accent-btn);color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;margin-top:8px;transition:all .2s;}
+.multi-submit:hover{background:var(--accent-btn2);}
+
+/* ===== INPUT AREA ===== */
+.input-container{padding:16px 24px;background:var(--card);border-top:1px solid var(--border);flex-shrink:0;transition:background .3s;}
+.input-row{max-width:800px;margin:0 auto;display:flex;gap:10px;}
+.input-row input,.input-row textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:none;transition:border .2s;}
+.input-row input:focus,.input-row textarea:focus{border-color:var(--accent-btn);}
+.input-row textarea{min-height:44px;max-height:120px;}
+.send-btn{background:var(--accent-btn);color:#fff;border:none;padding:12px 20px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap;transition:all .2s;}
+.send-btn:hover{background:var(--accent-btn2);}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.skip-btn{background:transparent;border:1px solid var(--border);color:var(--dim);padding:12px 16px;border-radius:12px;cursor:pointer;font-size:13px;transition:all .2s;}
+.skip-btn:hover{border-color:var(--dim);color:var(--text);}
+
+/* ===== SCORE CARD ===== */
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin:16px 0;align-self:center;width:100%;max-width:600px;box-shadow:var(--shadow);}
+.score-big{text-align:center;font-size:48px;font-weight:900;margin:10px 0;}
+.score-big.high{color:var(--green);}.score-big.mid{color:var(--yellow);}.score-big.low{color:var(--red);}
+.score-label{text-align:center;font-size:14px;color:var(--dim);}
+.factor-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;}
+.factor-row:last-child{border:none;}
+.factor-name{color:var(--dim);}.factor-score{font-weight:700;}.factor-weight{color:var(--muted);font-size:11px;}
+
+/* ===== SCANNER INLINE ===== */
+.scan-zone{background:var(--card);border:2px dashed var(--accent-btn);border-radius:16px;padding:24px;text-align:center;max-width:80%;align-self:flex-start;animation:fadeIn .3s ease;box-shadow:var(--shadow);}
+.scan-zone.dragging{border-color:var(--green);background:rgba(22,163,74,.04);}
+.scan-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+.scan-btn{display:flex;align-items:center;gap:8px;background:var(--accent-btn);color:#fff;border:none;padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;}
+.scan-btn:hover{background:var(--accent-btn2);}
+.scan-btn.secondary{background:var(--card-alt);border:1px solid var(--border);color:var(--text);}
+.scan-btn.secondary:hover{border-color:var(--accent-btn);}
+.scan-preview{margin-top:14px;position:relative;display:inline-block;}
+.scan-preview img{max-width:250px;max-height:180px;border-radius:8px;border:1px solid var(--border);}
+.scan-preview .remove-img{position:absolute;top:-8px;right:-8px;background:var(--red);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1;}
+.scan-progress{margin-top:14px;display:none;}
+.scan-progress-bar{width:100%;height:8px;background:var(--border-light);border-radius:4px;overflow:hidden;}
+.scan-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-btn),var(--green));border-radius:4px;width:0%;transition:width .3s;animation:scanPulse 1.5s infinite;}
+@keyframes scanPulse{0%,100%{opacity:1}50%{opacity:.6}}
+.scan-status{font-size:12px;color:var(--dim);margin-top:6px;}
+
+/* ===== OCR RESULT ===== */
+.ocr-result{background:var(--sys-bg);border:1px solid var(--sys-border);border-radius:12px;padding:16px;max-width:80%;align-self:flex-start;animation:fadeIn .3s ease;font-size:13px;}
+.ocr-result h3{color:var(--green);font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ocr-field{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);}
+.ocr-field:last-child{border:none;}
+.ocr-field-key{color:var(--dim);}.ocr-field-val{color:var(--text);font-weight:600;}
+
+/* ===== DISCLAIMER ===== */
+.disclaimer{text-align:center;font-size:11px;color:var(--muted);padding:14px 24px;border-top:1px solid var(--border);background:var(--card-alt);flex-shrink:0;line-height:1.6;transition:background .3s;}
+.disclaimer a{color:var(--accent-btn);text-decoration:underline;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.active{display:block;}
+  .hamburger{display:flex;}
+  .main-content{margin-left:0;}
+  .top-bar{padding:0 16px 0 56px;}
+  .message,.options-container,.scan-zone,.ocr-result{max-width:90%;}
+  .chat-container{padding:12px;}
+  .legal-banner{font-size:10px;padding:6px 12px;}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-    <div style="display:flex;align-items:center;gap:12px;">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#3b82f6"/>
-            <path d="M8 10h16v2H8zm0 5h12v2H8zm0 5h14v2H8z" fill="white"/>
-            <circle cx="24" cy="22" r="4" fill="#22c55e" stroke="white" stroke-width="1.5"/>
-            <path d="M22.5 22l1 1 2-2" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <h1>AI<span>TICKET</span>INFO</h1>
+<!-- Hamburger mobile -->
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>AI<em>TicketInfo</em></h1>
+    <div class="sub">Chatbot juridique</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group-label">Chatbot</div>
+    <a class="sidebar-link active" onclick="if(window.innerWidth<=768)toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Conversation
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-group-label">Liens externes</div>
+    <a class="sidebar-link" href="/scanticket/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+      Scanner
+    </a>
+    <a class="sidebar-link" href="/scanticket/admin">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Admin
+    </a>
+    <a class="sidebar-link" href="/scanticket/recensement">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Recensement
+    </a>
+    <a class="sidebar-link" href="/scanticket/presentation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Presentation
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-status">
+      <div class="dot"></div>
+      <span>Chatbot actif</span>
+    </div>
+    <div class="theme-toggle" onclick="toggleDarkMode()">
+      <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
+      <span id="themeLabel">Mode sombre</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-title">Recherche d'information juridique</span>
     </div>
     <button class="lang-toggle" onclick="toggleLangue()">EN / FR</button>
-</div>
+  </header>
 
-<!-- LEGAL BANNER -->
-<div style="background:rgba(234,179,8,0.08);border-bottom:1px solid rgba(234,179,8,0.2);padding:8px 24px;text-align:center;font-size:11px;color:#fde047;">
-    <strong>AVIS IMPORTANT :</strong> AITicketInfo est un outil de recherche d'information statistique. Nous ne sommes PAS des avocats et ne fournissons AUCUN avis juridique. Pour un avis juridique, consultez un avocat membre du <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;text-decoration:underline;">Barreau du Quebec</a>.
-</div>
+  <div class="legal-banner">
+    <strong>AVIS IMPORTANT :</strong> AITicketInfo est un outil de recherche d'information statistique. Nous ne sommes PAS des avocats et ne fournissons AUCUN avis juridique. Pour un avis juridique, consultez un avocat membre du <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank">Barreau du Quebec</a>.
+  </div>
 
-<!-- PROGRESS BAR -->
-<div class="progress-container">
+  <div class="progress-container">
     <div class="progress-info">
-        <span id="progress-text">Etape 1 / 10</span>
-        <span id="progress-pct">0%</span>
+      <span id="progress-text">Etape 1 / 10</span>
+      <span id="progress-pct">0%</span>
     </div>
-    <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
-    </div>
-</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
 
-<!-- CHAT -->
-<div class="chat-container" id="chat">
-    <div class="typing-indicator" id="typing">
-        <span></span><span></span><span></span>
-    </div>
-</div>
+  <div class="chat-container" id="chat">
+    <div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>
+  </div>
 
-<!-- HIDDEN FILE INPUTS -->
-<input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none" onchange="onFileSelected(this)">
-<input type="file" id="file-gallery" accept="image/*,.pdf" style="display:none" onchange="onFileSelected(this)">
+  <!-- Hidden file inputs -->
+  <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none" onchange="onFileSelected(this)">
+  <input type="file" id="file-gallery" accept="image/*,.pdf" style="display:none" onchange="onFileSelected(this)">
 
-<!-- INPUT -->
-<div class="input-container" id="input-area">
+  <div class="input-container" id="input-area">
     <div class="input-row" id="input-row">
-        <input type="text" id="user-input" placeholder="Tapez votre reponse..."
-               onkeypress="if(event.key==='Enter')envoyer()">
-        <button class="send-btn" id="send-btn" onclick="envoyer()">Envoyer</button>
+      <input type="text" id="user-input" placeholder="Tapez votre reponse..." onkeypress="if(event.key==='Enter')envoyer()">
+      <button class="send-btn" id="send-btn" onclick="envoyer()">Envoyer</button>
     </div>
-</div>
+  </div>
 
-<!-- DISCLAIMER LEGAL -->
-<div class="disclaimer" style="padding:16px 24px;line-height:1.6;">
+  <div class="disclaimer">
     <strong>AITicketInfo</strong> est un service de recherche d'information statistique base sur des jugements publics disponibles sur
-    <a href="https://www.canlii.org" target="_blank" style="color:#93c5fd;">CanLII</a> et
-    <a href="https://soquij.qc.ca" target="_blank" style="color:#93c5fd;">SOQUIJ</a>.<br>
-    <strong style="color:#fde047;">Ce service ne constitue PAS un avis juridique.</strong>
-    AITicketInfo n'est pas un cabinet d'avocats et ne pratique pas le droit.<br>
-    Les informations presentees sont des statistiques tirees de decisions de justice publiques.<br>
+    <a href="https://www.canlii.org" target="_blank">CanLII</a> et <a href="https://soquij.qc.ca" target="_blank">SOQUIJ</a>.<br>
+    <strong style="color:var(--yellow);">Ce service ne constitue PAS un avis juridique.</strong>
     Pour un avis juridique personnalise, consultez un avocat membre du
-    <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank" style="color:#93c5fd;">Barreau du Quebec</a> ou du
-    <a href="https://lso.ca/public-resources/finding-a-lawyer-or-paralegal" target="_blank" style="color:#93c5fd;">Barreau de l'Ontario</a>.
-</div>
+    <a href="https://www.barreau.qc.ca/fr/trouver-avocat/" target="_blank">Barreau du Quebec</a> ou du
+    <a href="https://lso.ca/public-resources/finding-a-lawyer-or-paralegal" target="_blank">Barreau de l'Ontario</a>.
+  </div>
+</main>
 
 <script>
-// ─── CONFIG ───────────────────────────────────
-const API_BASE = window.location.origin + '/scanticket';  // nginx proxy prefix
-let sessionId = '';
-let langue = 'fr';
-let etapeCourante = 0;
-let totalEtapes = 10;
-let termine = false;
+/* ===== THEME ===== */
+function toggleDarkMode(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDark?'light':'dark');
+  localStorage.setItem('ati-theme',isDark?'light':'dark');
+  document.getElementById('themeLabel').textContent=isDark?'Mode sombre':'Mode clair';
+}
+(function(){
+  const t=localStorage.getItem('ati-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  const lbl=document.getElementById('themeLabel');
+  if(lbl) lbl.textContent=t==='dark'?'Mode clair':'Mode sombre';
+})();
 
-// ─── INIT ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    sessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    demarrerChat();
+/* ===== SIDEBAR ===== */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+/* ===== CONFIG ===== */
+const API_BASE=window.location.origin+'/scanticket';
+let sessionId='';
+let langue='fr';
+let etapeCourante=0;
+let totalEtapes=10;
+let termine=false;
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded',()=>{
+  sessionId='chat_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+  demarrerChat();
 });
 
-// ─── DEMARRER LE CHAT ─────────────────────────
-async function demarrerChat() {
-    showTyping(true);
-
-    try {
-        const resp = await fetch(`${API_BASE}/api/chat/start`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({session_id: sessionId, langue: langue})
-        });
-        const data = await resp.json();
-
-        showTyping(false);
-        sessionId = data.session_id || sessionId;
-        totalEtapes = data.total_etapes || 10;
-
-        addMessage('bot', data.message);
-        updateProgress(0);
-
-        // Afficher la zone de scan inline dans le chat
-        showScannerInChat();
-
-        if (data.options && data.options.length > 0) {
-            showOptions(data.options, data.type);
-        }
-    } catch (err) {
-        showTyping(false);
-        addMessage('system', 'Erreur de connexion au serveur. Rechargez la page.');
-        console.error(err);
-    }
+/* ===== DEMARRER LE CHAT ===== */
+async function demarrerChat(){
+  showTyping(true);
+  try{
+    const resp=await fetch(`${API_BASE}/api/chat/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,langue:langue})});
+    const data=await resp.json();
+    showTyping(false);
+    sessionId=data.session_id||sessionId;
+    totalEtapes=data.total_etapes||10;
+    addMessage('bot',data.message);
+    updateProgress(0);
+    showScannerInChat();
+    if(data.options&&data.options.length>0)showOptions(data.options,data.type);
+  }catch(err){
+    showTyping(false);
+    addMessage('system','Erreur de connexion au serveur. Rechargez la page.');
+    console.error(err);
+  }
 }
 
-// ─── ENVOYER UNE REPONSE ─────────────────────
-async function envoyer() {
-    if (termine) return;
-
-    const input = document.getElementById('user-input');
-    const message = input.value.trim();
-    if (!message) return;
-
-    input.value = '';
-    addMessage('user', message);
-    clearOptions();
-    showTyping(true);
-
-    try {
-        const resp = await fetch(`${API_BASE}/api/chat/reply`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                session_id: sessionId,
-                message: message,
-                langue: langue
-            })
-        });
-        const data = await resp.json();
-
-        showTyping(false);
-        etapeCourante = data.etape || 0;
-        updateProgress(etapeCourante);
-
-        addMessage('bot', data.message);
-
-        if (data.termine) {
-            termine = true;
-            document.getElementById('input-area').style.display = 'none';
-            const scanZone = document.getElementById('scan-zone');
-            if (scanZone) scanZone.remove();
-
-            // Afficher le score si disponible
-            if (data.donnees_collectees && data.dossier_uuid) {
-                addMessage('system',
-                    `Dossier #${data.dossier_uuid} cree. Analyse en cours...`);
-
-                // Lancer le calcul du score
-                setTimeout(() => calculerScore(data.donnees_collectees), 1500);
-            }
-        } else if (data.options && data.options.length > 0) {
-            showOptions(data.options, data.type);
-        }
-
-        // Gerer les etapes optionnelles
-        if (data.optionnel) {
-            showSkipButton();
-        }
-
-    } catch (err) {
-        showTyping(false);
-        addMessage('system', 'Erreur de connexion. Reessayez.');
-        console.error(err);
+/* ===== ENVOYER ===== */
+async function envoyer(){
+  if(termine)return;
+  const input=document.getElementById('user-input');
+  const message=input.value.trim();
+  if(!message)return;
+  input.value='';
+  addMessage('user',message);
+  clearOptions();
+  showTyping(true);
+  try{
+    const resp=await fetch(`${API_BASE}/api/chat/reply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,message:message,langue:langue})});
+    const data=await resp.json();
+    showTyping(false);
+    etapeCourante=data.etape||0;
+    updateProgress(etapeCourante);
+    addMessage('bot',data.message);
+    if(data.termine){
+      termine=true;
+      document.getElementById('input-area').style.display='none';
+      const scanZone=document.getElementById('scan-zone');
+      if(scanZone)scanZone.remove();
+      if(data.donnees_collectees&&data.dossier_uuid){
+        addMessage('system',`Dossier #${data.dossier_uuid} cree. Analyse en cours...`);
+        setTimeout(()=>calculerScore(data.donnees_collectees),1500);
+      }
+    }else if(data.options&&data.options.length>0){
+      showOptions(data.options,data.type);
     }
+    if(data.optionnel)showSkipButton();
+  }catch(err){
+    showTyping(false);
+    addMessage('system','Erreur de connexion. Reessayez.');
+    console.error(err);
+  }
 }
 
-// ─── CALCULER LE SCORE ───────────────────────
-async function calculerScore(donnees) {
-    try {
-        const ticket = {
-            infraction: donnees.infraction || '',
-            province: donnees.province || 'QC',
-            date: donnees.date || '',
-            amende: donnees.amende || '',
-            lieu: donnees.lieu || '',
-            appareil: '',
-            dossier_uuid: donnees.dossier_uuid || ''
-        };
-
-        const preuves = donnees.preuves || [];
-
-        const resp = await fetch(`${API_BASE}/api/score`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ticket: ticket, preuves: preuves})
-        });
-
-        if (resp.ok) {
-            const score = await resp.json();
-            afficherScore(score);
-        }
-    } catch (err) {
-        console.error('Erreur calcul score:', err);
-    }
+/* ===== SCORE ===== */
+async function calculerScore(donnees){
+  try{
+    const ticket={infraction:donnees.infraction||'',province:donnees.province||'QC',date:donnees.date||'',amende:donnees.amende||'',lieu:donnees.lieu||'',appareil:'',dossier_uuid:donnees.dossier_uuid||''};
+    const preuves=donnees.preuves||[];
+    const resp=await fetch(`${API_BASE}/api/score`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket:ticket,preuves:preuves})});
+    if(resp.ok){const score=await resp.json();afficherScore(score);}
+  }catch(err){console.error('Erreur calcul score:',err);}
 }
 
-// ─── AFFICHER LE SCORE ───────────────────────
-
-async function lancerAnalyseComplete() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.textContent = "Analyse en cours... (45-90 secondes)";
-    btn.style.opacity = "0.7";
-
-    // Recuperer les donnees collectees depuis le chat history
-    try {
-        const resp = await fetch(`${API_BASE}/api/chat/history/${sessionId}`);
-        const history = await resp.json();
-
-        // Construire le ticket depuis les donnees collectees
-        const ticketData = history.donnees_collectees || history.ticket || {};
-
-        addMessage("system", "Analyse lancee! 27 agents IA travaillent sur votre dossier...");
-
-        const formData = new FormData();
-        formData.append("ticket", JSON.stringify(ticketData));
-        formData.append("client_info", JSON.stringify({nom: history.nom_client || ""}));
-
-        // Si on a la photo en memoire, la renvoyer
-        if (scannerFile) {
-            formData.append("ticket_photo", scannerFile);
-        }
-
-        const analyzeResp = await fetch(`${API_BASE}/api/analyze`, {
-            method: "POST",
-            body: formData
-        });
-
-        const result = await analyzeResp.json();
-
-        if (result.success) {
-            addMessage("system", `Analyse terminee! Dossier #${result.dossier_uuid}\nScore: ${result.score}/10 | Recommandation: ${result.recommandation}\n\nUn rapport PDF detaille est disponible.`);
-
-            // Bouton PDF
-            const chat = document.getElementById("chat");
-            const pdfDiv = document.createElement("div");
-            pdfDiv.style.cssText = "text-align:center;margin:12px 0;";
-            pdfDiv.innerHTML = `<a href="${API_BASE}/api/rapport/${result.dossier_uuid}" target="_blank" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;">Telecharger le rapport PDF</a>`;
-            chat.insertBefore(pdfDiv, document.getElementById("typing"));
-        } else {
-            addMessage("system", "Erreur: " + (result.error || "Erreur inconnue"));
-            btn.disabled = false;
-            btn.textContent = "Relancer l'analyse";
-            btn.style.opacity = "1";
-        }
-    } catch (err) {
-        addMessage("system", "Erreur de connexion: " + err.message);
-        btn.disabled = false;
-        btn.textContent = "Relancer l'analyse";
-        btn.style.opacity = "1";
+async function lancerAnalyseComplete(){
+  const btn=event.target;
+  btn.disabled=true;btn.textContent="Analyse en cours... (45-90 secondes)";btn.style.opacity="0.7";
+  try{
+    const resp=await fetch(`${API_BASE}/api/chat/history/${sessionId}`);
+    const history=await resp.json();
+    const ticketData=history.donnees_collectees||history.ticket||{};
+    addMessage("system","Analyse lancee! 27 agents IA travaillent sur votre dossier...");
+    const formData=new FormData();
+    formData.append("ticket",JSON.stringify(ticketData));
+    formData.append("client_info",JSON.stringify({nom:history.nom_client||""}));
+    if(scannerFile)formData.append("ticket_photo",scannerFile);
+    const analyzeResp=await fetch(`${API_BASE}/api/analyze`,{method:"POST",body:formData});
+    const result=await analyzeResp.json();
+    if(result.success){
+      addMessage("system",`Analyse terminee! Dossier #${result.dossier_uuid}\nScore: ${result.score}/10 | Recommandation: ${result.recommandation}\n\nUn rapport PDF detaille est disponible.`);
+      const chat=document.getElementById("chat");
+      const pdfDiv=document.createElement("div");
+      pdfDiv.style.cssText="text-align:center;margin:12px 0;";
+      pdfDiv.innerHTML=`<a href="${API_BASE}/api/rapport/${result.dossier_uuid}" target="_blank" style="display:inline-block;padding:12px 24px;background:var(--accent-btn);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;">Telecharger le rapport PDF</a>`;
+      chat.insertBefore(pdfDiv,document.getElementById("typing"));
+    }else{
+      addMessage("system","Erreur: "+(result.error||"Erreur inconnue"));
+      btn.disabled=false;btn.textContent="Relancer l'analyse";btn.style.opacity="1";
     }
+  }catch(err){
+    addMessage("system","Erreur de connexion: "+err.message);
+    btn.disabled=false;btn.textContent="Relancer l'analyse";btn.style.opacity="1";
+  }
 }
 
-function afficherScore(data) {
-    const score = data.score || 0;
-    const scoreClass = score >= 7 ? 'high' : score >= 4 ? 'mid' : 'low';
-
-    const f1 = data.f1 || {};
-    const f2 = data.f2 || {};
-    const f3 = data.f3 || {};
-    const f4 = data.f4 || {};
-    const f5 = data.f5 || {};
-
-    const html = `
-        <div class="score-card">
-            <div class="score-label">SCORE STATISTIQUE</div>
-            <div class="score-big ${scoreClass}">${score} / 10</div>
-            <div class="score-label">Base sur ${data.nb_jugements_similaires || 0} jugements similaires</div>
-
-            <div style="margin-top:16px;">
-                <div class="factor-row">
-                    <span class="factor-name">Taux acquittement historique</span>
-                    <span class="factor-score">${(f1.score || 0).toFixed(1)}</span>
-                    <span class="factor-weight">30%</span>
-                </div>
-                <div class="factor-row">
-                    <span class="factor-name">Force des preuves</span>
-                    <span class="factor-score">${(f2.score || 0).toFixed(1)}</span>
-                    <span class="factor-weight">25%</span>
-                </div>
-                <div class="factor-row">
-                    <span class="factor-name">Arguments applicables</span>
-                    <span class="factor-score">${(f3.score || 0).toFixed(1)}</span>
-                    <span class="factor-weight">20%</span>
-                </div>
-                <div class="factor-row">
-                    <span class="factor-name">Coherence du dossier</span>
-                    <span class="factor-score">${(f4.score || 0).toFixed(1)}</span>
-                    <span class="factor-weight">15%</span>
-                </div>
-                <div class="factor-row">
-                    <span class="factor-name">Facteurs contextuels</span>
-                    <span class="factor-score">${(f5.score || 0).toFixed(1)}</span>
-                    <span class="factor-weight">10%</span>
-                </div>
-            </div>
-
-            <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);">
-                <p>${f1.explication || ''}</p>
-                <p style="margin-top:6px;">Sources: CanLII, SOQUIJ | Methodologie: analyse statistique</p>
-            <div style="margin-top:16px;">
-                <button onclick="lancerAnalyseComplete()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e63946,#c62828);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 15px rgba(230,57,70,0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(230,57,70,0.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(230,57,70,0.3)'">Lancer l'analyse complete — 27 Agents IA</button>
-            </div>
-            </div>
+function afficherScore(data){
+  const score=data.score||0;
+  const scoreClass=score>=7?'high':score>=4?'mid':'low';
+  const f1=data.f1||{},f2=data.f2||{},f3=data.f3||{},f4=data.f4||{},f5=data.f5||{};
+  const html=`
+    <div class="score-card">
+      <div class="score-label">SCORE STATISTIQUE</div>
+      <div class="score-big ${scoreClass}">${score} / 10</div>
+      <div class="score-label">Base sur ${data.nb_jugements_similaires||0} jugements similaires</div>
+      <div style="margin-top:16px;">
+        <div class="factor-row"><span class="factor-name">Taux acquittement historique</span><span class="factor-score">${(f1.score||0).toFixed(1)}</span><span class="factor-weight">30%</span></div>
+        <div class="factor-row"><span class="factor-name">Force des preuves</span><span class="factor-score">${(f2.score||0).toFixed(1)}</span><span class="factor-weight">25%</span></div>
+        <div class="factor-row"><span class="factor-name">Arguments applicables</span><span class="factor-score">${(f3.score||0).toFixed(1)}</span><span class="factor-weight">20%</span></div>
+        <div class="factor-row"><span class="factor-name">Coherence du dossier</span><span class="factor-score">${(f4.score||0).toFixed(1)}</span><span class="factor-weight">15%</span></div>
+        <div class="factor-row"><span class="factor-name">Facteurs contextuels</span><span class="factor-score">${(f5.score||0).toFixed(1)}</span><span class="factor-weight">10%</span></div>
+      </div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);">
+        <p>${f1.explication||''}</p>
+        <p style="margin-top:6px;">Sources: CanLII, SOQUIJ | Methodologie: analyse statistique</p>
+        <div style="margin-top:16px;">
+          <button onclick="lancerAnalyseComplete()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e63946,#c62828);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 15px rgba(230,57,70,.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Lancer l'analyse complete — 27 Agents IA</button>
         </div>
-    `;
-
-    const chat = document.getElementById('chat');
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    div.style.alignSelf = 'center';
-    div.style.width = '100%';
-    div.style.maxWidth = '600px';
-    div.style.animation = 'fadeIn 0.5s ease';
-    chat.insertBefore(div, document.getElementById('typing'));
-    scrollToBottom();
+      </div>
+    </div>`;
+  const chat=document.getElementById('chat');
+  const div=document.createElement('div');
+  div.innerHTML=html;div.style.alignSelf='center';div.style.width='100%';div.style.maxWidth='600px';div.style.animation='fadeIn .5s ease';
+  chat.insertBefore(div,document.getElementById('typing'));
+  scrollToBottom();
 }
 
-// ─── OPTIONS (boutons de choix) ──────────────
-function showOptions(options, type) {
-    const chat = document.getElementById('chat');
+/* ===== OPTIONS ===== */
+function showOptions(options,type){
+  const chat=document.getElementById('chat');
+  if(type==='multi_choix'){
+    const container=document.createElement('div');container.className='options-container';container.id='current-options';container.style.flexDirection='column';container.style.maxWidth='80%';
+    options.forEach(opt=>{const label=document.createElement('label');label.className='multi-option';label.innerHTML=`<input type="checkbox" value="${opt}"> ${opt}`;label.onclick=()=>label.classList.toggle('checked');container.appendChild(label);});
+    const btn=document.createElement('button');btn.className='multi-submit';btn.textContent=langue==='fr'?'Confirmer':'Confirm';
+    btn.onclick=()=>{const checked=container.querySelectorAll('input:checked');const values=Array.from(checked).map(c=>c.value);if(values.length===0)values.push(options[options.length-1]);document.getElementById('user-input').value=values.join(', ');envoyer();};
+    container.appendChild(btn);
+    chat.insertBefore(container,document.getElementById('typing'));
+    document.getElementById('input-area').style.display='none';
+  }else{
+    const container=document.createElement('div');container.className='options-container';container.id='current-options';
+    options.forEach(opt=>{const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;btn.onclick=()=>{document.getElementById('user-input').value=opt;envoyer();};container.appendChild(btn);});
+    chat.insertBefore(container,document.getElementById('typing'));
+  }
+  scrollToBottom();
+}
 
-    if (type === 'multi_choix') {
-        // Checkboxes pour multi-select
-        const container = document.createElement('div');
-        container.className = 'options-container';
-        container.id = 'current-options';
-        container.style.flexDirection = 'column';
-        container.style.maxWidth = '80%';
+function clearOptions(){const existing=document.getElementById('current-options');if(existing)existing.remove();document.getElementById('input-area').style.display='';}
 
-        options.forEach(opt => {
-            const label = document.createElement('label');
-            label.className = 'multi-option';
-            label.innerHTML = `<input type="checkbox" value="${opt}"> ${opt}`;
-            label.onclick = () => label.classList.toggle('checked');
-            container.appendChild(label);
-        });
+function showSkipButton(){
+  const inputRow=document.getElementById('input-row');
+  const existing=inputRow.querySelector('.skip-btn');if(existing)existing.remove();
+  const btn=document.createElement('button');btn.className='skip-btn';btn.textContent=langue==='fr'?'Passer':'Skip';
+  btn.onclick=()=>{document.getElementById('user-input').value='-';envoyer();btn.remove();};
+  inputRow.appendChild(btn);
+}
 
-        const btn = document.createElement('button');
-        btn.className = 'multi-submit';
-        btn.textContent = langue === 'fr' ? 'Confirmer' : 'Confirm';
-        btn.onclick = () => {
-            const checked = container.querySelectorAll('input:checked');
-            const values = Array.from(checked).map(c => c.value);
-            if (values.length === 0) values.push(options[options.length - 1]); // "Aucune preuve"
-            document.getElementById('user-input').value = values.join(', ');
-            envoyer();
-        };
-        container.appendChild(btn);
+/* ===== MESSAGES ===== */
+function addMessage(role,text){
+  const chat=document.getElementById('chat');const div=document.createElement('div');
+  div.className=`message ${role}`;div.textContent=text;
+  chat.insertBefore(div,document.getElementById('typing'));scrollToBottom();
+}
+function showTyping(show){document.getElementById('typing').style.display=show?'block':'none';if(show)scrollToBottom();}
+function scrollToBottom(){const chat=document.getElementById('chat');setTimeout(()=>chat.scrollTop=chat.scrollHeight,50);}
 
-        chat.insertBefore(container, document.getElementById('typing'));
-        // Cacher l'input texte
-        document.getElementById('input-area').style.display = 'none';
-    } else {
-        // Boutons simples
-        const container = document.createElement('div');
-        container.className = 'options-container';
-        container.id = 'current-options';
+/* ===== PROGRESS ===== */
+function updateProgress(etape){
+  const pct=Math.min(Math.round((etape/totalEtapes)*100),100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=`Etape ${Math.min(etape+1,totalEtapes)} / ${totalEtapes}`;
+  document.getElementById('progress-pct').textContent=pct+'%';
+}
 
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.textContent = opt;
-            btn.onclick = () => {
-                document.getElementById('user-input').value = opt;
-                envoyer();
-            };
-            container.appendChild(btn);
-        });
+/* ===== SCANNER INLINE ===== */
+let scannerFile=null;
 
-        chat.insertBefore(container, document.getElementById('typing'));
+function showScannerInChat(){
+  const chat=document.getElementById('chat');
+  if(document.getElementById('scan-zone'))return;
+  const zone=document.createElement('div');zone.className='scan-zone';zone.id='scan-zone';
+  zone.innerHTML=`
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:8px;"><rect x="2" y="2" width="12" height="12" rx="2" stroke="var(--accent-btn)" stroke-width="2" fill="none"/><rect x="26" y="2" width="12" height="12" rx="2" stroke="var(--accent-btn)" stroke-width="2" fill="none"/><rect x="2" y="26" width="12" height="12" rx="2" stroke="var(--accent-btn)" stroke-width="2" fill="none"/><rect x="26" y="26" width="12" height="12" rx="2" stroke="var(--accent-btn)" stroke-width="2" fill="none"/><line x1="0" y1="20" x2="40" y2="20" stroke="var(--accent-btn)" stroke-width="2"/></svg>
+    <div style="font-size:15px;font-weight:700;color:var(--text);">Scanner votre ticket</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px;">Prenez une photo ou selectionnez une image de votre contravention.<br>Les informations seront extraites automatiquement.</div>
+    <div class="scan-btns">
+      <button class="scan-btn" onclick="document.getElementById('file-camera').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Prendre une photo</button>
+      <button class="scan-btn secondary" onclick="document.getElementById('file-gallery').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Choisir une image</button>
+    </div>
+    <div id="scan-preview-area"></div>
+    <div class="scan-progress" id="scan-progress"><div class="scan-progress-bar"><div class="scan-progress-fill" id="scan-progress-fill"></div></div><div class="scan-status" id="scan-status">Analyse en cours...</div></div>`;
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragging');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('dragging'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragging');if(e.dataTransfer.files.length>0)handleScanFile(e.dataTransfer.files[0]);});
+  chat.insertBefore(zone,document.getElementById('typing'));scrollToBottom();
+}
+
+function onFileSelected(input){if(input.files&&input.files[0])handleScanFile(input.files[0]);input.value='';}
+
+function handleScanFile(file){
+  if(!file.type.match(/image\/(jpeg|jpg|png|gif|webp)|application\/pdf/)){addMessage('system','Format non supporte. Utilisez JPG, PNG ou PDF.');return;}
+  if(file.size>20*1024*1024){addMessage('system','Fichier trop gros (max 20 Mo).');return;}
+  scannerFile=file;
+  const previewArea=document.getElementById('scan-preview-area');
+  if(previewArea){
+    if(file.type.startsWith('image/')){
+      const reader=new FileReader();
+      reader.onload=e=>{previewArea.innerHTML=`<div class="scan-preview"><img src="${e.target.result}" alt="Ticket"><button class="remove-img" onclick="removeScanPreview()">X</button></div><div style="margin-top:10px;"><button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>Analyser ce ticket</button></div>`;};
+      reader.readAsDataURL(file);
+    }else{
+      previewArea.innerHTML=`<div style="margin-top:10px;padding:12px;background:var(--card-alt);border-radius:8px;font-size:13px;border:1px solid var(--border)">PDF: ${file.name} (${(file.size/1024).toFixed(0)} Ko)</div><div style="margin-top:10px;"><button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>Analyser ce ticket</button></div>`;
     }
-
-    scrollToBottom();
+  }
+  scrollToBottom();
 }
 
-function clearOptions() {
-    const existing = document.getElementById('current-options');
-    if (existing) existing.remove();
-    document.getElementById('input-area').style.display = '';
+function removeScanPreview(){scannerFile=null;const previewArea=document.getElementById('scan-preview-area');if(previewArea)previewArea.innerHTML='';}
+
+async function lancerScan(){
+  if(!scannerFile)return;
+  const progressEl=document.getElementById('scan-progress');const fillEl=document.getElementById('scan-progress-fill');const statusEl=document.getElementById('scan-status');const previewArea=document.getElementById('scan-preview-area');
+  if(previewArea){const analyzeBtn=previewArea.querySelector('.scan-btn');if(analyzeBtn)analyzeBtn.style.display='none';}
+  progressEl.style.display='block';
+  const etapes=[{pct:15,msg:"Upload de l'image..."},{pct:35,msg:'Extraction du texte (OCR)...'},{pct:55,msg:'Analyse par intelligence artificielle...'},{pct:75,msg:'Identification des champs...'},{pct:90,msg:'Verification des donnees...'}];
+  let etapeIdx=0;
+  const progressTimer=setInterval(()=>{if(etapeIdx<etapes.length){fillEl.style.width=etapes[etapeIdx].pct+'%';statusEl.textContent=etapes[etapeIdx].msg;etapeIdx++;}},1500);
+  try{
+    const formData=new FormData();formData.append('ticket_photo',scannerFile);formData.append('ticket',JSON.stringify({}));formData.append('client_info',JSON.stringify({}));
+    const resp=await fetch(`${API_BASE}/api/analyze`,{method:'POST',body:formData});
+    clearInterval(progressTimer);
+    if(!resp.ok)throw new Error('Erreur serveur '+resp.status);
+    const data=await resp.json();
+    fillEl.style.width='100%';statusEl.textContent='Analyse terminee!';
+    setTimeout(()=>{const scanZone=document.getElementById('scan-zone');if(scanZone)scanZone.remove();afficherResultatsScan(data);},800);
+  }catch(err){
+    clearInterval(progressTimer);fillEl.style.width='0%';statusEl.textContent='Erreur: '+err.message;statusEl.style.color='var(--red)';
+    console.error('Erreur scan:',err);
+    addMessage('system',"Erreur lors de l'analyse. Vous pouvez reessayer ou remplir les informations manuellement.");
+  }
 }
 
-function showSkipButton() {
-    const inputRow = document.getElementById('input-row');
-    const existing = inputRow.querySelector('.skip-btn');
-    if (existing) existing.remove();
-
-    const btn = document.createElement('button');
-    btn.className = 'skip-btn';
-    btn.textContent = langue === 'fr' ? 'Passer' : 'Skip';
-    btn.onclick = () => {
-        document.getElementById('user-input').value = '-';
-        envoyer();
-        btn.remove();
-    };
-    inputRow.appendChild(btn);
+function afficherResultatsScan(data){
+  const chat=document.getElementById('chat');const analyse=data.analyse||{};const ticket=analyse.ticket||data.ticket||{};
+  const champs={'Infraction':ticket.infraction||analyse.infraction||'?','Province':ticket.juridiction||data.juridiction||'?','Date':ticket.date||'?','Amende':ticket.amende||'?','Lieu':ticket.lieu||'?','Article':ticket.loi||ticket.article||'?','Appareil':ticket.appareil||'?','Vitesse captee':ticket.vitesse_captee?ticket.vitesse_captee+' km/h':'?','Vitesse permise':ticket.vitesse_permise?ticket.vitesse_permise+' km/h':'?'};
+  let fieldsHtml='';
+  for(const[key,val]of Object.entries(champs)){if(val&&val!=='?'&&val!=='0'&&val!=='0 km/h')fieldsHtml+=`<div class="ocr-field"><span class="ocr-field-key">${key}</span><span class="ocr-field-val">${val}</span></div>`;}
+  if(!fieldsHtml)fieldsHtml='<div style="color:var(--dim);">Aucun champ detecte. Continuez manuellement.</div>';
+  const resultDiv=document.createElement('div');resultDiv.className='ocr-result';
+  resultDiv.innerHTML=`<h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Ticket analyse par AITICKETINFO</h3>${fieldsHtml}<div style="margin-top:10px;font-size:11px;color:var(--dim);">Score: ${data.score||'?'}/10 | Confiance: ${data.confiance||'?'}% | Dossier: #${data.dossier_uuid||'?'}</div><div style="margin-top:8px;"><button class="scan-btn" onclick="utiliserDonneesScan(this)" style="width:100%;justify-content:center;font-size:13px;padding:10px;">Utiliser ces informations dans le chatbot</button></div>`;
+  resultDiv.dataset.ticket=JSON.stringify(ticket);resultDiv.dataset.analyse=JSON.stringify(data);
+  chat.insertBefore(resultDiv,document.getElementById('typing'));scrollToBottom();
 }
 
-// ─── MESSAGES ────────────────────────────────
-function addMessage(role, text) {
-    const chat = document.getElementById('chat');
-    const div = document.createElement('div');
-    div.className = `message ${role}`;
-    div.textContent = text;
-    chat.insertBefore(div, document.getElementById('typing'));
-    scrollToBottom();
-}
-
-function showTyping(show) {
-    document.getElementById('typing').style.display = show ? 'block' : 'none';
-    if (show) scrollToBottom();
-}
-
-function scrollToBottom() {
-    const chat = document.getElementById('chat');
-    setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
-}
-
-// ─── PROGRESS BAR ────────────────────────────
-function updateProgress(etape) {
-    const pct = Math.min(Math.round((etape / totalEtapes) * 100), 100);
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-text').textContent =
-        `Etape ${Math.min(etape + 1, totalEtapes)} / ${totalEtapes}`;
-    document.getElementById('progress-pct').textContent = pct + '%';
-}
-
-// ─── SCANNER INLINE ──────────────────────────
-let scannerFile = null;
-
-function showScannerInChat() {
-    const chat = document.getElementById('chat');
-
-    // Eviter les doublons
-    if (document.getElementById('scan-zone')) return;
-
-    const zone = document.createElement('div');
-    zone.className = 'scan-zone';
-    zone.id = 'scan-zone';
-
-    zone.innerHTML = `
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:8px;">
-            <rect x="2" y="2" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
-            <rect x="26" y="2" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
-            <rect x="2" y="26" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
-            <rect x="26" y="26" width="12" height="12" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/>
-            <line x1="0" y1="20" x2="40" y2="20" stroke="#3b82f6" stroke-width="2"/>
-        </svg>
-        <div style="font-size:15px;font-weight:700;color:white;">Scanner votre ticket</div>
-        <div style="font-size:12px;color:var(--dim);margin-top:4px;">
-            Prenez une photo ou selectionnez une image de votre contravention.<br>
-            Les informations seront extraites automatiquement par AI<span style="color:var(--accent);">TICKET</span>INFO.
-        </div>
-        <div class="scan-btns">
-            <button class="scan-btn" onclick="document.getElementById('file-camera').click()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                Prendre une photo
-            </button>
-            <button class="scan-btn secondary" onclick="document.getElementById('file-gallery').click()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                Choisir une image
-            </button>
-        </div>
-        <div id="scan-preview-area"></div>
-        <div class="scan-progress" id="scan-progress">
-            <div class="scan-progress-bar"><div class="scan-progress-fill" id="scan-progress-fill"></div></div>
-            <div class="scan-status" id="scan-status">Analyse en cours...</div>
-        </div>
-    `;
-
-    // Drag & drop
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('dragging');
-        if (e.dataTransfer.files.length > 0) handleScanFile(e.dataTransfer.files[0]);
-    });
-
-    chat.insertBefore(zone, document.getElementById('typing'));
-    scrollToBottom();
-}
-
-function onFileSelected(input) {
-    if (input.files && input.files[0]) {
-        handleScanFile(input.files[0]);
+async function utiliserDonneesScan(btn){
+  const resultDiv=btn.closest('.ocr-result');const ticket=JSON.parse(resultDiv.dataset.ticket||'{}');
+  btn.disabled=true;btn.textContent='Application en cours...';
+  const mappings=[
+    {champ:'infraction',val:ticket.infraction},
+    {champ:'province',val:ticket.juridiction==='QC'?'Quebec':ticket.juridiction==='ON'?'Ontario':null},
+    {champ:'date',val:ticket.date},{champ:'amende',val:ticket.amende},{champ:'lieu',val:ticket.lieu},
+    {champ:'circonstances',val:[ticket.appareil,ticket.vitesse_captee?ticket.vitesse_captee+' km/h capte':'',ticket.vitesse_permise?ticket.vitesse_permise+' km/h permis':''].filter(Boolean).join(', ')||null}
+  ];
+  for(const m of mappings){
+    if(m.val&&m.val!=='?'&&m.val!=='0'&&etapeCourante<totalEtapes){
+      addMessage('user',m.val);showTyping(true);
+      try{
+        const resp=await fetch(`${API_BASE}/api/chat/reply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,message:m.val,langue:langue})});
+        const data=await resp.json();showTyping(false);etapeCourante=data.etape||0;updateProgress(etapeCourante);addMessage('bot',data.message);
+        if(data.termine){termine=true;document.getElementById('input-area').style.display='none';break;}
+        if(data.options&&data.options.length>0){const nextMapping=mappings[mappings.indexOf(m)+1];if(!nextMapping||!nextMapping.val||nextMapping.val==='?')showOptions(data.options,data.type);}
+      }catch(err){showTyping(false);break;}
+      await new Promise(r=>setTimeout(r,600));
     }
-    input.value = '';
+  }
+  btn.textContent='Informations appliquees';
+  addMessage('system',langue==='fr'?'Les informations du ticket ont ete appliquees. Continuez a repondre aux questions restantes.':'Ticket information has been applied. Continue answering the remaining questions.');
 }
 
-function handleScanFile(file) {
-    if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)|application\/pdf/)) {
-        addMessage('system', 'Format non supporte. Utilisez JPG, PNG ou PDF.');
-        return;
-    }
+function showScannerBanner(show){if(show)showScannerInChat();}
 
-    if (file.size > 20 * 1024 * 1024) {
-        addMessage('system', 'Fichier trop gros (max 20 Mo).');
-        return;
-    }
-
-    scannerFile = file;
-
-    // Afficher la preview
-    const previewArea = document.getElementById('scan-preview-area');
-    if (previewArea) {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                previewArea.innerHTML = `
-                    <div class="scan-preview">
-                        <img src="${e.target.result}" alt="Ticket">
-                        <button class="remove-img" onclick="removeScanPreview()">X</button>
-                    </div>
-                    <div style="margin-top:10px;">
-                        <button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>
-                            Analyser ce ticket
-                        </button>
-                    </div>
-                `;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            previewArea.innerHTML = `
-                <div style="margin-top:10px;padding:12px;background:var(--card2);border-radius:8px;font-size:13px;">
-                    PDF: ${file.name} (${(file.size/1024).toFixed(0)} Ko)
-                </div>
-                <div style="margin-top:10px;">
-                    <button class="scan-btn" onclick="lancerScan()" style="width:100%;justify-content:center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>
-                        Analyser ce ticket
-                    </button>
-                </div>
-            `;
-        }
-    }
-
-    scrollToBottom();
-}
-
-function removeScanPreview() {
-    scannerFile = null;
-    const previewArea = document.getElementById('scan-preview-area');
-    if (previewArea) previewArea.innerHTML = '';
-}
-
-async function lancerScan() {
-    if (!scannerFile) return;
-
-    const progressEl = document.getElementById('scan-progress');
-    const fillEl = document.getElementById('scan-progress-fill');
-    const statusEl = document.getElementById('scan-status');
-    const previewArea = document.getElementById('scan-preview-area');
-
-    // Cacher le bouton analyser, montrer la progression
-    if (previewArea) {
-        const analyzeBtn = previewArea.querySelector('.scan-btn');
-        if (analyzeBtn) analyzeBtn.style.display = 'none';
-    }
-    progressEl.style.display = 'block';
-
-    // Etapes visuelles
-    const etapes = [
-        { pct: 15, msg: 'Upload de l\'image...' },
-        { pct: 35, msg: 'Extraction du texte (OCR)...' },
-        { pct: 55, msg: 'Analyse par intelligence artificielle...' },
-        { pct: 75, msg: 'Identification des champs...' },
-        { pct: 90, msg: 'Verification des donnees...' },
-    ];
-
-    let etapeIdx = 0;
-    const progressTimer = setInterval(() => {
-        if (etapeIdx < etapes.length) {
-            fillEl.style.width = etapes[etapeIdx].pct + '%';
-            statusEl.textContent = etapes[etapeIdx].msg;
-            etapeIdx++;
-        }
-    }, 1500);
-
-    try {
-        const formData = new FormData();
-        formData.append('ticket_photo', scannerFile);
-        formData.append('ticket', JSON.stringify({}));
-        formData.append('client_info', JSON.stringify({}));
-
-        const resp = await fetch(`${API_BASE}/api/analyze`, {
-            method: 'POST',
-            body: formData
-        });
-
-        clearInterval(progressTimer);
-
-        if (!resp.ok) throw new Error('Erreur serveur ' + resp.status);
-
-        const data = await resp.json();
-
-        fillEl.style.width = '100%';
-        statusEl.textContent = 'Analyse terminee!';
-
-        // Retirer la zone de scan
-        setTimeout(() => {
-            const scanZone = document.getElementById('scan-zone');
-            if (scanZone) scanZone.remove();
-
-            // Afficher les resultats OCR dans le chat
-            afficherResultatsScan(data);
-        }, 800);
-
-    } catch (err) {
-        clearInterval(progressTimer);
-        fillEl.style.width = '0%';
-        statusEl.textContent = 'Erreur: ' + err.message;
-        statusEl.style.color = '#fca5a5';
-        console.error('Erreur scan:', err);
-        addMessage('system', 'Erreur lors de l\'analyse. Vous pouvez reessayer ou remplir les informations manuellement.');
-    }
-}
-
-function afficherResultatsScan(data) {
-    const chat = document.getElementById('chat');
-    const analyse = data.analyse || {};
-    const ticket = analyse.ticket || data.ticket || {};
-
-    // Construire le resume des champs extraits
-    const champs = {
-        'Infraction': ticket.infraction || analyse.infraction || '?',
-        'Province': ticket.juridiction || data.juridiction || '?',
-        'Date': ticket.date || '?',
-        'Amende': ticket.amende || '?',
-        'Lieu': ticket.lieu || '?',
-        'Article': ticket.loi || ticket.article || '?',
-        'Appareil': ticket.appareil || '?',
-        'Vitesse captee': ticket.vitesse_captee ? ticket.vitesse_captee + ' km/h' : '?',
-        'Vitesse permise': ticket.vitesse_permise ? ticket.vitesse_permise + ' km/h' : '?',
-    };
-
-    let fieldsHtml = '';
-    for (const [key, val] of Object.entries(champs)) {
-        if (val && val !== '?' && val !== '0' && val !== '0 km/h') {
-            fieldsHtml += `<div class="ocr-field"><span class="ocr-field-key">${key}</span><span class="ocr-field-val">${val}</span></div>`;
-        }
-    }
-
-    if (!fieldsHtml) {
-        fieldsHtml = '<div style="color:var(--dim);">Aucun champ detecte. Continuez manuellement.</div>';
-    }
-
-    const resultDiv = document.createElement('div');
-    resultDiv.className = 'ocr-result';
-    resultDiv.innerHTML = `
-        <h3>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Ticket analyse par AITICKETINFO
-        </h3>
-        ${fieldsHtml}
-        <div style="margin-top:10px;font-size:11px;color:var(--dim);">
-            Score: ${data.score || '?'}/10 | Confiance: ${data.confiance || '?'}% | Dossier: #${data.dossier_uuid || '?'}
-        </div>
-        <div style="margin-top:8px;">
-            <button class="scan-btn" onclick="utiliserDonneesScan(this)" style="width:100%;justify-content:center;font-size:13px;padding:10px;">
-                Utiliser ces informations dans le chatbot
-            </button>
-        </div>
-    `;
-    resultDiv.dataset.ticket = JSON.stringify(ticket);
-    resultDiv.dataset.analyse = JSON.stringify(data);
-
-    chat.insertBefore(resultDiv, document.getElementById('typing'));
-    scrollToBottom();
-}
-
-async function utiliserDonneesScan(btn) {
-    const resultDiv = btn.closest('.ocr-result');
-    const ticket = JSON.parse(resultDiv.dataset.ticket || '{}');
-    const analyseData = JSON.parse(resultDiv.dataset.analyse || '{}');
-
-    btn.disabled = true;
-    btn.textContent = 'Application en cours...';
-
-    // Envoyer les infos extraites une par une au chatbot
-    const mappings = [
-        { champ: 'infraction', val: ticket.infraction },
-        { champ: 'province', val: ticket.juridiction === 'QC' ? 'Quebec' : ticket.juridiction === 'ON' ? 'Ontario' : null },
-        { champ: 'date', val: ticket.date },
-        { champ: 'amende', val: ticket.amende },
-        { champ: 'lieu', val: ticket.lieu },
-        { champ: 'circonstances', val: [ticket.appareil, ticket.vitesse_captee ? ticket.vitesse_captee + ' km/h capte' : '', ticket.vitesse_permise ? ticket.vitesse_permise + ' km/h permis' : ''].filter(Boolean).join(', ') || null },
-    ];
-
-    for (const m of mappings) {
-        if (m.val && m.val !== '?' && m.val !== '0' && etapeCourante < totalEtapes) {
-            addMessage('user', m.val);
-            showTyping(true);
-
-            try {
-                const resp = await fetch(`${API_BASE}/api/chat/reply`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ session_id: sessionId, message: m.val, langue: langue })
-                });
-                const data = await resp.json();
-                showTyping(false);
-                etapeCourante = data.etape || 0;
-                updateProgress(etapeCourante);
-                addMessage('bot', data.message);
-
-                if (data.termine) {
-                    termine = true;
-                    document.getElementById('input-area').style.display = 'none';
-                    break;
-                }
-
-                if (data.options && data.options.length > 0) {
-                    // Ne pas afficher les options si on va auto-remplir la prochaine
-                    const nextMapping = mappings[mappings.indexOf(m) + 1];
-                    if (!nextMapping || !nextMapping.val || nextMapping.val === '?') {
-                        showOptions(data.options, data.type);
-                    }
-                }
-            } catch (err) {
-                showTyping(false);
-                break;
-            }
-
-            // Petit delai entre chaque envoi pour le naturel
-            await new Promise(r => setTimeout(r, 600));
-        }
-    }
-
-    btn.textContent = 'Informations appliquees';
-    addMessage('system', langue === 'fr'
-        ? 'Les informations du ticket ont ete appliquees. Continuez a repondre aux questions restantes.'
-        : 'Ticket information has been applied. Continue answering the remaining questions.');
-}
-
-function showScannerBanner(show) {
-    // Maintenant on affiche la zone de scan dans le chat au lieu d'un banner
-    if (show) showScannerInChat();
-}
-
-// ─── LANGUE ──────────────────────────────────
-function toggleLangue() {
-    langue = langue === 'fr' ? 'en' : 'fr';
-    document.querySelector('.lang-toggle').textContent =
-        langue === 'fr' ? 'EN / FR' : 'FR / EN';
-    // Redemarrer la conversation
-    document.getElementById('chat').innerHTML =
-        '<div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>';
-    termine = false;
-    document.getElementById('input-area').style.display = '';
-    sessionId = 'chat_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    demarrerChat();
+/* ===== LANGUE ===== */
+function toggleLangue(){
+  langue=langue==='fr'?'en':'fr';
+  document.querySelector('.lang-toggle').textContent=langue==='fr'?'EN / FR':'FR / EN';
+  document.getElementById('chat').innerHTML='<div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>';
+  termine=false;document.getElementById('input-area').style.display='';
+  sessionId='chat_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+  demarrerChat();
 }
 </script>
-
 </body>
 </html>

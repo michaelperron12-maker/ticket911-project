@@ -1,337 +1,872 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AITicketInfo Admin — Dashboard</title>
 <style>
-:root{--bg:#f0f4f8;--card:#ffffff;--card2:#f1f5f9;--accent:#1e3a5f;--green:#16a34a;--yellow:#ca8a04;--red:#dc2626;--orange:#ea580c;--purple:#7c3aed;--cyan:#0891b2;--text:#1e293b;--dim:#64748b;--border:#e2e8f0;--shadow:0 1px 3px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.04);--gold:#d4a843;}
+/* ===== CSS VARIABLES ===== */
+:root {
+  --bg:#f0f4f8;--card:#ffffff;--card-alt:#f8fafc;--accent:#1e3a5f;--accent-light:#2a4f7f;
+  --red:#e63946;--gold:#d4a843;--green:#16a34a;--yellow:#ca8a04;--orange:#ea580c;
+  --purple:#7c3aed;--cyan:#0891b2;--pink:#db2777;
+  --text:#1e293b;--text2:#334155;--dim:#64748b;--muted:#94a3b8;
+  --border:#e2e8f0;--border-light:#f1f5f9;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.08);
+  --sidebar-w:240px;--topbar-h:56px;
+}
+[data-theme="dark"] {
+  --bg:#0b1120;--card:#1e293b;--card-alt:#162032;
+  --text:#e2e8f0;--text2:#cbd5e1;--dim:#94a3b8;--muted:#64748b;
+  --border:#334155;--border-light:#1e293b;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 2px 8px rgba(0,0,0,.2);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.3);
+}
+
+/* ===== RESET ===== */
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.header{background:linear-gradient(135deg,#1e3a5f 0%,#2a4f7f 50%,#1e3a5f 100%);border-bottom:none;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(30,58,95,.25);}
-.header h1{font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.3px;}.header h1 span{color:var(--gold);}.header h1 .sub{font-size:11px;font-weight:500;color:rgba(255,255,255,.6);margin-left:8px;letter-spacing:0.5px;}
-.status{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.7);}
-.dot{width:10px;height:10px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;box-shadow:0 0 8px rgba(74,222,128,.5);}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px rgba(74,222,128,.5)}50%{opacity:.4;box-shadow:0 0 2px rgba(74,222,128,.2)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.refresh-btn{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2);padding:9px 22px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;backdrop-filter:blur(4px);}
-.refresh-btn:hover{background:rgba(255,255,255,.25);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15);}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:22px 28px;max-width:1520px;margin:0 auto;}
-.card{background:var(--card);border-radius:14px;padding:22px;border:1px solid var(--border);box-shadow:var(--shadow);transition:all .25s;animation:fadeIn .4s ease-out;}
-.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);border-color:#cbd5e1;}
-.card h2{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;display:flex;align-items:center;gap:6px;padding-bottom:8px;border-bottom:2px solid var(--border);}
-.big-num{font-size:34px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-1px;}
-.big-label{font-size:11px;color:var(--dim);margin-top:4px;}
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+a{text-decoration:none;color:inherit;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--border-light);}
+::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--dim);}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:#0f172a;z-index:200;display:flex;flex-direction:column;transition:transform .3s ease;overflow-y:auto;overflow-x:hidden;}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar-logo h1{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.5px;}
+.sidebar-logo h1 em{color:var(--gold);font-style:normal;}
+.sidebar-logo .sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.sidebar-nav{padding:12px 0;flex:1;}
+.sidebar-group-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:16px 20px 6px;}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);transition:all .15s;cursor:pointer;border-left:3px solid transparent;}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,.05);}
+.sidebar-link.active{color:var(--gold);background:rgba(212,168,67,.08);border-left-color:var(--gold);}
+.sidebar-link svg{width:18px;height:18px;opacity:.6;flex-shrink:0;}.sidebar-link.active svg{opacity:1;}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.06);margin:8px 16px;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);}
+.sidebar-status{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px rgba(74,222,128,.4)}50%{opacity:.4;box-shadow:0 0 2px rgba(74,222,128,.1)}}
+.theme-toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;padding:6px 0;transition:color .15s;}
+.theme-toggle:hover{color:rgba(255,255,255,.8);}
+.theme-toggle-track{width:36px;height:20px;background:rgba(255,255,255,.15);border-radius:10px;position:relative;transition:background .2s;}
+.theme-toggle-thumb{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s;}
+[data-theme="dark"] .theme-toggle-thumb{transform:translateX(16px);}
+[data-theme="dark"] .theme-toggle-track{background:var(--gold);}
+
+/* ===== HAMBURGER ===== */
+.hamburger{display:none;position:fixed;top:10px;left:10px;z-index:300;width:40px;height:40px;background:#0f172a;border:none;border-radius:10px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.hamburger span{width:18px;height:2px;background:#fff;border-radius:1px;transition:all .2s;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190;}
+
+/* ===== MAIN CONTENT ===== */
+.main-content{margin-left:var(--sidebar-w);min-height:100vh;transition:margin-left .3s;}
+
+/* ===== TOP BAR ===== */
+.top-bar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100;transition:background .3s,border-color .3s;}
+.top-bar-left{display:flex;align-items:center;gap:12px;}
+.top-bar-title{font-size:15px;font-weight:700;color:var(--text);}
+.legal-badge{font-size:10px;color:var(--muted);background:var(--card-alt);padding:3px 10px;border-radius:4px;border:1px solid var(--border);}
+.top-bar-right{display:flex;align-items:center;gap:12px;}
+.refresh-btn{background:var(--accent);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.refresh-btn:hover{background:var(--accent-light);transform:translateY(-1px);}
+.refresh-btn.loading{opacity:.6;pointer-events:none;}
+.last-update{font-size:11px;color:var(--muted);}
+
+/* ===== HERO KPIS ===== */
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:24px 28px 8px;max-width:1400px;}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow);transition:all .25s;position:relative;overflow:hidden;}
+.kpi-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.kpi-juris::before{background:var(--accent);}.kpi-agents::before{background:var(--green);}
+.kpi-canlii::before{background:var(--gold);}.kpi-system::before{background:var(--cyan);}
+.kpi-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.kpi-label{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.kpi-juris .kpi-icon{background:rgba(30,58,95,.1);}.kpi-agents .kpi-icon{background:rgba(22,163,74,.1);}
+.kpi-canlii .kpi-icon{background:rgba(212,168,67,.1);}.kpi-system .kpi-icon{background:rgba(8,145,178,.1);}
+[data-theme="dark"] .kpi-juris .kpi-icon{background:rgba(30,58,95,.3);}
+[data-theme="dark"] .kpi-agents .kpi-icon{background:rgba(22,163,74,.2);}
+[data-theme="dark"] .kpi-canlii .kpi-icon{background:rgba(212,168,67,.2);}
+[data-theme="dark"] .kpi-system .kpi-icon{background:rgba(8,145,178,.2);}
+.kpi-value{font-size:32px;font-weight:900;line-height:1;letter-spacing:-1px;margin-bottom:4px;}
+.kpi-sub{font-size:11px;color:var(--dim);margin-bottom:8px;}
+.kpi-detail{font-size:11px;color:var(--muted);}
+.kpi-tags{margin-top:8px;}
+.tag{display:inline-block;background:rgba(30,58,95,.08);color:var(--accent);padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;margin:2px 2px 2px 0;}
+[data-theme="dark"] .tag{background:rgba(212,168,67,.12);color:var(--gold);}
+.kpi-sparkline{margin-top:8px;}
+.kpi-bar-mini{display:flex;align-items:center;gap:6px;margin:4px 0;}
+.kpi-bar-mini-label{font-size:10px;color:var(--dim);min-width:30px;}
+.kpi-bar-mini-track{flex:1;height:5px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+.kpi-bar-mini-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.kpi-bar-mini-val{font-size:10px;font-weight:700;min-width:32px;text-align:right;}
+.quota-bar{width:100%;height:8px;background:var(--border-light);border-radius:4px;overflow:hidden;margin:6px 0;}
+.quota-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+
+/* ===== SECTIONS ===== */
+.content-area{padding:16px 28px 40px;max-width:1400px;}
+.section{margin-bottom:12px;opacity:0;transform:translateY(12px);animation:sectionIn .4s ease forwards;}
+.section:nth-child(1){animation-delay:.05s;}.section:nth-child(2){animation-delay:.1s;}
+.section:nth-child(3){animation-delay:.15s;}.section:nth-child(4){animation-delay:.2s;}
+.section:nth-child(5){animation-delay:.25s;}
+@keyframes sectionIn{to{opacity:1;transform:translateY(0)}}
+.section-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;user-select:none;transition:all .15s;}
+.section-header:hover{background:var(--card-alt);}
+.section-header h2{font-size:13px;font-weight:700;color:var(--text);flex:1;letter-spacing:-.2px;}
+.section-count{font-size:11px;color:var(--muted);font-weight:500;}
+.section-arrow{font-size:14px;color:var(--dim);transition:transform .2s;}
+.section.collapsed .section-arrow{transform:rotate(-90deg);}
+.section-icon{font-size:16px;}
+.section-body{overflow:hidden;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;max-height:8000px;opacity:1;padding:12px 0 0;}
+.section.collapsed .section-body{max-height:0;opacity:0;padding:0;}
+.section-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.section-grid .span2{grid-column:span 2;}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);transition:all .25s;}
+.card:hover{box-shadow:var(--shadow-lg);}
+.card h3{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-light);}
 .stat-row:last-child{border:none;}
-.stat-key{font-size:12px;color:var(--dim);}
-.stat-val{font-size:13px;font-weight:700;color:var(--text);}
-.stat-desc{font-size:10px;color:#94a3b8;font-weight:400;}
+.stat-key{font-size:12px;color:var(--dim);}.stat-val{font-size:12px;font-weight:700;color:var(--text);}
+.stat-desc{font-size:10px;color:var(--muted);font-weight:400;}
 .bar-container{display:flex;align-items:center;gap:6px;margin:3px 0;}
-.bar{height:6px;border-radius:3px;transition:width .5s;}
+.bar{height:5px;border-radius:3px;transition:width .5s;}
 .bar-label{font-size:11px;color:var(--dim);min-width:45px;text-align:right;font-weight:600;}
 .bar-name{font-size:11px;color:var(--text);min-width:80px;font-weight:600;}
-.alert{padding:10px 14px;border-radius:8px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:8px;}
-.alert.warning{background:#fefce8;border:1px solid #fde047;color:#854d0e;}
-.alert.info{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;}
-.quota-bar{width:100%;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin:8px 0;}
-.quota-fill{height:100%;border-radius:4px;transition:width .5s;}
-.loading{text-align:center;padding:40px;color:var(--dim);font-size:15px;grid-column:span 4;}
-.span2{grid-column:span 2;}.span3{grid-column:span 3;}.span4{grid-column:span 4;}
-.log-box{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:14px;font-family:'JetBrains Mono','Fira Code',monospace;font-size:10px;color:#4ade80;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
-.tag{display:inline-block;background:#eff6ff;color:#1e40af;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;margin:2px 3px 2px 0;}
-.svc-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;}
+.quality-row{display:flex;align-items:center;gap:8px;padding:5px 0;}
+.quality-label{font-size:12px;color:var(--dim);min-width:90px;}
+.quality-bar{flex:1;height:7px;background:var(--border-light);border-radius:4px;overflow:hidden;}
+.quality-fill{height:100%;border-radius:4px;transition:width .5s;}
+.quality-pct{font-size:12px;font-weight:700;min-width:45px;text-align:right;}
+.agent-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border-light);}
+.agent-row:last-child{border:none;}
+.agent-name{font-size:11px;color:var(--text);min-width:120px;font-weight:700;}
+.agent-bar{flex:1;height:4px;background:var(--border-light);border-radius:2px;overflow:hidden;}
+.agent-fill{height:100%;border-radius:2px;}.agent-stat{font-size:10px;color:var(--dim);min-width:38px;text-align:right;font-weight:600;}
+.svc-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-light);}
 .svc-row:last-child{border:none;}
 .svc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .svc-name{font-size:12px;font-weight:700;color:var(--text);min-width:120px;}
-.svc-desc{font-size:11px;color:var(--dim);flex:1;}
-.svc-status{font-size:11px;font-weight:700;}
-.quality-row{display:flex;align-items:center;gap:8px;padding:6px 0;}
-.quality-label{font-size:12px;color:var(--dim);min-width:100px;}
-.quality-bar{flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;}
-.quality-fill{height:100%;border-radius:4px;transition:width .5s;}
-.quality-pct{font-size:12px;font-weight:700;min-width:50px;text-align:right;}
-.agent-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #f8fafc;}
-.agent-row:last-child{border:none;}
-.agent-name{font-size:11px;color:var(--text);min-width:130px;font-weight:700;}
-.agent-bar{flex:1;height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden;}
-.agent-fill{height:100%;border-radius:3px;}
-.agent-stat{font-size:10px;color:var(--dim);min-width:40px;text-align:right;font-weight:600;}
-@media(max-width:1200px){.grid{grid-template-columns:repeat(2,1fr);gap:14px;}.span3,.span4{grid-column:span 2;}}
-@media(max-width:768px){.grid{grid-template-columns:1fr;padding:12px;gap:12px;}.span2,.span3,.span4{grid-column:span 1;}.header{padding:14px 16px;}.header h1{font-size:18px;}.header h1 .sub{display:none;}}
-::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:#f1f5f9;border-radius:3px;}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:#64748b;}
-.nav-bar{background:#0f172a;padding:0 28px;display:flex;align-items:center;gap:0;border-bottom:2px solid var(--gold);position:sticky;top:58px;z-index:99;overflow-x:auto;}
-.nav-bar a{color:rgba(255,255,255,.65);text-decoration:none;font-size:12px;font-weight:600;padding:12px 18px;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap;}
-.nav-bar a:hover{color:#fff;background:rgba(255,255,255,.06);border-bottom-color:var(--gold);}
-.nav-bar a.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(212,168,67,.08);}
-.nav-bar .nav-sep{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 4px;}
-.legal-banner{background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 28px;font-size:11px;color:#92400e;text-align:center;font-weight:500;}
+.svc-desc{font-size:11px;color:var(--dim);flex:1;}.svc-status{font-size:11px;font-weight:700;}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:8px;}
+.alert.warning{background:#fefce8;border:1px solid #fde047;color:#854d0e;}
+.alert.info{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;}
+[data-theme="dark"] .alert.warning{background:rgba(254,252,232,.08);border-color:rgba(253,224,71,.25);}
+[data-theme="dark"] .alert.info{background:rgba(239,246,255,.06);border-color:rgba(147,197,253,.2);}
+.log-box{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;font-family:'JetBrains Mono','Fira Code',monospace;font-size:10px;color:#4ade80;max-height:150px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+.big-num{font-size:28px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-1px;}
+.big-label{font-size:11px;color:var(--dim);margin-top:3px;}
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.agent-card{background:var(--card-alt);border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s;}
+.agent-card:hover{border-color:var(--dim);}
+
+/* ===== SKELETON ===== */
+.skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--card-alt) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;display:inline-block;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-line{height:12px;margin:6px 0;width:80%;}.skeleton-big{height:36px;width:120px;margin-bottom:6px;}
+
+/* ===== SEARCH ===== */
+.search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card-alt);color:var(--text);font-size:13px;outline:none;transition:border .2s;}
+.search-input:focus{border-color:var(--accent);}
+.search-select{padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;}
+.search-btn{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;transition:all .2s;}
+.search-btn:hover{background:var(--accent-light);}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;overflow-y:auto;padding:20px;}
+.modal-content{max-width:900px;margin:20px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 25px 50px rgba(0,0,0,.15);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);border-radius:14px 14px 0 0;z-index:1;}
+.modal-title{font-weight:900;font-size:16px;color:var(--text);}
+.modal-close{background:var(--red);color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700;transition:all .2s;}
+.modal-close:hover{filter:brightness(.9);}
+.modal-body{padding:20px;font-size:13px;color:var(--text2);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1200px){
+  .hero-kpis{grid-template-columns:repeat(2,1fr);}
+  .section-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.active{display:block;}
+  .hamburger{display:flex;}
+  .main-content{margin-left:0;}
+  .top-bar{padding:0 16px 0 56px;}
+  .hero-kpis{grid-template-columns:repeat(2,1fr);gap:10px;padding:16px;}
+  .content-area{padding:12px 16px 40px;}
+  .section-grid{grid-template-columns:1fr;}.section-grid .span2{grid-column:span 1;}
+  .kpi-value{font-size:24px;}
+  .agents-grid{grid-template-columns:1fr;}
+  .search-bar{flex-direction:column;}
+  .legal-badge{display:none;}
+}
+@media(max-width:480px){.hero-kpis{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<div class="header">
-    <h1>AI<span>TicketInfo</span> Admin<span class="sub">Dashboard</span></h1>
-    <div style="display:flex;align-items:center;gap:16px;">
-        <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Connexion...</span></div>
-        <button class="refresh-btn" onclick="loadData()">Rafraichir</button>
+
+<!-- Hamburger mobile -->
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>AI<em>TicketInfo</em></h1>
+    <div class="sub">Admin Dashboard</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group-label">Navigation</div>
+    <a class="sidebar-link active" onclick="scrollToSection('top')" data-nav="top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="sidebar-link" onclick="scrollToSection('data')" data-nav="data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Data & Qualite
+    </a>
+    <a class="sidebar-link" onclick="scrollToSection('agents')" data-nav="agents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Agents & Pipeline
+    </a>
+    <a class="sidebar-link" onclick="scrollToSection('analytics')" data-nav="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </a>
+    <a class="sidebar-link" onclick="scrollToSection('system')" data-nav="system">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      Systeme & Services
+    </a>
+    <a class="sidebar-link" onclick="scrollToSection('logs')" data-nav="logs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Logs & RAG
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-group-label">Liens externes</div>
+    <a class="sidebar-link" href="/scanticket/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+      Scanner
+    </a>
+    <a class="sidebar-link" href="/scanticket/recensement">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Recensement
+    </a>
+    <a class="sidebar-link" href="/scanticket/chatbot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chatbot
+    </a>
+    <a class="sidebar-link" href="/scanticket/presentation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Presentation
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-status">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusText">Connexion...</span>
     </div>
+    <div class="theme-toggle" onclick="toggleDarkMode()">
+      <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
+      <span id="themeLabel">Mode sombre</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+  <!-- Top bar -->
+  <header class="top-bar" id="top">
+    <div class="top-bar-left">
+      <span class="top-bar-title">Dashboard</span>
+      <span class="legal-badge">Sources: CanLII, SAAQ, Donnees Quebec, MTQ</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="last-update" id="lastUpdate"></span>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadData()">Rafraichir</button>
+    </div>
+  </header>
+
+  <!-- Hero KPIs -->
+  <section class="hero-kpis" id="heroKpis">
+    <div class="kpi-card kpi-juris">
+      <div class="kpi-header"><span class="kpi-label">Jurisprudence</span><div class="kpi-icon">&#9878;</div></div>
+      <div class="kpi-value" id="kpiJurisVal"><div class="skeleton skeleton-big"></div></div>
+      <div class="kpi-sub" id="kpiJurisSub">decisions de cour</div>
+      <div class="kpi-tags" id="kpiJurisTags"><div class="skeleton skeleton-line" style="width:60%"></div></div>
+      <div class="kpi-sparkline" id="kpiJurisSparkline"></div>
+    </div>
+    <div class="kpi-card kpi-agents">
+      <div class="kpi-header"><span class="kpi-label">Agents AI</span><div class="kpi-icon">&#9881;</div></div>
+      <div class="kpi-value" id="kpiAgentsVal"><div class="skeleton skeleton-big"></div></div>
+      <div class="kpi-sub" id="kpiAgentsSub">agents actifs</div>
+      <div class="kpi-detail" id="kpiAgentsDetail"><div class="skeleton skeleton-line" style="width:70%"></div></div>
+    </div>
+    <div class="kpi-card kpi-canlii">
+      <div class="kpi-header"><span class="kpi-label">Quota CanLII</span><div class="kpi-icon">&#9889;</div></div>
+      <div class="kpi-value" id="kpiCanliiVal"><div class="skeleton skeleton-big"></div></div>
+      <div class="kpi-sub" id="kpiCanliiSub">requetes restantes</div>
+      <div class="quota-bar"><div class="quota-fill" id="kpiCanliiBar" style="width:0%"></div></div>
+      <div class="kpi-detail" id="kpiCanliiDetail"></div>
+    </div>
+    <div class="kpi-card kpi-system">
+      <div class="kpi-header"><span class="kpi-label">Systeme</span><div class="kpi-icon">&#128421;</div></div>
+      <div id="kpiSystemBars">
+        <div class="skeleton skeleton-line" style="width:90%"></div>
+        <div class="skeleton skeleton-line" style="width:85%"></div>
+        <div class="skeleton skeleton-line" style="width:75%"></div>
+      </div>
+      <div class="kpi-detail" id="kpiSystemUptime"></div>
+    </div>
+  </section>
+
+  <!-- Content sections -->
+  <div class="content-area">
+
+    <!-- SECTION A: Data & Qualite -->
+    <section class="section" id="data">
+      <div class="section-header" onclick="toggleSection('data')">
+        <span class="section-icon">&#128451;</span>
+        <h2>Data & Qualite</h2>
+        <span class="section-count" id="dataCount"></span>
+        <span class="section-arrow">&#9662;</span>
+      </div>
+      <div class="section-body" id="data-body">
+        <div class="section-grid" id="dataContent">
+          <div class="card"><div class="skeleton skeleton-big"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:60%"></div></div>
+          <div class="card"><div class="skeleton skeleton-big"></div><div class="skeleton skeleton-line"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION B: Agents & Pipeline -->
+    <section class="section" id="agents">
+      <div class="section-header" onclick="toggleSection('agents')">
+        <span class="section-icon">&#9881;</span>
+        <h2>Agents & Pipeline</h2>
+        <span class="section-count" id="agentsCount"></span>
+        <span class="section-arrow">&#9662;</span>
+      </div>
+      <div class="section-body" id="agents-body">
+        <div id="agentsContent">
+          <div class="card"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:70%"></div><div class="skeleton skeleton-line" style="width:50%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION C: Analytics -->
+    <section class="section" id="analytics">
+      <div class="section-header" onclick="toggleSection('analytics')">
+        <span class="section-icon">&#128200;</span>
+        <h2>Analytics</h2>
+        <span class="section-count" id="analyticsCount"></span>
+        <span class="section-arrow">&#9662;</span>
+      </div>
+      <div class="section-body" id="analytics-body">
+        <div class="section-grid" id="analyticsContent">
+          <div class="card"><div class="skeleton skeleton-big"></div><div class="skeleton skeleton-line"></div></div>
+          <div class="card"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:60%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION D: Systeme & Services -->
+    <section class="section" id="system">
+      <div class="section-header" onclick="toggleSection('system')">
+        <span class="section-icon">&#128421;</span>
+        <h2>Systeme & Services</h2>
+        <span class="section-count" id="systemCount"></span>
+        <span class="section-arrow">&#9662;</span>
+      </div>
+      <div class="section-body" id="system-body">
+        <div class="section-grid" id="systemContent">
+          <div class="card"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:60%"></div></div>
+          <div class="card"><div class="skeleton skeleton-line"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION E: Logs & RAG -->
+    <section class="section" id="logs">
+      <div class="section-header" onclick="toggleSection('logs')">
+        <span class="section-icon">&#128270;</span>
+        <h2>Logs & RAG</h2>
+        <span class="section-count" id="logsCount"></span>
+        <span class="section-arrow">&#9662;</span>
+      </div>
+      <div class="section-body" id="logs-body">
+        <div id="logsContent">
+          <!-- Logs cards rendered dynamically + static search panel below -->
+        </div>
+        <!-- Static RAG search panel (never re-rendered) -->
+        <div class="card" style="margin-top:14px;" id="ragSearchCard">
+          <h3>Test Recherche RAG</h3>
+          <div class="search-bar">
+            <input id="searchQ" type="text" class="search-input" placeholder="Recherche: mot-cle, article (328), ou description..." onkeydown="if(event.key==='Enter')testSearch()">
+            <select id="searchMode" class="search-select">
+              <option value="all">Toutes (text+vector+article)</option>
+              <option value="text">Texte seul (tsvector)</option>
+              <option value="vector">Vectoriel (pgvector)</option>
+              <option value="article">Article CSR</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;">
+              <input type="checkbox" id="searchRerank" checked style="accent-color:#7c3aed;">
+              <span style="font-size:11px;color:var(--purple);font-weight:700;">Reranker</span>
+            </label>
+            <button onclick="testSearch()" class="search-btn">Chercher</button>
+          </div>
+          <div id="searchStatus" style="font-size:11px;color:var(--dim);margin-bottom:8px;"></div>
+          <div id="searchLoi" style="margin-bottom:8px;"></div>
+          <div id="searchResults" style="max-height:400px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ===== MODAL JURISPRUDENCE ===== -->
+<div id="jurisModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span id="jurisModalTitle" class="modal-title"></span>
+      <button onclick="closeJurisModal()" class="modal-close">Fermer</button>
+    </div>
+    <div id="jurisModalBody" class="modal-body">Chargement...</div>
+  </div>
 </div>
-<nav class="nav-bar">
-    <a href="/scanticket/">Scanner</a>
-    <a href="/scanticket/admin" class="active">Admin</a>
-    <a href="/scanticket/recensement">Recensement</a>
-    <a href="/scanticket/chatbot">Chatbot</a>
-    <div class="nav-sep"></div>
-    <a href="/scanticket/presentation">Presentation</a>
-    <a href="/scanticket/resume-apis">APIs & Agents</a>
-    <a href="/scanticket/plan-execution">Plan execution</a>
-    <a href="/scanticket/email-pitch">Email pitch</a>
-</nav>
-<div class="legal-banner">Information factuelle uniquement — Sources: CanLII, SAAQ, Donnees Quebec, MTQ — Aucun conseil juridique</div>
-<div id="content" class="grid"><div class="loading">Chargement des donnees...</div></div>
+
 <script>
-const API=window.location.origin+'/scanticket/api/monitor';
-async function loadData(){
-try{const r=await fetch(API);const d=await r.json();if(d.status==='error')throw new Error(d.error);render(d);document.getElementById('statusDot').style.background='#16a34a';document.getElementById('statusText').textContent='En ligne — '+new Date(d.timestamp).toLocaleTimeString('fr-CA');}catch(e){document.getElementById('statusDot').style.background='#dc2626';document.getElementById('statusText').textContent='Erreur: '+e.message;}}
+/* ===== GLOBALS ===== */
+const API = window.location.origin + '/scanticket/api/monitor';
+const TN = {qccm:'Cour municipale QC',qccq:'Cour du Quebec',qccs:'Cour superieure QC',qcca:"Cour d'appel QC",qcctq:'Commission transports QC',qctaq:'Tribunal admin QC',oncj:'Cour de justice ON',onscdc:'Cour divisionnaire ON',onca:"Cour d'appel ON",onsc:'Cour superieure ON',fc:'Cour federale',fca:"Cour d'appel federale",fct:'Cour federale - Tribunal',scc:'Cour supreme Canada',csc:'Cour supreme Canada',bcca:"Cour d'appel BC",bcsc:'Cour superieure BC',bcscf:'Cour BC famille',chrt:'Tribunal droits personne',cmac:'Cour martiale',caf:"Cour d'appel federale",cfpi:'Cour fed. PI',tcpd:'Tribunal concurrence','N/A':'Non classe'};
+
+/* ===== HELPERS ===== */
 function fmt(n){return(n||0).toLocaleString('fr-CA');}
 function pc(p){return p>=95?'#16a34a':p>=80?'#ca8a04':p>=50?'#ea580c':'#dc2626';}
-const TN={qccm:'Cour municipale QC',qccq:'Cour du Quebec',qccs:'Cour superieure QC',qcca:'Cour d\'appel QC',qcctq:'Commission transports QC',qctaq:'Tribunal admin QC',oncj:'Cour de justice ON',onscdc:'Cour divisionnaire ON',onca:'Cour d\'appel ON',onsc:'Cour superieure ON',fc:'Cour federale',fca:'Cour d\'appel federale',fct:'Cour federale - Tribunal',scc:'Cour supreme Canada',csc:'Cour supreme Canada',bcca:'Cour d\'appel BC',bcsc:'Cour superieure BC',bcscf:'Cour BC famille',chrt:'Tribunal droits personne',cmac:'Cour martiale',caf:'Cour d\'appel federale',cfpi:'Cour fed. PI',tcpd:'Tribunal concurrence','N/A':'Non classe'};
+function esc(s){return(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ===== COUNT-UP ANIMATION ===== */
+function animateCount(elId, target, suffix=''){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const duration = 800;
+  const start = performance.now();
+  function tick(now){
+    const p = Math.min((now-start)/duration, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    el.textContent = fmt(Math.round(target * ease)) + suffix;
+    if(p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ===== SPARKLINE SVG ===== */
+function sparkline(data, color){
+  if(!data || data.length < 2) return '';
+  const vals = data.map(d => typeof d === 'number' ? d : (d[1]||d.count||0));
+  const max = Math.max(...vals, 1);
+  const w=100, h=24;
+  const pts = vals.map((v,i) => `${i*w/(vals.length-1)},${h-(v/max)*h}`).join(' ');
+  return `<svg width="${w}" height="${h}" style="display:block;opacity:.7;"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/* ===== THEME ===== */
+function toggleDarkMode(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('ati-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeLabel').textContent = isDark ? 'Mode sombre' : 'Mode clair';
+}
+(function(){
+  const t = localStorage.getItem('ati-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  const lbl = document.getElementById('themeLabel');
+  if(lbl) lbl.textContent = t === 'dark' ? 'Mode clair' : 'Mode sombre';
+})();
+
+/* ===== SIDEBAR ===== */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function scrollToSection(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  // Update active link
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const link = document.querySelector(`.sidebar-link[data-nav="${id}"]`);
+  if(link) link.classList.add('active');
+  // Close mobile sidebar
+  if(window.innerWidth <= 768) toggleSidebar();
+}
+
+/* ===== COLLAPSE SECTIONS ===== */
+function toggleSection(id){
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+/* ===== LOAD DATA ===== */
+async function loadData(){
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading'); btn.textContent = '...';
+  try {
+    const r = await fetch(API);
+    const d = await r.json();
+    if(d.status === 'error') throw new Error(d.error);
+    render(d);
+    document.getElementById('statusDot').style.background = '#16a34a';
+    document.getElementById('statusText').textContent = 'En ligne';
+    document.getElementById('lastUpdate').textContent = new Date(d.timestamp).toLocaleTimeString('fr-CA');
+  } catch(e){
+    document.getElementById('statusDot').style.background = '#dc2626';
+    document.getElementById('statusText').textContent = 'Erreur';
+    document.getElementById('lastUpdate').textContent = e.message;
+  }
+  btn.classList.remove('loading'); btn.textContent = 'Rafraichir';
+}
+
+/* ===== RENDER ===== */
 function render(d){
-const db=d.db||{},tables=db.tables||{},desc=db.tables_desc||{},juris=db.jurisprudence||{},emb=d.embeddings||{},analyses=d.analyses||{},stats=analyses.stats||{},canlii=d.canlii||{},alertes=d.alertes||[],services=d.services||[],dq=d.data_quality||{},dqF=dq.fields||{},ag=d.agents_stats||{},rag=d.rag_metrics||{},sources=d.sources||{},cron_data=d.cron||{},saaq_data=d.saaq||{},bgAgents=d.background_agents||[],sys_info=d.system||{},robots=d.robots||[],audit=d.audit||{};
-// Services
-let sH='';services.forEach(s=>{const ok=s.status==='active'||s.status==='running';sH+=`<div class="svc-row"><div class="svc-dot" style="background:${ok?'#16a34a':'#dc2626'}"></div><span class="svc-name">${s.name}</span><span class="svc-desc">${s.desc}</span><span class="svc-status" style="color:${ok?'#16a34a':'#dc2626'}">${ok?'ACTIF':s.status.toUpperCase()}</span></div>`;});
-// Data Quality
-let dH='';const dL={database_id:'Tribunal',resume:'Resume',titre:'Titre',resultat:'Resultat',embedding:'Embedding',date_decision:'Date'};
-Object.entries(dqF).forEach(([k,v])=>{const p=v.pct||0;dH+=`<div class="quality-row"><span class="quality-label">${dL[k]||k}</span><div class="quality-bar"><div class="quality-fill" style="width:${p}%;background:${pc(p)}"></div></div><span class="quality-pct" style="color:${pc(p)}">${p}%</span></div>`;});
-// Agents
-const agents=ag.agents||[];const mR=Math.max(...agents.map(a=>a.runs),1);let aH='';const aC=['#1e3a5f','#16a34a','#7c3aed','#ea580c','#0891b2','#db2777','#ca8a04','#65a30d'];
-agents.slice(0,10).forEach((a,i)=>{aH+=`<div class="agent-row"><span class="agent-name">${a.name}</span><div class="agent-bar"><div class="agent-fill" style="width:${(a.runs/mR*100).toFixed(0)}%;background:${aC[i%aC.length]}"></div></div><span class="agent-stat">${a.runs}x</span><span class="agent-stat" style="color:${a.success_pct>=90?'#16a34a':'#dc2626'}">${a.success_pct}%</span><span class="agent-stat">${a.avg_time}s</span></div>`;});
-// Quota/Embed
-const qU=canlii.used_today||0,qM=canlii.daily_max||4800,qP=Math.min(100,qU/qM*100),qC=qP>90?'#dc2626':qP>70?'#ca8a04':'#16a34a';
-const eP=emb.pct||0,eC=eP>=100?'#16a34a':eP>50?'#ca8a04':'#dc2626';
-// Tables
-let tH='';Object.entries(tables).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{tH+=`<div class="stat-row"><span class="stat-key">${k} <span class="stat-desc">${desc[k]||''}</span></span><span class="stat-val">${v>=0?fmt(v):'N/A'}</span></div>`;});
-// Tribunaux
-const trib=juris.par_tribunal||{},mT=Math.max(...Object.values(trib),1);let trH='';const tC=['#1e3a5f','#16a34a','#ca8a04','#ea580c','#7c3aed','#0891b2','#db2777','#65a30d'];
-Object.entries(trib).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{trH+=`<div class="bar-container"><span class="bar-name" title="${TN[k]||k}">${k.toUpperCase()}</span><div style="flex:1;background:#f1f5f9;border-radius:3px;height:6px;"><div class="bar" style="width:${(v/mT*100).toFixed(0)}%;background:${tC[i%tC.length]};"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
-// Resultats
-const res=juris.par_resultat||{},mRs=Math.max(...Object.values(res),1);const rC={acquitte:'#16a34a',coupable:'#dc2626',rejete:'#ea580c',reduit:'#ca8a04',inconnu:'#94a3b8',reference:'#7c3aed',negociation:'#0891b2'};let rH='';
-Object.entries(res).forEach(([k,v])=>{rH+=`<div class="bar-container"><span class="bar-name">${k}</span><div style="flex:1;background:#f1f5f9;border-radius:3px;height:6px;"><div class="bar" style="width:${(v/mRs*100).toFixed(0)}%;background:${rC[k]||'#1e3a5f'};"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
-// Province tags
-const pT=Object.entries(juris.par_province||{}).map(([k,v])=>`<span class="tag"><strong>${fmt(v)}</strong> ${k}</span>`).join('');
-// Alertes
-let alH=alertes.length===0?'<div class="alert info">Aucune alerte</div>':'';alertes.forEach(a=>{alH+=`<div class="alert ${a.level}">${a.level==='warning'?'!':'i'} ${a.msg}</div>`;});
-// Imports
-let iH='';Object.entries(juris.imports_par_jour||{}).slice(0,7).forEach(([k,v])=>{iH+=`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val" style="color:#16a34a">+${fmt(v)}</span></div>`;});
-// Repair
-const rep=dq.last_repair||{},rr=rep.results||{},rTime=rep.last_run?new Date(rep.last_run).toLocaleString('fr-CA'):'Jamais';
+  const db=d.db||{},tables=db.tables||{},desc=db.tables_desc||{},juris=db.jurisprudence||{},emb=d.embeddings||{},analyses=d.analyses||{},stats=analyses.stats||{},canlii=d.canlii||{},alertes=d.alertes||[],services=d.services||[],dq=d.data_quality||{},dqF=dq.fields||{},ag=d.agents_stats||{},rag=d.rag_metrics||{},sources=d.sources||{},cron_data=d.cron||{},saaq_data=d.saaq||{},bgAgents=d.background_agents||[],sys_info=d.system||{},robots=d.robots||[],audit=d.audit||{};
 
-document.getElementById('content').innerHTML=`
-<div class="card"><h2>DB TOTALE</h2><div class="big-num">${fmt(db.total_rows||0)}</div><div class="big-label">lignes (${Object.keys(tables).length} tables)</div><div style="margin-top:12px;"><div class="stat-row"><span class="stat-key">Score Qualite</span><span class="stat-val" style="color:${pc(dq.score||0)}">${dq.score||0}%</span></div></div></div>
-<div class="card"><h2>JURISPRUDENCE</h2><div class="big-num">${fmt(tables.jurisprudence||0)}</div><div class="big-label">decisions de cour</div><div style="margin-top:10px;">${pT}</div></div>
-<div class="card"><h2>EMBEDDINGS RAG</h2><div class="big-num" style="color:${eC}">${eP}%</div><div class="big-label">${fmt(emb.embedded)} / ${fmt(emb.total)} dossiers</div><div class="quota-bar"><div class="quota-fill" style="width:${eP}%;background:${eC};"></div></div><div class="stat-row"><span class="stat-key">Manquants</span><span class="stat-val">${fmt(emb.missing)}</span></div><div class="stat-row"><span class="stat-key">Store</span><span class="stat-val">${emb.store||'?'} (${emb.dims||'?'}d)</span></div><div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px;">${emb.model||'?'}</span></div><div class="stat-row"><span class="stat-key">HNSW Index</span><span class="stat-val" style="color:${rag.hnsw_index?'#16a34a':'#dc2626'}">${rag.hnsw_index?'ACTIF':'ABSENT'}</span></div></div>
-<div class="card"><h2>QUOTA CANLII</h2><div class="big-num" style="color:${qC}">${fmt(canlii.remaining)}</div><div class="big-label">requetes restantes</div><div class="quota-bar"><div class="quota-fill" style="width:${qP}%;background:${qC};"></div></div><div class="stat-row"><span class="stat-key">Utilisees</span><span class="stat-val">${fmt(qU)} / ${fmt(qM)}</span></div><div class="stat-row"><span class="stat-key">Derniere MaJ</span><span class="stat-val" style="font-size:10px;">${canlii.last_update?new Date(canlii.last_update).toLocaleTimeString('fr-CA'):'—'}</span></div></div>
-<div class="card span4"><h2>SERVICES</h2>${sH}</div>
-<div class="card span2"><h2>SOURCES DE DONNEES</h2>${Object.entries(sources).filter(([k])=>k!="error").map(([k,v])=>`<div class="stat-row"><span class="stat-key" style="font-weight:700">${k==="canlii"?"CanLII (principal)":k==="a2aj"?"A2AJ (York U.)":k}</span><span class="stat-val">${(v||0).toLocaleString("fr-CA")}</span></div>`).join("")}<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;"><div class="stat-row"><span class="stat-key">Total combine</span><span class="stat-val" style="color:#16a34a">${Object.values(sources).filter(v=>typeof v==="number").reduce((a,b)=>a+b,0).toLocaleString("fr-CA")}</span></div></div></div>
-<div class="card span2"><h2>SAAQ INFRACTIONS (${fmt(saaq_data.total_constats||0)} constats reels)</h2>
-<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
-<div><span style="font-size:24px;font-weight:900;color:var(--accent);">${saaq_data.nb_articles_distincts||0}</span><div class="big-label">articles distincts</div></div>
-<div><span style="font-size:24px;font-weight:900;color:var(--accent);">${fmt(saaq_data.total_constats||0)}</span><div class="big-label">constats QC</div></div>
-</div>
-<div style="font-size:10px;color:#1e3a5f;font-weight:700;margin:8px 0 4px;">ARTICLES AVEC POINTS D'INAPTITUDE</div>
-${(saaq_data.articles||[]).map(a=>'<div class="stat-row"><span class="stat-key">Art. '+a.article+' <span class="stat-desc">'+(a.titre||'')+'</span></span><span class="stat-val" style="font-size:11px;"><span style="color:#ea580c">'+a.points_min+(a.points_max>a.points_min?'-'+a.points_max:'')+' pts</span> <span style="color:#94a3b8">|</span> <span style="color:#ca8a04">'+(a.amende_min||'?')+'-'+(a.amende_max||'?')+'$</span></span></div>').join('')}
-${(saaq_data.bareme_vitesse||[]).length>0?'<div style="font-size:10px;color:#16a34a;font-weight:700;margin:12px 0 4px;">BAREME VITESSE (constats reels)</div>':''}
-${(saaq_data.bareme_vitesse||[]).map(b=>'<div class="stat-row"><span class="stat-key">'+b.tranche+'</span><span class="stat-val" style="font-size:11px;">'+fmt(b.nb_constats)+' constats</span></div>').join('')}
-${(saaq_data.top_infractions||[]).length>0?'<div style="font-size:10px;color:#7c3aed;font-weight:700;margin:12px 0 4px;">TOP INFRACTIONS</div>':''}
-${(saaq_data.top_infractions||[]).slice(0,8).map(t=>'<div class="stat-row"><span class="stat-key">Art. '+t.article+' <span class="stat-desc">'+(t.titre||'')+'</span></span><span class="stat-val" style="font-size:11px;">'+fmt(t.nb_constats)+'</span></div>').join('')}
-<div style="margin-top:8px;font-size:10px;color:#94a3b8;">Source: PostgreSQL qc_constats_infraction + lois_articles (real data)</div>
-</div>
-<div class="card" style="grid-column:span 4"><h2>AGENTS AUTONOMES 24/7</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">${bgAgents.map(a=>{const icons={"brain":"\u{1F9E0}","download":"\u{2B07}","vector":"\u{1F50D}","wrench":"\u{1F527}","tag":"\u{1F3F7}","search":"\u{1F50E}","database":"\u{1F4BE}","pipeline":"\u{2699}"};const statusColor=a.status==="active"||a.status==="running"?"#16a34a":a.status==="complete"?"#1e3a5f":a.status==="idle"?"#94a3b8":"#ca8a04";const typeLabel={"ai":"IA","cron":"CRON","service":"SERVICE","integrated":"INTEGRE","manual":"MANUEL","pipeline":"PIPELINE"};return `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:18px">${icons[a.icon]||"\u{2699}"}</span><span style="font-weight:700;font-size:13px;color:#1e293b;flex:1">${a.name}</span><span style="background:${statusColor};color:#fff;font-size:9px;padding:2px 8px;border-radius:4px;font-weight:700">${(a.status||"?").toUpperCase()}</span></div><div style="font-size:11px;color:#64748b;margin-bottom:4px">${a.detail}</div>${a.last_run?`<div style="font-size:10px;color:#94a3b8">Dernier: ${a.last_run}</div>`:""}<div style="font-size:9px;color:#94a3b8;margin-top:3px">${typeLabel[a.type]||a.type}</div></div>`}).join("")}</div></div>
-<div class="card span2"><h2>QUALITE DONNEES</h2>${dH}</div>
-<div class="card span2"><h2>AUTO-CORRECTEUR</h2><div class="stat-row"><span class="stat-key">Dernier run</span><span class="stat-val" style="font-size:11px;">${rTime}</span></div><div class="stat-row"><span class="stat-key">database_id corriges</span><span class="stat-val">${rr.database_id?rr.database_id.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">resultat corriges</span><span class="stat-val">${rr.resultat?rr.resultat.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">ticket_related corriges</span><span class="stat-val">${rr.ticket_related?rr.ticket_related.fixed:'—'}</span></div><div class="stat-row"><span class="stat-key">Duree</span><span class="stat-val">${rr.duration||'—'}s</span></div></div>
-<div class="card span2"><h2>RECHERCHE RAG</h2><div class="stat-row"><span class="stat-key">Temps moyen recherche</span><span class="stat-val">${rag.avg_search_time_ms||0}ms</span></div><div class="stat-row"><span class="stat-key">Recherches (7j)</span><span class="stat-val">${rag.searches_7d||0}</span></div><div class="stat-row"><span class="stat-key">Index GIN</span><span class="stat-val">${rag.gin_indexes||0}</span></div><div class="stat-row"><span class="stat-key">Index HNSW</span><span class="stat-val" style="color:${rag.hnsw_index?'#16a34a':'#dc2626'}">${rag.hnsw_index?'OK':'NON CREE'}</span></div><div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px;">${rag.model||'?'}</span></div><div class="stat-row"><span class="stat-key">Dimensions</span><span class="stat-val">${rag.dims||'?'}</span></div><div class="stat-row"><span class="stat-key">Note</span><span class="stat-val" style="font-size:10px;color:#94a3b8">${rag.vector_note||'—'}</span></div></div>
-<div class="card span2"><h2>AGENTS PIPELINE (${ag.total_runs||0} runs)</h2>${aH||'<div class="stat-row"><span class="stat-key">Aucun agent execute</span></div>'}<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;"><div class="stat-row"><span class="stat-key">Temps moyen global</span><span class="stat-val">${ag.avg_duration||0}s</span></div></div></div>
-<div class="card span2"><h2>TABLES (${Object.keys(tables).length})</h2>${tH}</div>
-<div class="card span2"><h2>PAR TRIBUNAL (${Object.keys(trib).length})</h2>${trH}</div>
-<div class="card"><h2>PAR RESULTAT</h2>${rH}</div>
-<div class="card"><h2>ALERTES</h2>${alH}</div>
-<div class="card"><h2>IMPORTS 7 JOURS</h2>${iH||'<div class="stat-row"><span class="stat-key">Aucun import recent</span></div>'}</div>
-<div class="card"><h2>ANALYSES</h2><div class="stat-row"><span class="stat-key">Total</span><span class="stat-val">${stats.total||0}</span></div><div class="stat-row"><span class="stat-key">Score moyen</span><span class="stat-val">${stats.score_moyen||0}%</span></div><div class="stat-row"><span class="stat-key">Confiance</span><span class="stat-val">${stats.confiance_moyenne||0}%</span></div><div class="stat-row"><span class="stat-key">Temps moyen</span><span class="stat-val">${stats.temps_moyen||0}s</span></div><div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;"><div class="stat-row"><span class="stat-key" style="font-weight:700;color:var(--text)">Recommandations</span><span class="stat-val"></span></div>${Object.entries(analyses.par_recommandation||{}).map(([k,v])=>`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`).join("")}</div></div>
-<div class="card"><h2>CRON SCHEDULE (${(cron_data.total||0)} jobs)</h2>
-${(cron_data.ticket911||[]).length>0?'<div style="font-size:10px;color:#1e3a5f;font-weight:700;margin-bottom:4px;">TICKET911</div>':''}
-${(cron_data.ticket911||[]).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
-${(cron_data.seo||[]).length>0?'<div style="font-size:10px;color:#16a34a;font-weight:700;margin:8px 0 4px;">SEO</div>':''}
-${(cron_data.seo||[]).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
-${(cron_data.system||[]).length>0?'<div style="font-size:10px;color:#ea580c;font-weight:700;margin:8px 0 4px;">SYSTEME</div>':''}
-${(cron_data.system||[]).slice(0,5).map(c=>'<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px;">'+c.schedule+'</span><span class="stat-val" style="font-size:10px;">'+c.name+'</span></div>').join('')}
-</div>
-<div class="card span4"><h2>TEST RECHERCHE RAG</h2>
-<div style="display:flex;gap:8px;margin-bottom:14px;">
-<input id="searchQ" type="text" placeholder="Recherche: mot-cle, article (328), ou description..." style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;font-size:13px;outline:none;transition:border .2s;" onfocus="this.style.borderColor='#1e3a5f'" onblur="this.style.borderColor='#e2e8f0'" onkeydown="if(event.key==='Enter')testSearch()">
-<select id="searchMode" style="padding:10px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1e293b;font-size:12px;">
-<option value="all">Toutes (text+vector+article)</option>
-<option value="text">Texte seul (tsvector)</option>
-<option value="vector">Vectoriel (pgvector)</option>
-<option value="article">Article CSR</option>
-</select>
-<label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="searchRerank" checked style="accent-color:#7c3aed;"> <span style="font-size:11px;color:#7c3aed;font-weight:700;">Reranker</span></label>
-<button onclick="testSearch()" style="background:#1e3a5f;color:white;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;transition:all .2s;" onmouseover="this.style.background='#2a4f7f'" onmouseout="this.style.background='#1e3a5f'">Chercher</button>
-</div>
-<div id="searchStatus" style="font-size:11px;color:#64748b;margin-bottom:8px;"></div>
-<div id="searchLoi" style="margin-bottom:8px;"></div>
-<div id="searchResults" style="max-height:400px;overflow-y:auto;"></div>
-</div>
+  /* ===== HERO KPIs ===== */
+  // 1. Jurisprudence
+  animateCount('kpiJurisVal', tables.jurisprudence||0);
+  document.getElementById('kpiJurisSub').textContent = 'decisions de cour';
+  const pT = Object.entries(juris.par_province||{}).map(([k,v])=>`<span class="tag"><strong>${fmt(v)}</strong> ${k}</span>`).join('');
+  document.getElementById('kpiJurisTags').innerHTML = pT;
+  const imports7j = Object.entries(juris.imports_par_jour||{}).slice(0,7);
+  const sparkVals = imports7j.map(([,v])=>v);
+  document.getElementById('kpiJurisSparkline').innerHTML = sparkline(sparkVals, '#1e3a5f');
 
-<div class="card span2"><h2>LOG IMPORT CANLII</h2><div class="log-box">${(d.last_import_log||'Aucun').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>
-<div class="card"><h2>ESPACE SYSTEME</h2>
-<div class="stat-row"><span class="stat-key">CPU</span><span class="stat-val" style="color:${sys_info.cpu_pct>80?'#dc2626':sys_info.cpu_pct>50?'#ca8a04':'#16a34a'}">${sys_info.cpu_pct||0}%</span></div>
-<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.cpu_pct||0}%;background:${sys_info.cpu_pct>80?'#dc2626':sys_info.cpu_pct>50?'#ca8a04':'#16a34a'}"></div></div>
-<div class="stat-row"><span class="stat-key">RAM</span><span class="stat-val" style="color:${sys_info.ram_pct>85?'#dc2626':sys_info.ram_pct>70?'#ca8a04':'#16a34a'}">${sys_info.ram_used_gb||0} / ${sys_info.ram_total_gb||0} GB (${sys_info.ram_pct||0}%)</span></div>
-<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.ram_pct||0}%;background:${sys_info.ram_pct>85?'#dc2626':sys_info.ram_pct>70?'#ca8a04':'#16a34a'}"></div></div>
-<div class="stat-row"><span class="stat-key">Disque</span><span class="stat-val" style="color:${sys_info.disk_pct>90?'#dc2626':sys_info.disk_pct>75?'#ca8a04':'#16a34a'}">${sys_info.disk_used_gb||0} / ${sys_info.disk_total_gb||0} GB (${sys_info.disk_pct||0}%)</span></div>
-<div class="quota-bar"><div class="quota-fill" style="width:${sys_info.disk_pct||0}%;background:${sys_info.disk_pct>90?'#dc2626':sys_info.disk_pct>75?'#ca8a04':'#16a34a'}"></div></div>
-<div class="stat-row"><span class="stat-key">Uptime</span><span class="stat-val">${sys_info.uptime||'?'}</span></div>
-<div class="stat-row"><span class="stat-key">CPU Cores</span><span class="stat-val">${sys_info.cpu_cores||'?'}</span></div>
-<div class="stat-row"><span class="stat-key">Load 1/5/15m</span><span class="stat-val" style="font-size:11px">${sys_info.cpu_load_1m||0} / ${sys_info.cpu_load_5m||0} / ${sys_info.cpu_load_15m||0}</span></div>
-</div>
+  // 2. Agents AI
+  const activeAgents = bgAgents.filter(a=>a.status==='active'||a.status==='running').length;
+  animateCount('kpiAgentsVal', activeAgents||bgAgents.length);
+  document.getElementById('kpiAgentsSub').textContent = 'agents actifs';
+  const agents = ag.agents||[];
+  const globalSuccess = agents.length > 0 ? Math.round(agents.reduce((s,a)=>s+a.success_pct,0)/agents.length) : 0;
+  document.getElementById('kpiAgentsDetail').innerHTML = `<span style="color:var(--green);font-weight:700">${fmt(ag.total_runs||0)}</span> runs total &middot; <span style="color:${pc(globalSuccess)};font-weight:700">${globalSuccess}%</span> succes`;
 
-<div class="card"><h2>ROBOTS DEPLOYES</h2>
-${robots.filter(r=>r.status==='running').length===0?'<div class="alert info">Aucun robot actif</div>':''}
-${robots.filter(r=>r.status==='running').map(r=>'<div class="svc-row"><div class="svc-dot" style="background:#16a34a;animation:pulse 2s infinite"></div><span class="svc-name">'+r.name+'</span><span class="svc-desc">PID:'+r.pid+' CPU:'+r.cpu+'% MEM:'+r.mem+'%</span><span class="svc-status" style="color:#16a34a">ACTIF</span></div>').join('')}
-${robots.filter(r=>r.status==='scheduled').length>0?'<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px;font-size:11px;color:#64748b;font-weight:600;">CRONS PLANIFIES</div>':''}
-${robots.filter(r=>r.status==='scheduled').map(r=>'<div class="svc-row"><div class="svc-dot" style="background:#ca8a04"></div><span class="svc-desc" style="font-size:10px;font-family:monospace">'+r.pattern+'</span></div>').join('')}
-</div>
+  // 3. CanLII Quota
+  const qU=canlii.used_today||0,qM=canlii.daily_max||4800,qP=Math.min(100,qU/qM*100),qC=qP>90?'#dc2626':qP>70?'#ca8a04':'#16a34a';
+  animateCount('kpiCanliiVal', canlii.remaining||0);
+  document.getElementById('kpiCanliiBar').style.width = qP+'%';
+  document.getElementById('kpiCanliiBar').style.background = qC;
+  document.getElementById('kpiCanliiDetail').innerHTML = `${fmt(qU)} / ${fmt(qM)} utilisees`;
 
-<div class="card span2"><h2>AUDIT CLASSIFICATION</h2>
-<div style="display:flex;gap:20px;flex-wrap:wrap;">
-<div><div class="big-num" style="font-size:24px;color:#dc2626">${fmt(audit.inconnus_restants||0)}</div><div class="big-label">inconnus restants</div></div>
-<div><div class="big-num" style="font-size:24px;color:#16a34a">${fmt(audit.ticket_related||0)}</div><div class="big-label">ticket-related</div></div>
-<div><div class="big-num" style="font-size:24px;color:#94a3b8">${fmt(audit.hors_sujet_total||0)}</div><div class="big-label">hors sujet</div></div>
-</div>
-${audit.classify_progress?'<div style="margin-top:10px;"><div class="stat-row"><span class="stat-key">Classification en cours</span><span class="stat-val" style="color:#0891b2">'+audit.classify_progress+'</span></div></div>':''}
-<div style="margin-top:8px;"><div class="log-box" style="max-height:80px;font-size:9px;">${(audit.derniere_classification||'Aucune classification recente').replace(/</g,'&lt;')}</div></div>
-</div>
+  // 4. Systeme
+  const cpuC = sys_info.cpu_pct>80?'#dc2626':sys_info.cpu_pct>50?'#ca8a04':'#16a34a';
+  const ramC = sys_info.ram_pct>85?'#dc2626':sys_info.ram_pct>70?'#ca8a04':'#16a34a';
+  const dskC = sys_info.disk_pct>90?'#dc2626':sys_info.disk_pct>75?'#ca8a04':'#16a34a';
+  document.getElementById('kpiSystemBars').innerHTML = `
+    <div class="kpi-bar-mini"><span class="kpi-bar-mini-label">CPU</span><div class="kpi-bar-mini-track"><div class="kpi-bar-mini-fill" style="width:${sys_info.cpu_pct||0}%;background:${cpuC}"></div></div><span class="kpi-bar-mini-val" style="color:${cpuC}">${sys_info.cpu_pct||0}%</span></div>
+    <div class="kpi-bar-mini"><span class="kpi-bar-mini-label">RAM</span><div class="kpi-bar-mini-track"><div class="kpi-bar-mini-fill" style="width:${sys_info.ram_pct||0}%;background:${ramC}"></div></div><span class="kpi-bar-mini-val" style="color:${ramC}">${sys_info.ram_pct||0}%</span></div>
+    <div class="kpi-bar-mini"><span class="kpi-bar-mini-label">Disk</span><div class="kpi-bar-mini-track"><div class="kpi-bar-mini-fill" style="width:${sys_info.disk_pct||0}%;background:${dskC}"></div></div><span class="kpi-bar-mini-val" style="color:${dskC}">${sys_info.disk_pct||0}%</span></div>`;
+  document.getElementById('kpiSystemUptime').innerHTML = `Uptime: <strong>${sys_info.uptime||'?'}</strong>`;
 
-<div class="card span2"><h2>LOG EMBEDDINGS</h2><div class="log-box">${(d.last_embed_log||'Pas encore execute').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>
-`;}
+  /* ===== SECTION A: Data & Qualite ===== */
+  const eP=emb.pct||0,eC=eP>=100?'#16a34a':eP>50?'#ca8a04':'#dc2626';
+  const dL={database_id:'Tribunal',resume:'Resume',titre:'Titre',resultat:'Resultat',embedding:'Embedding',date_decision:'Date'};
+  let dH='';Object.entries(dqF).forEach(([k,v])=>{const p=v.pct||0;dH+=`<div class="quality-row"><span class="quality-label">${dL[k]||k}</span><div class="quality-bar"><div class="quality-fill" style="width:${p}%;background:${pc(p)}"></div></div><span class="quality-pct" style="color:${pc(p)}">${p}%</span></div>`;});
+  let tH='';Object.entries(tables).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{tH+=`<div class="stat-row"><span class="stat-key">${k} <span class="stat-desc">${desc[k]||''}</span></span><span class="stat-val">${v>=0?fmt(v):'N/A'}</span></div>`;});
+  const rep=dq.last_repair||{},rr=rep.results||{},rTime=rep.last_run?new Date(rep.last_run).toLocaleString('fr-CA'):'Jamais';
 
+  document.getElementById('dataCount').textContent = fmt(db.total_rows||0) + ' lignes';
+  document.getElementById('dataContent').innerHTML = `
+    <div class="card">
+      <h3>DB Totale</h3>
+      <div class="big-num">${fmt(db.total_rows||0)}</div>
+      <div class="big-label">${Object.keys(tables).length} tables</div>
+      <div style="margin-top:10px"><div class="stat-row"><span class="stat-key">Score Qualite</span><span class="stat-val" style="color:${pc(dq.score||0)}">${dq.score||0}%</span></div></div>
+    </div>
+    <div class="card">
+      <h3>Embeddings RAG</h3>
+      <div class="big-num" style="color:${eC}">${eP}%</div>
+      <div class="big-label">${fmt(emb.embedded)} / ${fmt(emb.total)} dossiers</div>
+      <div class="quota-bar"><div class="quota-fill" style="width:${eP}%;background:${eC}"></div></div>
+      <div class="stat-row"><span class="stat-key">Manquants</span><span class="stat-val">${fmt(emb.missing)}</span></div>
+      <div class="stat-row"><span class="stat-key">Store</span><span class="stat-val">${emb.store||'?'} (${emb.dims||'?'}d)</span></div>
+      <div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px">${emb.model||'?'}</span></div>
+      <div class="stat-row"><span class="stat-key">HNSW Index</span><span class="stat-val" style="color:${rag.hnsw_index?'#16a34a':'#dc2626'}">${rag.hnsw_index?'ACTIF':'ABSENT'}</span></div>
+    </div>
+    <div class="card">
+      <h3>Qualite Donnees</h3>
+      ${dH || '<div class="stat-row"><span class="stat-key">Aucune donnee</span></div>'}
+    </div>
+    <div class="card">
+      <h3>Auto-correcteur</h3>
+      <div class="stat-row"><span class="stat-key">Dernier run</span><span class="stat-val" style="font-size:11px">${rTime}</span></div>
+      <div class="stat-row"><span class="stat-key">database_id corriges</span><span class="stat-val">${rr.database_id?rr.database_id.fixed:'—'}</span></div>
+      <div class="stat-row"><span class="stat-key">resultat corriges</span><span class="stat-val">${rr.resultat?rr.resultat.fixed:'—'}</span></div>
+      <div class="stat-row"><span class="stat-key">ticket_related corriges</span><span class="stat-val">${rr.ticket_related?rr.ticket_related.fixed:'—'}</span></div>
+      <div class="stat-row"><span class="stat-key">Duree</span><span class="stat-val">${rr.duration||'—'}s</span></div>
+    </div>
+    <div class="card">
+      <h3>Tables (${Object.keys(tables).length})</h3>
+      ${tH}
+    </div>
+    <div class="card">
+      <h3>Sources de Donnees</h3>
+      ${Object.entries(sources).filter(([k])=>k!=="error").map(([k,v])=>`<div class="stat-row"><span class="stat-key" style="font-weight:700">${k==="canlii"?"CanLII (principal)":k==="a2aj"?"A2AJ (York U.)":k}</span><span class="stat-val">${fmt(v||0)}</span></div>`).join('')}
+      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"><div class="stat-row"><span class="stat-key">Total combine</span><span class="stat-val" style="color:#16a34a">${fmt(Object.values(sources).filter(v=>typeof v==="number").reduce((a,b)=>a+b,0))}</span></div></div>
+    </div>`;
+
+  /* ===== SECTION B: Agents & Pipeline ===== */
+  const icons={"brain":"\u{1F9E0}","download":"\u{2B07}","vector":"\u{1F50D}","wrench":"\u{1F527}","tag":"\u{1F3F7}","search":"\u{1F50E}","database":"\u{1F4BE}","pipeline":"\u{2699}"};
+  const typeLabel={"ai":"IA","cron":"CRON","service":"SERVICE","integrated":"INTEGRE","manual":"MANUEL","pipeline":"PIPELINE"};
+  const mR=Math.max(...(agents.map(a=>a.runs)),1);
+  const aC=['#1e3a5f','#16a34a','#7c3aed','#ea580c','#0891b2','#db2777','#ca8a04','#65a30d'];
+  let aH='';agents.slice(0,10).forEach((a,i)=>{aH+=`<div class="agent-row"><span class="agent-name">${a.name}</span><div class="agent-bar"><div class="agent-fill" style="width:${(a.runs/mR*100).toFixed(0)}%;background:${aC[i%aC.length]}"></div></div><span class="agent-stat">${a.runs}x</span><span class="agent-stat" style="color:${a.success_pct>=90?'#16a34a':'#dc2626'}">${a.success_pct}%</span><span class="agent-stat">${a.avg_time}s</span></div>`;});
+
+  document.getElementById('agentsCount').textContent = bgAgents.length + ' agents';
+  document.getElementById('agentsContent').innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <h3>Agents Autonomes 24/7</h3>
+      <div class="agents-grid">
+        ${bgAgents.map(a=>{const statusColor=a.status==="active"||a.status==="running"?"#16a34a":a.status==="complete"?"#1e3a5f":a.status==="idle"?"#94a3b8":"#ca8a04";return `<div class="agent-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">${icons[a.icon]||"\u{2699}"}</span><span style="font-weight:700;font-size:13px;color:var(--text);flex:1">${a.name}</span><span style="background:${statusColor};color:#fff;font-size:9px;padding:2px 8px;border-radius:4px;font-weight:700">${(a.status||"?").toUpperCase()}</span></div><div style="font-size:11px;color:var(--dim);margin-bottom:4px">${a.detail}</div>${a.last_run?`<div style="font-size:10px;color:var(--muted)">Dernier: ${a.last_run}</div>`:""}<div style="font-size:9px;color:var(--muted);margin-top:3px">${typeLabel[a.type]||a.type}</div></div>`;}).join('')}
+      </div>
+    </div>
+    <div class="section-grid">
+      <div class="card">
+        <h3>Agents Pipeline (${fmt(ag.total_runs||0)} runs)</h3>
+        ${aH||'<div class="stat-row"><span class="stat-key">Aucun agent execute</span></div>'}
+        <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"><div class="stat-row"><span class="stat-key">Temps moyen global</span><span class="stat-val">${ag.avg_duration||0}s</span></div></div>
+      </div>
+      <div class="card">
+        <h3>Audit Classification</h3>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div><div class="big-num" style="font-size:24px;color:#dc2626">${fmt(audit.inconnus_restants||0)}</div><div class="big-label">inconnus restants</div></div>
+          <div><div class="big-num" style="font-size:24px;color:#16a34a">${fmt(audit.ticket_related||0)}</div><div class="big-label">ticket-related</div></div>
+          <div><div class="big-num" style="font-size:24px;color:#94a3b8">${fmt(audit.hors_sujet_total||0)}</div><div class="big-label">hors sujet</div></div>
+        </div>
+        ${audit.classify_progress?`<div style="margin-top:10px"><div class="stat-row"><span class="stat-key">Classification en cours</span><span class="stat-val" style="color:#0891b2">${audit.classify_progress}</span></div></div>`:''}
+        <div style="margin-top:8px"><div class="log-box" style="max-height:80px;font-size:9px">${esc(audit.derniere_classification||'Aucune classification recente')}</div></div>
+      </div>
+    </div>`;
+
+  /* ===== SECTION C: Analytics ===== */
+  const trib=juris.par_tribunal||{},mT=Math.max(...Object.values(trib),1);
+  const tC=['#1e3a5f','#16a34a','#ca8a04','#ea580c','#7c3aed','#0891b2','#db2777','#65a30d'];
+  let trH='';Object.entries(trib).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{trH+=`<div class="bar-container"><span class="bar-name" title="${TN[k]||k}">${k.toUpperCase()}</span><div style="flex:1;background:var(--border-light);border-radius:3px;height:5px"><div class="bar" style="width:${(v/mT*100).toFixed(0)}%;background:${tC[i%tC.length]}"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
+  const res=juris.par_resultat||{},mRs=Math.max(...Object.values(res),1);
+  const rC={acquitte:'#16a34a',coupable:'#dc2626',rejete:'#ea580c',reduit:'#ca8a04',inconnu:'#94a3b8',reference:'#7c3aed',negociation:'#0891b2'};
+  let rH='';Object.entries(res).forEach(([k,v])=>{rH+=`<div class="bar-container"><span class="bar-name">${k}</span><div style="flex:1;background:var(--border-light);border-radius:3px;height:5px"><div class="bar" style="width:${(v/mRs*100).toFixed(0)}%;background:${rC[k]||'#1e3a5f'}"></div></div><span class="bar-label">${fmt(v)}</span></div>`;});
+  let iH='';imports7j.forEach(([k,v])=>{iH+=`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val" style="color:#16a34a">+${fmt(v)}</span></div>`;});
+
+  document.getElementById('analyticsCount').textContent = fmt(tables.jurisprudence||0) + ' dossiers';
+  document.getElementById('analyticsContent').innerHTML = `
+    <div class="card span2">
+      <h3>SAAQ Infractions (${fmt(saaq_data.total_constats||0)} constats reels)</h3>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+        <div><span style="font-size:24px;font-weight:900;color:var(--accent)">${saaq_data.nb_articles_distincts||0}</span><div class="big-label">articles distincts</div></div>
+        <div><span style="font-size:24px;font-weight:900;color:var(--accent)">${fmt(saaq_data.total_constats||0)}</span><div class="big-label">constats QC</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--accent);font-weight:700;margin:8px 0 4px">ARTICLES AVEC POINTS D'INAPTITUDE</div>
+      ${(saaq_data.articles||[]).map(a=>`<div class="stat-row"><span class="stat-key">Art. ${a.article} <span class="stat-desc">${a.titre||''}</span></span><span class="stat-val" style="font-size:11px"><span style="color:#ea580c">${a.points_min}${a.points_max>a.points_min?'-'+a.points_max:''} pts</span> | <span style="color:#ca8a04">${a.amende_min||'?'}-${a.amende_max||'?'}$</span></span></div>`).join('')}
+      ${(saaq_data.bareme_vitesse||[]).length>0?'<div style="font-size:10px;color:#16a34a;font-weight:700;margin:12px 0 4px">BAREME VITESSE (constats reels)</div>':''}
+      ${(saaq_data.bareme_vitesse||[]).map(b=>`<div class="stat-row"><span class="stat-key">${b.tranche}</span><span class="stat-val" style="font-size:11px">${fmt(b.nb_constats)} constats</span></div>`).join('')}
+      ${(saaq_data.top_infractions||[]).length>0?'<div style="font-size:10px;color:#7c3aed;font-weight:700;margin:12px 0 4px">TOP INFRACTIONS</div>':''}
+      ${(saaq_data.top_infractions||[]).slice(0,8).map(t=>`<div class="stat-row"><span class="stat-key">Art. ${t.article} <span class="stat-desc">${t.titre||''}</span></span><span class="stat-val" style="font-size:11px">${fmt(t.nb_constats)}</span></div>`).join('')}
+      <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: PostgreSQL qc_constats_infraction + lois_articles (real data)</div>
+    </div>
+    <div class="card">
+      <h3>Par Tribunal (${Object.keys(trib).length})</h3>
+      ${trH}
+    </div>
+    <div class="card">
+      <h3>Par Resultat</h3>
+      ${rH}
+    </div>
+    <div class="card">
+      <h3>Analyses</h3>
+      <div class="stat-row"><span class="stat-key">Total</span><span class="stat-val">${stats.total||0}</span></div>
+      <div class="stat-row"><span class="stat-key">Score moyen</span><span class="stat-val">${stats.score_moyen||0}%</span></div>
+      <div class="stat-row"><span class="stat-key">Confiance</span><span class="stat-val">${stats.confiance_moyenne||0}%</span></div>
+      <div class="stat-row"><span class="stat-key">Temps moyen</span><span class="stat-val">${stats.temps_moyen||0}s</span></div>
+      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+        <div class="stat-row"><span class="stat-key" style="font-weight:700;color:var(--text)">Recommandations</span><span class="stat-val"></span></div>
+        ${Object.entries(analyses.par_recommandation||{}).map(([k,v])=>`<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3>Imports 7 Jours</h3>
+      ${iH||'<div class="stat-row"><span class="stat-key">Aucun import recent</span></div>'}
+    </div>`;
+
+  /* ===== SECTION D: Systeme & Services ===== */
+  let sH='';services.forEach(s=>{const ok=s.status==='active'||s.status==='running';sH+=`<div class="svc-row"><div class="svc-dot" style="background:${ok?'#16a34a':'#dc2626'}"></div><span class="svc-name">${s.name}</span><span class="svc-desc">${s.desc}</span><span class="svc-status" style="color:${ok?'#16a34a':'#dc2626'}">${ok?'ACTIF':s.status.toUpperCase()}</span></div>`;});
+
+  document.getElementById('systemCount').textContent = services.length + ' services';
+  document.getElementById('systemContent').innerHTML = `
+    <div class="card span2">
+      <h3>Services</h3>
+      ${sH}
+    </div>
+    <div class="card">
+      <h3>Espace Systeme</h3>
+      <div class="stat-row"><span class="stat-key">CPU</span><span class="stat-val" style="color:${cpuC}">${sys_info.cpu_pct||0}%</span></div>
+      <div class="quota-bar"><div class="quota-fill" style="width:${sys_info.cpu_pct||0}%;background:${cpuC}"></div></div>
+      <div class="stat-row"><span class="stat-key">RAM</span><span class="stat-val" style="color:${ramC}">${sys_info.ram_used_gb||0} / ${sys_info.ram_total_gb||0} GB (${sys_info.ram_pct||0}%)</span></div>
+      <div class="quota-bar"><div class="quota-fill" style="width:${sys_info.ram_pct||0}%;background:${ramC}"></div></div>
+      <div class="stat-row"><span class="stat-key">Disque</span><span class="stat-val" style="color:${dskC}">${sys_info.disk_used_gb||0} / ${sys_info.disk_total_gb||0} GB (${sys_info.disk_pct||0}%)</span></div>
+      <div class="quota-bar"><div class="quota-fill" style="width:${sys_info.disk_pct||0}%;background:${dskC}"></div></div>
+      <div class="stat-row"><span class="stat-key">Uptime</span><span class="stat-val">${sys_info.uptime||'?'}</span></div>
+      <div class="stat-row"><span class="stat-key">CPU Cores</span><span class="stat-val">${sys_info.cpu_cores||'?'}</span></div>
+      <div class="stat-row"><span class="stat-key">Load 1/5/15m</span><span class="stat-val" style="font-size:11px">${sys_info.cpu_load_1m||0} / ${sys_info.cpu_load_5m||0} / ${sys_info.cpu_load_15m||0}</span></div>
+    </div>
+    <div class="card">
+      <h3>Robots Deployes</h3>
+      ${robots.filter(r=>r.status==='running').length===0?'<div class="alert info">Aucun robot actif</div>':''}
+      ${robots.filter(r=>r.status==='running').map(r=>`<div class="svc-row"><div class="svc-dot" style="background:#16a34a;animation:pulse 2s infinite"></div><span class="svc-name">${r.name}</span><span class="svc-desc">PID:${r.pid} CPU:${r.cpu}% MEM:${r.mem}%</span><span class="svc-status" style="color:#16a34a">ACTIF</span></div>`).join('')}
+      ${robots.filter(r=>r.status==='scheduled').length>0?'<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px;font-size:11px;color:var(--dim);font-weight:600">CRONS PLANIFIES</div>':''}
+      ${robots.filter(r=>r.status==='scheduled').map(r=>`<div class="svc-row"><div class="svc-dot" style="background:#ca8a04"></div><span class="svc-desc" style="font-size:10px;font-family:monospace">${r.pattern}</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <h3>Cron Schedule (${cron_data.total||0} jobs)</h3>
+      ${(cron_data.ticket911||[]).length>0?'<div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:4px">TICKET911</div>':''}
+      ${(cron_data.ticket911||[]).map(c=>`<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px">${c.schedule}</span><span class="stat-val" style="font-size:10px">${c.name}</span></div>`).join('')}
+      ${(cron_data.seo||[]).length>0?'<div style="font-size:10px;color:#16a34a;font-weight:700;margin:8px 0 4px">SEO</div>':''}
+      ${(cron_data.seo||[]).map(c=>`<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px">${c.schedule}</span><span class="stat-val" style="font-size:10px">${c.name}</span></div>`).join('')}
+      ${(cron_data.system||[]).length>0?'<div style="font-size:10px;color:#ea580c;font-weight:700;margin:8px 0 4px">SYSTEME</div>':''}
+      ${(cron_data.system||[]).slice(0,5).map(c=>`<div class="stat-row"><span class="stat-key" style="font-family:monospace;font-size:10px">${c.schedule}</span><span class="stat-val" style="font-size:10px">${c.name}</span></div>`).join('')}
+    </div>`;
+
+  /* ===== SECTION E: Logs & RAG ===== */
+  let alH = alertes.length===0?'<div class="alert info">Aucune alerte</div>':'';
+  alertes.forEach(a=>{alH+=`<div class="alert ${a.level}">${a.level==='warning'?'!':'i'} ${a.msg}</div>`;});
+
+  document.getElementById('logsCount').textContent = alertes.length + ' alertes';
+  document.getElementById('logsContent').innerHTML = `
+    <div class="section-grid">
+      <div class="card">
+        <h3>Log Import CanLII</h3>
+        <div class="log-box">${esc(d.last_import_log||'Aucun')}</div>
+      </div>
+      <div class="card">
+        <h3>Log Embeddings</h3>
+        <div class="log-box">${esc(d.last_embed_log||'Pas encore execute')}</div>
+      </div>
+      <div class="card">
+        <h3>Alertes</h3>
+        ${alH}
+      </div>
+      <div class="card">
+        <h3>Recherche RAG</h3>
+        <div class="stat-row"><span class="stat-key">Temps moyen recherche</span><span class="stat-val">${rag.avg_search_time_ms||0}ms</span></div>
+        <div class="stat-row"><span class="stat-key">Recherches (7j)</span><span class="stat-val">${rag.searches_7d||0}</span></div>
+        <div class="stat-row"><span class="stat-key">Index GIN</span><span class="stat-val">${rag.gin_indexes||0}</span></div>
+        <div class="stat-row"><span class="stat-key">Index HNSW</span><span class="stat-val" style="color:${rag.hnsw_index?'#16a34a':'#dc2626'}">${rag.hnsw_index?'OK':'NON CREE'}</span></div>
+        <div class="stat-row"><span class="stat-key">Modele</span><span class="stat-val" style="font-size:10px">${rag.model||'?'}</span></div>
+        <div class="stat-row"><span class="stat-key">Dimensions</span><span class="stat-val">${rag.dims||'?'}</span></div>
+        <div class="stat-row"><span class="stat-key">Note</span><span class="stat-val" style="font-size:10px;color:var(--muted)">${rag.vector_note||'—'}</span></div>
+      </div>
+    </div>`;
+}
+
+/* ===== RAG SEARCH ===== */
 function testSearch(){
-const q=document.getElementById('searchQ').value.trim();
-if(!q){document.getElementById('searchStatus').textContent='Entrez un terme de recherche';return;}
-const mode=document.getElementById('searchMode').value;
-document.getElementById('searchStatus').innerHTML='<span style="color:#0891b2">Recherche en cours...</span>';
-document.getElementById('searchResults').innerHTML='';
-document.getElementById('searchLoi').innerHTML='';
-const rr=document.getElementById('searchRerank').checked?'1':'0';const url=window.location.origin+'/scanticket/api/test-search?q='+encodeURIComponent(q)+'&mode='+mode+'&limit=20&rerank='+rr;
-fetch(url).then(r=>r.json()).then(d=>{
-if(d.error){document.getElementById('searchStatus').innerHTML='<span style="color:#dc2626">Erreur: '+d.error+'</span>';return;}
-const st=d.stats||{};
-document.getElementById('searchStatus').innerHTML=`<span style="color:#16a34a">${d.count} resultats en ${d.time_ms}ms</span>${d.reranked?' | <span style="color:#7c3aed;font-weight:700">RERANKED '+d.rerank_time_ms+'ms</span>':''} | tsvector: ${st.tsvector||0} | pgvector: ${st.pgvector||0} | article: ${st.article||0}`;
-if(d.loi){const l=d.loi;document.getElementById('searchLoi').innerHTML=`<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;"><strong style="color:#1e3a5f;">Art. ${l.article}</strong> — ${l.titre||''}<br><span style="color:#64748b;">${(l.texte||'').substring(0,200)}...</span><br><span style="color:#ca8a04;">Amende: ${l.amende_min||'?'} - ${l.amende_max||'?'}$</span> | <span style="color:#ea580c;">Points: ${l.points_min||'?'} - ${l.points_max||'?'}</span></div>`;}
-let h='';(d.results||[]).forEach((r,i)=>{const rc={acquitte:'#16a34a',coupable:'#dc2626',reduit:'#ca8a04',rejete:'#ea580c',inconnu:'#94a3b8'};const mc={tsvector:'#1e3a5f',pgvector:'#7c3aed',article:'#0891b2'};h+=`<div style="padding:10px;border-bottom:1px solid #f1f5f9;font-size:12px;cursor:pointer;transition:background 0.15s;border-radius:6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''" onclick="openJurisModal(${r.id})"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;color:#1e293b;">${r.citation||r.titre||'?'} <span style="color:#1e3a5f;font-size:10px;">&#128269;</span></span><span style="display:flex;gap:6px;"><span style="background:${mc[r.methode]||'#94a3b8'};padding:2px 8px;border-radius:4px;font-size:10px;color:white;font-weight:600;">${r.methode}</span><span style="color:${rc[r.resultat]||'#64748b'};font-weight:700;">${r.resultat||'?'}</span><span style="color:#94a3b8;">${r.rerank_score?'rerank:'+r.rerank_score.toFixed(4):'score:'+r.score}</span></span></div>${r.resume?'<div style="color:#64748b;font-size:11px;margin-top:4px;">'+r.resume.substring(0,150)+'...</div>':''}<div style="font-size:10px;color:#94a3b8;margin-top:3px;">${r.database_id||''} | ${r.date||''} | ${r.tribunal||''}</div></div>`;});
-document.getElementById('searchResults').innerHTML=h||'<div style="color:#94a3b8;padding:10px;">Aucun resultat</div>';
-}).catch(e=>{document.getElementById('searchStatus').innerHTML='<span style="color:#dc2626">Erreur: '+e.message+'</span>';});
+  const q=document.getElementById('searchQ').value.trim();
+  if(!q){document.getElementById('searchStatus').textContent='Entrez un terme de recherche';return;}
+  const mode=document.getElementById('searchMode').value;
+  document.getElementById('searchStatus').innerHTML='<span style="color:var(--cyan)">Recherche en cours...</span>';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchLoi').innerHTML='';
+  const rr=document.getElementById('searchRerank').checked?'1':'0';
+  const url=window.location.origin+'/scanticket/api/test-search?q='+encodeURIComponent(q)+'&mode='+mode+'&limit=20&rerank='+rr;
+  fetch(url).then(r=>r.json()).then(d=>{
+    if(d.error){document.getElementById('searchStatus').innerHTML='<span style="color:#dc2626">Erreur: '+d.error+'</span>';return;}
+    const st=d.stats||{};
+    document.getElementById('searchStatus').innerHTML=`<span style="color:#16a34a">${d.count} resultats en ${d.time_ms}ms</span>${d.reranked?' | <span style="color:#7c3aed;font-weight:700">RERANKED '+d.rerank_time_ms+'ms</span>':''} | tsvector: ${st.tsvector||0} | pgvector: ${st.pgvector||0} | article: ${st.article||0}`;
+    if(d.loi){const l=d.loi;document.getElementById('searchLoi').innerHTML=`<div style="background:var(--card-alt);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px"><strong style="color:var(--accent)">Art. ${l.article}</strong> — ${l.titre||''}<br><span style="color:var(--dim)">${(l.texte||'').substring(0,200)}...</span><br><span style="color:#ca8a04">Amende: ${l.amende_min||'?'} - ${l.amende_max||'?'}$</span> | <span style="color:#ea580c">Points: ${l.points_min||'?'} - ${l.points_max||'?'}</span></div>`;}
+    let h='';(d.results||[]).forEach((r,i)=>{
+      const rc={acquitte:'#16a34a',coupable:'#dc2626',reduit:'#ca8a04',rejete:'#ea580c',inconnu:'#94a3b8'};
+      const mc={tsvector:'#1e3a5f',pgvector:'#7c3aed',article:'#0891b2'};
+      h+=`<div style="padding:10px;border-bottom:1px solid var(--border-light);font-size:12px;cursor:pointer;transition:background .15s;border-radius:6px" onmouseover="this.style.background='var(--card-alt)'" onmouseout="this.style.background=''" onclick="openJurisModal(${r.id})"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;color:var(--text)">${r.citation||r.titre||'?'} <span style="color:var(--accent);font-size:10px">&#128269;</span></span><span style="display:flex;gap:6px"><span style="background:${mc[r.methode]||'#94a3b8'};padding:2px 8px;border-radius:4px;font-size:10px;color:white;font-weight:600">${r.methode}</span><span style="color:${rc[r.resultat]||'var(--dim)'};font-weight:700">${r.resultat||'?'}</span><span style="color:var(--muted)">${r.rerank_score?'rerank:'+r.rerank_score.toFixed(4):'score:'+r.score}</span></span></div>${r.resume?'<div style="color:var(--dim);font-size:11px;margin-top:4px">'+r.resume.substring(0,150)+'...</div>':''}<div style="font-size:10px;color:var(--muted);margin-top:3px">${r.database_id||''} | ${r.date||''} | ${r.tribunal||''}</div></div>`;
+    });
+    document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--muted);padding:10px">Aucun resultat</div>';
+  }).catch(e=>{document.getElementById('searchStatus').innerHTML='<span style="color:#dc2626">Erreur: '+e.message+'</span>';});
 }
 
-
+/* ===== JURISPRUDENCE MODAL ===== */
 function openJurisModal(id){
-const m=document.getElementById('jurisModal');
-m.style.display='block';
-document.getElementById('jurisModalTitle').textContent='Chargement...';
-document.getElementById('jurisModalBody').innerHTML='<div style="text-align:center;padding:40px;color:#64748b;">Chargement du dossier #'+id+'...</div>';
-fetch(window.location.origin+'/scanticket/api/jurisprudence/'+id)
-.then(r=>r.json()).then(d=>{
-if(d.error){document.getElementById('jurisModalBody').innerHTML='<div style="color:#dc2626;padding:20px;">Erreur: '+d.error+'</div>';return;}
-const rc={acquitte:'#16a34a',coupable:'#dc2626',reduit:'#ca8a04',rejete:'#ea580c',inconnu:'#94a3b8'};
-document.getElementById('jurisModalTitle').innerHTML=`${d.citation||d.titre||'Dossier #'+d.id} <span style="color:${rc[d.resultat]||'#64748b'};font-size:14px;margin-left:8px;">${(d.resultat||'inconnu').toUpperCase()}</span>`;
-let h='';
-// Meta
-h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
-h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+( d.tribunal||'?')+'</span>';
-h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+( d.date_decision||'?')+'</span>';
-h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+( d.database_id||'?')+'</span>';
-h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+( d.province||'?')+'</span>';
-if(d.langue)h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+d.langue+'</span>';
-if(d.numero_dossier)h+='<span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:11px;color:#64748b;font-weight:600;">'+d.numero_dossier+'</span>';
-h+='</div>';
-// CanLII link
-if(d.url_canlii)h+='<div style="margin-bottom:12px;"><a href="'+d.url_canlii+'" target="_blank" style="color:#1e3a5f;text-decoration:underline;font-size:12px;font-weight:600;">Voir sur CanLII &rarr;</a></div>';
-// Lois pertinentes
-if(d.lois_pertinentes&&d.lois_pertinentes.length>0){
-h+='<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:14px;margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#1e3a5f;font-weight:700;margin-bottom:8px;">LOIS PERTINENTES ('+d.lois_pertinentes.length+')</div>';
-d.lois_pertinentes.forEach(l=>{h+='<span style="background:#dbeafe;padding:3px 8px;border-radius:4px;font-size:11px;color:#1e40af;margin:2px 4px 2px 0;display:inline-block;font-weight:600;">'+l+'</span>';});
-h+='</div>';
+  const m=document.getElementById('jurisModal');
+  m.style.display='block';
+  document.getElementById('jurisModalTitle').textContent='Chargement...';
+  document.getElementById('jurisModalBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--dim)">Chargement du dossier #'+id+'...</div>';
+  fetch(window.location.origin+'/scanticket/api/jurisprudence/'+id)
+  .then(r=>r.json()).then(d=>{
+    if(d.error){document.getElementById('jurisModalBody').innerHTML='<div style="color:#dc2626;padding:20px">Erreur: '+d.error+'</div>';return;}
+    const rc={acquitte:'#16a34a',coupable:'#dc2626',reduit:'#ca8a04',rejete:'#ea580c',inconnu:'#94a3b8'};
+    document.getElementById('jurisModalTitle').innerHTML=`${d.citation||d.titre||'Dossier #'+d.id} <span style="color:${rc[d.resultat]||'var(--dim)'};font-size:14px;margin-left:8px">${(d.resultat||'inconnu').toUpperCase()}</span>`;
+    let h='';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">';
+    [d.tribunal,d.date_decision,d.database_id,d.province,d.langue,d.numero_dossier].filter(Boolean).forEach(v=>{
+      h+=`<span style="background:var(--card-alt);padding:4px 10px;border-radius:6px;font-size:11px;color:var(--dim);font-weight:600;border:1px solid var(--border)">${v}</span>`;
+    });
+    h+='</div>';
+    if(d.url_canlii) h+=`<div style="margin-bottom:12px"><a href="${d.url_canlii}" target="_blank" style="color:var(--accent);text-decoration:underline;font-size:12px;font-weight:600">Voir sur CanLII &rarr;</a></div>`;
+    if(d.lois_pertinentes&&d.lois_pertinentes.length>0){
+      h+='<div style="background:rgba(30,58,95,.05);border:1px solid rgba(30,58,95,.15);border-radius:10px;padding:14px;margin-bottom:14px">';
+      h+='<div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:8px">LOIS PERTINENTES ('+d.lois_pertinentes.length+')</div>';
+      d.lois_pertinentes.forEach(l=>{h+=`<span style="background:rgba(30,58,95,.1);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--accent);margin:2px 4px 2px 0;display:inline-block;font-weight:600">${l}</span>`;});
+      h+='</div>';
+    }
+    if(d.lois_details&&d.lois_details.length>0){
+      h+='<div style="background:rgba(22,163,74,.05);border:1px solid rgba(22,163,74,.15);border-radius:10px;padding:14px;margin-bottom:14px">';
+      h+='<div style="font-size:11px;color:#16a34a;font-weight:700;margin-bottom:8px">DETAIL DES ARTICLES</div>';
+      d.lois_details.forEach(l=>{
+        h+='<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(22,163,74,.1)">';
+        h+=`<div style="font-weight:700;color:var(--text)">Art. ${l.article} <span style="color:var(--dim);font-weight:400">— ${l.titre||''}</span></div>`;
+        if(l.amende_min||l.amende_max) h+=`<div style="font-size:11px;color:#ca8a04;margin-top:3px">Amende: ${l.amende_min||'?'} - ${l.amende_max||'?'}$</div>`;
+        if(l.points_min||l.points_max) h+=`<div style="font-size:11px;color:#ea580c">Points: ${l.points_min||'?'} - ${l.points_max||'?'}</div>`;
+        if(l.texte) h+=`<div style="font-size:11px;color:var(--dim);margin-top:4px">${l.texte.substring(0,300)}${l.texte.length>300?'...':''}</div>`;
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    if(d.stats_similaires&&Object.keys(d.stats_similaires).length>0){
+      h+='<div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:14px;margin-bottom:14px">';
+      h+='<div style="font-size:11px;color:#7c3aed;font-weight:700;margin-bottom:8px">STATS CAS SIMILAIRES</div>';
+      Object.entries(d.stats_similaires).forEach(([art,stats])=>{
+        h+='<div style="margin-bottom:6px"><strong style="color:var(--text)">Art. '+art+'</strong>: ';
+        const total=Object.values(stats).reduce((a,b)=>a+b,0);
+        Object.entries(stats).forEach(([res,cnt])=>{h+=`<span style="color:${rc[res]||'var(--dim)'};font-weight:600">${res}: ${cnt}</span> `;});
+        const wins=(stats.acquitte||0)+(stats.reduit||0);
+        const pct=total>0?Math.round(wins*100/total):0;
+        h+=`<span style="color:#0891b2;margin-left:6px;font-weight:600">(${pct}% succes sur ${total} cas)</span></div>`;
+      });
+      h+='</div>';
+    }
+    if(d.mots_cles&&d.mots_cles.length>0){
+      h+='<div style="margin-bottom:14px"><div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px">MOTS-CLES</div>';
+      d.mots_cles.forEach(k=>{h+=`<span style="background:var(--card-alt);padding:3px 8px;border-radius:4px;font-size:10px;color:var(--dim);margin:2px;font-weight:600;border:1px solid var(--border)">${k}</span>`;});
+      h+='</div>';
+    }
+    if(d.resume){
+      h+='<div style="background:var(--card-alt);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px">';
+      h+='<div style="font-size:11px;color:#0891b2;font-weight:700;margin-bottom:6px">RESUME</div>';
+      h+=`<div style="font-size:12px;line-height:1.7;color:var(--text2);white-space:pre-wrap">${esc(d.resume)}</div></div>`;
+    }
+    if(d.texte_complet){
+      h+='<div style="background:var(--card-alt);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px">';
+      h+=`<div style="font-size:11px;color:#ea580c;font-weight:700;margin-bottom:6px">TEXTE COMPLET (${d.texte_length} chars${d.texte_length>15000?' — tronque a 15000':''})</div>`;
+      h+=`<div style="font-size:11px;line-height:1.6;color:var(--dim);white-space:pre-wrap;max-height:500px;overflow-y:auto">${esc(d.texte_complet)}</div></div>`;
+    }
+    h+=`<div style="font-size:10px;color:var(--muted);padding-top:10px;border-top:1px solid var(--border)">ID: ${d.id} | CanLII: ${d.canlii_id||'?'} | Source: ${d.source||'?'} | Import: ${d.imported_at||'?'}</div>`;
+    document.getElementById('jurisModalBody').innerHTML=h;
+  }).catch(e=>{document.getElementById('jurisModalBody').innerHTML='<div style="color:#dc2626;padding:20px">Erreur: '+e.message+'</div>';});
 }
-// Lois details
-if(d.lois_details&&d.lois_details.length>0){
-h+='<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#16a34a;font-weight:700;margin-bottom:8px;">DETAIL DES ARTICLES</div>';
-d.lois_details.forEach(l=>{
-h+='<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #dcfce7;">';
-h+='<div style="font-weight:700;color:#1e293b;">Art. '+l.article+' <span style="color:#64748b;font-weight:400;">— '+(l.titre||'')+'</span></div>';
-if(l.amende_min||l.amende_max)h+='<div style="font-size:11px;color:#ca8a04;margin-top:3px;">Amende: '+(l.amende_min||'?')+' - '+(l.amende_max||'?')+'$</div>';
-if(l.points_min||l.points_max)h+='<div style="font-size:11px;color:#ea580c;">Points: '+(l.points_min||'?')+' - '+(l.points_max||'?')+'</div>';
-if(l.texte)h+='<div style="font-size:11px;color:#64748b;margin-top:4px;">'+l.texte.substring(0,300)+(l.texte.length>300?'...':'')+'</div>';
-h+='</div>';});
-h+='</div>';
-}
-// Stats similaires
-if(d.stats_similaires&&Object.keys(d.stats_similaires).length>0){
-h+='<div style="background:#faf5ff;border:1px solid #d8b4fe;border-radius:10px;padding:14px;margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#7c3aed;font-weight:700;margin-bottom:8px;">STATS CAS SIMILAIRES</div>';
-Object.entries(d.stats_similaires).forEach(([art,stats])=>{
-h+='<div style="margin-bottom:6px;"><strong style="color:#1e293b;">Art. '+art+'</strong>: ';
-const total=Object.values(stats).reduce((a,b)=>a+b,0);
-Object.entries(stats).forEach(([res,cnt])=>{
-h+='<span style="color:'+(rc[res]||'#64748b')+';font-weight:600;">'+res+': '+cnt+'</span> ';});
-const wins=(stats.acquitte||0)+(stats.reduit||0);
-const pct=total>0?Math.round(wins*100/total):0;
-h+='<span style="color:#0891b2;margin-left:6px;font-weight:600;">('+ pct+'% succes sur '+total+' cas)</span>';
-h+='</div>';});
-h+='</div>';
-}
-// Mots cles
-if(d.mots_cles&&d.mots_cles.length>0){
-h+='<div style="margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:4px;">MOTS-CLES</div>';
-d.mots_cles.forEach(k=>{h+='<span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:10px;color:#64748b;margin:2px;font-weight:600;">'+k+'</span>';});
-h+='</div>';
-}
-// Resume
-if(d.resume){
-h+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#0891b2;font-weight:700;margin-bottom:6px;">RESUME</div>';
-h+='<div style="font-size:12px;line-height:1.7;color:#334155;white-space:pre-wrap;">'+d.resume.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
-h+='</div>';
-}
-// Texte complet
-if(d.texte_complet){
-h+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px;">';
-h+='<div style="font-size:11px;color:#ea580c;font-weight:700;margin-bottom:6px;">TEXTE COMPLET ('+d.texte_length+' chars'+(d.texte_length>15000?' — tronque a 15000':'')+')</div>';
-h+='<div style="font-size:11px;line-height:1.6;color:#64748b;white-space:pre-wrap;max-height:500px;overflow-y:auto;">'+d.texte_complet.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
-h+='</div>';
-}
-// Footer
-h+='<div style="font-size:10px;color:#94a3b8;padding-top:10px;border-top:1px solid #e2e8f0;">ID: '+d.id+' | CanLII: '+(d.canlii_id||'?')+' | Source: '+(d.source||'?')+' | Import: '+(d.imported_at||'?')+'</div>';
-document.getElementById('jurisModalBody').innerHTML=h;
-}).catch(e=>{document.getElementById('jurisModalBody').innerHTML='<div style="color:#dc2626;padding:20px;">Erreur: '+e.message+'</div>';});
-}
+
 function closeJurisModal(){document.getElementById('jurisModal').style.display='none';}
 document.getElementById('jurisModal').addEventListener('click',function(e){if(e.target===this)closeJurisModal();});
 
-loadData();setInterval(loadData,30000);
+/* ===== INIT ===== */
+loadData();
+setInterval(loadData, 30000);
 </script>
-
-<!-- Modal detail jurisprudence -->
-<div id="jurisModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;padding:20px;">
-<div style="max-width:900px;margin:20px auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:0;box-shadow:0 25px 50px rgba(0,0,0,.15);">
-<div id="jurisModalHeader" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#ffffff;border-radius:14px 14px 0 0;z-index:1;">
-<span id="jurisModalTitle" style="font-weight:900;font-size:16px;color:#1e293b;"></span>
-<button onclick="closeJurisModal()" style="background:#dc2626;color:white;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700;transition:all .2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">Fermer</button>
-</div>
-<div id="jurisModalBody" style="padding:20px;font-size:13px;color:#334155;">Chargement...</div>
-</div>
-</div>
 </body>
 </html>
