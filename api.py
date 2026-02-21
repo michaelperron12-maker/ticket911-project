@@ -255,17 +255,19 @@ def analyze():
                 for phase, agents in rapport.get("phases", {}).items()
             },
             "analyse": analyse_data,
-            "rapport_client": rapport.get("phases", {}).get("livraison", {}).get("rapport_client"),
-            "procedure": rapport.get("phases", {}).get("analyse", {}).get("procedure"),
-            "points": rapport.get("phases", {}).get("analyse", {}).get("points"),
-            "supervision": rapport.get("phases", {}).get("livraison", {}).get("supervision"),
-            "precedents_trouves": rapport.get("phases", {}).get("analyse", {}).get("precedents", {}).get("nb", 0) if isinstance(rapport.get("phases", {}).get("analyse", {}).get("precedents"), dict) else 0,
-            "lois_trouvees": rapport.get("phases", {}).get("analyse", {}).get("lois", {}).get("nb", 0) if isinstance(rapport.get("phases", {}).get("analyse", {}).get("lois"), dict) else 0,
+            "rapport_client": (rapport.get("phases", {}).get("livraison") or {}).get("rapport_client"),
+            "procedure": (rapport.get("phases", {}).get("analyse") or {}).get("procedure"),
+            "points": (rapport.get("phases", {}).get("analyse") or {}).get("points"),
+            "supervision": (rapport.get("phases", {}).get("livraison") or {}).get("supervision"),
+            "precedents_trouves": ((rapport.get("phases", {}).get("analyse") or {}).get("precedents") or {}).get("nb", 0) if isinstance((rapport.get("phases", {}).get("analyse") or {}).get("precedents"), dict) else 0,
+            "lois_trouvees": ((rapport.get("phases", {}).get("analyse") or {}).get("lois") or {}).get("nb", 0) if isinstance((rapport.get("phases", {}).get("analyse") or {}).get("lois"), dict) else 0,
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:
-        conn.close()
-
+        try:
+            conn.close()
+        except Exception:
+            pass
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -614,6 +616,10 @@ def health():
         return jsonify({"status": "error", "error": str(e)}), 500
 
 
+@app.route("/api/status")
+def status():
+    return health()
+
 @app.route("/api/stats")
 def stats():
     try:
@@ -629,7 +635,6 @@ def stats():
         nb_lois = cur.fetchone()[0]
         cur.execute("SELECT COUNT(*) FROM analyses_completes")
         nb_analyses = cur.fetchone()[0]
-        conn.close()
         conn.close()
 
         return jsonify({
@@ -1634,19 +1639,121 @@ def monitor():
 
         # Alertes
         alertes = []
+        anomalies = []
+
+        # --- Embeddings ---
         if nb_no_embed > 100:
             alertes.append({"level": "warning", "msg": f"{nb_no_embed} dossiers sans embedding ({embed_pct}% complete)"})
+        elif nb_embedded == nb_juris_total and nb_juris_total > 0:
+            alertes.append({"level": "info", "msg": f"Embeddings 100% complets ({nb_embedded} dossiers)"})
+
+        # --- Jurisprudence ---
         if nb_juris_total < 500:
             alertes.append({"level": "warning", "msg": f"Jurisprudence faible: {nb_juris_total} dossiers"})
+
+        # --- CanLII quota ---
         remaining = canlii_quota.get("remaining", 5000)
         if isinstance(remaining, int) and remaining <= 0:
             alertes.append({"level": "warning", "msg": "Quota CanLII epuise pour aujourd'hui"})
-        if isinstance(remaining, int) and remaining <= 500 and remaining > 0:
+        elif isinstance(remaining, int) and remaining <= 500 and remaining > 0:
             alertes.append({"level": "info", "msg": f"Quota CanLII bas: {remaining} restant"})
+
+        # --- Analyses ---
         if analyses_stats["total"] == 0:
             alertes.append({"level": "info", "msg": "Aucune analyse effectuee encore"})
-        if nb_embedded == nb_juris_total and nb_juris_total > 0:
-            alertes.append({"level": "info", "msg": f"Embeddings 100% complets ({nb_embedded} dossiers)"})
+
+        # --- ANOMALIES: Agents en echec ---
+        try:
+            cur.execute("""
+                SELECT agent_name, COUNT(*) as total,
+                       SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as fails
+                FROM agent_runs GROUP BY agent_name HAVING COUNT(*) >= 10
+            """)
+            for row in cur.fetchall():
+                agent_name, total, fails = row[0], row[1], row[2] or 0
+                fail_pct = round(fails / total * 100, 1) if total > 0 else 0
+                if fail_pct >= 30:
+                    anomalies.append({"level": "critical", "category": "agent",
+                        "msg": f"Agent {agent_name}: {fail_pct}% echecs ({fails}/{total} runs)"})
+                elif fail_pct >= 10:
+                    anomalies.append({"level": "warning", "category": "agent",
+                        "msg": f"Agent {agent_name}: {fail_pct}% echecs ({fails}/{total} runs)"})
+        except Exception:
+            cur.connection.rollback()
+
+        # --- ANOMALIES: Qualite donnees ---
+        for col, label, seuil in [("resume", "Resume", 80), ("resultat", "Resultat", 85),
+                                   ("titre", "Titre", 95), ("date_decision", "Date", 90)]:
+            try:
+                cur.execute(f"SELECT count(*) FROM jurisprudence WHERE {col} IS NULL OR {col}::text = ''")
+                nc = cur.fetchone()[0]
+                pct_filled = round((1 - nc / nb_juris_total) * 100, 1) if nb_juris_total > 0 else 0
+                if pct_filled < seuil:
+                    anomalies.append({"level": "warning", "category": "data_quality",
+                        "msg": f"{label}: {pct_filled}% rempli ({nc} vides sur {nb_juris_total})"})
+            except Exception:
+                cur.connection.rollback()
+
+        # --- ANOMALIES: Systeme (swap, disque) ---
+        try:
+            with open("/proc/meminfo") as f:
+                mem = {}
+                for line in f:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        mem[parts[0].rstrip(":")] = int(parts[1])
+            swap_total = mem.get("SwapTotal", 0)
+            swap_free = mem.get("SwapFree", 0)
+            if swap_total > 0:
+                swap_pct = round((swap_total - swap_free) / swap_total * 100, 1)
+                if swap_pct >= 70:
+                    anomalies.append({"level": "warning", "category": "system",
+                        "msg": f"Swap utilise a {swap_pct}% ({round((swap_total - swap_free) / 1024 / 1024, 1)} Go / {round(swap_total / 1024 / 1024, 1)} Go)"})
+        except Exception:
+            pass
+
+        try:
+            import shutil
+            total_d, used_d, _ = shutil.disk_usage("/")
+            disk_pct = round(used_d / total_d * 100, 1)
+            if disk_pct >= 80:
+                anomalies.append({"level": "critical", "category": "system",
+                    "msg": f"Disque a {disk_pct}% ({round(used_d / (1024**3), 1)} / {round(total_d / (1024**3), 1)} Go)"})
+            elif disk_pct >= 70:
+                anomalies.append({"level": "warning", "category": "system",
+                    "msg": f"Disque a {disk_pct}% ({round(used_d / (1024**3), 1)} / {round(total_d / (1024**3), 1)} Go)"})
+        except Exception:
+            pass
+
+        # --- ANOMALIES: Aucun utilisateur reel ---
+        try:
+            cur.execute("SELECT count(*) FROM tickets_scannes_meta")
+            nb_scans = cur.fetchone()[0]
+            cur.execute("SELECT count(*) FROM user_analyses")
+            nb_user_analyses = cur.fetchone()[0]
+            if nb_scans == 0 and nb_user_analyses == 0:
+                anomalies.append({"level": "info", "category": "usage",
+                    "msg": "0 ticket scanne par utilisateur — aucune utilisation reelle"})
+        except Exception:
+            cur.connection.rollback()
+
+        # --- ANOMALIES: Indexes doublons ---
+        try:
+            cur.execute("""SELECT indexname FROM pg_indexes
+                          WHERE tablename='jurisprudence'
+                          AND (indexname LIKE 'idx_juris_tsv%%' OR indexname LIKE 'idx_jurisprudence_tsv%%')
+                          ORDER BY indexname""")
+            idx_names = [r[0] for r in cur.fetchall()]
+            tsv_fr_count = sum(1 for n in idx_names if 'tsv_fr' in n)
+            tsv_en_count = sum(1 for n in idx_names if 'tsv_en' in n)
+            if tsv_fr_count > 1:
+                anomalies.append({"level": "info", "category": "db",
+                    "msg": f"Index tsv_fr en doublon ({tsv_fr_count} indexes)"})
+            if tsv_en_count > 1:
+                anomalies.append({"level": "info", "category": "db",
+                    "msg": f"Index tsv_en en doublon ({tsv_en_count} indexes)"})
+        except Exception:
+            cur.connection.rollback()
 
         # conn.close() moved after helper calls below
 
@@ -1694,6 +1801,7 @@ def monitor():
             "last_import_log": last_import[-800:] if isinstance(last_import, str) else last_import,
             "last_embed_log": last_embed_log[-500:] if isinstance(last_embed_log, str) else last_embed_log,
             "alertes": alertes,
+            "anomalies": anomalies,
             "cron": _monitor_cron(),
             "services": services_data,
             "sources": sources_data,
@@ -1743,11 +1851,11 @@ def test_search():
             cur.execute("""
                 SELECT id, canlii_id, citation, titre, tribunal, database_id,
                        date_decision, resultat, LEFT(resume, 200) as resume,
-                       ts_rank(tsv_fr, to_tsquery('french', %s)) AS score,
+                       ts_rank(tsv_fr, to_tsquery('french_unaccent', %s)) AS score,
                        'tsvector' AS methode
                 FROM jurisprudence
                 WHERE est_ticket_related = true
-                  AND tsv_fr @@ to_tsquery('french', %s)
+                  AND tsv_fr @@ to_tsquery('french_unaccent', %s)
                 ORDER BY score DESC
                 LIMIT %s
             """, (tsquery, tsquery, limit))
@@ -2860,6 +2968,51 @@ def page_register():
 @app.route("/dashboard")
 def page_dashboard():
     return send_file("templates/dashboard_client.html")
+
+
+
+# ================================================================
+# HYBRID SEARCH RRF — Reciprocal Rank Fusion (FTS + pgvector)
+# ================================================================
+
+@app.route("/api/hybrid-search")
+def api_hybrid_search_rrf():
+    """
+    Recherche hybride RRF: combine FTS tsvector + pgvector semantic.
+    Params: q (required), limit (default 20, max 50), province (QC/ON), ticket_only (default true)
+    Retourne resultats fusionnes avec score RRF + stats de provenance.
+    """
+    query = request.args.get("q", "").strip()
+    limit = min(int(request.args.get("limit", "20")), 50)
+    province = request.args.get("province", None)
+    ticket_only = request.args.get("ticket_only", "true").lower() != "false"
+
+    if not query or len(query) < 2:
+        return jsonify({"error": "Parametre q requis (min 2 chars)"}), 400
+
+    try:
+        from embedding_service import embedding_service as es
+        result = es.hybrid_search_rrf(
+            query=query,
+            top_k=limit,
+            province=province,
+            ticket_only=ticket_only
+        )
+
+        return jsonify({
+            "query": query,
+            "province": province,
+            "ticket_only": ticket_only,
+            "count": result["stats"]["total"],
+            "time_ms": result["stats"]["time_ms"],
+            "fusion": "RRF (k=60)",
+            "stats": result["stats"],
+            "results": result["results"],
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()[-500:]}), 500
+
 
 if __name__ == "__main__":
     print("FightMyTicket API v2 — 27 agents — http://0.0.0.0:8912")
